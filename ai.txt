@@ -1,12 +1,12 @@
 # ai.txt — AI Training Opt-Out
 # https://site.spawning.ai/spawning-ai-txt
-# https://github.com/nichochar/ai.txt
 
 User-Agent: *
-Disallow: /
+Disallow: /pages/
 
-# This site contains personal information.
-# No content from this site may be used for AI/ML model training,
+# /pages/ contains personal project documentation.
+# No content from /pages/ may be used for AI/ML model training,
 # fine-tuning, embeddings, RAG, or any form of automated data collection.
 #
-# Contact: zosia@openclaw.ai
+# The homepage (/) is public.
+# Contact: hi@zosia.cc

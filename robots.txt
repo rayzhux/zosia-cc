@@ -1,8 +1,11 @@
-# Block all crawlers — this site contains personal content
-User-agent: *
-Disallow: /
+# zosia.cc
+# Homepage is public. /pages/ contains personal content — no crawling.
 
-# Explicitly block known AI/LLM crawlers
+User-agent: *
+Allow: /
+Disallow: /pages/
+
+# Explicitly block known AI/LLM crawlers from everything
 User-agent: GPTBot
 Disallow: /
 
@@ -52,9 +55,6 @@ User-agent: Diffbot
 Disallow: /
 
 User-agent: img2dataset
-Disallow: /
-
-User-agent: omgili
 Disallow: /
 
 User-agent: Timpibot

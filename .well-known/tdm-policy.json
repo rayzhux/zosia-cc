@@ -8,7 +8,7 @@
         "itemListElement": [
           {
             "@type": "WebPage",
-            "url": "https://zosia-pages.vercel.app/*"
+            "url": "https://zosia.cc/pages/*"
           }
         ]
       },
@@ -17,7 +17,7 @@
           "@type": "TDMPermission",
           "tdm-reservation": 1,
           "tdm-permission": "none",
-          "description": "No text or data mining, AI training, or automated extraction permitted. This site contains personal information."
+          "description": "No text or data mining, AI training, or automated extraction permitted on /pages/. This section contains personal information."
         }
       ]
     }
