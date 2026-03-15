@@ -229,9 +229,49 @@ function injectIntoIndex(pages, categories) {
   return pages.length;
 }
 
+// Analytics snippet for plain HTML sites (Vercel doesn't auto-inject for non-framework projects)
+const ANALYTICS_SNIPPET = `  <!-- Vercel Web Analytics -->
+  <script>
+    window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+  </script>
+  <script defer src="/_vercel/insights/script.js"></script>
+  <!-- Vercel Speed Insights -->
+  <script>
+    window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
+  </script>
+  <script defer src="/_vercel/speed-insights/script.js"></script>
+`;
+
+function injectAnalytics() {
+  let injected = 0;
+  // Inject into all page index.html files
+  for (const entry of fs.readdirSync(ROOT, { withFileTypes: true })) {
+    if (!entry.isDirectory() || SKIP.has(entry.name)) continue;
+    const pageIndex = path.join(ROOT, entry.name, 'index.html');
+    if (!fs.existsSync(pageIndex)) continue;
+    let html = fs.readFileSync(pageIndex, 'utf-8');
+    if (html.includes('vercel/insights')) continue;
+    if (html.includes('</head>')) {
+      html = html.replace('</head>', ANALYTICS_SNIPPET + '</head>');
+      fs.writeFileSync(pageIndex, html, 'utf-8');
+      injected++;
+    }
+  }
+  // Also inject into pages/index.html itself
+  let indexHtml = fs.readFileSync(INDEX_PATH, 'utf-8');
+  if (!indexHtml.includes('vercel/insights') && indexHtml.includes('</head>')) {
+    indexHtml = indexHtml.replace('</head>', ANALYTICS_SNIPPET + '</head>');
+    fs.writeFileSync(INDEX_PATH, indexHtml, 'utf-8');
+    injected++;
+  }
+  return injected;
+}
+
 // Main
 const pages = discoverPages();
 const categories = discoverCategories(pages);
 const count = injectIntoIndex(pages, categories);
+const analyticsCount = injectAnalytics();
 console.log(`✅ Built index with ${count} pages across ${Object.keys(categories).length} categories`);
+if (analyticsCount > 0) console.log(`📊 Injected analytics into ${analyticsCount} files missing it`);
 pages.forEach(p => console.log(`   ${p.slug} → ${p.cat} (${p.created})`));
