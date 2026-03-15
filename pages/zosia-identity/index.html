@@ -1,0 +1,1242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+<title>Zosia Identity v2 — Full Platform Access Research</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --font-body: 'DM Sans', system-ui, sans-serif;
+    --font-mono: 'Fira Code', 'SF Mono', Consolas, monospace;
+    --bg: #0f1117;
+    --surface: #181b24;
+    --surface2: #1e222d;
+    --surface3: #252a36;
+    --border: rgba(255,255,255,0.06);
+    --border-bright: rgba(255,255,255,0.12);
+    --text: #e8e4dd;
+    --text-dim: #7a7874;
+    --accent: #d4a73a;
+    --accent-dim: rgba(212,167,58,0.1);
+    --blue: #4a9edd;
+    --blue-dim: rgba(74,158,221,0.1);
+    --green: #4aad6f;
+    --green-dim: rgba(74,173,111,0.1);
+    --red: #d45a5a;
+    --red-dim: rgba(212,90,90,0.1);
+    --orange: #d49a4a;
+    --orange-dim: rgba(212,154,74,0.1);
+    --teal: #4aadad;
+    --teal-dim: rgba(74,173,173,0.1);
+    --rose: #d46a8a;
+    --rose-dim: rgba(212,106,138,0.1);
+    --purple: #9a7ad4;
+    --purple-dim: rgba(154,122,212,0.1);
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #f8f6f2;
+      --surface: #ffffff;
+      --surface2: #f2efe9;
+      --surface3: #eae6df;
+      --border: rgba(0,0,0,0.07);
+      --border-bright: rgba(0,0,0,0.14);
+      --text: #1a1714;
+      --text-dim: #8a8279;
+      --accent: #9a7020;
+      --accent-dim: rgba(154,112,32,0.08);
+      --blue: #2a7aba;
+      --blue-dim: rgba(42,122,186,0.08);
+      --green: #2a8a4f;
+      --green-dim: rgba(42,138,79,0.08);
+      --red: #ba3a3a;
+      --red-dim: rgba(186,58,58,0.08);
+      --orange: #ba7a2a;
+      --orange-dim: rgba(186,122,42,0.08);
+      --teal: #1a7a7a;
+      --teal-dim: rgba(26,122,122,0.08);
+      --rose: #ba4a6a;
+      --rose-dim: rgba(186,74,106,0.08);
+      --purple: #7a5aba;
+      --purple-dim: rgba(122,90,186,0.08);
+    }
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--font-body);
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* Nav */
+  .nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0.75rem 1.5rem;
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    backdrop-filter: blur(12px);
+  }
+  .nav a {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    text-decoration: none;
+    padding: 0.35rem 0.7rem;
+    border-radius: 6px;
+    white-space: nowrap;
+    transition: all 0.15s;
+  }
+  .nav a:hover { background: var(--surface2); color: var(--text); }
+  .nav a.highlight { background: var(--accent-dim); color: var(--accent); font-weight: 600; }
+
+  /* Hero */
+  .hero {
+    padding: 4rem 2rem 3rem;
+    text-align: center;
+    background: radial-gradient(ellipse at 50% 0%, var(--accent-dim) 0%, transparent 70%);
+  }
+  .hero h1 {
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    margin-bottom: 0.5rem;
+  }
+  .hero h1 span { color: var(--accent); }
+  .hero .subtitle {
+    font-size: 1rem;
+    color: var(--text-dim);
+    max-width: 650px;
+    margin: 0 auto 2rem;
+  }
+  .hero-stats {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+  }
+  .hero-stat {
+    text-align: center;
+  }
+  .hero-stat .num {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: var(--accent);
+    display: block;
+    line-height: 1;
+  }
+  .hero-stat .label {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  /* Container */
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.5rem 4rem;
+  }
+
+  /* Section headers */
+  .section-heading {
+    margin: 3rem 0 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-heading h2 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  .section-heading .desc {
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    margin-top: 0.25rem;
+  }
+
+  /* Platform cards */
+  .platforms {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    animation: fadeUp 0.4s ease both;
+  }
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1.25rem 1.5rem 0;
+  }
+  .card-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+  }
+  .card-name {
+    font-size: 1.15rem;
+    font-weight: 700;
+  }
+  .card-cap {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    color: var(--text-dim);
+  }
+
+  .card-body {
+    padding: 1rem 1.5rem 1.25rem;
+  }
+
+  /* Tools grid inside card */
+  .tools-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+  }
+  .tool {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.8rem 1rem;
+  }
+  .tool-name {
+    font-weight: 600;
+    font-size: 0.88rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.25rem;
+  }
+  .tool-desc {
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    line-height: 1.5;
+  }
+  .tool-meta {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    color: var(--text-dim);
+    margin-top: 0.4rem;
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  /* Badges */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    padding: 0.15rem 0.45rem;
+    border-radius: 4px;
+    font-weight: 600;
+    vertical-align: middle;
+    gap: 0.2rem;
+  }
+  .b-best { background: var(--green-dim); color: var(--green); }
+  .b-good { background: var(--blue-dim); color: var(--blue); }
+  .b-alt { background: var(--orange-dim); color: var(--orange); }
+  .b-have { background: var(--teal-dim); color: var(--teal); }
+  .b-hard { background: var(--red-dim); color: var(--red); }
+  .b-star { background: var(--accent-dim); color: var(--accent); }
+  .b-suite { background: var(--purple-dim); color: var(--purple); }
+  .b-new { background: var(--rose-dim); color: var(--rose); }
+
+  /* Recommendation */
+  .reco {
+    background: var(--accent-dim);
+    border-left: 3px solid var(--accent);
+    padding: 0.8rem 1.2rem;
+    border-radius: 0 6px 6px 0;
+    margin-top: 0.75rem;
+    font-size: 0.85rem;
+  }
+  .reco strong { color: var(--accent); }
+  .reco code {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    background: var(--surface3);
+    padding: 0.1rem 0.35rem;
+    border-radius: 3px;
+  }
+
+  /* Difficulty */
+  .diff {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    margin-top: 0.5rem;
+  }
+  .diff-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--border-bright);
+  }
+  .diff-dot.on { background: var(--accent); }
+  .diff-label {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    color: var(--text-dim);
+    margin-left: 0.4rem;
+  }
+
+  /* Multi-platform highlight box */
+  .highlight-box {
+    background: linear-gradient(135deg, var(--purple-dim), var(--blue-dim));
+    border: 1px solid var(--purple);
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-top: 1rem;
+  }
+  .highlight-box h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+  .highlight-box .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+  }
+  .highlight-box .item {
+    background: var(--surface);
+    border-radius: 6px;
+    padding: 0.6rem 0.8rem;
+    font-size: 0.82rem;
+  }
+  .highlight-box .item strong {
+    display: block;
+    margin-bottom: 0.15rem;
+  }
+  .highlight-box .item .sub {
+    font-size: 0.72rem;
+    color: var(--text-dim);
+  }
+
+  /* Master Summary Table */
+  .table-wrap {
+    overflow-x: auto;
+    margin-top: 1rem;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+  }
+  th {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-dim);
+    text-align: left;
+    padding: 0.75rem 0.8rem;
+    border-bottom: 2px solid var(--border-bright);
+    background: var(--surface);
+    position: sticky;
+    top: 0;
+    white-space: nowrap;
+  }
+  td {
+    padding: 0.65rem 0.8rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  tr:nth-child(even) td { background: var(--surface2); }
+  td:first-child { font-weight: 600; white-space: nowrap; }
+
+  /* Color icons */
+  .ic-discord { background: #5865F2; color: white; }
+  .ic-email { background: #1e3a5f; color: white; }
+  .ic-github { background: #f0f0f0; color: #24292e; }
+  .ic-twitter { background: #1a1a1a; color: white; }
+  .ic-xhs { background: #fe2c55; color: white; }
+  .ic-telegram { background: #26A5E4; color: white; }
+  .ic-linkedin { background: #0A66C2; color: white; }
+  .ic-reddit { background: #FF4500; color: white; }
+  .ic-youtube { background: #FF0000; color: white; }
+  .ic-bilibili { background: #00A1D6; color: white; }
+  .ic-weibo { background: #DF2029; color: white; }
+  .ic-instagram { background: linear-gradient(135deg, #833AB4, #FD1D1D, #FCAF45); color: white; }
+  .ic-slack { background: #4A154B; color: white; }
+  .ic-notion { background: #000000; color: white; }
+  .ic-whatsapp { background: #25D366; color: white; }
+  .ic-douyin { background: #1a1a2e; color: white; }
+  .ic-wechat { background: #07C160; color: white; }
+  .ic-multi { background: linear-gradient(135deg, var(--teal), var(--purple)); color: white; }
+  @media (prefers-color-scheme: light) {
+    .ic-github { background: #24292e; color: white; }
+    .ic-twitter { background: #1a1a1a; color: white; }
+    .ic-notion { background: #000000; color: white; }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @media (prefers-reduced-motion: reduce) { .card, .highlight-box { animation: none; } }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="#core" class="highlight">Core Identity</a>
+  <a href="#social">Social Media</a>
+  <a href="#chinese">Chinese Platforms</a>
+  <a href="#productivity">Productivity</a>
+  <a href="#multi">Multi-Platform</a>
+  <a href="#summary">Master Summary</a>
+  <a href="#roadmap">Roadmap</a>
+</nav>
+
+<div class="hero">
+  <h1>🪞 <span>Zosia</span> Identity — Full Research</h1>
+  <p class="subtitle">Every platform, every tool option. CLI, MCP, Skills, and GitHub projects. Updated with jackwener suite + expanded platform coverage.</p>
+  <div class="hero-stats">
+    <div class="hero-stat"><span class="num">17</span><span class="label">Platforms</span></div>
+    <div class="hero-stat"><span class="num">40+</span><span class="label">Tools Evaluated</span></div>
+    <div class="hero-stat"><span class="num">3</span><span class="label">Multi-Platform Kits</span></div>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- ============================================ -->
+<!-- CORE IDENTITY -->
+<!-- ============================================ -->
+<div class="section-heading" id="core">
+  <h2>🔑 Core Identity Platforms</h2>
+  <div class="desc">The foundation — these create your digital identity and unlock everything else.</div>
+</div>
+
+<div class="platforms">
+
+<!-- EMAIL -->
+<div class="card" style="animation-delay:0.05s">
+  <div class="card-header">
+    <div class="card-icon ic-email">✉️</div>
+    <div><div class="card-name">Email (Google Workspace)</div><div class="card-cap">Send · Receive · Search · Calendar · Drive</div></div>
+  </div>
+  <div class="card-body">
+    <div class="tools-grid">
+      <div class="tool">
+        <div class="tool-name">gog CLI <span class="badge b-best">★ BEST</span> <span class="badge b-have">ALREADY HAVE</span></div>
+        <div class="tool-desc">Already installed on the Mac. Full Gmail + Calendar + Drive + Contacts + Sheets + Docs. Just needs a second profile for Zosia's account.</div>
+        <div class="tool-meta"><span>CLI</span><span>Multi-profile</span></div>
+      </div>
+      <div class="tool">
+        <div class="tool-name">Gmail MCP Server <span class="badge b-alt">1053★</span></div>
+        <div class="tool-desc">GongRzhe/Gmail-MCP-Server. OAuth auto-auth, thread search, style learning, drafting. Archived but functional.</div>
+        <div class="tool-meta"><span>MCP</span><span>Archived</span></div>
+      </div>
+      <div class="tool">
+        <div class="tool-name">PaulFidika/gmail-mcp <span class="badge b-good">ALT</span></div>
+        <div class="tool-desc">Active Gmail MCP. Thread search + writing style analysis + drafting. More AI-native.</div>
+        <div class="tool-meta"><span>MCP</span><span>Active</span></div>
+      </div>
+    </div>
+    <div class="reco">
+      <strong>→ Pick:</strong> Create Google account → configure <code>gog</code> with second profile. Zero new dependencies. Unlocks Gmail + Calendar + Drive + Docs in one shot.
+    </div>
+    <div class="diff">
+      <div class="diff-dot on"></div><div class="diff-dot"></div><div class="diff-dot"></div><div class="diff-dot"></div><div class="diff-dot"></div>
+      <span class="diff-label">Trivial — 15 min</span>
+    </div>
+  </div>
+</div>
+
+<!-- DISCORD -->
+<div class="card" style="animation-delay:0.08s">
+  <div class="card-header">
+    <div class="card-icon ic-discord">💬</div>
+    <div><div class="card-name">Discord</div><div class="card-cap">Read · Write · Search · Manage · Sync</div></div>
+  </div>
+  <div class="card-body">
+    <div class="tools-grid">
+      <div class="tool">
+        <div class="tool-name">OpenClaw Native Bot <span class="badge b-have">ALREADY HAVE</span></div>
+        <div class="tool-desc">Current setup — sends messages but can't proactively browse channels or search history.</div>
+        <div class="tool-meta"><span>Native</span><span>Send only</span></div>
+      </div>
+      <div class="tool">
+        <div class="tool-name">tristan-kkim/discord-mcp <span class="badge b-best">★ BEST READ</span></div>
+        <div class="tool-desc">Full Discord MCP: read messages, manage channels, roles, permissions. Redis caching, rate limiting. The missing "browse" capability.</div>
+        <div class="tool-meta"><span>MCP</span><span>Bot token</span></div>
+      </div>
+      <div class="tool">
+        <div class="tool-name">jackwener/discord-cli <span class="badge b-suite">JACKWENER</span></div>
+        <div class="tool-desc">Local-first Discord: sync messages to SQLite, search, export, AI analysis. Telethon-style. Structured YAML/JSON output. Claude-powered analyze.</div>
+        <div class="tool-meta"><span>CLI</span><span>PyPI: kabi-discord-cli</span><span>User token ⚠️</span></div>
+      </div>
+      <div class="tool">
+        <div class="tool-name">v-3/discordmcp <span class="badge b-alt">186★</span></div>
+        <div class="tool-desc">Simpler MCP — read/send messages + channel discovery. Claude focused.</div>
+        <div class="tool-meta"><span>MCP</span><span>Bot token</span></div>
+      </div>
+    </div>
+    <div class="reco">
+      <strong>→ Pick:</strong> New "Zosia" bot app → OpenClaw <code>accountId</code> (sending) + <code>discord-mcp</code> via mcporter (browsing). <strong>jackwener/discord-cli</strong> is a power add-on for local search/analytics/export but uses user tokens (risk of account suspension).
+    </div>
+    <div class="diff">
+      <div class="diff-dot on"></div><div class="diff-dot on"></div><div class="diff-dot"></div><div class="diff-dot"></div><div class="diff-dot"></div>
+      <span class="diff-label">Easy — 30 min</span>
+    </div>
+  </div>
+</div>
+
+<!-- GITHUB -->
+<div class="card" style="animation-delay:0.11s">
+  <div class="card-header">
+    <div class="card-icon ic-github">🐙</div>
+    <div><div class="card-name">GitHub</div><div class="card-cap">Repos · PRs · Issues · Code Review · Actions</div></div>
+  </div>
+  <div class="card-body">
+    <div class="tools-grid">
+      <div class="tool">
+        <div class="tool-name">GitHub Official MCP <span class="badge b-best">★ BEST</span> <span class="badge b-star">27.7K★</span></div>
+        <div class="tool-desc">github/github-mcp-server — GitHub's own. Full API: repos, issues, PRs, code search, workflows, actions. OAuth 2.1 + PKCE. Remote hosted option.</div>
+        <div class="tool-meta"><span>MCP</span><span>v0.32 · 55 releases</span></div>
+      </div>
+      <div class="tool">
+        <div class="tool-name">gh CLI <span class="badge b-have">ALREADY HAVE</span></div>
+        <div class="tool-desc">Already installed. Just needs <code>gh auth login</code> with Zosia's account. Full capability.</div>
+        <div class="tool-meta"><span>CLI</span><span>Official</span></div>
+      </div>
+    </div>
+    <div class="reco">
+      <strong>→ Pick:</strong> Create GitHub account → <code>gh auth login</code>. Optionally add the official MCP via mcporter for richer integration. The most mature MCP server in existence.
+    </div>
+    <div class="diff">
+      <div class="diff-dot on"></div><div class="diff-dot on"></div><div class="diff-dot"></div><div class="diff-dot"></div><div class="diff-dot"></div>
+      <span class="diff-label">Easy — 20 min</span>
+    </div>
+  </div>
+</div>
+
+</div><!-- /platforms -->
+
+<!-- ============================================ -->
+<!-- SOCIAL MEDIA -->
+<!-- ============================================ -->
+<div class="section-heading" id="social">
+  <h2>📱 Global Social Media</h2>
+  <div class="desc">Public-facing platforms for reading, posting, and engaging.</div>
+</div>
+
+<div class="platforms">
+
+<!-- TWITTER -->
+<div class="card" style="animation-delay:0.05s">
+  <div class="card-header">
+    <div class="card-icon ic-twitter">𝕏</div>
+    <div><div class="card-name">X / Twitter</div><div class="card-cap">Read · Search · Post · Like · Retweet · Bookmark</div></div>
+  </div>
+  <div class="card-body">
+    <div class="tools-grid">
+      <div class="tool">
+        <div class="tool-name">jackwener/twitter-cli <span class="badge b-best">★ BEST</span> <span class="badge b-star">1.2K★</span></div>
+        <div class="tool-desc">Full CLI: timeline, bookmarks, search, user lookup, post, delete, like, retweet, bookmark. Cookie auth + TLS fingerprint impersonation. Anti-detection. YAML/JSON output.</div>
+        <div class="tool-meta"><span>CLI</span><span><code>uv tool install twitter-cli</code></span><span>Cookie auth</span></div>
+      </div>
+      <div class="tool">
+        <div class="tool-name">xbird <span class="badge b-good">GOOD</span></div>
+        <div class="tool-desc">35 MCP tools. No API keys — auto-detects browser session. Pay per call from $0.001. Read, search, post, like, retweet, follow.</div>
+        <div class="tool-meta"><span>MCP</span><span><code>bunx @checkra1n/xbird</code></span><span>$0.001/call</span></div>
+      </div>
+      <div class="tool">
+        <div class="tool-name">XAgent <span class="badge b-alt">51 TOOLS</span></div>
+        <div class="tool-desc">getxagent.com — 51 tools, self-healing errors. API key required (free tier exists). Stdio + HTTP.</div>
+        <div class="tool-meta"><span>MCP</span><span>API key</span></div>
+      </div>
+      <div class="tool">
+        <div class="tool-name">grok-x model <span class="badge b-have">ALREADY HAVE</span></div>
+        <div class="tool-desc">Current setup — X search via Grok model. Read only, no posting.</div>
+        <div class="tool-meta"><span>Model</span><span>Search only</span></div>
+      </div>
+    </div>
+    <div class="reco">
+      <strong>→ Pick:</strong> <code>twitter-cli</code> — same developer as xiaohongshu-cli. Consistent interface, structured output, no API fees. Create X account → browser login → cookie auto-extracted. Keep <code>grok-x</code> as supplementary search.
+    </div>
+    <div class="diff">
+      <div class="diff-dot on"></div><div class="diff-dot on"></div><div class="diff-dot on"></div><div class="diff-dot"></div><div class="diff-dot"></div>
+      <span class="diff-label">Medium — account + browser session</span>
+    </div>
+  </div>
+</div>
+
+<!-- LINKEDIN -->
+<div class="card" style="animation-delay:0.08s">
+  <div class="card-header">
+    <div class="card-icon ic-linkedin">in</div>
+    <div><div class="card-name">LinkedIn</div><div class="card-cap">Profile · Posts · Connections · Jobs · Skills</div></div>
+  </div>
+  <div class="card-body">
+    <div class="tools-grid">
+      <div class="tool">
+        <div class="tool-name">@pegasusheavy/linkedin-mcp <span class="badge b-best">★ BEST</span></div>
+        <div class="tool-desc">Comprehensive LinkedIn MCP: profiles, posts, connections, skills, education, certifications. TypeScript. MIT license.</div>
+        <div class="tool-meta"><span>MCP</span><span>npm</span><span>API key</span></div>
+      </div>
+      <div class="tool">
+        <div class="tool-name">Composio LinkedIn MCP <span class="badge b-good">MANAGED</span></div>
+        <div class="tool-desc">Managed OAuth handling. Profile, posts, messaging via Composio universal MCP. 850+ app integrations.</div>
+        <div class="tool-meta"><span>MCP</span><span>Managed auth</span></div>
+      </div>
+      <div class="tool">
+        <div class="tool-name">Jina Reader <span class="badge b-alt">READ ONLY</span></div>
+        <div class="tool-desc">Public profiles and company pages via Jina. No auth needed for public data.</div>
+        <div class="tool-meta"><span>HTTP</span><span>Zero config</span></div>
+      </div>
+    </div>
+    <div class="reco">
+      <strong>→ Pick:</strong> LinkedIn API requires a registered app + OAuth. <code>@pegasusheavy/linkedin-mcp</code> for full access. Start with Jina Reader for read-only public data (zero setup).
+    </div>
+    <div class="diff">
+      <div class="diff-dot on"></div><div class="diff-dot on"></div><div class="diff-dot on"></div><div class="diff-dot on"></div><div class="diff-dot"></div>
+      <span class="diff-label">Hard — OAuth app registration + API approval</span>
+    </div>
+  </div>
+</div>
+
+<!-- REDDIT -->
+<div class="card" style="animation-delay:0.11s">
+  <div class="card-header">
+    <div class="card-icon ic-reddit">🤖</div>
+    <div><div class="card-name">Reddit</div><div class="card-cap">Browse · Search · Read · (Write planned)</div></div>
+  </div>
+  <div class="card-body">
+    <div class="tools-grid">
+      <div class="tool">
+        <div class="tool-name">reddit-mcp <span class="badge b-best">★ BEST</span></div>
+        <div class="tool-desc">PRAW-based MCP server. Browse subreddits, read submissions, access comments, search. Built-in rate limiting. Read-only for now (write planned).</div>
+        <div class="tool-meta"><span>MCP</span><span><code>uvx reddit-mcp</code></span><span>Reddit API creds</span></div>
+      </div>
+      <div class="tool">
+        <div class="tool-name">Reddit GCC Monitor <span class="badge b-have">ALREADY HAVE</span></div>
+        <div class="tool-desc">Existing OpenClaw skill monitoring 29 GCC subreddits. Custom pipeline with SQLite.</div>
+        <div class="tool-meta"><span>Skill</span><span>GCC focused</span></div>
+      </div>
+    </div>
+    <div class="reco">
+      <strong>→ Pick:</strong> <code>reddit-mcp</code> for general browsing. Already have GCC-specific monitoring. Create Reddit app for API credentials (free, 2 min at reddit.com/prefs/apps).
+    </div>
+    <div class="diff">
+      <div class="diff-dot on"></div><div class="diff-dot on"></div><div class="diff-dot"></div><div class="diff-dot"></div><div class="diff-dot"></div>
+      <span class="diff-label">Easy — free API credentials</span>
+    </div>
+  </div>
+</div>
+
+<!-- YOUTUBE -->
+<div class="card" style="animation-delay:0.14s">
+  <div class="card-header">
+    <div class="card-icon ic-youtube">▶</div>
+    <div><div class="card-name">YouTube</div><div class="card-cap">Analytics · Transcripts · Upload · Comments · Channels</div></div>
+  </div>
+  <div class="card-body">
+    <div class="tools-grid">
+      <div class="tool">
+        <div class="tool-name">mcp-youtube-intelligence <span class="badge b-best">★ BEST READ</span> <span class="badge b-star">42★</span></div>
+        <div class="tool-desc">Transcripts, channel monitoring, sentiment analysis, topic segmentation, entity extraction. Server-side summarization saves tokens.</div>
+        <div class="tool-meta"><span>MCP</span><span>YouTube Data API v3</span></div>
+      </div>
+      <div class="tool">
+        <div class="tool-name">youtube-uploader-mcp <span class="badge b-good">32★</span></div>
+        <div class="tool-desc">Upload/schedule videos. OAuth2 auth. Multi-channel support. Go binary.</div>
+        <div class="tool-meta"><span>MCP</span><span>Upload focused</span></div>
+      </div>
+      <div class="tool">
+        <div class="tool-name">yt-dlp <span class="badge b-have">ALREADY HAVE</span></div>
+        <div class="tool-desc">Existing on Mac. Subtitles, download, 1800+ sites. Used by summarize skill.</div>
+        <div class="tool-meta"><span>CLI</span><span>Read only</span></div>
+      </div>
+    </div>
+    <div class="reco">
+      <strong>→ Pick:</strong> <code>mcp-youtube-intelligence</code> for reading/analysis + <code>youtube-uploader-mcp</code> if you want to publish. Both need a YouTube Data API key (free tier: 10K quota/day).
+    </div>
+    <div class="diff">
+      <div class="diff-dot on"></div><div class="diff-dot on"></div><div class="diff-dot"></div><div class="diff-dot"></div><div class="diff-dot"></div>
+      <span class="diff-label">Easy — Google Cloud API key</span>
+    </div>
+  </div>
+</div>
+
+<!-- INSTAGRAM -->
+<div class="card" style="animation-delay:0.17s">
+  <div class="card-header">
+    <div class="card-icon ic-instagram">📷</div>
+    <div><div class="card-name">Instagram</div><div class="card-cap">Post · Stories · Insights · DMs · Comments</div></div>
+  </div>
+  <div class="card-body">
+    <div class="tools-grid">
+      <div class="tool">
+        <div class="tool-name">Composio Instagram MCP <span class="badge b-best">★ BEST</span></div>
+        <div class="tool-desc">Managed OAuth. Create posts, carousels, reels. Get insights, comments, DMs. Only Business/Creator accounts.</div>
+        <div class="tool-meta"><span>MCP</span><span>Composio managed auth</span></div>
+      </div>
+      <div class="tool">
+        <div class="tool-name">jlbadano/ig-mcp <span class="badge b-good">SELF-HOST</span></div>
+        <div class="tool-desc">Direct Instagram Graph API. Profile, media, insights, publishing, conversations. Needs access token.</div>
+        <div class="tool-meta"><span>MCP</span><span>Python</span><span>Graph API</span></div>
+      </div>
+    </div>
+    <div class="reco">
+      <strong>→ Pick:</strong> Instagram requires a Business/Creator account + Facebook page + Meta Developer App. Composio handles the OAuth headache. Lower priority unless you want an IG presence.
+    </div>
+    <div class="diff">
+      <div class="diff-dot on"></div><div class="diff-dot on"></div><div class="diff-dot on"></div><div class="diff-dot on"></div><div class="diff-dot"></div>
+      <span class="diff-label">Hard — Meta Business setup required</span>
+    </div>
+  </div>
+</div>
+
+</div><!-- /platforms -->
+
+<!-- ============================================ -->
+<!-- CHINESE PLATFORMS -->
+<!-- ============================================ -->
+<div class="section-heading" id="chinese">
+  <h2>🇨🇳 Chinese Platforms</h2>
+  <div class="desc">jackwener's CLI suite shines here. Most need Chinese phone or cookie auth.</div>
+</div>
+
+<div class="platforms">
+
+<!-- XIAOHONGSHU -->
+<div class="card" style="animation-delay:0.05s">
+  <div class="card-header">
+    <div class="card-icon ic-xhs">📕</div>
+    <div><div class="card-name">小红书 Xiaohongshu (RedNote)</div><div class="card-cap">Search · Read · Post · Comment · Like · Follow · Notifications</div></div>
+  </div>
+  <div class="card-body">
+    <div class="tools-grid">
+      <div class="tool">
+        <div class="tool-name">jackwener/xiaohongshu-cli <span class="badge b-best">★ BEST</span> <span class="badge b-star">361★</span></div>
+        <div class="tool-desc">Full CLI. JS reverse-engineered API. Auto-extract browser cookies or QR login. Search, read, comment, like, follow, post images, notifications, feed. Anti-detection built in. YAML/JSON output.</div>
+        <div class="tool-meta"><span>CLI</span><span><code>uv tool install xiaohongshu-cli</code></span><span>Cookie auth</span></div>
+      </div>
+      <div class="tool">
+        <div class="tool-name">xhs-mcp (jobsonlook) <span class="badge b-good">LIGHTWEIGHT</span></div>
+        <div class="tool-desc">Pure JS, direct HTTP. Search, read, comment. No browser automation needed. Minimal deps.</div>
+        <div class="tool-meta"><span>MCP</span><span>Cookie based</span></div>
+      </div>
+      <div class="tool">
+        <div class="tool-name">ClawHub xiaohongshu-mcp <span class="badge b-alt">SKILL</span></div>
+        <div class="tool-desc">Pre-packaged OpenClaw skill. Install from ClawHub marketplace.</div>
+        <div class="tool-meta"><span>Skill</span><span>ClawHub</span></div>
+      </div>
+    </div>
+    <div class="reco">
+      <strong>→ Pick:</strong> <code>xiaohongshu-cli</code> — most complete, auto cookie extraction, consistent with the rest of jackwener's suite. Need Chinese phone for account registration (Cheng Hao can help).
+    </div>
+    <div class="diff">
+      <div class="diff-dot on"></div><div class="diff-dot on"></div><div class="diff-dot on"></div><div class="diff-dot"></div><div class="diff-dot"></div>
+      <span class="diff-label">Medium — phone verification + cookie</span>
+    </div>
+  </div>
+</div>
+
+<!-- BILIBILI -->
+<div class="card" style="animation-delay:0.08s">
+  <div class="card-header">
+    <div class="card-icon ic-bilibili">📺</div>
+    <div><div class="card-name">Bilibili (哔哩哔哩)</div><div class="card-cap">Video · Search · Subtitles · AI Summary · Comments · Like</div></div>
+  </div>
+  <div class="card-body">
+    <div class="tools-grid">
+      <div class="tool">
+        <div class="tool-name">jackwener/bilibili-cli <span class="badge b-best">★ BEST</span> <span class="badge b-star">299★</span></div>
+        <div class="tool-desc">Video details, subtitles, AI summaries, comments. User profiles. Search, trending, feed. Favorites, watch-later, history. Like, coin, triple. Audio extraction. JSON output.</div>
+        <div class="tool-meta"><span>CLI</span><span><code>uv tool install bilibili-cli</code></span><span>Cookie auth</span></div>
+      </div>
+      <div class="tool">
+        <div class="tool-name">Agent-Reach Bilibili <span class="badge b-alt">ALT</span></div>
+        <div class="tool-desc">Via yt-dlp. Video info + subtitles + search. Works without login for public content.</div>
+        <div class="tool-meta"><span>CLI</span><span>Zero config for public</span></div>
+      </div>
+    </div>
+    <div class="reco">
+      <strong>→ Pick:</strong> <code>bilibili-cli</code> — native Bilibili API, full features. Cookie auto-extracted from browser.
+    </div>
+    <div class="diff">
+      <div class="diff-dot on"></div><div class="diff-dot on"></div><div class="diff-dot"></div><div class="diff-dot"></div><div class="diff-dot"></div>
+      <span class="diff-label">Easy — QR or browser cookie</span>
+    </div>
+  </div>
+</div>
+
+<!-- WEIBO -->
+<div class="card" style="animation-delay:0.11s">
+  <div class="card-header">
+    <div class="card-icon ic-weibo">微</div>
+    <div><div class="card-name">Weibo (微博)</div><div class="card-cap">Trending · Search · Feeds · Comments · Users</div></div>
+  </div>
+  <div class="card-body">
+    <div class="tools-grid">
+      <div class="tool">
+        <div class="tool-name">mcp-server-weibo <span class="badge b-best">★ BEST</span></div>
+        <div class="tool-desc">Hot search, content/user/topic search, feeds, comments. Via Agent-Reach. Zero config.</div>
+        <div class="tool-meta"><span>MCP</span><span>Zero config</span></div>
+      </div>
+      <div class="tool">
+        <div class="tool-name">Selenium39/weibo MCP <span class="badge b-good">1.5K DL</span></div>
+        <div class="tool-desc">User data, profiles, feeds. Mobile API based.</div>
+        <div class="tool-meta"><span>MCP</span><span>Community</span></div>
+      </div>
+      <div class="tool">
+        <div class="tool-name">Pulse CN (Wang Tsiao) <span class="badge b-alt">ALT</span></div>
+        <div class="tool-desc">Weibo Hot + multi-source Chinese trending data. Broader than just Weibo.</div>
+        <div class="tool-meta"><span>MCP</span></div>
+      </div>
+    </div>
+    <div class="reco">
+      <strong>→ Pick:</strong> <code>mcp-server-weibo</code> via Agent-Reach — zero config, immediate access to trending and search. Add cookie for authenticated features.
+    </div>
+    <div class="diff">
+      <div class="diff-dot on"></div><div class="diff-dot"></div><div class="diff-dot"></div><div class="diff-dot"></div><div class="diff-dot"></div>
+      <span class="diff-label">Trivial — zero config for public</span>
+    </div>
+  </div>
+</div>
+
+<!-- DOUYIN -->
+<div class="card" style="animation-delay:0.14s">
+  <div class="card-header">
+    <div class="card-icon ic-douyin">🎵</div>
+    <div><div class="card-name">Douyin (抖音)</div><div class="card-cap">Video parsing · Watermark-free download</div></div>
+  </div>
+  <div class="card-body">
+    <div class="tools-grid">
+      <div class="tool">
+        <div class="tool-name">douyin-mcp-server <span class="badge b-best">★ BEST</span></div>
+        <div class="tool-desc">Video parsing, watermark-free download. No login needed. Via Agent-Reach.</div>
+        <div class="tool-meta"><span>MCP</span><span>Zero config</span></div>
+      </div>
+    </div>
+    <div class="reco"><strong>→ Pick:</strong> <code>douyin-mcp-server</code> via Agent-Reach. Limited to video parsing (no posting).</div>
+    <div class="diff">
+      <div class="diff-dot on"></div><div class="diff-dot"></div><div class="diff-dot"></div><div class="diff-dot"></div><div class="diff-dot"></div>
+      <span class="diff-label">Trivial</span>
+    </div>
+  </div>
+</div>
+
+<!-- WECHAT -->
+<div class="card" style="animation-delay:0.17s">
+  <div class="card-header">
+    <div class="card-icon ic-wechat">💚</div>
+    <div><div class="card-name">WeChat Articles (微信公众号)</div><div class="card-cap">Search · Read articles</div></div>
+  </div>
+  <div class="card-body">
+    <div class="tools-grid">
+      <div class="tool">
+        <div class="tool-name">Agent-Reach WeChat <span class="badge b-best">★ BEST</span></div>
+        <div class="tool-desc">Search + read WeChat Official Account articles. Full markdown extraction. Zero config.</div>
+        <div class="tool-meta"><span>CLI</span><span>Zero config</span></div>
+      </div>
+    </div>
+    <div class="reco"><strong>→ Pick:</strong> Agent-Reach includes this. Read-only (no posting to WeChat — that requires official account registration in China).</div>
+    <div class="diff">
+      <div class="diff-dot on"></div><div class="diff-dot"></div><div class="diff-dot"></div><div class="diff-dot"></div><div class="diff-dot"></div>
+      <span class="diff-label">Trivial via Agent-Reach</span>
+    </div>
+  </div>
+</div>
+
+</div><!-- /platforms -->
+
+<!-- ============================================ -->
+<!-- MESSAGING / PRODUCTIVITY -->
+<!-- ============================================ -->
+<div class="section-heading" id="productivity">
+  <h2>🔧 Messaging & Productivity</h2>
+  <div class="desc">Communication platforms and workspace tools.</div>
+</div>
+
+<div class="platforms">
+
+<!-- TELEGRAM -->
+<div class="card" style="animation-delay:0.05s">
+  <div class="card-header">
+    <div class="card-icon ic-telegram">✈️</div>
+    <div><div class="card-name">Telegram</div><div class="card-cap">Read · Send · Search · Sync · Files</div></div>
+  </div>
+  <div class="card-body">
+    <div class="tools-grid">
+      <div class="tool">
+        <div class="tool-name">jackwener/tg-cli <span class="badge b-best">★ BEST</span> <span class="badge b-suite">JACKWENER</span></div>
+        <div class="tool-desc">Local-first Telegram: sync, search, export. Same pattern as discord-cli. SQLite storage, structured output.</div>
+        <div class="tool-meta"><span>CLI</span><span>Telethon</span></div>
+      </div>
+      <div class="tool">
+        <div class="tool-name">fast-mcp-telegram <span class="badge b-good">27★</span></div>
+        <div class="tool-desc">Production-ready Telegram MCP. Multi-user auth, intelligent search, file sending. Docker + PyPI. Web setup UI.</div>
+        <div class="tool-meta"><span>MCP</span><span>Docker ready</span></div>
+      </div>
+      <div class="tool">
+        <div class="tool-name">OpenClaw Telegram <span class="badge b-have">ALREADY HAVE</span></div>
+        <div class="tool-desc">Current bot @ray_mori_bot. Send/receive in allowlisted groups.</div>
+        <div class="tool-meta"><span>Native</span><span>Bot mode</span></div>
+      </div>
+    </div>
+    <div class="reco">
+      <strong>→ Pick:</strong> <code>tg-cli</code> for independent browsing + existing OpenClaw bot for messaging. Or <code>fast-mcp-telegram</code> if you want MCP-native integration.
+    </div>
+    <div class="diff">
+      <div class="diff-dot on"></div><div class="diff-dot on"></div><div class="diff-dot"></div><div class="diff-dot"></div><div class="diff-dot"></div>
+      <span class="diff-label">Easy — Telegram API hash is free</span>
+    </div>
+  </div>
+</div>
+
+<!-- SLACK -->
+<div class="card" style="animation-delay:0.08s">
+  <div class="card-header">
+    <div class="card-icon ic-slack">💼</div>
+    <div><div class="card-name">Slack</div><div class="card-cap">Read · Send · Search · Manage</div></div>
+  </div>
+  <div class="card-body">
+    <div class="tools-grid">
+      <div class="tool">
+        <div class="tool-name">Official Slack MCP <span class="badge b-best">★ OFFICIAL</span></div>
+        <div class="tool-desc">Launched Feb 2026 by Slack. LLM-native with rich descriptions. Real-time Search API. Granular scopes (public/private/DM). Built for AI agents.</div>
+        <div class="tool-meta"><span>MCP</span><span>Official</span><span>Feb 2026</span></div>
+      </div>
+    </div>
+    <div class="reco">
+      <strong>→ Pick:</strong> Official Slack MCP is brand new and purpose-built for AI agents. Only relevant if you join Slack workspaces.
+    </div>
+    <div class="diff">
+      <div class="diff-dot on"></div><div class="diff-dot on"></div><div class="diff-dot"></div><div class="diff-dot"></div><div class="diff-dot"></div>
+      <span class="diff-label">Easy — Slack app + OAuth</span>
+    </div>
+  </div>
+</div>
+
+<!-- WHATSAPP -->
+<div class="card" style="animation-delay:0.11s">
+  <div class="card-header">
+    <div class="card-icon ic-whatsapp">📱</div>
+    <div><div class="card-name">WhatsApp</div><div class="card-cap">Send · Receive · Groups</div></div>
+  </div>
+  <div class="card-body">
+    <div class="tools-grid">
+      <div class="tool">
+        <div class="tool-name">OpenClaw WhatsApp <span class="badge b-have">ALREADY HAVE</span></div>
+        <div class="tool-desc">Connected via +33651630497. Send/receive, polls, reactions. Already operational.</div>
+        <div class="tool-meta"><span>Native</span><span>Operational</span></div>
+      </div>
+      <div class="tool">
+        <div class="tool-name">Whapi MCP <span class="badge b-good">ENHANCED</span></div>
+        <div class="tool-desc">Whapi.cloud — full WhatsApp MCP. Groups, communities, channels. Any number via QR. MCP tools invoke API directly.</div>
+        <div class="tool-meta"><span>MCP</span><span>No Meta verification</span></div>
+      </div>
+    </div>
+    <div class="reco">
+      <strong>→ Pick:</strong> Already have this. Whapi MCP could add group/community management if needed.
+    </div>
+    <div class="diff">
+      <div class="diff-dot on"></div><div class="diff-dot"></div><div class="diff-dot"></div><div class="diff-dot"></div><div class="diff-dot"></div>
+      <span class="diff-label">Done ✓</span>
+    </div>
+  </div>
+</div>
+
+<!-- NOTION -->
+<div class="card" style="animation-delay:0.14s">
+  <div class="card-header">
+    <div class="card-icon ic-notion">📝</div>
+    <div><div class="card-name">Notion</div><div class="card-cap">Pages · Databases · Search · Manage</div></div>
+  </div>
+  <div class="card-body">
+    <div class="tools-grid">
+      <div class="tool">
+        <div class="tool-name">Official Notion MCP <span class="badge b-best">★ OFFICIAL</span> <span class="badge b-star">3.8K★</span></div>
+        <div class="tool-desc">makenotion/notion-mcp-server. Remote hosted via mcp.notion.com. OAuth flow. Search, read, update pages and databases. Docker option.</div>
+        <div class="tool-meta"><span>MCP</span><span>Official</span><span>Remote hosted</span></div>
+      </div>
+      <div class="tool">
+        <div class="tool-name">OpenClaw Notion Skill <span class="badge b-have">ALREADY HAVE</span></div>
+        <div class="tool-desc">Existing skill for creating/managing pages, databases, blocks.</div>
+        <div class="tool-meta"><span>Skill</span><span>Installed</span></div>
+      </div>
+    </div>
+    <div class="reco">
+      <strong>→ Pick:</strong> Already have the Notion skill. Official MCP adds remote hosted option with OAuth — cleaner for Zosia's own workspace.
+    </div>
+    <div class="diff">
+      <div class="diff-dot on"></div><div class="diff-dot"></div><div class="diff-dot"></div><div class="diff-dot"></div><div class="diff-dot"></div>
+      <span class="diff-label">Trivial — OAuth flow</span>
+    </div>
+  </div>
+</div>
+
+</div><!-- /platforms -->
+
+<!-- ============================================ -->
+<!-- MULTI-PLATFORM TOOLS -->
+<!-- ============================================ -->
+<div class="section-heading" id="multi">
+  <h2>🧰 Multi-Platform Toolkits</h2>
+  <div class="desc">Install once, access many. These cover multiple platforms with consistent interfaces.</div>
+</div>
+
+<div class="highlight-box" style="animation: fadeUp 0.4s ease both; animation-delay: 0.05s;">
+  <h3>🔥 jackwener CLI Suite <span class="badge b-best">★ RECOMMENDED</span></h3>
+  <p style="font-size:0.85rem;color:var(--text-dim);margin-bottom:0.5rem;">Consistent interface, YAML/JSON structured output, auto cookie extraction, anti-detection. All Python, all <code>uv tool install</code>. Same developer, same patterns, same schema contract.</p>
+  <div class="grid">
+    <div class="item"><strong>xiaohongshu-cli</strong> <span class="badge b-star">361★</span><div class="sub">Search, read, post, comment, like, follow, notifications</div></div>
+    <div class="item"><strong>twitter-cli</strong> <span class="badge b-star">1.2K★</span><div class="sub">Timeline, bookmarks, search, post, like, retweet, bookmark</div></div>
+    <div class="item"><strong>discord-cli</strong><div class="sub">Sync to SQLite, search, export, AI analysis, timeline</div></div>
+    <div class="item"><strong>bilibili-cli</strong> <span class="badge b-star">299★</span><div class="sub">Videos, subtitles, AI summary, comments, trending, feed</div></div>
+    <div class="item"><strong>tg-cli</strong><div class="sub">Telegram sync, search, export — same local-first pattern</div></div>
+  </div>
+</div>
+
+<div class="highlight-box" style="border-color:var(--teal);animation: fadeUp 0.4s ease both; animation-delay: 0.1s;">
+  <h3>🌐 Agent-Reach <span class="badge b-star">7K★</span></h3>
+  <p style="font-size:0.85rem;color:var(--text-dim);margin-bottom:0.5rem;">One CLI, 14 platforms. By Panniantong. Free, open source. Built-in diagnostics (<code>agent-reach doctor</code>). Works with OpenClaw.</p>
+  <div class="grid">
+    <div class="item"><strong>Web</strong><div class="sub">Any URL → Markdown (Jina Reader)</div></div>
+    <div class="item"><strong>Twitter/X</strong><div class="sub">Read + search (zero config) · Post (cookie)</div></div>
+    <div class="item"><strong>小红书</strong><div class="sub">Read, search, post, comment, like (MCP)</div></div>
+    <div class="item"><strong>GitHub</strong><div class="sub">gh CLI powered</div></div>
+    <div class="item"><strong>YouTube</strong><div class="sub">Subtitles + search (yt-dlp)</div></div>
+    <div class="item"><strong>Bilibili</strong><div class="sub">Video + subtitles + search</div></div>
+    <div class="item"><strong>Reddit</strong><div class="sub">Search via Exa + read (proxy on servers)</div></div>
+    <div class="item"><strong>Weibo</strong><div class="sub">Trending, search, feeds, comments</div></div>
+    <div class="item"><strong>WeChat</strong><div class="sub">Official Account articles (search + read)</div></div>
+    <div class="item"><strong>Douyin</strong><div class="sub">Video parsing, watermark-free download</div></div>
+    <div class="item"><strong>LinkedIn</strong><div class="sub">Public profiles (Jina Reader)</div></div>
+    <div class="item"><strong>RSS</strong><div class="sub">Any RSS/Atom feed</div></div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- MASTER SUMMARY -->
+<!-- ============================================ -->
+<div class="section-heading" id="summary">
+  <h2>📊 Master Summary</h2>
+</div>
+
+<div class="table-wrap">
+<table>
+  <thead>
+    <tr>
+      <th>Platform</th>
+      <th>Best Tool</th>
+      <th>Type</th>
+      <th>Effort</th>
+      <th>Account Needed</th>
+      <th>Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Email</td>
+      <td>gog CLI (2nd profile)</td>
+      <td>CLI</td>
+      <td>15 min</td>
+      <td>Google account</td>
+      <td><span class="badge b-best">READY</span></td>
+    </tr>
+    <tr>
+      <td>Discord</td>
+      <td>Bot + discord-mcp</td>
+      <td>MCP</td>
+      <td>30 min</td>
+      <td>Discord bot app</td>
+      <td><span class="badge b-best">READY</span></td>
+    </tr>
+    <tr>
+      <td>GitHub</td>
+      <td>gh CLI + official MCP</td>
+      <td>CLI + MCP</td>
+      <td>20 min</td>
+      <td>GitHub account</td>
+      <td><span class="badge b-best">READY</span></td>
+    </tr>
+    <tr>
+      <td>X / Twitter</td>
+      <td>jackwener/twitter-cli</td>
+      <td>CLI</td>
+      <td>45 min</td>
+      <td>X account + browser</td>
+      <td><span class="badge b-good">PLAN</span></td>
+    </tr>
+    <tr>
+      <td>Reddit</td>
+      <td>reddit-mcp</td>
+      <td>MCP</td>
+      <td>15 min</td>
+      <td>Reddit app (free)</td>
+      <td><span class="badge b-good">PLAN</span></td>
+    </tr>
+    <tr>
+      <td>YouTube</td>
+      <td>mcp-youtube-intelligence</td>
+      <td>MCP</td>
+      <td>20 min</td>
+      <td>Google API key</td>
+      <td><span class="badge b-good">PLAN</span></td>
+    </tr>
+    <tr>
+      <td>Telegram</td>
+      <td>tg-cli</td>
+      <td>CLI</td>
+      <td>20 min</td>
+      <td>Telegram API hash</td>
+      <td><span class="badge b-good">PLAN</span></td>
+    </tr>
+    <tr>
+      <td>LinkedIn</td>
+      <td>@pegasusheavy/linkedin-mcp</td>
+      <td>MCP</td>
+      <td>1+ hr</td>
+      <td>LinkedIn + OAuth app</td>
+      <td><span class="badge b-alt">LATER</span></td>
+    </tr>
+    <tr>
+      <td>小红书</td>
+      <td>jackwener/xiaohongshu-cli</td>
+      <td>CLI</td>
+      <td>1-2 hrs</td>
+      <td>Chinese phone</td>
+      <td><span class="badge b-alt">NEEDS HELP</span></td>
+    </tr>
+    <tr>
+      <td>Bilibili</td>
+      <td>jackwener/bilibili-cli</td>
+      <td>CLI</td>
+      <td>20 min</td>
+      <td>Bilibili account</td>
+      <td><span class="badge b-good">PLAN</span></td>
+    </tr>
+    <tr>
+      <td>Weibo</td>
+      <td>mcp-server-weibo</td>
+      <td>MCP</td>
+      <td>5 min</td>
+      <td>None (public)</td>
+      <td><span class="badge b-best">READY</span></td>
+    </tr>
+    <tr>
+      <td>Douyin</td>
+      <td>douyin-mcp-server</td>
+      <td>MCP</td>
+      <td>5 min</td>
+      <td>None</td>
+      <td><span class="badge b-best">READY</span></td>
+    </tr>
+    <tr>
+      <td>WeChat Articles</td>
+      <td>Agent-Reach</td>
+      <td>CLI</td>
+      <td>5 min</td>
+      <td>None</td>
+      <td><span class="badge b-best">READY</span></td>
+    </tr>
+    <tr>
+      <td>Instagram</td>
+      <td>Composio MCP</td>
+      <td>MCP</td>
+      <td>2+ hrs</td>
+      <td>Meta Business</td>
+      <td><span class="badge b-hard">HARD</span></td>
+    </tr>
+    <tr>
+      <td>Slack</td>
+      <td>Official Slack MCP</td>
+      <td>MCP</td>
+      <td>30 min</td>
+      <td>Slack app</td>
+      <td><span class="badge b-alt">IF NEEDED</span></td>
+    </tr>
+    <tr>
+      <td>WhatsApp</td>
+      <td>OpenClaw native</td>
+      <td>Native</td>
+      <td>—</td>
+      <td>—</td>
+      <td><span class="badge b-have">DONE ✓</span></td>
+    </tr>
+    <tr>
+      <td>Notion</td>
+      <td>Official MCP + Skill</td>
+      <td>MCP</td>
+      <td>10 min</td>
+      <td>Notion workspace</td>
+      <td><span class="badge b-have">HAVE SKILL</span></td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<!-- ============================================ -->
+<!-- ROADMAP -->
+<!-- ============================================ -->
+<div class="section-heading" id="roadmap">
+  <h2>🗺️ Implementation Roadmap</h2>
+</div>
+
+<div class="platforms">
+<div class="card" style="animation-delay:0.05s">
+  <div class="card-body">
+    <div style="font-size:0.88rem;line-height:1.8;">
+      <p><strong style="color:var(--green);">Phase 1 — Quick Wins (this week)</strong></p>
+      <p>① Email: create Google account → gog 2nd profile<br>
+      ② Discord: create bot app → wire OpenClaw accountId + discord-mcp<br>
+      ③ GitHub: create account → gh auth login<br>
+      ④ Install Agent-Reach (unlocks Weibo, WeChat, Douyin for free)</p>
+      <br>
+      <p><strong style="color:var(--blue);">Phase 2 — Social Expansion (next week)</strong></p>
+      <p>⑤ X/Twitter: create account → install twitter-cli<br>
+      ⑥ Reddit: create app → install reddit-mcp<br>
+      ⑦ YouTube: get API key → install mcp-youtube-intelligence<br>
+      ⑧ Bilibili: create account → install bilibili-cli<br>
+      ⑨ Telegram: get API hash → install tg-cli</p>
+      <br>
+      <p><strong style="color:var(--orange);">Phase 3 — Advanced (when ready)</strong></p>
+      <p>⑩ 小红书: register with Chinese phone (Cheng Hao) → xiaohongshu-cli<br>
+      ⑪ LinkedIn: register app → OAuth approval<br>
+      ⑫ Instagram: Meta Business setup → Composio MCP</p>
+    </div>
+  </div>
+</div>
+</div>
+
+</div><!-- /container -->
+</body>
+</html>

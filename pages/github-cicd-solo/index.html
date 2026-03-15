@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+  <title>AI-Native GitHub CI/CD for Solo Projects</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --font-body: 'IBM Plex Sans', system-ui, sans-serif;
+      --font-mono: 'IBM Plex Mono', 'SF Mono', Consolas, monospace;
+
+      --bg: #eef3f8;
+      --surface: rgba(255,255,255,0.88);
+      --surface-strong: rgba(255,255,255,0.96);
+      --surface-muted: #e5edf5;
+      --border: rgba(20, 40, 70, 0.10);
+      --border-strong: rgba(20, 40, 70, 0.18);
+      --text: #112033;
+      --text-dim: #617388;
+      --navy: #1f4b7a;
+      --navy-dim: rgba(31, 75, 122, 0.10);
+      --teal: #0b7a75;
+      --teal-dim: rgba(11, 122, 117, 0.10);
+      --amber: #b36a00;
+      --amber-dim: rgba(179, 106, 0, 0.10);
+      --rose: #a33657;
+      --rose-dim: rgba(163, 54, 87, 0.10);
+      --green: #2f7a32;
+      --green-dim: rgba(47, 122, 50, 0.10);
+      --shadow: 0 16px 40px rgba(24, 45, 77, 0.08);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0f1722;
+        --surface: rgba(18, 28, 41, 0.86);
+        --surface-strong: rgba(24, 36, 52, 0.96);
+        --surface-muted: #142031;
+        --border: rgba(255,255,255,0.08);
+        --border-strong: rgba(255,255,255,0.16);
+        --text: #e8f0f7;
+        --text-dim: #9ab0c3;
+        --navy: #7cb0e2;
+        --navy-dim: rgba(124, 176, 226, 0.14);
+        --teal: #5ad0c6;
+        --teal-dim: rgba(90, 208, 198, 0.14);
+        --amber: #f2b24e;
+        --amber-dim: rgba(242, 178, 78, 0.14);
+        --rose: #f08cab;
+        --rose-dim: rgba(240, 140, 171, 0.14);
+        --green: #7edb83;
+        --green-dim: rgba(126, 219, 131, 0.14);
+        --shadow: 0 18px 48px rgba(0, 0, 0, 0.26);
+      }
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: var(--font-body);
+      color: var(--text);
+      background:
+        radial-gradient(circle at 12% 0%, var(--navy-dim) 0%, transparent 30%),
+        radial-gradient(circle at 88% 18%, var(--amber-dim) 0%, transparent 26%),
+        radial-gradient(circle at 72% 100%, var(--teal-dim) 0%, transparent 30%),
+        linear-gradient(180deg, color-mix(in srgb, var(--bg) 92%, white 8%), var(--bg));
+      padding: 36px 40px 80px;
+      overflow-wrap: break-word;
+    }
+
+    a { color: var(--navy); text-decoration-color: color-mix(in srgb, var(--navy) 40%, transparent); }
+    a:hover { text-decoration-color: currentColor; }
+
+    .wrap {
+      max-width: 1380px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 190px 1fr;
+      gap: 0 36px;
+    }
+
+    .main { min-width: 0; }
+
+    .toc {
+      position: sticky;
+      top: 22px;
+      align-self: start;
+      max-height: calc(100dvh - 44px);
+      overflow-y: auto;
+      padding: 12px 0;
+      grid-row: 1 / -1;
+    }
+    .toc::-webkit-scrollbar { width: 4px; }
+    .toc::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 99px; }
+    .toc-title {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1.9px;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .toc a {
+      display: block;
+      font-size: 11px;
+      line-height: 1.4;
+      color: var(--text-dim);
+      text-decoration: none;
+      border-left: 2px solid transparent;
+      border-radius: 6px;
+      padding: 6px 8px;
+      margin-bottom: 3px;
+      transition: all .16s ease;
+    }
+    .toc a:hover { color: var(--text); background: var(--surface); }
+    .toc a.active { color: var(--text); border-left-color: var(--amber); background: var(--surface); }
+
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--navy);
+      margin-bottom: 18px;
+    }
+
+    .hero {
+      position: relative;
+      background: linear-gradient(180deg, var(--surface-strong), var(--surface));
+      border: 1px solid var(--border-strong);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      padding: 32px;
+      overflow: hidden;
+      margin-bottom: 22px;
+      animation: fadeUp .45s ease both;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: auto -6% -35% auto;
+      width: 340px;
+      height: 340px;
+      background: radial-gradient(circle, var(--navy-dim) 0%, transparent 68%);
+      pointer-events: none;
+    }
+
+    h1 {
+      margin: 0 0 12px;
+      font-size: clamp(34px, 6vw, 56px);
+      line-height: 1.02;
+      letter-spacing: -1.8px;
+      max-width: 12ch;
+    }
+
+    .lead {
+      font-size: clamp(18px, 1.3vw + 13px, 22px);
+      line-height: 1.6;
+      color: var(--text);
+      max-width: 68ch;
+      margin: 0 0 24px;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.25fr .9fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .kpi {
+      min-width: 0;
+      background: var(--surface-muted);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+      animation: fadeScale .38s ease both;
+    }
+    .kpi-value {
+      font-size: 32px;
+      line-height: 1;
+      letter-spacing: -1px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      margin-bottom: 8px;
+    }
+    .kpi-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1.4px;
+      color: var(--text-dim);
+    }
+
+    .hero-note {
+      background: linear-gradient(180deg, color-mix(in srgb, var(--amber-dim) 72%, var(--surface-strong) 28%), var(--surface));
+      border: 1px solid color-mix(in srgb, var(--amber) 22%, var(--border));
+      border-radius: 18px;
+      padding: 18px 18px 16px;
+    }
+    .hero-note h2, .card h2 { margin: 0 0 10px; font-size: 20px; letter-spacing: -.4px; }
+    .hero-note p { margin: 0; color: var(--text-dim); line-height: 1.65; font-size: 14px; }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 26px 0 14px;
+      scroll-margin-top: 64px;
+      animation: fadeUp .42s ease both;
+    }
+    .section-num {
+      width: 30px;
+      height: 30px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      background: var(--surface-muted);
+      border: 1px solid var(--border);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-dim);
+      flex-shrink: 0;
+    }
+    .section-head h2 {
+      margin: 0;
+      font-size: 24px;
+      letter-spacing: -.6px;
+    }
+
+    .card {
+      background: linear-gradient(180deg, var(--surface-strong), var(--surface));
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 24px;
+      box-shadow: var(--shadow);
+      animation: fadeUp .45s ease both;
+    }
+
+    .muted { color: var(--text-dim); }
+    .mono {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--surface-muted);
+      font-size: 12px;
+      color: var(--text);
+    }
+    .pill::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+      opacity: .8;
+    }
+    .pill--navy { color: var(--navy); }
+    .pill--teal { color: var(--teal); }
+    .pill--amber { color: var(--amber); }
+    .pill--rose { color: var(--rose); }
+    .pill--green { color: var(--green); }
+
+    .pipeline-wrap {
+      display: grid;
+      gap: 16px;
+    }
+    .pipeline {
+      display: flex;
+      gap: 0;
+      align-items: stretch;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+    .step, .lane-card {
+      min-width: 170px;
+      flex-shrink: 0;
+      border-radius: 16px;
+      padding: 16px 14px;
+      border: 1px solid var(--border);
+      background: var(--surface-muted);
+    }
+    .step-num-mini {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      color: var(--text-dim);
+    }
+    .step-title { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+    .step-copy { font-size: 12px; line-height: 1.55; color: var(--text-dim); }
+    .step--navy { border-color: color-mix(in srgb, var(--navy) 24%, var(--border)); background: color-mix(in srgb, var(--navy-dim) 70%, var(--surface-muted) 30%); }
+    .step--teal { border-color: color-mix(in srgb, var(--teal) 24%, var(--border)); background: color-mix(in srgb, var(--teal-dim) 72%, var(--surface-muted) 28%); }
+    .step--amber { border-color: color-mix(in srgb, var(--amber) 24%, var(--border)); background: color-mix(in srgb, var(--amber-dim) 72%, var(--surface-muted) 28%); }
+    .step--rose { border-color: color-mix(in srgb, var(--rose) 24%, var(--border)); background: color-mix(in srgb, var(--rose-dim) 72%, var(--surface-muted) 28%); }
+    .step--green { border-color: color-mix(in srgb, var(--green) 24%, var(--border)); background: color-mix(in srgb, var(--green-dim) 72%, var(--surface-muted) 28%); }
+
+    .arrow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-dim);
+      padding: 0 6px;
+      flex-shrink: 0;
+      font-size: 20px;
+    }
+
+    .lane-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 8px;
+    }
+
+    .compare {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .compare > * { min-width: 0; }
+    .compare-card {
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      background: var(--surface);
+    }
+    .compare-head {
+      padding: 12px 16px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 1.4px;
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--border);
+    }
+    .compare-head--bad { background: var(--rose-dim); color: var(--rose); }
+    .compare-head--good { background: var(--green-dim); color: var(--green); }
+    .compare-body { padding: 16px 18px; }
+
+    .list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      gap: 10px;
+    }
+    .list li {
+      position: relative;
+      padding-left: 16px;
+      line-height: 1.6;
+      color: var(--text);
+      min-width: 0;
+    }
+    .list li::before {
+      content: '›';
+      position: absolute;
+      left: 0;
+      color: var(--text-dim);
+      font-weight: 700;
+    }
+
+    .table-wrap {
+      background: var(--surface-strong);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      overflow: hidden;
+      margin-top: 16px;
+    }
+    .table-scroll { overflow-x: auto; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+    thead {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+    th {
+      background: var(--surface-muted);
+      text-align: left;
+      padding: 14px 16px;
+      border-bottom: 2px solid var(--border-strong);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 1.3px;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      white-space: nowrap;
+    }
+    td {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    tbody tr:nth-child(even) { background: color-mix(in srgb, var(--navy-dim) 22%, transparent); }
+    tbody tr:last-child td { border-bottom: none; }
+    td code, .callout code, .lead code {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      padding: 1px 6px;
+      border-radius: 5px;
+      background: var(--navy-dim);
+      color: var(--navy);
+    }
+    small { display: block; color: var(--text-dim); margin-top: 4px; }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: .4px;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .status::before {
+      content: '';
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+    .status--hard { color: var(--green); background: var(--green-dim); }
+    .status--soft { color: var(--amber); background: var(--amber-dim); }
+    .status--bad { color: var(--rose); background: var(--rose-dim); }
+
+    .grid-2, .grid-3 {
+      display: grid;
+      gap: 16px;
+    }
+    .grid-2 { grid-template-columns: 1.05fr .95fr; }
+    .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid-2 > *, .grid-3 > * { min-width: 0; }
+
+    .stack { display: grid; gap: 14px; }
+
+    .callout {
+      margin-top: 16px;
+      border-left: 3px solid var(--amber);
+      background: color-mix(in srgb, var(--amber-dim) 70%, var(--surface) 30%);
+      border-radius: 0 16px 16px 0;
+      padding: 16px 18px;
+      line-height: 1.65;
+      color: var(--text-dim);
+    }
+    .callout strong { color: var(--text); }
+
+    details.collapsible {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      background: var(--surface);
+      margin-top: 16px;
+    }
+    details.collapsible summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 14px 18px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text);
+      background: var(--surface-strong);
+    }
+    details.collapsible summary::-webkit-details-marker { display: none; }
+    details.collapsible summary::before {
+      content: '▸';
+      color: var(--text-dim);
+      transition: transform .16s ease;
+    }
+    details.collapsible[open] summary::before { transform: rotate(90deg); }
+    .collapsible__body {
+      padding: 16px 18px 18px;
+      border-top: 1px solid var(--border);
+      color: var(--text-dim);
+      line-height: 1.65;
+      font-size: 14px;
+    }
+
+    .footer-note {
+      margin-top: 18px;
+      font-size: 12px;
+      color: var(--text-dim);
+      font-family: var(--font-mono);
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeScale {
+      from { opacity: 0; transform: scale(.96); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: .01ms !important;
+        animation-delay: 0ms !important;
+        transition-duration: .01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+
+    @media (max-width: 1080px) {
+      .wrap { grid-template-columns: 1fr; }
+      .toc {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        display: flex;
+        gap: 4px;
+        align-items: center;
+        overflow-x: auto;
+        max-height: none;
+        background: color-mix(in srgb, var(--bg) 88%, transparent);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border-bottom: 1px solid var(--border);
+        margin: 0 -40px 20px;
+        padding: 10px 40px;
+        grid-row: auto;
+      }
+      .toc-title { display: none; }
+      .toc a {
+        white-space: nowrap;
+        border-left: none;
+        border-bottom: 2px solid transparent;
+        border-radius: 4px 4px 0 0;
+      }
+      .toc a.active { border-left: none; border-bottom-color: var(--amber); }
+      .section-head { scroll-margin-top: 60px; }
+      .hero-grid, .grid-2, .grid-3, .compare, .lane-grid, .kpi-row { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 768px) {
+      body { padding: 18px 18px 52px; }
+      .toc { margin: 0 -18px 16px; padding: 10px 18px; }
+      .hero, .card { padding: 18px; border-radius: 18px; }
+      h1 { max-width: none; }
+      .step, .lane-card { min-width: 150px; }
+      th, td { padding: 11px 12px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <nav class="toc" id="toc">
+      <div class="toc-title">Contents</div>
+      <a href="#s1">1. Core operating model</a>
+      <a href="#s2">2. GitHub workflow</a>
+      <a href="#s3">3. Hard gates</a>
+      <a href="#s4">4. AI role split</a>
+      <a href="#s5">5. Deploy + observe</a>
+      <a href="#s6">6. Recommended stack</a>
+      <a href="#s7">7. 30-day rollout</a>
+    </nav>
+
+    <main class="main">
+      <section class="hero">
+        <div class="eyebrow">AI-native delivery blueprint · GitHub + Linear + previews + observability</div>
+        <div class="hero-grid">
+          <div>
+            <h1>Final recommended setup for your one-man AI software factory</h1>
+            <p class="lead">The right shape is <code>Linear issue → AI feature branch → PR → deterministic CI + AI review → preview deploy → merge to protected main → production deploy → Sentry/monitoring feedback → new AI fix PRs</code>. AI does almost all the building; GitHub rules, environments, and observability stop it from shipping nonsense at 2am.</p>
+            <div class="pill-row">
+              <span class="pill pill--navy">No long-lived <code>dev</code> branch</span>
+              <span class="pill pill--teal">Preview on every PR</span>
+              <span class="pill pill--amber">Deterministic checks are hard gates</span>
+              <span class="pill pill--rose">AI is powerful, not sovereign</span>
+              <span class="pill pill--green">Deploy from protected <code>main</code></span>
+            </div>
+            <div class="kpi-row">
+              <div class="kpi"><div class="kpi-value" style="color:var(--navy)">1</div><div class="kpi-label">default AI reviewer</div></div>
+              <div class="kpi"><div class="kpi-value" style="color:var(--green)">5</div><div class="kpi-label">core required checks</div></div>
+              <div class="kpi"><div class="kpi-value" style="color:var(--amber)">2</div><div class="kpi-label">deploy environments</div></div>
+              <div class="kpi"><div class="kpi-value" style="color:var(--rose)">0</div><div class="kpi-label">human-written code required</div></div>
+            </div>
+          </div>
+          <aside class="hero-note">
+            <h2>My blunt take</h2>
+            <p>You can absolutely choose to never write code yourself. That part is fine. The part I’d push back on is letting AI review itself, approve itself, deploy itself, and declare itself healthy with no external truth layer. That’s not leverage — that’s automation theater with a knife in it.</p>
+          </aside>
+        </div>
+      </section>
+
+      <div class="section-head" id="s1"><span class="section-num">01</span><h2>Core operating model</h2></div>
+      <section class="card stack">
+        <p class="muted" style="margin:0;font-size:15px;line-height:1.7;max-width:76ch;">This is the clean solo-builder version of modern CI/CD: trunk-based development, small PRs, preview deployments, aggressive automation, and tight release controls. Your actual job stops being “coding” and becomes <strong>specifying, constraining, approving, and reading production truth</strong>.</p>
+        <div class="grid-3">
+          <div class="lane-card" style="border-color:color-mix(in srgb,var(--navy) 24%, var(--border));background:color-mix(in srgb,var(--navy-dim) 72%, var(--surface-muted) 28%);">
+            <div class="step-num-mini">Control plane</div>
+            <div class="step-title">Linear is the work queue</div>
+            <div class="step-copy">Each issue carries problem statement, acceptance criteria, non-goals, rollout notes, and observability expectations. AI should not invent product scope from vibes.</div>
+          </div>
+          <div class="lane-card" style="border-color:color-mix(in srgb,var(--teal) 24%, var(--border));background:color-mix(in srgb,var(--teal-dim) 72%, var(--surface-muted) 28%);">
+            <div class="step-num-mini">Execution plane</div>
+            <div class="step-title">AI handles implementation</div>
+            <div class="step-copy">One issue, one branch, one PR. Small diffs make AI reviewers sharper, previews faster, and rollback less miserable.</div>
+          </div>
+          <div class="lane-card" style="border-color:color-mix(in srgb,var(--amber) 24%, var(--border));background:color-mix(in srgb,var(--amber-dim) 72%, var(--surface-muted) 28%);">
+            <div class="step-num-mini">Truth plane</div>
+            <div class="step-title">CI + environments + Sentry decide reality</div>
+            <div class="step-copy">Tests can be wrong, reviewers can hallucinate, previews can still be flaky — but prod telemetry gives you the final vote.</div>
+          </div>
+        </div>
+        <div class="callout"><strong>Operator rule:</strong> you are not the coder anymore; you are the <strong>quality bar owner</strong>. That means branch protection, secrets hygiene, rollout rules, rollback rules, and the definition of “green enough to ship” are on you.</div>
+      </section>
+
+      <div class="section-head" id="s2"><span class="section-num">02</span><h2>GitHub workflow</h2></div>
+      <section class="card">
+        <div class="pipeline-wrap">
+          <div class="pipeline">
+            <div class="step step--navy">
+              <div class="step-num-mini">Step 1</div>
+              <div class="step-title">Linear issue ready</div>
+              <div class="step-copy">Structured requirements, acceptance criteria, links, rollout notes.</div>
+            </div>
+            <div class="arrow">→</div>
+            <div class="step step--teal">
+              <div class="step-num-mini">Step 2</div>
+              <div class="step-title">AI opens branch</div>
+              <div class="step-copy"><code>feat/...</code> or <code>fix/...</code>; no shared <code>dev</code> branch.</div>
+            </div>
+            <div class="arrow">→</div>
+            <div class="step step--amber">
+              <div class="step-num-mini">Step 3</div>
+              <div class="step-title">PR becomes work zone</div>
+              <div class="step-copy">CI, AI review, previews, changelog notes, CI-fix loops happen here.</div>
+            </div>
+            <div class="arrow">→</div>
+            <div class="step step--green">
+              <div class="step-num-mini">Step 4</div>
+              <div class="step-title">Merge to protected main</div>
+              <div class="step-copy">Auto-merge is fine once required checks are green.</div>
+            </div>
+            <div class="arrow">→</div>
+            <div class="step step--rose">
+              <div class="step-num-mini">Step 5</div>
+              <div class="step-title">Deploy from main</div>
+              <div class="step-copy">Staging optional. Production should have a single canonical source.</div>
+            </div>
+          </div>
+
+          <div class="compare">
+            <div class="compare-card">
+              <div class="compare-head compare-head--bad">Don’t do this</div>
+              <div class="compare-body">
+                <ul class="list">
+                  <li>Use a permanent <code>dev</code> branch just because “teams do that.”</li>
+                  <li>Let random direct pushes hit <code>main</code>.</li>
+                  <li>Trigger production deploys from feature branches.</li>
+                  <li>Allow giant AI PRs touching ten systems at once.</li>
+                </ul>
+              </div>
+            </div>
+            <div class="compare-card">
+              <div class="compare-head compare-head--good">Do this instead</div>
+              <div class="compare-body">
+                <ul class="list">
+                  <li>Short-lived feature branches only.</li>
+                  <li>PR is the center of review, checks, previews, and fix loops.</li>
+                  <li><code>main</code> is protected and deployable at all times.</li>
+                  <li>Small PRs, fast merges, visible previews, reversible rollouts.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="section-head" id="s3"><span class="section-num">03</span><h2>Hard gates vs soft gates</h2></div>
+      <section class="card">
+        <p class="muted" style="margin:0 0 14px;font-size:15px;line-height:1.7;max-width:74ch;">This is the big distinction. If a thing is objective, automate it as a required status check. If a thing is fuzzy, keep it advisory. You’ll save yourself a lot of bot melodrama.</p>
+        <div class="table-wrap">
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Layer</th>
+                  <th>Mechanism</th>
+                  <th>What it should do</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Lint / format</strong></td>
+                  <td>GitHub Actions</td>
+                  <td>Catch style drift and obvious mistakes before humans or bots waste time reviewing.</td>
+                  <td><span class="status status--hard">hard gate</span></td>
+                </tr>
+                <tr>
+                  <td><strong>Typecheck</strong></td>
+                  <td>GitHub Actions</td>
+                  <td>Block broken signatures, invalid imports, bad contracts.</td>
+                  <td><span class="status status--hard">hard gate</span></td>
+                </tr>
+                <tr>
+                  <td><strong>Tests</strong></td>
+                  <td>Unit / integration / smoke</td>
+                  <td>Confirm behavior, not just syntax. At minimum: smoke path for critical user journey.</td>
+                  <td><span class="status status--hard">hard gate</span></td>
+                </tr>
+                <tr>
+                  <td><strong>Build</strong></td>
+                  <td>CI build step</td>
+                  <td>Make sure deploy artifacts actually compile and package.</td>
+                  <td><span class="status status--hard">hard gate</span></td>
+                </tr>
+                <tr>
+                  <td><strong>Preview deployment</strong></td>
+                  <td>Vercel / Railway preview</td>
+                  <td>Render the real app so UI and integration weirdness shows up before merge.</td>
+                  <td><span class="status status--hard">hard gate for UI-heavy apps</span></td>
+                </tr>
+                <tr>
+                  <td><strong>AI review</strong></td>
+                  <td>CodeRabbit / Codex / Claude</td>
+                  <td>Spot risks, missing tests, suspicious logic, security regressions, maintainability problems.</td>
+                  <td><span class="status status--soft">soft gate by default</span></td>
+                </tr>
+                <tr>
+                  <td><strong>SAST / dependency scan</strong></td>
+                  <td>CodeQL / Dependabot / vendor tool</td>
+                  <td>Flag known vulns and dangerous patterns without relying on taste.</td>
+                  <td><span class="status status--soft">hard only for serious repos</span></td>
+                </tr>
+                <tr>
+                  <td><strong>Prod approval</strong></td>
+                  <td>GitHub Environment rule</td>
+                  <td>Add a human pause only when blast radius justifies it.</td>
+                  <td><span class="status status--soft">context dependent</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="callout"><strong>Simple rule:</strong> if it can be judged by a machine with low ambiguity, let it block merges. If it’s interpretive, let it advise. Otherwise you end up with three bots bikeshedding naming while a broken deploy slips through.</div>
+      </section>
+
+      <div class="section-head" id="s4"><span class="section-num">04</span><h2>AI role split</h2></div>
+      <section class="card stack">
+        <div class="grid-3">
+          <div class="lane-card" style="border-color:color-mix(in srgb,var(--navy) 24%, var(--border));background:color-mix(in srgb,var(--navy-dim) 72%, var(--surface-muted) 28%);">
+            <div class="step-num-mini">Always-on reviewer</div>
+            <div class="step-title">CodeRabbit</div>
+            <div class="step-copy">Make this the default PR reviewer because it’s built for continuous review and planning. One always-on reviewer is enough.</div>
+          </div>
+          <div class="lane-card" style="border-color:color-mix(in srgb,var(--amber) 24%, var(--border));background:color-mix(in srgb,var(--amber-dim) 72%, var(--surface-muted) 28%);">
+            <div class="step-num-mini">Specialist reviewer</div>
+            <div class="step-title">Codex</div>
+            <div class="step-copy">Use on-demand for security regressions, architecture scrutiny, and “fix the CI failures” loops on PRs.</div>
+          </div>
+          <div class="lane-card" style="border-color:color-mix(in srgb,var(--teal) 24%, var(--border));background:color-mix(in srgb,var(--teal-dim) 72%, var(--surface-muted) 28%);">
+            <div class="step-num-mini">Specialist builder / critic</div>
+            <div class="step-title">Claude</div>
+            <div class="step-copy">Use for issue-to-PR generation, implementation critique, and repo-context reasoning when the diff gets tricky.</div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card" style="padding:18px;border-radius:18px;box-shadow:none;">
+            <h2>Repository instructions they should all follow</h2>
+            <ul class="list">
+              <li>Keep a top-level <code>AGENTS.md</code> or equivalent review guidance file.</li>
+              <li>Specify what matters in <em>this</em> repo: auth boundaries, PII rules, migration rules, performance budgets.</li>
+              <li>Tell reviewers what not to waste time on: docs typos, subjective renames, generated files.</li>
+              <li>Link AI work back to Linear issue IDs and acceptance criteria.</li>
+            </ul>
+          </div>
+          <div class="card" style="padding:18px;border-radius:18px;box-shadow:none;">
+            <h2>What not to let them do alone</h2>
+            <ul class="list">
+              <li>Approve their own risky prod rollout policy changes.</li>
+              <li>Rewrite deployment workflows casually.</li>
+              <li>Change secret handling without explicit scrutiny.</li>
+              <li>Ship giant cross-cutting PRs with no preview, no smoke path, and no rollback note.</li>
+            </ul>
+          </div>
+        </div>
+
+        <details class="collapsible">
+          <summary>AI review doctrine</summary>
+          <div class="collapsible__body">Use <strong>one default voice</strong> and <strong>two invoked specialists</strong>. If CodeRabbit, Codex, and Claude all pile onto every single PR, you won’t get wisdom — you’ll get duplicate comments, inconsistent severity, and attention fatigue. Keep the signal clean.</div>
+        </details>
+      </section>
+
+      <div class="section-head" id="s5"><span class="section-num">05</span><h2>Deploy, environments, and observability</h2></div>
+      <section class="card stack">
+        <div class="grid-2">
+          <div>
+            <h2 style="margin-top:0;">Environment model</h2>
+            <div class="pipeline" style="margin-top:14px;">
+              <div class="step step--teal">
+                <div class="step-num-mini">PR environment</div>
+                <div class="step-title">Preview</div>
+                <div class="step-copy">Vercel preview or Railway preview for every PR. Shareable URL. Optional smoke/E2E on that URL.</div>
+              </div>
+              <div class="arrow">→</div>
+              <div class="step step--rose">
+                <div class="step-num-mini">Main environment</div>
+                <div class="step-title">Production</div>
+                <div class="step-copy">Deploy only from protected <code>main</code>. Add manual approval only when blast radius demands it.</div>
+              </div>
+            </div>
+            <div class="callout"><strong>Default for you:</strong> preview on every PR, production on merge to <code>main</code>. Don’t overcomplicate staging unless you really need release batching or stakeholder signoff.</div>
+          </div>
+          <div>
+            <h2 style="margin-top:0;">Observability loop</h2>
+            <ul class="list" style="margin-top:14px;">
+              <li><strong>Sentry from day one</strong> for front-end and back-end exceptions.</li>
+              <li><strong>Release tagging</strong> on every production deploy so stack traces map to shipped code.</li>
+              <li><strong>Healthchecks / uptime</strong> for scheduled jobs and critical endpoints.</li>
+              <li><strong>Analytics / product signals</strong> only where it sharpens roadmap or bug triage.</li>
+              <li><strong>Regression intake</strong> back into Linear so AI can pick them up as new work items.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Concern</th>
+                  <th>Early-stage default</th>
+                  <th>When to tighten it</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Vercel</strong></td>
+                  <td>Auto previews for PRs, auto prod on merge to <code>main</code>.</td>
+                  <td>If auth, billing, or user data risk grows, add protected environment or post-deploy smoke tests.</td>
+                </tr>
+                <tr>
+                  <td><strong>Railway</strong></td>
+                  <td>Great for services, workers, APIs, cron-backed apps.</td>
+                  <td>Add health endpoints, migration discipline, and separate env vars by environment once state matters.</td>
+                </tr>
+                <tr>
+                  <td><strong>AWS</strong></td>
+                  <td>Use only when you actually need its control surface.</td>
+                  <td>Prefer OIDC and least-privilege roles; otherwise secret sprawl gets ugly fast.</td>
+                </tr>
+                <tr>
+                  <td><strong>Sentry</strong></td>
+                  <td>Mandatory from first production-ish launch.</td>
+                  <td>Tune alert noise and ownership as project complexity grows.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <div class="section-head" id="s6"><span class="section-num">06</span><h2>Recommended stack and policy set</h2></div>
+      <section class="card stack">
+        <div class="grid-3">
+          <div class="lane-card" style="border-color:color-mix(in srgb,var(--navy) 24%, var(--border));background:color-mix(in srgb,var(--navy-dim) 72%, var(--surface-muted) 28%);">
+            <div class="step-num-mini">Git policy</div>
+            <div class="step-title">Protect main hard</div>
+            <div class="step-copy">Require PRs, required checks, conversation resolution, and preferably unique job names in workflows so GitHub doesn’t get weird.</div>
+          </div>
+          <div class="lane-card" style="border-color:color-mix(in srgb,var(--amber) 24%, var(--border));background:color-mix(in srgb,var(--amber-dim) 72%, var(--surface-muted) 28%);">
+            <div class="step-num-mini">Workflow policy</div>
+            <div class="step-title">Treat workflows as prod infra</div>
+            <div class="step-copy">Minimal <code>GITHUB_TOKEN</code> perms, pinned actions where practical, no casual workflow rewrites by bots.</div>
+          </div>
+          <div class="lane-card" style="border-color:color-mix(in srgb,var(--teal) 24%, var(--border));background:color-mix(in srgb,var(--teal-dim) 72%, var(--surface-muted) 28%);">
+            <div class="step-num-mini">Delivery policy</div>
+            <div class="step-title">Small PRs, fast loops</div>
+            <div class="step-copy">If a PR touches auth, payments, infra, data model, and UI all at once, split it. You’re not proving bravery; you’re making rollback impossible.</div>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Area</th>
+                  <th>Recommended default</th>
+                  <th>Why</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Issue tracking</strong></td>
+                  <td>Linear</td>
+                  <td>Clean handoff point from product requirement to AI execution.</td>
+                </tr>
+                <tr>
+                  <td><strong>Default AI reviewer</strong></td>
+                  <td>CodeRabbit</td>
+                  <td>Good always-on PR review surface without forcing three overlapping bots.</td>
+                </tr>
+                <tr>
+                  <td><strong>Invoked reviewers</strong></td>
+                  <td>Codex + Claude</td>
+                  <td>Use on demand for risk-specific scrutiny or autonomous implementation tasks.</td>
+                </tr>
+                <tr>
+                  <td><strong>Required checks</strong></td>
+                  <td>Lint, typecheck, tests, build, preview/smoke</td>
+                  <td>The minimum useful CI wall for AI-generated code.</td>
+                </tr>
+                <tr>
+                  <td><strong>Hosting</strong></td>
+                  <td>Vercel / Railway first</td>
+                  <td>Faster loops, easier previews, less infra yak shaving.</td>
+                </tr>
+                <tr>
+                  <td><strong>Observability</strong></td>
+                  <td>Sentry + uptime</td>
+                  <td>Production truth has to exist outside the PR conversation.</td>
+                </tr>
+                <tr>
+                  <td><strong>Merge mode</strong></td>
+                  <td>Auto-merge after green checks</td>
+                  <td>Good fit for solo work once your gates are solid.</td>
+                </tr>
+                <tr>
+                  <td><strong>Branching</strong></td>
+                  <td>Feature branch → PR → main</td>
+                  <td>The cleanest trunk-based model for a one-man shop.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <div class="section-head" id="s7"><span class="section-num">07</span><h2>30-day rollout plan</h2></div>
+      <section class="card stack">
+        <div class="grid-3">
+          <div class="lane-card" style="border-color:color-mix(in srgb,var(--navy) 24%, var(--border));background:color-mix(in srgb,var(--navy-dim) 72%, var(--surface-muted) 28%);">
+            <div class="step-num-mini">Week 1</div>
+            <div class="step-title">Foundation</div>
+            <div class="step-copy">Protect <code>main</code>, set required checks, add preview deploys, wire Sentry, create repo instructions for AI reviewers.</div>
+          </div>
+          <div class="lane-card" style="border-color:color-mix(in srgb,var(--amber) 24%, var(--border));background:color-mix(in srgb,var(--amber-dim) 72%, var(--surface-muted) 28%);">
+            <div class="step-num-mini">Week 2</div>
+            <div class="step-title">AI work loops</div>
+            <div class="step-copy">Linear → branch → PR automation. CodeRabbit always on. Codex/Claude comment triggers ready for specialist tasks.</div>
+          </div>
+          <div class="lane-card" style="border-color:color-mix(in srgb,var(--teal) 24%, var(--border));background:color-mix(in srgb,var(--teal-dim) 72%, var(--surface-muted) 28%);">
+            <div class="step-num-mini">Week 3–4</div>
+            <div class="step-title">Tighten the machine</div>
+            <div class="step-copy">Add smoke tests on previews, release tags, regression-to-Linear loop, and manual prod approvals only if needed.</div>
+          </div>
+        </div>
+        <div class="callout"><strong>If you do only three things first:</strong> protect <code>main</code>, get previews on every PR, and install Sentry before the first real users show up. Those three buy you an absurd amount of sanity.</div>
+        <p class="footer-note">Designed as a decision page, not a generic deck: enough detail to implement the workflow, no consultant sludge, and no fake need for a <code>dev</code> branch.</p>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    (function() {
+      const toc = document.getElementById('toc');
+      const links = toc.querySelectorAll('a');
+      const sections = [];
+      links.forEach(link => {
+        const id = link.getAttribute('href').slice(1);
+        const el = document.getElementById(id);
+        if (el) sections.push({ id, el, link });
+      });
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (!entry.isIntersecting) return;
+          links.forEach(l => l.classList.remove('active'));
+          const match = sections.find(s => s.el === entry.target);
+          if (!match) return;
+          match.link.classList.add('active');
+          if (window.innerWidth <= 1080) {
+            match.link.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+          }
+        });
+      }, { rootMargin: '-12% 0px -78% 0px' });
+      sections.forEach(s => observer.observe(s.el));
+      links.forEach(link => {
+        link.addEventListener('click', e => {
+          e.preventDefault();
+          const id = link.getAttribute('href').slice(1);
+          const el = document.getElementById(id);
+          if (!el) return;
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          history.replaceState(null, '', '#' + id);
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

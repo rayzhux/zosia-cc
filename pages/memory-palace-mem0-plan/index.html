@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+  <title>Memory Palace — Mem0 Implementation Plan</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;600;700;800&family=Fragment+Mono:wght@400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f7f5f0;
+      --surface: #ffffff;
+      --surface-alt: #efeae3;
+      --surface-recessed: #f0ece5;
+      --border: rgba(0,0,0,0.07);
+      --border-strong: rgba(0,0,0,0.14);
+      --text: #1c1917;
+      --text-dim: #57534e;
+      --text-muted: #a8a29e;
+      --accent-1: #1e3a5f;
+      --accent-1-dim: rgba(30,58,95,0.07);
+      --accent-2: #c2410c;
+      --accent-2-dim: rgba(194,65,12,0.06);
+      --accent-3: #166534;
+      --accent-3-dim: rgba(22,101,52,0.06);
+      --accent-4: #d4a73a;
+      --accent-4-dim: rgba(212,167,58,0.08);
+      --accent-5: #7e22ce;
+      --accent-5-dim: rgba(126,34,206,0.06);
+      --font-heading: 'Bricolage Grotesque', system-ui, sans-serif;
+      --font-body: 'Bricolage Grotesque', system-ui, sans-serif;
+      --font-mono: 'Fragment Mono', monospace;
+      --radius: 10px;
+      --radius-lg: 16px;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #141210;
+        --surface: #1c1a17;
+        --surface-alt: #242220;
+        --surface-recessed: #1a1816;
+        --border: rgba(255,255,255,0.06);
+        --border-strong: rgba(255,255,255,0.12);
+        --text: #e7e5e4;
+        --text-dim: #a8a29e;
+        --text-muted: #78716c;
+        --accent-1: #93c5fd;
+        --accent-1-dim: rgba(147,197,253,0.08);
+        --accent-2: #fb923c;
+        --accent-2-dim: rgba(251,146,60,0.08);
+        --accent-3: #86efac;
+        --accent-3-dim: rgba(134,239,172,0.07);
+        --accent-4: #fbbf24;
+        --accent-4-dim: rgba(251,191,36,0.08);
+        --accent-5: #c084fc;
+        --accent-5-dim: rgba(192,132,252,0.07);
+      }
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body { font-family:var(--font-body); background:var(--bg); color:var(--text); line-height:1.6; }
+    .page { max-width:1100px; margin:0 auto; padding:3rem 1.5rem 5rem; }
+
+    /* Hero */
+    .hero { margin-bottom:3rem; padding-bottom:2.5rem; border-bottom:2px solid var(--border-strong); }
+    .hero-tag {
+      font-family:var(--font-mono); font-size:0.68rem; font-weight:400;
+      letter-spacing:0.1em; text-transform:uppercase; color:var(--accent-2);
+      margin-bottom:0.75rem;
+    }
+    .hero h1 {
+      font-size:clamp(2rem,5vw,3rem); font-weight:800; line-height:1.1;
+      margin-bottom:1rem;
+    }
+    .hero h1 span { color:var(--accent-1); }
+    .hero-sub { font-size:1.05rem; color:var(--text-dim); max-width:720px; }
+    .hero-meta { display:flex; gap:1.5rem; margin-top:1rem; font-family:var(--font-mono); font-size:0.75rem; color:var(--text-muted); }
+
+    /* Section */
+    .sec { margin-bottom:3.5rem; }
+    .sec-label {
+      display:inline-flex; align-items:center; gap:0.4rem;
+      font-family:var(--font-mono); font-size:0.68rem; font-weight:400;
+      letter-spacing:0.08em; text-transform:uppercase; color:var(--accent-1);
+      margin-bottom:0.6rem;
+    }
+    .sec-label .d { width:5px; height:5px; border-radius:50%; background:var(--accent-4); }
+    .sec h2 { font-size:1.6rem; font-weight:700; line-height:1.2; margin-bottom:0.75rem; }
+    .sec h3 { font-size:1rem; font-weight:700; margin-bottom:0.4rem; }
+    .sec p { color:var(--text-dim); max-width:720px; margin-bottom:0.75rem; font-size:0.92rem; }
+
+    /* Cards */
+    .grid { display:grid; gap:1rem; margin-top:1rem; }
+    .grid-2 { grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); }
+    .grid-3 { grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); }
+    .grid-4 { grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); }
+    .c {
+      background:var(--surface); border:1px solid var(--border);
+      border-radius:var(--radius-lg); padding:1.4rem;
+      transition:border-color 0.2s;
+    }
+    .c:hover { border-color:var(--border-strong); }
+    .c h4 { font-size:0.92rem; font-weight:700; margin-bottom:0.35rem; }
+    .c p, .c li { font-size:0.84rem; color:var(--text-dim); line-height:1.55; }
+    .c ul { list-style:none; padding:0; }
+    .c ul li { padding:0.25rem 0 0.25rem 1rem; position:relative; }
+    .c ul li::before { content:'→'; position:absolute; left:0; color:var(--accent-4); font-size:0.78rem; }
+    .c--hero { background:var(--accent-1-dim); border:2px solid var(--accent-1); }
+    .c--1 { border-left:3px solid var(--accent-1); }
+    .c--2 { border-left:3px solid var(--accent-2); }
+    .c--3 { border-left:3px solid var(--accent-3); }
+    .c--4 { border-left:3px solid var(--accent-4); }
+    .c--5 { border-left:3px solid var(--accent-5); }
+    .tag {
+      display:inline-block; font-family:var(--font-mono); font-size:0.62rem;
+      font-weight:400; letter-spacing:0.04em; text-transform:uppercase;
+      padding:0.18rem 0.45rem; border-radius:4px; margin-bottom:0.4rem;
+    }
+    .tag--1 { background:var(--accent-1-dim); color:var(--accent-1); }
+    .tag--2 { background:var(--accent-2-dim); color:var(--accent-2); }
+    .tag--3 { background:var(--accent-3-dim); color:var(--accent-3); }
+    .tag--4 { background:var(--accent-4-dim); color:var(--accent-4); }
+    .tag--5 { background:var(--accent-5-dim); color:var(--accent-5); }
+
+    /* Decision box */
+    .decision {
+      background:var(--accent-3-dim); border:2px solid var(--accent-3);
+      border-radius:var(--radius-lg); padding:1.75rem; margin-top:1.25rem;
+    }
+    .decision h3 { color:var(--accent-3); font-size:1.15rem; margin-bottom:0.5rem; }
+    .decision p { font-size:0.88rem; }
+
+    /* Callout */
+    .callout {
+      background:var(--surface-alt); border-left:3px solid var(--accent-4);
+      border-radius:0 var(--radius) var(--radius) 0;
+      padding:1.1rem 1.4rem; margin:1.25rem 0;
+    }
+    .callout p { font-size:0.86rem; color:var(--text-dim); margin:0; }
+    .callout strong { color:var(--text); }
+
+    /* Phase timeline */
+    .phases { counter-reset:ph; margin-top:1.25rem; }
+    .ph {
+      background:var(--surface); border:1px solid var(--border);
+      border-radius:var(--radius-lg); padding:1.5rem; margin-bottom:1rem;
+      display:grid; grid-template-columns:auto 1fr; gap:1.25rem;
+      counter-increment:ph; position:relative;
+    }
+    .ph-num {
+      font-family:var(--font-heading); font-size:2.5rem; font-weight:800;
+      color:var(--accent-4); opacity:0.25; line-height:1;
+      min-width:40px; text-align:center;
+    }
+    .ph-num::after { content:counter(ph); }
+    .ph h4 { font-family:var(--font-mono); font-size:0.72rem; font-weight:400; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent-1); margin-bottom:0.35rem; }
+    .ph p { font-size:0.85rem; color:var(--text-dim); margin-bottom:0.4rem; }
+    .ph-deps { font-family:var(--font-mono); font-size:0.7rem; color:var(--text-muted); }
+
+    /* Table */
+    .tw { overflow-x:auto; margin-top:1rem; border-radius:var(--radius-lg); border:1px solid var(--border); }
+    table { width:100%; border-collapse:collapse; font-size:0.82rem; }
+    thead th {
+      background:var(--surface-alt); font-family:var(--font-mono); font-size:0.68rem;
+      font-weight:400; letter-spacing:0.05em; text-transform:uppercase;
+      color:var(--text-dim); text-align:left; padding:0.7rem 0.9rem;
+      border-bottom:1px solid var(--border-strong); position:sticky; top:0; z-index:1;
+    }
+    td { padding:0.6rem 0.9rem; border-bottom:1px solid var(--border); color:var(--text-dim); vertical-align:top; }
+    tr:nth-child(even) td { background:var(--surface-alt); }
+    td:first-child { font-weight:600; color:var(--text); white-space:nowrap; }
+    code { font-family:var(--font-mono); font-size:0.8em; background:var(--surface-alt); padding:0.12em 0.35em; border-radius:4px; }
+
+    /* Animations */
+    @keyframes fadeUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+    .anim { animation:fadeUp 0.45s ease-out both; }
+    .anim-1{animation-delay:.08s} .anim-2{animation-delay:.16s} .anim-3{animation-delay:.24s} .anim-4{animation-delay:.32s}
+    @media(prefers-reduced-motion:reduce){.anim{animation:none;opacity:1}}
+    @media(max-width:600px){
+      .page{padding:1.5rem 1rem 3rem}
+      .grid-2,.grid-3,.grid-4{grid-template-columns:1fr}
+      .ph{grid-template-columns:1fr}
+      .ph-num{display:none}
+    }
+    .sources { margin-top:3rem; padding-top:2rem; border-top:1px solid var(--border); }
+    .sources h3 { font-family:var(--font-mono); font-size:0.68rem; letter-spacing:0.08em; text-transform:uppercase; color:var(--text-muted); margin-bottom:0.75rem; }
+    .sources ol { padding-left:1.2rem; font-size:0.78rem; color:var(--text-muted); line-height:1.8; }
+    .sources a { color:var(--accent-1); text-decoration:none; }
+    .sources a:hover { text-decoration:underline; }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Hero -->
+  <header class="hero anim">
+    <div class="hero-tag">Implementation Plan — Final</div>
+    <h1>Memory Palace<br><span>Powered by Mem0</span></h1>
+    <p class="hero-sub">
+      A complete plan to build a local-first personal knowledge graph on your MacBook using Mem0 OSS as the core memory engine, with FalkorDB for graph relationships and Qdrant for vector search — all self-hosted, zero cloud dependency.
+    </p>
+    <div class="hero-meta">
+      <span>14 Mar 2026</span>
+      <span>Mem0 OSS + FalkorDB + Qdrant</span>
+      <span>8 docs analyzed</span>
+    </div>
+  </header>
+
+  <!-- Section: Why Mem0 -->
+  <section class="sec anim anim-1">
+    <div class="sec-label"><span class="d"></span> Strategic Decision</div>
+    <h2>Why Mem0 is the right foundation</h2>
+    <p>You liked Mem0 for a reason — it's the most mature, well-documented memory engine with 50K+ GitHub stars, active development, and the exact dual-storage architecture (vectors + graph) that a Memory Palace needs. Here's the key decision tree:</p>
+
+    <div class="decision">
+      <h3>✅ Mem0 OSS (self-hosted) — not Mem0 Platform (cloud)</h3>
+      <p>
+        <strong>Cloud ($249/mo for graph) is out.</strong> We self-host everything on your MacBook. Mem0 OSS is Apache 2.0 licensed, supports graph memory, and lets us choose our own LLM, embedder, vector store, and graph backend. We own every byte of data. Same codebase, full control.
+      </p>
+    </div>
+
+    <div class="grid grid-3" style="margin-top:1.25rem;">
+      <div class="c c--3">
+        <span class="tag tag--3">Why Mem0</span>
+        <h4>Battle-tested extraction</h4>
+        <p>Mem0's two-phase pipeline (Extract → Update with ADD/UPDATE/DELETE/NOOP) is the most mature fact extraction engine available. Handles conflicts, dedup, and memory compression automatically.</p>
+      </div>
+      <div class="c c--3">
+        <span class="tag tag--3">Why Mem0</span>
+        <h4>Dual storage built-in</h4>
+        <p>Vector embeddings + graph relationships stored simultaneously. On retrieval, vector search narrows candidates while graph returns related entities — exactly what a Memory Palace needs.</p>
+      </div>
+      <div class="c c--3">
+        <span class="tag tag--3">Why Mem0</span>
+        <h4>Pluggable everything</h4>
+        <p>Swap LLM (OpenAI/Anthropic/Ollama), embedder, vector store (Qdrant/Chroma/20+), graph store (Neo4j/FalkorDB/Kuzu), and reranker independently. Future-proof by design.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section: Architecture -->
+  <section class="sec anim anim-2">
+    <div class="sec-label"><span class="d"></span> Architecture</div>
+    <h2>The complete stack on your MacBook</h2>
+
+    <div class="tw">
+      <table>
+        <thead>
+          <tr>
+            <th>Component</th>
+            <th>Choice</th>
+            <th>Why</th>
+            <th>Runs as</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Memory Engine</td>
+            <td><code>mem0ai</code> (Python)</td>
+            <td>Core library — fact extraction, memory CRUD, search orchestration</td>
+            <td>Python library + REST API</td>
+          </tr>
+          <tr>
+            <td>Vector Store</td>
+            <td><strong>Qdrant</strong> (local)</td>
+            <td>Default Mem0 vector store. On-disk at <code>/tmp/qdrant</code> → we'll move to <code>~/memory-palace/qdrant</code>. No server needed — embedded mode.</td>
+            <td>Embedded (in-process)</td>
+          </tr>
+          <tr>
+            <td>Graph Store</td>
+            <td><strong>FalkorDB</strong></td>
+            <td>140ms p99 vs Neo4j's 46,900ms. Redis protocol, lightweight Docker container (~50MB). Per-user graph isolation built in. Drop-in Mem0 plugin.</td>
+            <td>Docker container</td>
+          </tr>
+          <tr>
+            <td>Extraction LLM</td>
+            <td><code>gpt-4.1-nano</code> (default) → upgrade to <code>gpt-4.1-mini</code></td>
+            <td>Cheap, fast extraction. ~$0.001/document. We process once, cache forever.</td>
+            <td>API call (OpenAI)</td>
+          </tr>
+          <tr>
+            <td>Embeddings</td>
+            <td><code>text-embedding-3-small</code> (1536d)</td>
+            <td>Mem0 default, great quality/cost ratio. Can swap to local model later.</td>
+            <td>API call (OpenAI)</td>
+          </tr>
+          <tr>
+            <td>Reranker</td>
+            <td>Cohere <code>rerank-english-v3.0</code></td>
+            <td>Significant search quality boost. 1000 free searches/month on free tier.</td>
+            <td>API call (Cohere)</td>
+          </tr>
+          <tr>
+            <td>API Layer</td>
+            <td>Mem0 REST API (FastAPI)</td>
+            <td>Exposes all memory operations over HTTP. OpenClaw calls this locally.</td>
+            <td><code>uvicorn</code> on port 8200</td>
+          </tr>
+          <tr>
+            <td>OpenClaw Integration</td>
+            <td>Custom OpenClaw skill + MCP server</td>
+            <td>Natural language queries from Discord/WhatsApp hit the REST API. MCP for coding agents.</td>
+            <td>OpenClaw skill</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout">
+      <p>
+        <strong>Why FalkorDB over Neo4j?</strong> Neo4j requires JVM, uses 1GB+ RAM idle, and the community edition has serious limitations. FalkorDB is a C-based graph engine with Redis protocol — starts in 2 seconds, uses ~50MB RAM, and is 335x faster at p99. The <code>mem0-falkordb</code> plugin is a single <code>pip install</code> + one line: <code>register()</code>.
+      </p>
+    </div>
+  </section>
+
+  <!-- Section: What gets ingested -->
+  <section class="sec anim anim-3">
+    <div class="sec-label"><span class="d"></span> Data Sources</div>
+    <h2>Everything that feeds the Memory Palace</h2>
+    <p>Each source gets a dedicated ingestion connector. Data flows: Source → Local raw copy → Mem0 <code>.add()</code> → Vector + Graph storage.</p>
+
+    <div class="grid grid-3">
+      <div class="c c--1">
+        <span class="tag tag--1">Already Available</span>
+        <h4>Gmail</h4>
+        <p><code>gog</code> CLI → fetch emails → feed conversations to Mem0 as message arrays. Both accounts (personal + WAG).</p>
+      </div>
+      <div class="c c--1">
+        <span class="tag tag--1">Already Available</span>
+        <h4>Google Calendar</h4>
+        <p><code>gog</code> CLI → fetch events with attendees, descriptions, notes. Creates meeting nodes + attendee relationships.</p>
+      </div>
+      <div class="c c--1">
+        <span class="tag tag--1">Already Available</span>
+        <h4>OpenClaw Sessions</h4>
+        <p>Session logs in <code>~/.openclaw/sessions/</code>. Already structured as conversation turns — perfect for Mem0's message format.</p>
+      </div>
+      <div class="c c--4">
+        <span class="tag tag--4">New Connector</span>
+        <h4>Granola Transcripts</h4>
+        <p>Meeting transcripts via Granola MCP or <code>muesli</code> CLI export. Richest source — full conversation context with attendee identification.</p>
+      </div>
+      <div class="c c--4">
+        <span class="tag tag--4">New Connector</span>
+        <h4>Notion</h4>
+        <p>Via existing Notion skill API. Extract pages, databases, project notes. Map page relationships → graph edges.</p>
+      </div>
+      <div class="c c--4">
+        <span class="tag tag--4">New Connector</span>
+        <h4>Slack</h4>
+        <p>Slack export or API. Messages + threads → conversation format. Tag by channel/DM for metadata filtering.</p>
+      </div>
+      <div class="c c--5">
+        <span class="tag tag--5">Future</span>
+        <h4>WhatsApp / Telegram</h4>
+        <p>OpenClaw already receives these. Archive inbound/outbound messages → Mem0 with contact metadata.</p>
+      </div>
+      <div class="c c--5">
+        <span class="tag tag--5">Future</span>
+        <h4>Documents / PDFs</h4>
+        <p>Mem0 supports multimodal — images and documents. Contract PDFs, board decks, project specs all extractable.</p>
+      </div>
+      <div class="c c--5">
+        <span class="tag tag--5">Future</span>
+        <h4>Contacts / CRM</h4>
+        <p>Google Contacts via <code>gog</code>. Create person nodes with phone, email, company, relationship notes.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section: Custom Schema -->
+  <section class="sec">
+    <div class="sec-label"><span class="d"></span> Entity Schema</div>
+    <h2>What the graph knows about</h2>
+    <p>Mem0's custom fact extraction prompt lets us define exactly what entities and relationships get stored. This is the domain model for your Memory Palace:</p>
+
+    <div class="grid grid-2">
+      <div class="c">
+        <h4>Entity Types</h4>
+        <ul>
+          <li><strong>Person</strong> — name, role, company, relationship to Raymond</li>
+          <li><strong>Company</strong> — name, industry, status, relationship (client/partner/prospect)</li>
+          <li><strong>Project</strong> — name, status, key people, timeline</li>
+          <li><strong>Meeting</strong> — date, attendees, key decisions, action items</li>
+          <li><strong>Decision</strong> — what was decided, who decided, context, date</li>
+          <li><strong>ActionItem</strong> — task, owner, deadline, status</li>
+          <li><strong>Topic</strong> — recurring themes (AutoData pricing, Axxion integration, etc.)</li>
+          <li><strong>Location</strong> — offices, venues, cities relevant to business</li>
+        </ul>
+      </div>
+      <div class="c">
+        <h4>Relationship Types</h4>
+        <ul>
+          <li><code>WORKS_AT</code> — Person → Company</li>
+          <li><code>REPORTS_TO</code> — Person → Person</li>
+          <li><code>INTRODUCED_BY</code> — Person → Person</li>
+          <li><code>ATTENDED</code> — Person → Meeting</li>
+          <li><code>DECIDED</code> — Person → Decision</li>
+          <li><code>ASSIGNED_TO</code> — ActionItem → Person</li>
+          <li><code>DISCUSSED_IN</code> — Topic → Meeting</li>
+          <li><code>PART_OF</code> — Project → Company</li>
+          <li><code>LOCATED_IN</code> — Company → Location</li>
+          <li><code>KNOWS</code> — Person → Person (with context)</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="callout">
+      <p>
+        <strong>Custom extraction prompt example:</strong> "Extract people, companies, projects, decisions, and action items. Capture relationships like who-works-where, who-introduced-whom, who-decided-what. Include dates and context. Ignore small talk and pleasantries. Return JSON with <code>facts</code> array."
+      </p>
+    </div>
+  </section>
+
+  <!-- Section: OpenClaw Integration -->
+  <section class="sec">
+    <div class="sec-label"><span class="d"></span> OpenClaw Integration</div>
+    <h2>How Zosia uses the Memory Palace</h2>
+
+    <div class="grid grid-2">
+      <div class="c c--hero">
+        <h4>New OpenClaw Skill: <code>memory-palace</code></h4>
+        <p>A custom skill that wraps the local Mem0 REST API. Natural language queries from any channel:</p>
+        <ul>
+          <li>"Who did I last meet from AutoData?"</li>
+          <li>"What were the action items from my call with Terry?"</li>
+          <li>"Map all my touchpoints with Amin Kadrie"</li>
+          <li>"What decisions have we made about Axxion this quarter?"</li>
+          <li>"Who introduced me to [person]?"</li>
+        </ul>
+        <p style="margin-top:0.5rem">Zosia calls <code>memory.search()</code> with hybrid vector + graph retrieval, gets both ranked memories AND entity relationships, assembles context.</p>
+      </div>
+      <div class="c">
+        <h4>Integration points</h4>
+        <ul>
+          <li><strong>Meeting Intelligence</strong> — becomes a thin layer: "pull all memories for [attendee] + [company] before meeting"</li>
+          <li><strong>Daily Brief</strong> — can reference relationship context ("You've met this person 3 times, last discussed X")</li>
+          <li><strong>Cron ingestion</strong> — nightly cron syncs new emails, calendar events, transcripts into Mem0</li>
+          <li><strong>Session memory</strong> — OpenClaw's existing MEMORY.md stays for operational state; Mem0 handles everything else</li>
+          <li><strong>MCP server</strong> — <code>mem0-mcp-server</code> for coding agents (Claude Code, Codex) to access the palace</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section: Implementation Phases -->
+  <section class="sec">
+    <div class="sec-label"><span class="d"></span> Implementation Roadmap</div>
+    <h2>Five phases, each independently valuable</h2>
+
+    <div class="phases">
+      <div class="ph">
+        <div class="ph-num"></div>
+        <div>
+          <h4>Foundation — Mem0 + FalkorDB + Qdrant on MacBook</h4>
+          <p><strong>Week 1.</strong> Install Mem0 OSS, spin up FalkorDB Docker container, configure Qdrant in embedded mode. Write the Mem0 config with FalkorDB graph store + Qdrant vector store + OpenAI LLM/embedder. Write and test the custom fact extraction prompt for your domain. Set up the REST API server on port 8200. Test with manual <code>.add()</code> and <code>.search()</code> calls.</p>
+          <p class="ph-deps">Deps: Docker, Python 3.10+, OpenAI key (already have)</p>
+        </div>
+      </div>
+      <div class="ph">
+        <div class="ph-num"></div>
+        <div>
+          <h4>Ingestion Pipeline — Gmail + Calendar + Granola</h4>
+          <p><strong>Week 2-3.</strong> Build Python ingestion scripts for the three richest sources. Gmail: fetch threads via <code>gog</code>, convert to message arrays, feed to Mem0. Calendar: fetch events, extract attendees + descriptions. Granola: export transcripts, parse into conversation format. Each script is idempotent (tracks what's been processed). Run historical backfill — process everything you have.</p>
+          <p class="ph-deps">Deps: Phase 1 complete, gog CLI, Granola MCP or muesli</p>
+        </div>
+      </div>
+      <div class="ph">
+        <div class="ph-num"></div>
+        <div>
+          <h4>OpenClaw Skill — Natural Language Interface</h4>
+          <p><strong>Week 3-4.</strong> Build the <code>memory-palace</code> OpenClaw skill. Wraps Mem0 REST API with natural language query understanding. Includes: search memories, get entity relationships, timeline queries ("what happened with X last month?"), people lookup ("tell me about [person]"). Meeting Intelligence refactored to query the palace instead of live-fetching everything.</p>
+          <p class="ph-deps">Deps: Phase 1 + some data from Phase 2</p>
+        </div>
+      </div>
+      <div class="ph">
+        <div class="ph-num"></div>
+        <div>
+          <h4>Full Ingestion — Notion + Slack + OpenClaw Sessions</h4>
+          <p><strong>Week 4-5.</strong> Add remaining data sources. Notion pages and databases. Slack messages and threads. Historical OpenClaw session logs. Set up nightly cron job for incremental sync of all sources. Build the ingestion dashboard (how many memories, entities, relationships, last sync time).</p>
+          <p class="ph-deps">Deps: Phase 2 pattern established</p>
+        </div>
+      </div>
+      <div class="ph">
+        <div class="ph-num"></div>
+        <div>
+          <h4>Intelligence Layer — Cross-Domain Reasoning</h4>
+          <p><strong>Week 6+.</strong> Advanced graph queries: relationship chains ("who connects me to Company X through fewer than 3 hops?"), temporal patterns ("what topics keep coming up in meetings with Y?"), network visualization via Obsidian export. Memory compression for frequently accessed facts. MCP server for external tool access. Backup strategy (R2 + encrypted snapshots).</p>
+          <p class="ph-deps">Deps: Phases 1-4 complete, enough data for meaningful patterns</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section: Config -->
+  <section class="sec">
+    <div class="sec-label"><span class="d"></span> Concrete Config</div>
+    <h2>The exact Mem0 configuration we'll use</h2>
+
+    <div class="grid grid-2">
+      <div class="c" style="background:var(--surface-recessed);">
+        <h4>Mem0 Config (Python)</h4>
+        <p style="font-family:var(--font-mono); font-size:0.76rem; white-space:pre-wrap; line-height:1.7; color:var(--text-dim);">
+from mem0_falkordb import register
+register()
+
+from mem0 import Memory
+
+config = {
+    "vector_store": {
+        "provider": "qdrant",
+        "config": {
+            "path": "~/memory-palace/qdrant",
+            "on_disk": True,
+        },
+    },
+    "graph_store": {
+        "provider": "falkordb",
+        "config": {
+            "host": "localhost",
+            "port": 6379,
+            "database": "memory_palace",
+        },
+        "custom_prompt": EXTRACTION_PROMPT,
+    },
+    "llm": {
+        "provider": "openai",
+        "config": {
+            "model": "gpt-4.1-mini",
+            "temperature": 0.1,
+        },
+    },
+    "embedder": {
+        "provider": "openai",
+        "config": {
+            "model": "text-embedding-3-small",
+        },
+    },
+    "reranker": {
+        "provider": "cohere",
+        "config": {
+            "model": "rerank-english-v3.0",
+        },
+    },
+    "version": "v1.1",
+}
+
+memory = Memory.from_config(config)</p>
+      </div>
+      <div class="c" style="background:var(--surface-recessed);">
+        <h4>Docker Compose (FalkorDB)</h4>
+        <p style="font-family:var(--font-mono); font-size:0.76rem; white-space:pre-wrap; line-height:1.7; color:var(--text-dim);">
+# ~/memory-palace/docker-compose.yml
+services:
+  falkordb:
+    image: falkordb/falkordb:latest
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./falkordb-data:/data
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+
+# Start: docker compose up -d
+# Check: redis-cli -p 6379 PING
+# Browse: http://localhost:3000
+#   (FalkorDB Browser)</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section: Costs -->
+  <section class="sec">
+    <div class="sec-label"><span class="d"></span> Cost Analysis</div>
+    <h2>What this costs to run</h2>
+
+    <div class="tw">
+      <table>
+        <thead>
+          <tr><th>Component</th><th>Cost</th><th>Notes</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Mem0 OSS</td><td>$0</td><td>Apache 2.0 license</td></tr>
+          <tr><td>FalkorDB</td><td>$0</td><td>Open source, ~50MB RAM</td></tr>
+          <tr><td>Qdrant (embedded)</td><td>$0</td><td>Local on-disk mode</td></tr>
+          <tr><td>GPT-4.1-mini (extraction)</td><td>~$5-15 one-time</td><td>Historical backfill of ~5K documents. Then ~$0.01/day for incremental.</td></tr>
+          <tr><td>Embeddings</td><td>~$2-5 one-time</td><td>text-embedding-3-small is $0.02/M tokens. Your entire history is ~50M tokens.</td></tr>
+          <tr><td>Cohere reranker</td><td>$0</td><td>1000 free searches/month. Enough for personal use.</td></tr>
+          <tr><td><strong>Total ongoing</strong></td><td><strong>~$1-3/month</strong></td><td>Just incremental extraction + embedding costs</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Section: Risks + Mitigations -->
+  <section class="sec">
+    <div class="sec-label"><span class="d"></span> Risks & Mitigations</div>
+    <h2>What could go wrong</h2>
+
+    <div class="grid grid-2">
+      <div class="c c--2">
+        <span class="tag tag--2">Risk</span>
+        <h4>FalkorDB port 6379 conflicts with Redis</h4>
+        <p>If you ever run Redis locally, they'll clash. <strong>Mitigation:</strong> Run FalkorDB on port 6380 instead. One config change.</p>
+      </div>
+      <div class="c c--2">
+        <span class="tag tag--2">Risk</span>
+        <h4>Extraction quality / noise</h4>
+        <p>LLM extraction isn't perfect — it may miss entities or create duplicates. <strong>Mitigation:</strong> Custom extraction prompt with few-shot examples. Periodic manual review of graph in FalkorDB Browser. Dedup queries.</p>
+      </div>
+      <div class="c c--2">
+        <span class="tag tag--2">Risk</span>
+        <h4>Docker dependency</h4>
+        <p>FalkorDB needs Docker. <strong>Mitigation:</strong> Docker Desktop already on your Mac. FalkorDB is tiny (~50MB). Alternative: Kùzu (embedded, no Docker) if we want to eliminate this entirely later — but it's newer and less Mem0-integrated.</p>
+      </div>
+      <div class="c c--2">
+        <span class="tag tag--2">Risk</span>
+        <h4>Data loss</h4>
+        <p><strong>Mitigation:</strong> Qdrant data is on-disk files. FalkorDB persists to Docker volume. Both backed up to R2 via existing nightly backup cron. Raw source data kept independently.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section: What changes vs what stays -->
+  <section class="sec">
+    <div class="sec-label"><span class="d"></span> Impact on Current Setup</div>
+    <h2>What changes, what stays the same</h2>
+
+    <div class="grid grid-2">
+      <div class="c c--3">
+        <span class="tag tag--3">Stays</span>
+        <h4>No changes needed</h4>
+        <ul>
+          <li>OpenClaw gateway, config, all existing crons</li>
+          <li>MEMORY.md for operational state (tool prefs, safety rules)</li>
+          <li>Nightly distillation pipeline</li>
+          <li>All existing skills (Discord, GitHub, etc.)</li>
+          <li>Argus agent — runs independently</li>
+        </ul>
+      </div>
+      <div class="c c--4">
+        <span class="tag tag--4">New additions</span>
+        <h4>What we build</h4>
+        <ul>
+          <li><code>~/memory-palace/</code> — new directory for all data</li>
+          <li>FalkorDB Docker container (always-on, ~50MB)</li>
+          <li>Mem0 REST API server (uvicorn, port 8200)</li>
+          <li><code>memory-palace</code> OpenClaw skill</li>
+          <li>Ingestion scripts (Python) for each source</li>
+          <li>Nightly cron for incremental sync</li>
+          <li>Meeting Intelligence refactored to use palace</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Sources -->
+  <footer class="sources">
+    <h3>Sources & Documentation</h3>
+    <ol>
+      <li><a href="https://docs.mem0.ai/open-source/python-quickstart">Mem0 OSS Python Quickstart</a></li>
+      <li><a href="https://docs.mem0.ai/open-source/configuration">Mem0 OSS Configuration Guide</a></li>
+      <li><a href="https://docs.mem0.ai/open-source/features/graph-memory">Mem0 Graph Memory Documentation</a></li>
+      <li><a href="https://docs.mem0.ai/open-source/features/custom-fact-extraction-prompt">Mem0 Custom Fact Extraction</a></li>
+      <li><a href="https://docs.mem0.ai/open-source/features/rest-api">Mem0 REST API Server</a></li>
+      <li><a href="https://docs.mem0.ai/platform/platform-vs-oss">Mem0 Platform vs Open Source comparison</a></li>
+      <li><a href="https://github.com/FalkorDB/mem0-falkordb">mem0-falkordb plugin (GitHub)</a></li>
+      <li><a href="https://www.falkordb.com/blog/graph-memory-llm-agents-mem0-falkordb/">FalkorDB Graph Memory for LLM Agents — architecture deep dive</a></li>
+      <li><a href="https://github.com/mem0ai/mem0-mcp">Mem0 MCP Server (official)</a></li>
+      <li><a href="https://www.reddit.com/r/ClaudeAI/comments/1r6r87z/">Self-hosted Mem0 MCP for Claude Code (Reddit)</a></li>
+    </ol>
+  </footer>
+
+</div>
+</body>
+</html>

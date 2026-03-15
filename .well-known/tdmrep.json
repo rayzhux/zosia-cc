@@ -1,0 +1,6 @@
+{
+  "@context": "http://www.w3.org/ns/tdmrep",
+  "@type": "TDMPolicy",
+  "tdm-reservation": 1,
+  "tdm-policy": "https://zosia-pages.vercel.app/.well-known/tdm-policy.json"
+}

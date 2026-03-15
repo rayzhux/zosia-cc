@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+  <title>Apple Health System — Full Architecture & Analysis Plan</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <style>
+    :root {
+      --bg: #faf9f7;
+      --surface: #ffffff;
+      --surface-dim: #f2f0ed;
+      --surface-recessed: #eae8e4;
+      --border: rgba(0,0,0,0.07);
+      --text: #1c1917;
+      --text-dim: #78716c;
+      --accent: #1e3a5f;
+      --accent-light: #2d5a8e;
+      --accent-dim: rgba(30,58,95,0.08);
+      --gold: #d4a73a;
+      --gold-dim: rgba(212,167,58,0.12);
+      --green: #166534;
+      --green-dim: rgba(22,101,52,0.08);
+      --teal: #0d9488;
+      --teal-dim: rgba(13,148,136,0.08);
+      --rose: #9f1239;
+      --rose-dim: rgba(159,18,57,0.08);
+      --amber: #92400e;
+      --amber-dim: rgba(146,64,14,0.1);
+      --font-body: 'DM Sans', -apple-system, sans-serif;
+      --font-mono: 'Fira Code', 'SF Mono', monospace;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #181816;
+        --surface: #242220;
+        --surface-dim: #2a2826;
+        --surface-recessed: #1e1c1a;
+        --border: rgba(255,255,255,0.07);
+        --text: #e7e5e4;
+        --text-dim: #a8a29e;
+        --accent: #93c5fd;
+        --accent-light: #bfdbfe;
+        --accent-dim: rgba(147,197,253,0.1);
+        --gold: #fbbf24;
+        --gold-dim: rgba(251,191,36,0.12);
+        --green: #4ade80;
+        --green-dim: rgba(74,222,128,0.1);
+        --teal: #2dd4bf;
+        --teal-dim: rgba(45,212,191,0.1);
+        --rose: #fb7185;
+        --rose-dim: rgba(251,113,133,0.1);
+        --amber: #fbbf24;
+        --amber-dim: rgba(251,191,36,0.1);
+      }
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font-body); background: var(--bg); color: var(--text); line-height: 1.65; }
+    .container { max-width: 1100px; margin: 0 auto; padding: 2.5rem 1.5rem 5rem; }
+
+    /* Hero */
+    .hero { padding: 3rem 0 2rem; border-bottom: 1px solid var(--border); margin-bottom: 3rem; }
+    .hero h1 { font-size: 2.4rem; font-weight: 700; letter-spacing: -0.035em; line-height: 1.15; margin-bottom: 0.6rem; }
+    .hero h1 span { color: var(--accent); }
+    .hero .lead { font-size: 1.1rem; color: var(--text-dim); max-width: 700px; }
+
+    /* Section */
+    .section { margin-bottom: 3.5rem; }
+    .section-num { font-family: var(--font-mono); font-size: 0.7rem; font-weight: 500; color: var(--gold); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.4rem; }
+    h2 { font-size: 1.6rem; font-weight: 700; letter-spacing: -0.025em; margin-bottom: 1.25rem; }
+    h3 { font-size: 1.15rem; font-weight: 600; margin-bottom: 0.6rem; }
+    h4 { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.4rem; }
+    p { margin-bottom: 0.75rem; }
+
+    /* Cards */
+    .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.25rem; margin: 1.5rem 0; }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1.5rem; }
+    .card--hero { background: linear-gradient(135deg, var(--accent-dim), var(--gold-dim)); border-color: var(--accent); }
+    .card--green { border-left: 3px solid var(--green); }
+    .card--teal { border-left: 3px solid var(--teal); }
+    .card--gold { border-left: 3px solid var(--gold); }
+    .card--rose { border-left: 3px solid var(--rose); }
+    .card h4 { color: var(--accent); }
+    .card p, .card li { font-size: 0.88rem; color: var(--text-dim); }
+    .card ul { padding-left: 1.2rem; margin-top: 0.5rem; }
+    .card li { margin-bottom: 0.3rem; }
+
+    /* Phase cards */
+    .phase { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1.75rem; margin: 1.25rem 0; }
+    .phase-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; }
+    .phase-badge { font-family: var(--font-mono); font-size: 0.72rem; font-weight: 600; padding: 0.2rem 0.6rem; border-radius: 4px; white-space: nowrap; }
+    .phase-badge--accent { background: var(--accent-dim); color: var(--accent); }
+    .phase-badge--green { background: var(--green-dim); color: var(--green); }
+    .phase-badge--gold { background: var(--gold-dim); color: var(--gold); }
+    .phase-badge--teal { background: var(--teal-dim); color: var(--teal); }
+    .phase-badge--rose { background: var(--rose-dim); color: var(--rose); }
+    .phase h3 { margin: 0; }
+    .phase p, .phase li { font-size: 0.9rem; }
+    .phase ul { padding-left: 1.2rem; }
+    .phase li { margin-bottom: 0.35rem; color: var(--text-dim); }
+    .phase li strong { color: var(--text); }
+
+    /* Mermaid */
+    .mermaid-wrap { display: flex; justify-content: center; margin: 2rem 0; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1.5rem; overflow-x: auto; }
+
+    /* Metric cards */
+    .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1.5rem 0; }
+    .metric-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; text-align: center; }
+    .metric-card .label { font-family: var(--font-mono); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-dim); margin-bottom: 0.35rem; }
+    .metric-card .value { font-size: 1.4rem; font-weight: 700; color: var(--accent); }
+    .metric-card .detail { font-size: 0.78rem; color: var(--text-dim); margin-top: 0.25rem; }
+
+    /* Callout */
+    .callout { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 8px; padding: 1.25rem 1.5rem; margin: 1.5rem 0; }
+    .callout--gold { border-left-color: var(--gold); }
+    .callout--green { border-left-color: var(--green); }
+    .callout h4 { margin-bottom: 0.35rem; font-size: 0.92rem; }
+    .callout p, .callout li { font-size: 0.88rem; color: var(--text-dim); }
+    .callout ul { padding-left: 1.2rem; margin-top: 0.5rem; }
+    .callout li { margin-bottom: 0.25rem; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin: 1.5rem 0; border-radius: 10px; border: 1px solid var(--border); }
+    table { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
+    thead { background: var(--surface-dim); }
+    th { text-align: left; padding: 0.8rem 1rem; font-weight: 600; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-dim); border-bottom: 2px solid var(--border); }
+    td { padding: 0.8rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+    tr:nth-child(even) { background: var(--surface-dim); }
+    .tag { display: inline-block; font-family: var(--font-mono); font-size: 0.7rem; padding: 0.12rem 0.45rem; border-radius: 3px; }
+    .tag--green { background: var(--green-dim); color: var(--green); }
+    .tag--gold { background: var(--gold-dim); color: var(--gold); }
+    .tag--teal { background: var(--teal-dim); color: var(--teal); }
+    .tag--rose { background: var(--rose-dim); color: var(--rose); }
+
+    code { font-family: var(--font-mono); font-size: 0.84em; background: var(--surface-dim); padding: 0.12rem 0.35rem; border-radius: 3px; }
+
+    /* Divider */
+    .divider { border: 0; border-top: 1px solid var(--border); margin: 3rem 0; }
+
+    /* Animation */
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+    .animate { animation: fadeUp 0.5s ease-out both; }
+    .d1 { animation-delay: 0.05s; } .d2 { animation-delay: 0.1s; } .d3 { animation-delay: 0.15s; } .d4 { animation-delay: 0.2s; }
+    @media (prefers-reduced-motion: reduce) { .animate { animation: none; } }
+
+    @media (max-width: 640px) {
+      .hero h1 { font-size: 1.7rem; }
+      .card-grid { grid-template-columns: 1fr; }
+      .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+      td, th { padding: 0.55rem 0.7rem; font-size: 0.8rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <div class="hero animate d1">
+    <h1>Apple Health <span>→</span> OpenClaw<br>Full System Plan</h1>
+    <p class="lead">Health Auto Export + SQLite + AI analysis. Everything local, everything queryable, everything automated. Here's the complete architecture and analysis strategy.</p>
+  </div>
+
+  <!-- ARCHITECTURE OVERVIEW -->
+  <div class="section animate d2">
+    <div class="section-num">01 — Architecture</div>
+    <h2>System Overview</h2>
+    <div class="mermaid-wrap">
+      <pre class="mermaid">
+flowchart TD
+    A["📱 iPhone<br/>Health Auto Export<br/>Premium · Background Sync"] -->|"REST API POST<br/>JSON · Every 6hr"| B["⚙️ FastAPI Receiver<br/>localhost:8400<br/>Tailscale accessible"]
+    B -->|"Validate + Insert"| C["🗄️ SQLite DB<br/>~/.openclaw/workspace/<br/>data/health/health.db"]
+    C -->|"Query Layer"| D["🤖 Zosia (OpenClaw)<br/>Direct SQL queries<br/>Natural language"]
+    D -->|"Weekly Digest"| E["💬 Discord #health<br/>CV2 Health Card"]
+    D -->|"Anomaly Alerts"| F["📲 WhatsApp / DM<br/>Push Alerts"]
+    C -->|"Optional"| G["📊 Grafana<br/>Dashboard<br/>localhost:3000"]
+    
+    style A fill:#f0fdf4,stroke:#166534,color:#166534
+    style B fill:#eff6ff,stroke:#1e3a5f,color:#1e3a5f
+    style C fill:#fef3c7,stroke:#92400e,color:#92400e
+    style D fill:#f0fdf4,stroke:#166534,color:#166534
+    style E fill:#eff6ff,stroke:#1e3a5f,color:#1e3a5f
+    style F fill:#eff6ff,stroke:#1e3a5f,color:#1e3a5f
+    style G fill:#faf5ff,stroke:#6b21a8,color:#6b21a8
+      </pre>
+    </div>
+  </div>
+
+  <!-- WHY SQLITE -->
+  <div class="callout animate d2">
+    <h4>Why SQLite over PostgreSQL?</h4>
+    <p>Your Mac is a single-user system. SQLite is zero-config, zero-daemon, and I can query it directly with Python — no Docker, no connection strings. File-based = easy backup (just copy the .db file). For personal health data volume (even 10 years), SQLite handles it effortlessly. If you ever need Grafana, it has a SQLite plugin. If you need to scale later, we migrate — but you won't need to.</p>
+  </div>
+
+  <!-- IMPLEMENTATION PHASES -->
+  <div class="section animate d2">
+    <div class="section-num">02 — Implementation</div>
+    <h2>Build Phases</h2>
+
+    <div class="phase">
+      <div class="phase-header">
+        <span class="phase-badge phase-badge--accent">Phase 1 — Day 1</span>
+        <h3>iPhone Setup + Data Receiver</h3>
+      </div>
+      <p><strong>You do (5 min):</strong></p>
+      <ul>
+        <li>Install <strong>Health Auto Export</strong> from App Store</li>
+        <li>Grant Health access for <strong>all categories</strong></li>
+        <li>Buy <strong>Premium Lifetime ($25)</strong> — unlocks background sync + REST API</li>
+        <li>Create a new automation: type = <strong>REST API</strong></li>
+        <li>URL: <code>http://100.x.x.x:8400/api/v1/sync</code> (your Mac's Tailscale IP)</li>
+        <li>Format: <strong>JSON</strong> · Date Range: <strong>Since Last Sync</strong> · Cadence: <strong>6 hours</strong></li>
+        <li>Enable <strong>Batch Requests</strong> (prevents memory crashes on large payloads)</li>
+        <li>Do one <strong>Manual Export</strong> for "Last 7 Days" to seed data</li>
+      </ul>
+      <p style="margin-top: 1rem;"><strong>I build:</strong></p>
+      <ul>
+        <li>FastAPI server at <code>localhost:8400</code> — receives webhooks, validates with Pydantic</li>
+        <li>SQLite schema: <code>health.db</code> with tables for metrics, workouts, sleep, heart rate</li>
+        <li>Datetime normalization (iOS datetime formats are inconsistent)</li>
+        <li>Idempotent inserts (safe to re-sync same data)</li>
+        <li>Launchd service so the API server auto-starts on boot</li>
+      </ul>
+    </div>
+
+    <div class="phase">
+      <div class="phase-header">
+        <span class="phase-badge phase-badge--green">Phase 2 — Day 2</span>
+        <h3>Historical Backfill + Verification</h3>
+      </div>
+      <ul>
+        <li>Manual Export from Health Auto Export: set date range to <strong>All Time</strong></li>
+        <li>Leave phone plugged in overnight with HAE in foreground (iOS background limits)</li>
+        <li>Verify data completeness: compare record counts against Apple Health app</li>
+        <li>Build data quality checks: missing days, gaps, duplicate detection</li>
+      </ul>
+    </div>
+
+    <div class="phase">
+      <div class="phase-header">
+        <span class="phase-badge phase-badge--gold">Phase 3 — Week 1</span>
+        <h3>Analysis Engine + Zosia Integration</h3>
+      </div>
+      <ul>
+        <li><strong>Health query skill</strong> — I can run SQL against your health.db directly</li>
+        <li>Natural language → SQL translation for "how'd I sleep this week?"</li>
+        <li>Pre-built analysis functions: weekly summaries, trend detection, anomaly flagging</li>
+        <li>Correlation engine: sleep vs. HRV, exercise vs. resting HR, etc.</li>
+      </ul>
+    </div>
+
+    <div class="phase">
+      <div class="phase-header">
+        <span class="phase-badge phase-badge--teal">Phase 4 — Week 2+</span>
+        <h3>Automated Insights + Dashboards</h3>
+      </div>
+      <ul>
+        <li><strong>Weekly Health Digest</strong> — cron job → Discord CV2 card every Sunday</li>
+        <li><strong>Anomaly alerts</strong> — unusual resting HR, poor sleep streak, missed activity</li>
+        <li><strong>Tennis recovery tracking</strong> — post-match HR recovery, next-day HRV impact</li>
+        <li><strong>Optional Grafana dashboard</strong> — if you want visual time-series charts</li>
+      </ul>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ANALYSIS STRATEGY -->
+  <div class="section animate d3">
+    <div class="section-num">03 — Analysis Strategy</div>
+    <h2>What to Actually Analyze (Best Practices)</h2>
+    <p style="color: var(--text-dim); margin-bottom: 1.5rem;">Based on research across quantified-self communities, sports science literature, and Apple Health analysis projects. These are the metrics and correlations that actually produce actionable insights.</p>
+  </div>
+
+  <!-- Tier 1: Core Metrics -->
+  <div class="section animate d3">
+    <h3>Tier 1: The Big Five — Track These Daily</h3>
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="label">Resting Heart Rate</div>
+        <div class="value">❤️ RHR</div>
+        <div class="detail">Best single health proxy. Trend matters more than absolute number. Rising RHR = stress, illness, overtraining.</div>
+      </div>
+      <div class="metric-card">
+        <div class="label">Heart Rate Variability</div>
+        <div class="value">📈 HRV</div>
+        <div class="detail">Autonomic nervous system health. Higher = better recovery. Apple Watch measures SDNN during sleep. Most actionable metric.</div>
+      </div>
+      <div class="metric-card">
+        <div class="label">Sleep Duration + Phases</div>
+        <div class="value">😴 Sleep</div>
+        <div class="detail">Total hours + deep/REM/core breakdown. Deep sleep is recovery gold. Track consistency (same bedtime = better quality).</div>
+      </div>
+      <div class="metric-card">
+        <div class="label">VO2 Max (Cardio Fitness)</div>
+        <div class="value">🫁 VO2</div>
+        <div class="detail">Strongest predictor of longevity. Apple estimates from outdoor walks/runs. Target: "Above Average" for your age. Per Attia: top metric.</div>
+      </div>
+      <div class="metric-card">
+        <div class="label">Active Energy + Steps</div>
+        <div class="value">🔥 Activity</div>
+        <div class="detail">Daily movement baseline. 7k-10k steps is the sweet spot for mortality benefit. Track weekly trend, not daily noise.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tier 2: Correlations -->
+  <div class="section animate d3">
+    <h3>Tier 2: Cross-Correlations — Where Real Insights Live</h3>
+    <p style="color: var(--text-dim); margin-bottom: 1rem;">Individual metrics are context. Correlations between them are insights. These are the pairings that the quantified-self community and sports science have found most actionable:</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Correlation</th><th>What It Reveals</th><th>Actionable Signal</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Sleep duration → next-day HRV</strong></td>
+            <td>Your personal sleep-recovery curve</td>
+            <td>Find your minimum sleep for good HRV (probably 7-7.5h). Below that = compromised recovery.</td>
+          </tr>
+          <tr>
+            <td><strong>Exercise intensity → HRV (next morning)</strong></td>
+            <td>Recovery capacity / overtraining risk</td>
+            <td>If HRV stays suppressed 48h+ post-workout → you're training too hard or not recovering enough.</td>
+          </tr>
+          <tr>
+            <td><strong>Tennis sessions → RHR trend</strong></td>
+            <td>Cardiovascular adaptation to your sport</td>
+            <td>RHR should gradually decrease over months of consistent training. Stalling = plateau.</td>
+          </tr>
+          <tr>
+            <td><strong>Sleep consistency → HRV baseline</strong></td>
+            <td>Circadian rhythm impact</td>
+            <td>Same bedtime ±30min = significantly higher average HRV. Irregular sleep crushes recovery.</td>
+          </tr>
+          <tr>
+            <td><strong>Step count → sleep quality</strong></td>
+            <td>Activity-sleep feedback loop</td>
+            <td>Most people sleep better on 8k+ step days. Find your personal threshold.</td>
+          </tr>
+          <tr>
+            <td><strong>Resting HR trend → illness prediction</strong></td>
+            <td>Early warning system</td>
+            <td>RHR spike of 5+ bpm for 2+ days often precedes getting sick by 24-48 hours.</td>
+          </tr>
+          <tr>
+            <td><strong>VO2 Max trend → training effectiveness</strong></td>
+            <td>Are your workouts actually working?</td>
+            <td>VO2 Max should trend up over 3-6 month blocks. Flat = need to change training stimulus.</td>
+          </tr>
+          <tr>
+            <td><strong>Workout HR recovery → fitness level</strong></td>
+            <td>Post-exercise heart rate drop</td>
+            <td>How fast HR drops in first 60s post-exercise. Faster recovery = fitter. Track over months.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Tier 3: Weekly Digest -->
+  <div class="section animate d3">
+    <h3>Tier 3: Weekly Health Digest (Automated)</h3>
+    <p style="color: var(--text-dim); margin-bottom: 1rem;">Every Sunday, I'll generate and post a Discord CV2 card to #health with:</p>
+
+    <div class="card-grid">
+      <div class="card card--green">
+        <h4>Weekly Scorecard</h4>
+        <ul>
+          <li>Avg RHR (vs last week + 30-day trend)</li>
+          <li>Avg HRV (vs last week)</li>
+          <li>Total sleep hours + avg duration</li>
+          <li>Deep sleep % of total</li>
+          <li>Steps per day average</li>
+          <li>Active calories total</li>
+          <li>VO2 Max current reading</li>
+        </ul>
+      </div>
+      <div class="card card--teal">
+        <h4>Insights & Flags</h4>
+        <ul>
+          <li>Best/worst sleep night + why (late bedtime? exercise day?)</li>
+          <li>HRV trends — improving, declining, or stable?</li>
+          <li>Workout summary — type, duration, calories</li>
+          <li>Tennis-specific: match count, avg duration, HR peak</li>
+          <li>Any anomalies flagged (unusual RHR, missing data)</li>
+        </ul>
+      </div>
+      <div class="card card--gold">
+        <h4>Recommendations</h4>
+        <ul>
+          <li>Sleep consistency score + suggested bedtime</li>
+          <li>Recovery readiness (based on HRV + RHR)</li>
+          <li>Training load guidance (push harder vs. ease off)</li>
+          <li>Compare to your best weeks — what was different?</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ANOMALY ALERTS -->
+  <div class="section animate d4">
+    <div class="section-num">04 — Proactive Alerts</div>
+    <h2>Real-Time Anomaly Detection</h2>
+    <p style="color: var(--text-dim); margin-bottom: 1.5rem;">Don't wait for the weekly digest. These conditions trigger immediate alerts:</p>
+
+    <div class="card-grid">
+      <div class="card card--rose">
+        <h4>🔴 Immediate Alert</h4>
+        <ul>
+          <li>Resting HR spikes <strong>+8 bpm above 7-day avg</strong></li>
+          <li>HRV drops <strong>&gt;25% below baseline</strong></li>
+          <li>Sleep under <strong>5 hours</strong> for 2+ consecutive nights</li>
+          <li>No activity data for <strong>24+ hours</strong> (sync failure detection)</li>
+        </ul>
+      </div>
+      <div class="card card--gold">
+        <h4>🟡 Weekly Trend Alert</h4>
+        <ul>
+          <li>RHR trending up for <strong>5+ consecutive days</strong></li>
+          <li>Sleep duration declining <strong>week-over-week for 3 weeks</strong></li>
+          <li>VO2 Max dropped <strong>1+ point</strong> from last reading</li>
+          <li>Zero workouts logged in <strong>7+ days</strong></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- DATA STORAGE SCHEMA -->
+  <div class="section animate d4">
+    <div class="section-num">05 — Data Schema</div>
+    <h2>SQLite Schema Design</h2>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Table</th><th>Key Columns</th><th>Source Metrics</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>sync_payloads</code></td>
+            <td>id, received_at, metric_count</td>
+            <td>Audit trail of every HAE sync</td>
+          </tr>
+          <tr>
+            <td><code>heart_rate</code></td>
+            <td>date, min, avg, max, context, source</td>
+            <td>Continuous HR + resting HR</td>
+          </tr>
+          <tr>
+            <td><code>hrv</code></td>
+            <td>date, value_ms (SDNN), source</td>
+            <td>Heart Rate Variability</td>
+          </tr>
+          <tr>
+            <td><code>sleep_analysis</code></td>
+            <td>start, end, stage (core/deep/rem/awake), source</td>
+            <td>Sleep phases + duration</td>
+          </tr>
+          <tr>
+            <td><code>workouts</code></td>
+            <td>type, start, end, duration, calories, distance, hr_avg, hr_max</td>
+            <td>All workout types including Tennis</td>
+          </tr>
+          <tr>
+            <td><code>daily_metrics</code></td>
+            <td>date, steps, active_cal, resting_cal, distance, flights</td>
+            <td>Daily activity rollups</td>
+          </tr>
+          <tr>
+            <td><code>vitals</code></td>
+            <td>date, metric_name, value, unit</td>
+            <td>VO2 Max, SpO2, respiratory rate, body temp</td>
+          </tr>
+          <tr>
+            <td><code>body</code></td>
+            <td>date, weight_kg, bmi, body_fat_pct</td>
+            <td>Weight + composition (if logged)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="font-size: 0.85rem; color: var(--text-dim);">All tables have <code>UNIQUE(date, source)</code> constraints for idempotent inserts. Indexes on date columns for fast range queries.</p>
+  </div>
+
+  <hr class="divider">
+
+  <!-- FILE STRUCTURE -->
+  <div class="section animate d4">
+    <div class="section-num">06 — File Layout</div>
+    <h2>Workspace Structure</h2>
+    <div class="callout">
+      <pre style="font-family: var(--font-mono); font-size: 0.82rem; line-height: 1.8; white-space: pre-wrap; color: var(--text-dim);">~/.openclaw/workspace/
+├── data/
+│   └── health/
+│       ├── health.db              ← SQLite database (all health data)
+│       ├── health.db.bak          ← Daily backup (cron)
+│       ├── server/
+│       │   ├── main.py            ← FastAPI webhook receiver
+│       │   ├── models.py          ← Pydantic validation models
+│       │   ├── schema.py          ← SQLite schema + migrations
+│       │   └── requirements.txt
+│       └── analysis/
+│           ├── queries.py         ← Pre-built analysis functions
+│           ├── correlations.py    ← Cross-metric correlation engine
+│           └── digest.py          ← Weekly digest generator
+└── skills/
+    └── health/
+        └── SKILL.md               ← Health query skill for Zosia</pre>
+    </div>
+  </div>
+
+  <!-- WHAT YOU GET -->
+  <div class="section animate d4">
+    <div class="section-num">07 — What You Can Ask Me</div>
+    <h2>Natural Language Queries (Once Live)</h2>
+    <div class="card-grid">
+      <div class="card">
+        <h4>Daily Check-ins</h4>
+        <ul>
+          <li>"How'd I sleep last night?"</li>
+          <li>"What's my resting heart rate trend?"</li>
+          <li>"Am I recovered enough to play tennis today?"</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>Deep Analysis</h4>
+        <ul>
+          <li>"Show me the correlation between my sleep and HRV"</li>
+          <li>"Compare this month's fitness to last month"</li>
+          <li>"What was my best week this year and why?"</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>Specific Insights</h4>
+        <ul>
+          <li>"How does tennis affect my next-day recovery?"</li>
+          <li>"Is my VO2 Max improving?"</li>
+          <li>"What's my optimal sleep duration for good HRV?"</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- NEXT STEP -->
+  <div class="callout callout--green animate d4" style="margin-top: 2rem;">
+    <h4>Ready to Build?</h4>
+    <p>Once you've installed Health Auto Export and bought Premium Lifetime ($25), tell me and I'll start building Phase 1 — the FastAPI receiver + SQLite schema + launchd service. The whole thing should be live within an hour.</p>
+  </div>
+
+</div>
+
+<script>
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'base',
+    themeVariables: {
+      primaryColor: '#eff6ff',
+      primaryBorderColor: '#1e3a5f',
+      primaryTextColor: '#1e3a5f',
+      lineColor: '#a8a29e',
+      fontSize: '14px',
+      fontFamily: 'DM Sans, sans-serif'
+    }
+  });
+</script>
+</body>
+</html>

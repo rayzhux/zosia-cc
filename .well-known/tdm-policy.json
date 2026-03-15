@@ -1,0 +1,25 @@
+{
+  "@context": "http://www.w3.org/ns/tdmrep",
+  "@type": "TDMPolicy",
+  "policyDeclaration": [
+    {
+      "target": {
+        "@type": "ItemList",
+        "itemListElement": [
+          {
+            "@type": "WebPage",
+            "url": "https://zosia-pages.vercel.app/*"
+          }
+        ]
+      },
+      "permission": [
+        {
+          "@type": "TDMPermission",
+          "tdm-reservation": 1,
+          "tdm-permission": "none",
+          "description": "No text or data mining, AI training, or automated extraction permitted. This site contains personal information."
+        }
+      ]
+    }
+  ]
+}

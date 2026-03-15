@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+  <title>Apple Health → Local Mac: Best Sync Setups</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f8f6f3;
+      --surface: #ffffff;
+      --surface-dim: #f0ede8;
+      --border: rgba(0,0,0,0.08);
+      --text: #1a1a1a;
+      --text-dim: #6b6560;
+      --accent: #0891b2;
+      --accent-dim: #e0f7fa;
+      --green: #059669;
+      --green-dim: #d1fae5;
+      --amber: #d97706;
+      --amber-dim: #fef3c7;
+      --rose: #be123c;
+      --rose-dim: #ffe4e6;
+      --blue: #1e40af;
+      --blue-dim: #dbeafe;
+      --font-body: 'IBM Plex Sans', -apple-system, sans-serif;
+      --font-mono: 'IBM Plex Mono', 'SF Mono', monospace;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #1a1917;
+        --surface: #262523;
+        --surface-dim: #2a2926;
+        --border: rgba(255,255,255,0.08);
+        --text: #e8e4df;
+        --text-dim: #9a9590;
+        --accent: #22d3ee;
+        --accent-dim: rgba(34,211,238,0.1);
+        --green: #34d399;
+        --green-dim: rgba(52,211,153,0.12);
+        --amber: #fbbf24;
+        --amber-dim: rgba(251,191,36,0.12);
+        --rose: #fb7185;
+        --rose-dim: rgba(251,113,133,0.1);
+        --blue: #60a5fa;
+        --blue-dim: rgba(96,165,250,0.1);
+      }
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font-body); background: var(--bg); color: var(--text); line-height: 1.6; }
+    .container { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+    
+    /* Hero */
+    .hero { text-align: center; padding: 3rem 0 2.5rem; }
+    .hero h1 { font-size: 2.2rem; font-weight: 700; letter-spacing: -0.03em; margin-bottom: 0.5rem; }
+    .hero .subtitle { font-size: 1.1rem; color: var(--text-dim); max-width: 600px; margin: 0 auto; }
+    .hero .date { font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-dim); margin-top: 1rem; }
+    
+    /* Section labels */
+    .section-label { font-family: var(--font-mono); font-size: 0.75rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; }
+    .section-label::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+    
+    h2 { font-size: 1.5rem; font-weight: 700; margin-bottom: 1.5rem; letter-spacing: -0.02em; }
+    h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.75rem; }
+    
+    /* Recommendation card */
+    .rec-card {
+      background: linear-gradient(135deg, var(--accent-dim), var(--green-dim));
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 2rem;
+      margin: 2rem 0 3rem;
+    }
+    .rec-card h2 { margin-bottom: 0.75rem; }
+    .rec-card p { color: var(--text-dim); margin-bottom: 1rem; }
+    .rec-steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-top: 1.5rem; }
+    .rec-step { background: var(--surface); border-radius: 8px; padding: 1.25rem; border: 1px solid var(--border); }
+    .rec-step .step-num { font-family: var(--font-mono); font-size: 0.75rem; font-weight: 600; color: var(--accent); margin-bottom: 0.5rem; }
+    .rec-step h4 { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.35rem; }
+    .rec-step p { font-size: 0.85rem; color: var(--text-dim); margin: 0; }
+    
+    /* Comparison table */
+    .table-wrap { overflow-x: auto; margin: 1.5rem 0 3rem; border-radius: 10px; border: 1px solid var(--border); }
+    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+    thead { background: var(--surface-dim); position: sticky; top: 0; }
+    th { text-align: left; padding: 0.85rem 1rem; font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-dim); border-bottom: 2px solid var(--border); }
+    td { padding: 0.85rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+    tr:nth-child(even) { background: var(--surface-dim); }
+    tr:hover { background: var(--accent-dim); }
+    .badge { display: inline-block; font-family: var(--font-mono); font-size: 0.7rem; font-weight: 500; padding: 0.15rem 0.5rem; border-radius: 4px; white-space: nowrap; }
+    .badge--green { background: var(--green-dim); color: var(--green); }
+    .badge--amber { background: var(--amber-dim); color: var(--amber); }
+    .badge--rose { background: var(--rose-dim); color: var(--rose); }
+    .badge--blue { background: var(--blue-dim); color: var(--blue); }
+    .stars { color: var(--amber); font-family: var(--font-mono); }
+    
+    /* Tool cards */
+    .tools-grid { display: grid; grid-template-columns: 1fr; gap: 1.5rem; margin: 1.5rem 0 3rem; }
+    .tool-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1.5rem; transition: border-color 0.2s; }
+    .tool-card:hover { border-color: var(--accent); }
+    .tool-card--top { border-left: 3px solid var(--green); }
+    .tool-card--good { border-left: 3px solid var(--accent); }
+    .tool-card--niche { border-left: 3px solid var(--amber); }
+    .tool-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem; }
+    .tool-header h3 { margin: 0; }
+    .tool-meta { font-family: var(--font-mono); font-size: 0.78rem; color: var(--text-dim); }
+    .tool-desc { font-size: 0.9rem; color: var(--text-dim); margin-bottom: 1rem; }
+    .tool-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    .tag { font-family: var(--font-mono); font-size: 0.72rem; padding: 0.15rem 0.5rem; border-radius: 3px; background: var(--surface-dim); color: var(--text-dim); border: 1px solid var(--border); }
+    
+    /* Flow diagram */
+    .flow { display: flex; flex-direction: column; align-items: center; gap: 0; margin: 2rem 0 3rem; }
+    .flow-node { background: var(--surface); border: 1.5px solid var(--border); border-radius: 8px; padding: 1rem 1.5rem; text-align: center; width: 100%; max-width: 500px; }
+    .flow-node--accent { border-color: var(--accent); background: var(--accent-dim); }
+    .flow-node--green { border-color: var(--green); background: var(--green-dim); }
+    .flow-node h4 { font-size: 0.95rem; margin-bottom: 0.25rem; }
+    .flow-node p { font-size: 0.82rem; color: var(--text-dim); margin: 0; }
+    .flow-arrow { width: 2px; height: 28px; background: var(--border); position: relative; }
+    .flow-arrow::after { content: '▾'; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); color: var(--text-dim); font-size: 0.8rem; }
+    
+    /* Callout */
+    .callout { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 8px; padding: 1.25rem 1.5rem; margin: 2rem 0; }
+    .callout h4 { font-size: 0.9rem; margin-bottom: 0.35rem; }
+    .callout p, .callout li { font-size: 0.88rem; color: var(--text-dim); }
+    .callout ul { padding-left: 1.2rem; margin-top: 0.5rem; }
+    .callout li { margin-bottom: 0.25rem; }
+    
+    code { font-family: var(--font-mono); font-size: 0.85em; background: var(--surface-dim); padding: 0.15rem 0.35rem; border-radius: 3px; }
+    
+    /* Animation */
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+    .animate { animation: fadeUp 0.5s ease-out both; }
+    .d1 { animation-delay: 0.1s; } .d2 { animation-delay: 0.2s; } .d3 { animation-delay: 0.3s; }
+    @media (prefers-reduced-motion: reduce) { .animate { animation: none; } }
+    
+    @media (max-width: 600px) {
+      .hero h1 { font-size: 1.6rem; }
+      .rec-steps { grid-template-columns: 1fr; }
+      td, th { padding: 0.6rem 0.75rem; font-size: 0.82rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <div class="hero animate">
+    <h1>Apple Health → Local Mac Sync</h1>
+    <p class="subtitle">Deep research across GitHub, community forums, and dev blogs. Every viable approach compared.</p>
+    <p class="date">Research date: 2026-03-11</p>
+  </div>
+
+  <!-- RECOMMENDATION -->
+  <div class="rec-card animate d1">
+    <div class="section-label">Recommended Setup</div>
+    <h2>Health.md + OpenClaw Cron</h2>
+    <p>Best balance of automation, privacy, format flexibility, and zero cloud dependency. Free, open-source, native iOS+macOS app with Multipeer Connectivity sync (WiFi/Bluetooth, no servers).</p>
+    <div class="rec-steps">
+      <div class="rec-step">
+        <div class="step-num">01</div>
+        <h4>Build & Install Health.md</h4>
+        <p>Clone <code>CodyBontecou/health-md</code> from GitHub. Build iOS + macOS schemes in Xcode. Install on iPhone + Mac.</p>
+      </div>
+      <div class="rec-step">
+        <div class="step-num">02</div>
+        <h4>Configure Daily Export</h4>
+        <p>Set export format to JSON. Schedule daily exports. Enable Mac Sync via Multipeer Connectivity. Data flows iPhone → Mac over local network.</p>
+      </div>
+      <div class="rec-step">
+        <div class="step-num">03</div>
+        <h4>Mac-side Storage</h4>
+        <p>Health.md caches JSON in <code>~/Library/Application Support/Health.md/</code>. Cron job copies daily files to OpenClaw workspace.</p>
+      </div>
+      <div class="rec-step">
+        <div class="step-num">04</div>
+        <h4>Query with MCP</h4>
+        <p>Use <code>apple-health-mcp</code> (516★) to make data queryable by AI via natural language + SQL over DuckDB/SQLite.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMPARISON TABLE -->
+  <div class="animate d2">
+    <div class="section-label">Approach Comparison</div>
+    <h2>Every Viable Option</h2>
+  </div>
+  
+  <div class="table-wrap animate d2">
+    <table>
+      <thead>
+        <tr>
+          <th>Approach</th>
+          <th>Cost</th>
+          <th>Auto Sync</th>
+          <th>Privacy</th>
+          <th>Format</th>
+          <th>Effort</th>
+          <th>Verdict</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Health.md</strong> (OSS app)</td>
+          <td><span class="badge badge--green">Free</span></td>
+          <td><span class="badge badge--green">Yes</span> Multipeer</td>
+          <td><span class="badge badge--green">Local only</span></td>
+          <td>MD / JSON / CSV</td>
+          <td>Build in Xcode</td>
+          <td><span class="badge badge--green">Best overall</span></td>
+        </tr>
+        <tr>
+          <td><strong>Health Auto Export</strong> (App Store)</td>
+          <td><span class="badge badge--amber">~$6/yr</span></td>
+          <td><span class="badge badge--green">Yes</span> Background</td>
+          <td><span class="badge badge--green">Local + iCloud</span></td>
+          <td>JSON / CSV / GPX</td>
+          <td>Install & configure</td>
+          <td><span class="badge badge--green">Best no-code</span></td>
+        </tr>
+        <tr>
+          <td><strong>iOS Shortcuts</strong> automation</td>
+          <td><span class="badge badge--green">Free</span></td>
+          <td><span class="badge badge--amber">Semi</span> needs unlock</td>
+          <td><span class="badge badge--green">Local only</span></td>
+          <td>Custom (limited)</td>
+          <td>Medium — manual build</td>
+          <td><span class="badge badge--amber">Limited metrics</span></td>
+        </tr>
+        <tr>
+          <td><strong>ai-health-sync-ios</strong> (Swift app)</td>
+          <td><span class="badge badge--green">Free</span></td>
+          <td><span class="badge badge--amber">Manual</span> fetch cmd</td>
+          <td><span class="badge badge--green">TLS local</span></td>
+          <td>JSON / CSV</td>
+          <td>Build + Homebrew CLI</td>
+          <td><span class="badge badge--blue">Hacker-friendly</span></td>
+        </tr>
+        <tr>
+          <td><strong>Open Wearables</strong> (self-hosted)</td>
+          <td><span class="badge badge--green">Free</span></td>
+          <td><span class="badge badge--green">Yes</span> via SDK</td>
+          <td><span class="badge badge--green">Self-hosted</span></td>
+          <td>REST API (JSON)</td>
+          <td>Docker compose</td>
+          <td><span class="badge badge--blue">Multi-device</span></td>
+        </tr>
+        <tr>
+          <td><strong>Manual XML Export</strong> + parser</td>
+          <td><span class="badge badge--green">Free</span></td>
+          <td><span class="badge badge--rose">No</span></td>
+          <td><span class="badge badge--green">Local only</span></td>
+          <td>XML → JSON/CSV/SQLite</td>
+          <td>Manual per export</td>
+          <td><span class="badge badge--rose">One-time only</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- DATA FLOW -->
+  <div class="animate d2">
+    <div class="section-label">Recommended Architecture</div>
+    <h2>Data Flow: iPhone → OpenClaw</h2>
+  </div>
+  
+  <div class="flow animate d3">
+    <div class="flow-node flow-node--accent">
+      <h4>iPhone (Health.md app)</h4>
+      <p>Reads HealthKit → scheduled daily export → enables Mac Sync</p>
+    </div>
+    <div class="flow-arrow"></div>
+    <div class="flow-node">
+      <h4>Multipeer Connectivity</h4>
+      <p>WiFi + Bluetooth · no cloud · no servers · encrypted</p>
+    </div>
+    <div class="flow-arrow"></div>
+    <div class="flow-node flow-node--accent">
+      <h4>Mac (Health.md companion)</h4>
+      <p>Receives data → caches as JSON per date → menu bar widget</p>
+    </div>
+    <div class="flow-arrow"></div>
+    <div class="flow-node">
+      <h4>OpenClaw Cron Job (daily)</h4>
+      <p><code>cp ~/Library/.../Health.md/*.json → ~/.openclaw/workspace/data/health/</code></p>
+    </div>
+    <div class="flow-arrow"></div>
+    <div class="flow-node flow-node--green">
+      <h4>Query Layer (apple-health-mcp)</h4>
+      <p>DuckDB/SQLite · Natural language queries · "How'd I sleep this week?"</p>
+    </div>
+  </div>
+
+  <!-- NOTABLE TOOLS -->
+  <div class="animate d2">
+    <div class="section-label">Notable GitHub Projects</div>
+    <h2>Tools Worth Knowing</h2>
+  </div>
+  
+  <div class="tools-grid animate d3">
+    <div class="tool-card tool-card--top">
+      <div class="tool-header">
+        <h3>Health.md</h3>
+        <span class="tool-meta"><span class="stars">★ 67</span> · Swift · MIT</span>
+      </div>
+      <p class="tool-desc">Full iOS + macOS app. Exports to Markdown/JSON/CSV with frontmatter (Obsidian-compatible). Multipeer Connectivity for iPhone→Mac sync. Scheduled exports, menu bar widget, keyboard shortcuts. The most complete open-source option.</p>
+      <div class="tool-tags">
+        <span class="tag">Multipeer Sync</span>
+        <span class="tag">Obsidian</span>
+        <span class="tag">Scheduled</span>
+        <span class="tag">Menu Bar</span>
+        <span class="tag">50+ workout types</span>
+      </div>
+    </div>
+    
+    <div class="tool-card tool-card--top">
+      <div class="tool-header">
+        <h3>apple-health-mcp</h3>
+        <span class="tool-meta"><span class="stars">★ 516</span> · TypeScript</span>
+      </div>
+      <p class="tool-desc">MCP server for querying Apple Health data with natural language and SQL. Indexes XML exports into DuckDB. Works with Claude Desktop and other MCP clients. Perfect query layer on top of any export method.</p>
+      <div class="tool-tags">
+        <span class="tag">MCP</span>
+        <span class="tag">DuckDB</span>
+        <span class="tag">Natural Language</span>
+        <span class="tag">Claude Desktop</span>
+      </div>
+    </div>
+    
+    <div class="tool-card tool-card--top">
+      <div class="tool-header">
+        <h3>Open Wearables</h3>
+        <span class="tool-meta"><span class="stars">★ 700</span> · Python/TS · MIT</span>
+      </div>
+      <p class="tool-desc">Self-hosted platform unifying all wearable data (Apple, Garmin, Polar, Suunto, Samsung). Docker-based. REST API, developer portal, AI health assistant (coming). Overkill for just Apple Health, but future-proof if you ever add more devices.</p>
+      <div class="tool-tags">
+        <span class="tag">Multi-device</span>
+        <span class="tag">Docker</span>
+        <span class="tag">REST API</span>
+        <span class="tag">iOS SDK</span>
+        <span class="tag">AI Assistant</span>
+      </div>
+    </div>
+
+    <div class="tool-card tool-card--good">
+      <div class="tool-header">
+        <h3>Health Auto Export</h3>
+        <span class="tool-meta"><span class="stars">★ 211</span> (docs repo) · App Store</span>
+      </div>
+      <p class="tool-desc">Mature iOS app (150+ metrics). Background auto-export to iCloud, REST API, MQTT, Home Assistant. Premium tier adds Mac sync companion + background automation. Most popular paid option in the community — every Reddit thread mentions it.</p>
+      <div class="tool-tags">
+        <span class="tag">Background Sync</span>
+        <span class="tag">REST API</span>
+        <span class="tag">MQTT</span>
+        <span class="tag">iCloud Drive</span>
+        <span class="tag">TCP Server</span>
+      </div>
+    </div>
+
+    <div class="tool-card tool-card--good">
+      <div class="tool-header">
+        <h3>ai-health-sync-ios</h3>
+        <span class="tool-meta"><span class="stars">★ 4</span> · Swift · Apache-2.0</span>
+      </div>
+      <p class="tool-desc">iOS app + macOS CLI for peer-to-peer sync over TLS 1.3 with mutual cert auth. QR code pairing. Homebrew installable CLI (<code>healthsync fetch --types steps</code>). Very security-focused. Includes an OpenClaw skill.</p>
+      <div class="tool-tags">
+        <span class="tag">TLS 1.3</span>
+        <span class="tag">QR Pairing</span>
+        <span class="tag">Homebrew</span>
+        <span class="tag">OpenClaw Skill</span>
+      </div>
+    </div>
+    
+    <div class="tool-card tool-card--niche">
+      <div class="tool-header">
+        <h3>healthkit-to-sqlite</h3>
+        <span class="tool-meta"><span class="stars">★ 8</span> · Rust</span>
+      </div>
+      <p class="tool-desc">Converts Apple Health XML export → SQLite database. Records, Workouts, ActivitySummary. GeoJSON workout routes. Pairs with Datasette for instant web UI. Great for one-time historical imports.</p>
+      <div class="tool-tags">
+        <span class="tag">SQLite</span>
+        <span class="tag">Datasette</span>
+        <span class="tag">Rust</span>
+        <span class="tag">GeoJSON Routes</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- WHY NOT SHORTCUTS -->
+  <div class="callout animate d3">
+    <h4>Why not iOS Shortcuts alone?</h4>
+    <p>After deep research, Shortcuts has real limitations for this use case:</p>
+    <ul>
+      <li><strong>Limited HealthKit access</strong> — can only query a few metric types (steps, HR, sleep). No workouts, no HRV, no blood oxygen.</li>
+      <li><strong>No true background execution</strong> — "Run Immediately" automations still require the phone to be unlocked and can silently skip.</li>
+      <li><strong>No bulk historical data</strong> — each "Find Health Samples" action returns limited results.</li>
+      <li><strong>Fragile</strong> — iOS updates frequently break Shortcuts automations, especially health-related ones.</li>
+      <li><strong>Community consensus</strong> — Reddit r/QuantifiedSelf and r/shortcuts consistently recommend Health Auto Export or a native app over pure Shortcuts.</li>
+    </ul>
+    <p style="margin-top: 0.75rem;">Shortcuts works as a <em>trigger</em> (e.g., "run after workout") but not as the primary export mechanism.</p>
+  </div>
+
+  <!-- WHAT I CAN BUILD -->
+  <div class="callout animate d3" style="border-left-color: var(--green);">
+    <h4>What I'll build on the Mac side</h4>
+    <p>Once you pick the iPhone app, I'll set up:</p>
+    <ul>
+      <li><strong>Directory structure</strong> — <code>~/.openclaw/workspace/data/health/</code> with daily JSON archives</li>
+      <li><strong>Sync cron job</strong> — daily copy from Health.md cache (or iCloud) to workspace</li>
+      <li><strong>apple-health-mcp integration</strong> — so you can ask me "how was my sleep?" and get real answers from your data</li>
+      <li><strong>Weekly health digest</strong> — optional Discord CV2 card with your key metrics</li>
+    </ul>
+  </div>
+
+</div>
+</body>
+</html>

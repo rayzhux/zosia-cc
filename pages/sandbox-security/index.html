@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+  <title>OpenClaw Sandbox & Container Security Guide</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <style>
+    :root {
+      --bg: #f8f6f3;
+      --surface: #ffffff;
+      --surface-alt: #f0ede8;
+      --border: rgba(0,0,0,0.08);
+      --border-strong: rgba(0,0,0,0.15);
+      --text: #1a1a1a;
+      --text-dim: #6b6560;
+      --text-muted: #9a9590;
+      --accent-teal: #0e7490;
+      --accent-teal-dim: rgba(14,116,144,0.08);
+      --accent-teal-mid: rgba(14,116,144,0.15);
+      --accent-amber: #b45309;
+      --accent-amber-dim: rgba(180,83,9,0.08);
+      --accent-emerald: #047857;
+      --accent-emerald-dim: rgba(4,120,87,0.08);
+      --accent-rose: #be123c;
+      --accent-rose-dim: rgba(190,18,60,0.08);
+      --accent-slate: #475569;
+      --font-body: 'IBM Plex Sans', -apple-system, sans-serif;
+      --font-mono: 'IBM Plex Mono', 'Fira Code', monospace;
+      --radius: 10px;
+      --radius-sm: 6px;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+      --shadow-lg: 0 8px 24px rgba(0,0,0,0.1);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #181614;
+        --surface: #232018;
+        --surface-alt: #2a2620;
+        --border: rgba(255,255,255,0.07);
+        --border-strong: rgba(255,255,255,0.14);
+        --text: #e8e4de;
+        --text-dim: #a09890;
+        --text-muted: #706860;
+        --accent-teal: #22d3ee;
+        --accent-teal-dim: rgba(34,211,238,0.1);
+        --accent-teal-mid: rgba(34,211,238,0.18);
+        --accent-amber: #fbbf24;
+        --accent-amber-dim: rgba(251,191,36,0.1);
+        --accent-emerald: #34d399;
+        --accent-emerald-dim: rgba(52,211,153,0.1);
+        --accent-rose: #fb7185;
+        --accent-rose-dim: rgba(251,113,133,0.1);
+        --accent-slate: #94a3b8;
+        --shadow-sm: 0 1px 3px rgba(0,0,0,0.2);
+        --shadow-md: 0 4px 12px rgba(0,0,0,0.25);
+        --shadow-lg: 0 8px 24px rgba(0,0,0,0.3);
+      }
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .page {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 48px 24px 80px;
+    }
+
+    /* Hero */
+    .hero {
+      text-align: center;
+      padding: 56px 24px 48px;
+      margin-bottom: 48px;
+      background: linear-gradient(180deg, var(--accent-teal-dim) 0%, transparent 100%);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+    }
+    .hero h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      margin-bottom: 12px;
+      color: var(--text);
+    }
+    .hero .subtitle {
+      font-size: 1.05rem;
+      color: var(--text-dim);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .hero .badge {
+      display: inline-block;
+      margin-top: 16px;
+      padding: 4px 14px;
+      font-size: 0.78rem;
+      font-family: var(--font-mono);
+      background: var(--accent-teal-dim);
+      color: var(--accent-teal);
+      border-radius: 20px;
+      border: 1px solid var(--accent-teal-mid);
+    }
+
+    /* Section labels */
+    .section-label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      margin-top: 56px;
+    }
+    .section-label .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .section-label span {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-dim);
+    }
+
+    /* Cards */
+    .ve-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow-sm);
+    }
+    .ve-card--hero {
+      background: var(--surface);
+      border: 1px solid var(--border-strong);
+      box-shadow: var(--shadow-md);
+      padding: 32px;
+    }
+    .ve-card h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 10px;
+      letter-spacing: -0.01em;
+    }
+    .ve-card p, .ve-card li {
+      font-size: 0.92rem;
+      color: var(--text-dim);
+      line-height: 1.7;
+    }
+    .ve-card ul {
+      padding-left: 20px;
+      margin-top: 8px;
+    }
+    .ve-card li { margin-bottom: 4px; }
+
+    /* Code blocks */
+    .code-block {
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 16px 20px;
+      overflow-x: auto;
+      margin: 12px 0;
+    }
+    .code-block pre {
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.7;
+      white-space: pre-wrap;
+      word-break: break-word;
+      color: var(--text);
+    }
+    .code-label {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    /* Recommendation grid */
+    .rec-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    @media (max-width: 640px) {
+      .rec-grid { grid-template-columns: 1fr; }
+    }
+
+    /* Tag/badge */
+    .tag {
+      display: inline-block;
+      padding: 2px 10px;
+      font-size: 0.72rem;
+      font-family: var(--font-mono);
+      border-radius: 4px;
+      font-weight: 500;
+      margin-right: 6px;
+    }
+    .tag--teal { background: var(--accent-teal-dim); color: var(--accent-teal); }
+    .tag--amber { background: var(--accent-amber-dim); color: var(--accent-amber); }
+    .tag--emerald { background: var(--accent-emerald-dim); color: var(--accent-emerald); }
+    .tag--rose { background: var(--accent-rose-dim); color: var(--accent-rose); }
+
+    /* Comparison table */
+    .table-wrap {
+      overflow-x: auto;
+      margin: 16px 0;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+    }
+    thead th {
+      background: var(--surface-alt);
+      font-weight: 600;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-dim);
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--border-strong);
+      position: sticky;
+      top: 0;
+    }
+    tbody td {
+      padding: 11px 16px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+      vertical-align: top;
+    }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:nth-child(even) td { background: var(--surface-alt); }
+    td code {
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      background: var(--accent-teal-dim);
+      padding: 1px 6px;
+      border-radius: 3px;
+    }
+
+    /* Indicator dots */
+    .ind { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+    .ind--green { background: var(--accent-emerald); }
+    .ind--amber { background: var(--accent-amber); }
+    .ind--red { background: var(--accent-rose); }
+
+    /* Mermaid */
+    .mermaid-wrap {
+      display: flex;
+      justify-content: center;
+      margin: 20px 0;
+      padding: 24px;
+      background: var(--surface-alt);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    /* Callout */
+    .callout {
+      background: var(--accent-amber-dim);
+      border-left: 3px solid var(--accent-amber);
+      padding: 16px 20px;
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      margin: 20px 0;
+    }
+    .callout p {
+      font-size: 0.9rem;
+      color: var(--text);
+    }
+    .callout strong { color: var(--accent-amber); }
+
+    /* Verdict card */
+    .verdict {
+      background: linear-gradient(135deg, var(--accent-teal-dim) 0%, var(--accent-emerald-dim) 100%);
+      border: 1px solid var(--accent-teal-mid);
+      border-radius: var(--radius);
+      padding: 32px;
+      margin: 24px 0;
+    }
+    .verdict h3 {
+      color: var(--accent-teal);
+      font-size: 1.15rem;
+      margin-bottom: 14px;
+    }
+    .verdict p {
+      color: var(--text);
+      font-size: 0.92rem;
+    }
+
+    /* Anti-pattern list */
+    .anti {
+      background: var(--accent-rose-dim);
+      border: 1px solid rgba(190,18,60,0.15);
+      border-radius: var(--radius);
+      padding: 24px 28px;
+    }
+    .anti h3 { color: var(--accent-rose); }
+    .anti li { color: var(--text-dim); }
+
+    /* Animations */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate {
+      animation: fadeUp 0.5s ease-out both;
+    }
+    .animate:nth-child(2) { animation-delay: 0.06s; }
+    .animate:nth-child(3) { animation-delay: 0.12s; }
+    .animate:nth-child(4) { animation-delay: 0.18s; }
+    .animate:nth-child(5) { animation-delay: 0.24s; }
+    @media (prefers-reduced-motion: reduce) {
+      .animate { animation: none; }
+    }
+
+    /* Footer */
+    .footer {
+      margin-top: 56px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+    .footer a { color: var(--accent-teal); text-decoration: none; }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HERO -->
+  <div class="hero animate">
+    <h1>OpenClaw Sandbox & Container Guide</h1>
+    <p class="subtitle">Practical security architecture for your personal AI gateway — what to turn on, what to skip, and why.</p>
+    <span class="badge">Based on official docs + community research · March 2026</span>
+  </div>
+
+  <!-- SECTION 1: THE RECOMMENDATION -->
+  <div class="section-label animate">
+    <div class="dot" style="background: var(--accent-teal);"></div>
+    <span>Final Recommendation</span>
+  </div>
+
+  <div class="ve-card ve-card--hero animate">
+    <h3>The Config to Apply</h3>
+    <p>Turn on Docker sandbox for all non-main sessions. Your private DM stays full-access. Everything else — group chats, channels, public sessions — runs tools inside a throwaway container.</p>
+    <div class="code-block">
+      <div class="code-label">openclaw.json patch</div>
+      <pre>{
+  "agents": {
+    "defaults": {
+      "sandbox": {
+        "mode": "non-main",
+        "scope": "session",
+        "workspaceAccess": "none",
+        "docker": {
+          "network": "bridge"
+        }
+      }
+    },
+    "list": [
+      {
+        "id": "main",
+        "default": true,
+        "sandbox": { "mode": "off" }
+      }
+    ]
+  }
+}</pre>
+    </div>
+    <p style="margin-top: 12px;">Then build the sandbox image once: <code style="font-family: var(--font-mono); font-size: 0.85rem; background: var(--accent-teal-dim); padding: 2px 8px; border-radius: 3px;">scripts/sandbox-setup.sh</code></p>
+  </div>
+
+  <!-- SECTION 2: WHY THESE CHOICES -->
+  <div class="section-label animate">
+    <div class="dot" style="background: var(--accent-amber);"></div>
+    <span>Why These Specific Settings</span>
+  </div>
+
+  <div class="rec-grid animate">
+    <div class="ve-card">
+      <h3><span class="tag tag--teal">mode: "non-main"</span></h3>
+      <p>Your private DM is your trusted lane — no friction. Group chats, channel sessions, and public contexts get sandboxed automatically. The <strong>session class</strong> is the trigger, not AI judgment about "is this risky."</p>
+    </div>
+    <div class="ve-card">
+      <h3><span class="tag tag--teal">scope: "session"</span></h3>
+      <p>One container per conversation. Each session is isolated from every other session. <code>shared</code> reuses one container for everything — that's how cross-task contamination sneaks in.</p>
+    </div>
+    <div class="ve-card">
+      <h3><span class="tag tag--teal">workspaceAccess: "none"</span></h3>
+      <p>The sandbox gets its own empty workspace. Your host filesystem, secrets, and config stay invisible. Upgrade to <code>"ro"</code> for code review or <code>"rw"</code> for edits — only when the task demands it.</p>
+    </div>
+    <div class="ve-card">
+      <h3><span class="tag tag--teal">network: "bridge"</span></h3>
+      <p>Standard Docker networking — the agent can reach the internet for research, docs, APIs. The main threat is the model doing something dumb to your <em>filesystem</em>, not sophisticated data exfiltration from yourself.</p>
+    </div>
+  </div>
+
+  <!-- SECTION 3: ARCHITECTURE DIAGRAM -->
+  <div class="section-label animate">
+    <div class="dot" style="background: var(--accent-emerald);"></div>
+    <span>How It Works</span>
+  </div>
+
+  <div class="ve-card animate">
+    <h3>Architecture: Host Gateway + Sandboxed Tools</h3>
+    <p>The gateway stays on your Mac. Only tool execution (exec, read, write, browser, etc.) runs inside containers. This is the officially recommended pattern.</p>
+    <div class="mermaid-wrap">
+      <pre class="mermaid">
+flowchart TD
+    A["Your Message<br/>(Discord / WhatsApp / Telegram)"] --> B["OpenClaw Gateway<br/><small>Runs on host Mac · port 18789</small>"]
+    B --> C{"Session type?"}
+    C -->|"Main DM"| D["Tools run on HOST<br/><small>Full access · no container</small>"]
+    C -->|"Non-main<br/>(group/channel/public)"| E["Docker Container<br/><small>Isolated per session</small>"]
+    E --> F["exec · read · write<br/>browser · process"]
+    F --> G["bridge network<br/><small>Internet OK · no host filesystem</small>"]
+    D --> H["All tools available<br/><small>Your trusted environment</small>"]
+
+    style A fill:#0e7490,stroke:#0e7490,color:#fff
+    style B fill:#1e3a5f,stroke:#1e3a5f,color:#fff
+    style C fill:#b45309,stroke:#b45309,color:#fff
+    style D fill:#047857,stroke:#047857,color:#fff
+    style E fill:#be123c,stroke:#be123c,color:#fff
+    style F fill:#475569,stroke:#475569,color:#fff
+    style G fill:#475569,stroke:#475569,color:#fff
+    style H fill:#047857,stroke:#047857,color:#fff
+      </pre>
+    </div>
+  </div>
+
+  <!-- SECTION 4: THE 3 SECURITY LEVERS -->
+  <div class="section-label animate">
+    <div class="dot" style="background: var(--accent-teal);"></div>
+    <span>The 3 Security Levers</span>
+  </div>
+
+  <div class="ve-card animate">
+    <p style="margin-bottom: 16px;">OpenClaw splits security into three independent controls. Understanding each one matters — sandbox alone isn't the full picture.</p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Lever</th>
+            <th>What It Controls</th>
+            <th>Config Path</th>
+            <th>Default</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Sandbox</strong></td>
+            <td><span class="ind ind--green"></span>Where tools run — Docker container vs host</td>
+            <td><code>agents.defaults.sandbox.*</code></td>
+            <td>off</td>
+          </tr>
+          <tr>
+            <td><strong>Tool Policy</strong></td>
+            <td><span class="ind ind--amber"></span>Which tools are even callable — allow/deny lists</td>
+            <td><code>tools.allow / tools.deny</code></td>
+            <td>all allowed</td>
+          </tr>
+          <tr>
+            <td><strong>Elevated</strong></td>
+            <td><span class="ind ind--red"></span>Exec-only escape hatch back to host</td>
+            <td><code>tools.elevated.*</code></td>
+            <td>off</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="callout animate">
+    <p><strong>Key insight:</strong> Sandbox on + broad tool policy + elevated enabled = sandboxing theater. Lock down tool policy <em>and</em> keep elevated as break-glass, not daily driver.</p>
+  </div>
+
+  <!-- SECTION 5: NETWORK DECISION -->
+  <div class="section-label animate">
+    <div class="dot" style="background: var(--accent-amber);"></div>
+    <span>The Network Question</span>
+  </div>
+
+  <div class="ve-card animate">
+    <h3>Why <code>bridge</code> (full internet) and not <code>none</code></h3>
+    <p style="margin-bottom: 16px;">The default Docker sandbox has no network. That sounds secure, but it breaks every real task — research, browsing, API calls, docs, package installs. Three real patterns exist:</p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Pattern</th>
+            <th>Network</th>
+            <th>Blocks Exfiltration?</th>
+            <th>Supports Research?</th>
+            <th>Complexity</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>No network</strong></td>
+            <td><code>none</code></td>
+            <td><span class="ind ind--green"></span>Yes</td>
+            <td><span class="ind ind--red"></span>No</td>
+            <td>Trivial</td>
+          </tr>
+          <tr>
+            <td><strong>Egress proxy</strong><br/><small>Squid or Docker Sandboxes proxy</small></td>
+            <td>Allowlisted hosts only</td>
+            <td><span class="ind ind--green"></span>Yes</td>
+            <td><span class="ind ind--green"></span>Yes (allowed hosts)</td>
+            <td>Medium — needs proxy setup</td>
+          </tr>
+          <tr>
+            <td><strong>Bridge (recommended)</strong></td>
+            <td><code>bridge</code></td>
+            <td><span class="ind ind--red"></span>No</td>
+            <td><span class="ind ind--green"></span>Yes</td>
+            <td>Trivial</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="margin-top: 12px;">For a single-user personal gateway, <code>bridge</code> is the right default. Your threat model is "model does something dumb to the filesystem" — not a nation-state exfiltrating data from a sandboxed container. Egress proxy is the upgrade path if you later expose the gateway to untrusted users.</p>
+  </div>
+
+  <!-- SECTION 6: WHAT THE SANDBOX BLOCKS -->
+  <div class="section-label animate">
+    <div class="dot" style="background: var(--accent-emerald);"></div>
+    <span>What the Sandbox Actually Protects</span>
+  </div>
+
+  <div class="ve-card animate">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Threat</th>
+            <th>Blocked?</th>
+            <th>How</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Agent writes to your filesystem</td>
+            <td><span class="ind ind--green"></span>Yes</td>
+            <td><code>workspaceAccess: "none"</code> — host not mounted</td>
+          </tr>
+          <tr>
+            <td>Agent reads secrets / SSH keys / config</td>
+            <td><span class="ind ind--green"></span>Yes</td>
+            <td>Not mounted in container</td>
+          </tr>
+          <tr>
+            <td>Agent kills gateway or modifies config</td>
+            <td><span class="ind ind--green"></span>Yes</td>
+            <td>Gateway runs on host, not in container</td>
+          </tr>
+          <tr>
+            <td>Agent runs destructive commands (<code>rm -rf</code>)</td>
+            <td><span class="ind ind--green"></span>Yes</td>
+            <td>Affects container only, throwaway</td>
+          </tr>
+          <tr>
+            <td>Agent browses a malicious URL</td>
+            <td><span class="ind ind--amber"></span>Contained</td>
+            <td>Browser runs in container; host unaffected</td>
+          </tr>
+          <tr>
+            <td>Agent exfiltrates data to the internet</td>
+            <td><span class="ind ind--red"></span>No (with bridge)</td>
+            <td>Needs egress proxy to block; low risk for single-user</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SECTION 7: UPGRADE PATHS -->
+  <div class="section-label animate">
+    <div class="dot" style="background: var(--accent-teal);"></div>
+    <span>Upgrade Paths (If You Need More)</span>
+  </div>
+
+  <div class="rec-grid animate">
+    <div class="ve-card">
+      <h3><span class="tag tag--emerald">Egress Proxy</span></h3>
+      <p>Route sandbox traffic through Squid or Docker's Sandboxes proxy. Allowlist only the hosts your tasks need (API providers, GitHub, Reddit). Blocks exfiltration while keeping research working.</p>
+      <p style="margin-top: 8px;"><strong>When:</strong> You expose the gateway to untrusted users or handle sensitive data in sandbox sessions.</p>
+    </div>
+    <div class="ve-card">
+      <h3><span class="tag tag--emerald">Multi-Agent Split</span></h3>
+      <p>Create separate agents with different security profiles: <code>research</code> (sandboxed + network), <code>code-review</code> (sandboxed + read-only workspace), <code>public</code> (sandboxed + restricted tools).</p>
+      <p style="margin-top: 8px;"><strong>When:</strong> Different task types genuinely need different trust boundaries.</p>
+    </div>
+    <div class="ve-card">
+      <h3><span class="tag tag--emerald">MicroVM / gVisor</span></h3>
+      <p>Replace Docker namespacing with gVisor (<code>runsc</code>) or Firecracker MicroVMs for kernel-level isolation. Each session gets its own kernel — cross-session kernel exploits become structurally impossible.</p>
+      <p style="margin-top: 8px;"><strong>When:</strong> Running untrusted agent-generated code in production or handling truly adversarial inputs.</p>
+    </div>
+    <div class="ve-card">
+      <h3><span class="tag tag--emerald">Separate Gateway / VM</span></h3>
+      <p>Run personal and public gateways on different hosts or VMs. Machine-level boundary is the strongest isolation. Docker sandbox on top of that is defense-in-depth.</p>
+      <p style="margin-top: 8px;"><strong>When:</strong> Serious multi-user setup or enterprise-grade exposure requirements.</p>
+    </div>
+  </div>
+
+  <!-- SECTION 8: ANTI-PATTERNS -->
+  <div class="section-label animate">
+    <div class="dot" style="background: var(--accent-rose);"></div>
+    <span>What Not to Do</span>
+  </div>
+
+  <div class="anti animate">
+    <h3>Anti-Patterns</h3>
+    <ul style="padding-left: 20px; margin-top: 12px;">
+      <li><strong><code>scope: "shared"</code></strong> — one container for everything. Cross-session contamination risk. Use <code>"session"</code>.</li>
+      <li><strong><code>workspaceAccess: "rw"</code> as default</strong> — mounts your real filesystem into every sandbox. Defeats the purpose.</li>
+      <li><strong>Normalized elevated mode</strong> — elevated is the "break glass" button. If every session uses it, the host is always on the table.</li>
+      <li><strong>Letting the model decide "is this risky?"</strong> — deterministic routing by session type beats AI judgment. Session boundaries are the trigger.</li>
+      <li><strong>Mounting Docker socket into sandbox</strong> — gives the container control over the host. The docs explicitly block this.</li>
+      <li><strong>Mounting <code>/etc</code>, <code>.ssh</code>, secrets paths</strong> — binds pierce the sandbox. Only mount what the task specifically needs, read-only.</li>
+    </ul>
+  </div>
+
+  <!-- VERDICT -->
+  <div class="verdict animate">
+    <h3>The Bottom Line</h3>
+    <p>Flip <code>sandbox.mode</code> from <code>"off"</code> to <code>"non-main"</code> with <code>bridge</code> network. That single change gives you filesystem isolation on every non-private session with zero friction on your main workflow. It's the highest-value security improvement you can make today, and it takes one config patch to apply.</p>
+    <p style="margin-top: 10px;">Upgrade to egress proxy, multi-agent splits, or MicroVMs later — only when your threat model actually calls for it.</p>
+  </div>
+
+  <!-- SOURCES -->
+  <div class="footer animate">
+    <p><strong>Sources:</strong>
+      <a href="https://docs.openclaw.ai/gateway/sandboxing">Sandboxing docs</a> ·
+      <a href="https://docs.openclaw.ai/gateway/sandbox-vs-tool-policy-vs-elevated">Sandbox vs Tool Policy</a> ·
+      <a href="https://docs.openclaw.ai/tools/multi-agent-sandbox-tools">Multi-Agent Sandbox</a> ·
+      <a href="https://docs.openclaw.ai/install/docker">Docker install</a> ·
+      <a href="https://docs.openclaw.ai/install/podman">Podman</a> ·
+      <a href="https://www.docker.com/blog/run-openclaw-securely-in-docker-sandboxes/">Docker Sandboxes blog</a> ·
+      <a href="https://contabo.com/blog/openclaw-security-guide-2026/">Contabo security guide</a> ·
+      <a href="https://advenboost.com/openclaw-docker-hardening-your-ai-sandbox-for-production-2026/">AdvenBoost hardening</a>
+    </p>
+    <p style="margin-top: 8px;">Generated March 2026 · Runtime verified against <code>openclaw status</code> and <code>gateway config.get</code></p>
+  </div>
+
+</div>
+
+<script>
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'base',
+    themeVariables: {
+      primaryColor: '#0e7490',
+      primaryTextColor: '#ffffff',
+      primaryBorderColor: '#0e7490',
+      lineColor: '#6b6560',
+      secondaryColor: '#b45309',
+      tertiaryColor: '#047857',
+      fontFamily: 'IBM Plex Sans, sans-serif',
+      fontSize: '14px'
+    },
+    flowchart: {
+      curve: 'basis',
+      padding: 20
+    }
+  });
+</script>
+</body>
+</html>

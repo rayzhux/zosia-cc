@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+  <title>Personal Knowledge Graph — Deep Research v2</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #faf8f5;
+      --surface: #ffffff;
+      --surface-alt: #f3efe9;
+      --border: rgba(0,0,0,0.08);
+      --border-strong: rgba(0,0,0,0.15);
+      --text: #1a1714;
+      --text-dim: #6b6560;
+      --text-muted: #9a948e;
+      --accent-primary: #1e3a5f;
+      --accent-primary-dim: rgba(30,58,95,0.08);
+      --accent-secondary: #d4a73a;
+      --accent-secondary-dim: rgba(212,167,58,0.1);
+      --accent-green: #2d6a4f;
+      --accent-green-dim: rgba(45,106,79,0.08);
+      --accent-red: #9b2c2c;
+      --accent-red-dim: rgba(155,44,44,0.06);
+      --accent-purple: #5b3e8a;
+      --accent-purple-dim: rgba(91,62,138,0.07);
+      --font-heading: 'Instrument Serif', Georgia, serif;
+      --font-body: 'DM Sans', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --radius: 8px;
+      --radius-lg: 14px;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #151210;
+        --surface: #1e1b18;
+        --surface-alt: #262320;
+        --border: rgba(255,255,255,0.06);
+        --border-strong: rgba(255,255,255,0.12);
+        --text: #ece8e2;
+        --text-dim: #9a948e;
+        --text-muted: #6b6560;
+        --accent-primary: #7eaed4;
+        --accent-primary-dim: rgba(126,174,212,0.1);
+        --accent-secondary: #d4a73a;
+        --accent-secondary-dim: rgba(212,167,58,0.08);
+        --accent-green: #6bbd8a;
+        --accent-green-dim: rgba(107,189,138,0.08);
+        --accent-red: #e07070;
+        --accent-red-dim: rgba(224,112,112,0.08);
+        --accent-purple: #b09ad8;
+        --accent-purple-dim: rgba(176,154,216,0.08);
+      }
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      min-height: 100vh;
+    }
+    .page-wrapper {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 3rem 1.5rem 5rem;
+    }
+    /* Hero */
+    .hero {
+      margin-bottom: 3.5rem;
+      padding-bottom: 2.5rem;
+      border-bottom: 1px solid var(--border-strong);
+    }
+    .hero-label {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent-secondary);
+      margin-bottom: 0.75rem;
+    }
+    .hero h1 {
+      font-family: var(--font-heading);
+      font-size: clamp(2.2rem, 5vw, 3.2rem);
+      font-weight: 400;
+      line-height: 1.15;
+      color: var(--text);
+      margin-bottom: 1rem;
+    }
+    .hero h1 em {
+      color: var(--accent-primary);
+      font-style: italic;
+    }
+    .hero-subtitle {
+      font-size: 1.1rem;
+      color: var(--text-dim);
+      max-width: 700px;
+      line-height: 1.7;
+    }
+    .hero-meta {
+      display: flex;
+      gap: 1.5rem;
+      margin-top: 1.25rem;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+    /* Sections */
+    .section {
+      margin-bottom: 3.5rem;
+    }
+    .section-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent-primary);
+      margin-bottom: 0.75rem;
+    }
+    .section-label .dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--accent-secondary);
+    }
+    .section h2 {
+      font-family: var(--font-heading);
+      font-size: 1.75rem;
+      font-weight: 400;
+      line-height: 1.25;
+      margin-bottom: 1rem;
+    }
+    .section h3 {
+      font-family: var(--font-body);
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      color: var(--text);
+    }
+    .section p {
+      color: var(--text-dim);
+      max-width: 720px;
+      margin-bottom: 1rem;
+    }
+    /* Cards */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1rem;
+      margin-top: 1.25rem;
+    }
+    .card-grid-3 {
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    }
+    .ve-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      transition: border-color 0.2s;
+    }
+    .ve-card:hover {
+      border-color: var(--border-strong);
+    }
+    .ve-card--hero {
+      background: var(--accent-primary-dim);
+      border-color: var(--accent-primary);
+      border-width: 2px;
+    }
+    .ve-card--green { border-left: 3px solid var(--accent-green); }
+    .ve-card--gold { border-left: 3px solid var(--accent-secondary); }
+    .ve-card--red { border-left: 3px solid var(--accent-red); }
+    .ve-card--purple { border-left: 3px solid var(--accent-purple); }
+    .ve-card--blue { border-left: 3px solid var(--accent-primary); }
+    .ve-card h4 {
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+    .ve-card p, .ve-card li {
+      font-size: 0.88rem;
+      color: var(--text-dim);
+      line-height: 1.6;
+    }
+    .ve-card ul {
+      list-style: none;
+      padding: 0;
+    }
+    .ve-card ul li {
+      padding: 0.3rem 0;
+      padding-left: 1rem;
+      position: relative;
+    }
+    .ve-card ul li::before {
+      content: '→';
+      position: absolute;
+      left: 0;
+      color: var(--accent-secondary);
+      font-size: 0.8rem;
+    }
+    .tag {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      margin-bottom: 0.5rem;
+    }
+    .tag--green { background: var(--accent-green-dim); color: var(--accent-green); }
+    .tag--gold { background: var(--accent-secondary-dim); color: var(--accent-secondary); }
+    .tag--red { background: var(--accent-red-dim); color: var(--accent-red); }
+    .tag--blue { background: var(--accent-primary-dim); color: var(--accent-primary); }
+    .tag--purple { background: var(--accent-purple-dim); color: var(--accent-purple); }
+    /* Verdict box */
+    .verdict {
+      background: var(--accent-primary-dim);
+      border: 2px solid var(--accent-primary);
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+      margin-top: 1.5rem;
+    }
+    .verdict h3 {
+      font-family: var(--font-heading);
+      font-size: 1.35rem;
+      font-weight: 400;
+      margin-bottom: 0.75rem;
+      color: var(--accent-primary);
+    }
+    .verdict p {
+      color: var(--text-dim);
+      font-size: 0.92rem;
+    }
+    /* Comparison table */
+    .table-wrap {
+      overflow-x: auto;
+      margin-top: 1.25rem;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.84rem;
+    }
+    thead th {
+      background: var(--surface-alt);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      text-align: left;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border-strong);
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+    td {
+      padding: 0.7rem 1rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+      color: var(--text-dim);
+    }
+    tr:nth-child(even) td { background: var(--surface-alt); }
+    td:first-child {
+      font-weight: 600;
+      color: var(--text);
+      white-space: nowrap;
+    }
+    /* Phase flow */
+    .phase-flow {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+      margin-top: 1.25rem;
+      counter-reset: phase;
+    }
+    .phase-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      position: relative;
+      counter-increment: phase;
+    }
+    .phase-item::before {
+      content: counter(phase);
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      font-family: var(--font-heading);
+      font-size: 2rem;
+      color: var(--accent-secondary);
+      opacity: 0.3;
+      line-height: 1;
+    }
+    .phase-item h4 {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent-primary);
+      margin-bottom: 0.5rem;
+    }
+    .phase-item p {
+      font-size: 0.85rem;
+      color: var(--text-dim);
+    }
+    /* Callout */
+    .callout {
+      background: var(--surface-alt);
+      border-left: 3px solid var(--accent-secondary);
+      border-radius: 0 var(--radius) var(--radius) 0;
+      padding: 1.25rem 1.5rem;
+      margin: 1.5rem 0;
+    }
+    .callout p {
+      font-size: 0.9rem;
+      color: var(--text-dim);
+      margin: 0;
+    }
+    .callout strong {
+      color: var(--text);
+    }
+    /* Animations */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate {
+      animation: fadeUp 0.5s ease-out both;
+    }
+    .animate-d1 { animation-delay: 0.1s; }
+    .animate-d2 { animation-delay: 0.2s; }
+    .animate-d3 { animation-delay: 0.3s; }
+    .animate-d4 { animation-delay: 0.4s; }
+    @media (prefers-reduced-motion: reduce) {
+      .animate { animation: none; opacity: 1; }
+    }
+    /* Sources */
+    .sources {
+      margin-top: 3rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border);
+    }
+    .sources h3 {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+    }
+    .sources ol {
+      padding-left: 1.25rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      line-height: 1.8;
+    }
+    .sources a {
+      color: var(--accent-primary);
+      text-decoration: none;
+    }
+    .sources a:hover { text-decoration: underline; }
+    code {
+      font-family: var(--font-mono);
+      font-size: 0.82em;
+      background: var(--surface-alt);
+      padding: 0.15em 0.4em;
+      border-radius: 4px;
+    }
+    @media (max-width: 600px) {
+      .page-wrapper { padding: 2rem 1rem 3rem; }
+      .card-grid { grid-template-columns: 1fr; }
+      .phase-flow { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-wrapper">
+
+    <!-- Hero -->
+    <header class="hero animate">
+      <div class="hero-label">Deep Research v2 — Iteration 2</div>
+      <h1>The Memory Palace:<br><em>A Personal Knowledge Graph for Everything</em></h1>
+      <p class="hero-subtitle">
+        First-principles research into building a local-first, future-proof system that ingests every digital artifact in your life — meetings, emails, Slack, Notion, transcripts — and turns them into a queryable, interconnected knowledge graph on your MacBook.
+      </p>
+      <div class="hero-meta">
+        <span>14 Mar 2026</span>
+        <span>12 sources analyzed</span>
+        <span>For Raymond Zhu</span>
+      </div>
+    </header>
+
+    <!-- Section 1: First Principles -->
+    <section class="section animate animate-d1">
+      <div class="section-label"><span class="dot"></span> First Principles</div>
+      <h2>What are we actually building?</h2>
+      <p>
+        Before picking tools, let's decompose the problem. You want a system that does four things, each with fundamentally different technical requirements:
+      </p>
+      <div class="card-grid">
+        <div class="ve-card ve-card--blue">
+          <span class="tag tag--blue">Ingestion</span>
+          <h4>Collect everything, once</h4>
+          <p>Pull data from 6+ sources (Gmail, Calendar, Slack, Notion, Granola, Discord) into a local canonical store. Incremental sync, not batch dumps. Dedup at the source level.</p>
+        </div>
+        <div class="ve-card ve-card--green">
+          <span class="tag tag--green">Extraction</span>
+          <h4>Turn raw data into structured facts</h4>
+          <p>LLM-powered entity extraction: people, companies, projects, decisions, action items, relationships. This is the expensive step — but you only do it once per document.</p>
+        </div>
+        <div class="ve-card ve-card--gold">
+          <span class="tag tag--gold">Storage</span>
+          <h4>Store atoms + connections</h4>
+          <p>Raw artifacts (emails, transcripts) AND extracted entities/relationships need to coexist. You need both vector search (semantic) and graph traversal (relational).</p>
+        </div>
+        <div class="ve-card ve-card--purple">
+          <span class="tag tag--purple">Retrieval</span>
+          <h4>Answer any question across everything</h4>
+          <p>Hybrid retrieval: keyword (BM25) + semantic (embeddings) + graph (multi-hop relationships). "What did Terence say about the AutoData pricing in the meeting after we discussed the Axxion deal?"</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 2: The Critical Question -->
+    <section class="section animate animate-d2">
+      <div class="section-label"><span class="dot"></span> The Architecture Question</div>
+      <h2>Graph database, vector store, or hybrid?</h2>
+      <p>
+        This is THE design decision. Here's my honest take after researching every option:
+      </p>
+
+      <div class="verdict">
+        <h3>🎯 My recommendation: Hybrid — SQLite + Graph + Vectors in one local store</h3>
+        <p>
+          <strong>Not a graph database. Not a vector database. Both, embedded, in a single file.</strong>
+          A pure graph DB (Neo4j) is overkill for a single-user personal system and adds operational complexity you don't need.
+          A pure vector store (Qdrant, ChromaDB) misses relationships — you can't traverse "who introduced me to whom."
+          The future-proof answer is a <strong>hybrid local store</strong> that gives you all three retrieval modes (keyword, semantic, graph) from one portable artifact.
+        </p>
+      </div>
+
+      <p style="margin-top: 1.5rem;">Here's why, broken down by each approach:</p>
+
+      <div class="card-grid" style="margin-top: 1rem;">
+        <div class="ve-card ve-card--red">
+          <span class="tag tag--red">Rejected</span>
+          <h4>Pure Graph DB (Neo4j, FalkorDB)</h4>
+          <ul>
+            <li>Heavy — requires Docker/server even for local use</li>
+            <li>Neo4j is $36K/yr for enterprise; community edition is crippled</li>
+            <li>Great at relationships, terrible at semantic search</li>
+            <li>You'd still need a vector DB alongside it (Zep does this, costs $25-475/mo)</li>
+            <li>Operational burden for a single-user system is unjustifiable</li>
+          </ul>
+        </div>
+        <div class="ve-card ve-card--red">
+          <span class="tag tag--red">Rejected</span>
+          <h4>Pure Vector Store (ChromaDB, Qdrant)</h4>
+          <ul>
+            <li>Excellent at "find similar things" but blind to relationships</li>
+            <li>Can't answer "who did I meet through Amin?" — no graph traversal</li>
+            <li>Degrades with scale: 10K+ memories with no structure = noise</li>
+            <li>This is what basic RAG systems do — and it's not enough</li>
+          </ul>
+        </div>
+        <div class="ve-card ve-card--green">
+          <span class="tag tag--green">Recommended</span>
+          <h4>Hybrid Local Store</h4>
+          <ul>
+            <li>SQLite + sqlite-vec + graph tables in one .db file</li>
+            <li>BM25 (FTS5) for keyword, vectors for semantic, adjacency lists for graph</li>
+            <li>Zero ops: no Docker, no servers, no API keys for storage</li>
+            <li>Portable: one file you can backup, encrypt, restore</li>
+            <li>Proven at scale: 16K+ docs in 83MB (Blake Crosley's Obsidian retriever)</li>
+            <li>Future-proof: swap embedding models without changing storage</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 3: Landscape -->
+    <section class="section animate animate-d3">
+      <div class="section-label"><span class="dot"></span> Competitive Landscape</div>
+      <h2>What exists today (and why we shouldn't just buy it)</h2>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>System</th>
+              <th>Architecture</th>
+              <th>Self-hosted?</th>
+              <th>Graph?</th>
+              <th>Cost</th>
+              <th>Verdict for us</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Mem0</td>
+              <td>Cloud API / Docker + Qdrant</td>
+              <td>Yes (heavy)</td>
+              <td>Pro only ($249/mo)</td>
+              <td>Free → $249/mo</td>
+              <td>Graph is paywalled. Cloud-first DNA. Useful as inspiration for the extraction pipeline.</td>
+            </tr>
+            <tr>
+              <td>Zep / Graphiti</td>
+              <td>Neo4j + LLM extraction</td>
+              <td>Graphiti OSS</td>
+              <td>Yes (core)</td>
+              <td>$25-475/mo or self-host Neo4j</td>
+              <td>Best temporal graph approach. Graphiti's extraction patterns are worth studying. Neo4j dependency is the dealbreaker.</td>
+            </tr>
+            <tr>
+              <td>Cognee</td>
+              <td>Vector + Graph hybrid</td>
+              <td>Yes (OSS)</td>
+              <td>Yes</td>
+              <td>OSS + managed</td>
+              <td>Closest to what we want architecturally. add → cognify → search pipeline is elegant. Worth integrating or forking patterns from.</td>
+            </tr>
+            <tr>
+              <td>OMEGA</td>
+              <td>SQLite + ONNX embeddings</td>
+              <td>Yes (fully local)</td>
+              <td>Basic relationships</td>
+              <td>$0</td>
+              <td>95.4% on LongMemEval. Proves the SQLite-local thesis. Simple graph, not rich enough for our use case.</td>
+            </tr>
+            <tr>
+              <td>nanograph</td>
+              <td>Embedded graph (Rust, Arrow/Lance)</td>
+              <td>Yes (a folder)</td>
+              <td>Yes (schema-enforced)</td>
+              <td>$0 (new)</td>
+              <td>Schema-as-code + on-device + built-in search is exactly our philosophy. Too new to bet on alone, but the concepts are right.</td>
+            </tr>
+            <tr>
+              <td>LangMem</td>
+              <td>LangGraph library</td>
+              <td>Yes</td>
+              <td>No</td>
+              <td>$0</td>
+              <td>Good for in-session memory. Not a knowledge store.</td>
+            </tr>
+            <tr>
+              <td>Kioku</td>
+              <td>Local graph engine</td>
+              <td>Yes</td>
+              <td>Yes (emotion-aware)</td>
+              <td>$0</td>
+              <td>Interesting emotional/causal graph model. Niche but the relationship types are worth borrowing.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout" style="margin-top: 1.5rem;">
+        <p>
+          <strong>Key insight from Harper Reed's blog (Mar 11, 2026):</strong> He built an "immaculate knowledge graph of life" from ~600 Granola transcripts using Claude Code → Obsidian. Nodes = people + concepts, edges = co-occurrence in meetings. The density revealed relationship patterns he never saw explicitly. His approach: don't over-organize, just extract and let the graph reveal structure. <strong>This is almost exactly what you described.</strong>
+        </p>
+      </div>
+    </section>
+
+    <!-- Section 4: Recommended Architecture -->
+    <section class="section animate animate-d3">
+      <div class="section-label"><span class="dot"></span> Recommended Architecture</div>
+      <h2>The Memory Palace: a layered, local-first system</h2>
+      <p>
+        Four layers, each independently valuable, building on each other. You can ship Layer 1 in a week and get value immediately.
+      </p>
+
+      <div class="phase-flow">
+        <div class="phase-item">
+          <h4>Layer 1 — The Lake</h4>
+          <p><strong>Local canonical copies of everything.</strong> Cron-synced raw artifacts from Gmail, Calendar, Slack, Notion, Granola, Discord. Stored as structured JSON/Markdown in <code>~/memory-palace/raw/</code>. Deduplicated, timestamped. This alone is valuable — you never lose anything.</p>
+        </div>
+        <div class="phase-item">
+          <h4>Layer 2 — The Index</h4>
+          <p><strong>Hybrid search over raw artifacts.</strong> SQLite with FTS5 (BM25) + sqlite-vec (semantic). Every artifact chunked, embedded (Model2Vec or OpenAI text-3-small), and indexed. Retrieval via Reciprocal Rank Fusion. Query anything by keyword or meaning.</p>
+        </div>
+        <div class="phase-item">
+          <h4>Layer 3 — The Graph</h4>
+          <p><strong>Entities + relationships extracted by LLM.</strong> People, companies, projects, decisions, action items. Stored as graph tables in the same SQLite DB. Schema-enforced (nanograph philosophy). Enables: "Who was in the room when we decided X?" and "Map all my touchpoints with Company Y."</p>
+        </div>
+        <div class="phase-item">
+          <h4>Layer 4 — The Brain</h4>
+          <p><strong>Synthesis + reasoning layer.</strong> GraphRAG-style retrieval: query hits vector + keyword + graph simultaneously. Context assembled and ranked. Mem0-style memory compression for frequently-accessed facts. This is where "super brain" questions get answered.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 5: Tech Stack -->
+    <section class="section animate animate-d4">
+      <div class="section-label"><span class="dot"></span> Concrete Tech Stack</div>
+      <h2>What we'd actually build with</h2>
+
+      <div class="card-grid card-grid-3">
+        <div class="ve-card ve-card--blue">
+          <h4>Storage Engine</h4>
+          <ul>
+            <li><strong>SQLite</strong> — single file, zero ops, battle-tested</li>
+            <li><strong>sqlite-vec</strong> — vector KNN search extension</li>
+            <li><strong>FTS5</strong> — built-in full-text with BM25</li>
+            <li>Graph via adjacency tables (entities, edges, properties)</li>
+          </ul>
+        </div>
+        <div class="ve-card ve-card--green">
+          <h4>Embeddings</h4>
+          <ul>
+            <li><strong>Model2Vec</strong> (30MB, CPU, offline, fast) for bulk indexing</li>
+            <li><strong>OpenAI text-embedding-3-small</strong> as quality fallback</li>
+            <li>Swap models freely — vectors are re-indexable</li>
+          </ul>
+        </div>
+        <div class="ve-card ve-card--gold">
+          <h4>Entity Extraction</h4>
+          <ul>
+            <li><strong>Claude / GPT</strong> for high-quality extraction</li>
+            <li>Schema: Person, Company, Project, Decision, Action, Meeting, Topic</li>
+            <li>Relationships: attended, decided, assigned, discussed, introduced</li>
+            <li>Run once per document, cache results</li>
+          </ul>
+        </div>
+        <div class="ve-card ve-card--purple">
+          <h4>Ingestion Connectors</h4>
+          <ul>
+            <li><strong>gog CLI</strong> — Gmail + Calendar (already have it)</li>
+            <li><strong>Granola MCP / muesli</strong> — meeting transcripts</li>
+            <li><strong>Notion API</strong> — via existing skill</li>
+            <li><strong>Slack export / API</strong> — messages + threads</li>
+            <li><strong>OpenClaw session logs</strong> — Discord + all channels</li>
+          </ul>
+        </div>
+        <div class="ve-card ve-card--blue">
+          <h4>Retrieval</h4>
+          <ul>
+            <li><strong>Hybrid BM25 + vector</strong> via RRF (k=60)</li>
+            <li><strong>Graph traversal</strong> for relationship queries</li>
+            <li><strong>Reranking</strong> with Cohere or cross-encoder</li>
+            <li>MCP server exposing tools to OpenClaw</li>
+          </ul>
+        </div>
+        <div class="ve-card ve-card--green">
+          <h4>Interface</h4>
+          <ul>
+            <li><strong>OpenClaw skill</strong> (primary) — natural language queries</li>
+            <li><strong>MCP server</strong> — tools for any LLM client</li>
+            <li><strong>Obsidian vault</strong> (optional) — visual graph exploration</li>
+            <li>CLI for admin, debugging, and manual queries</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 6: Why not X -->
+    <section class="section">
+      <div class="section-label"><span class="dot"></span> Decisions Made</div>
+      <h2>Why not just use Mem0 / Cognee / Neo4j?</h2>
+
+      <div class="card-grid">
+        <div class="ve-card">
+          <h4>Why not Mem0 self-hosted?</h4>
+          <p>Requires Docker + PostgreSQL + Qdrant + OpenAI API key just to run. Graph memory requires their cloud ($249/mo). Their OSS version is vector-only. We'd inherit their architecture decisions and be locked into their update cycle. Better to borrow their extraction patterns and build leaner.</p>
+        </div>
+        <div class="ve-card">
+          <h4>Why not Cognee?</h4>
+          <p>Actually the closest to what we want. Their add → cognify → search pipeline is solid. But it's designed as a library for app developers, not a personal knowledge system. We could use it as a dependency or study its extraction pipeline. Worth revisiting as it matures. <strong>Top candidate for partial integration.</strong></p>
+        </div>
+        <div class="ve-card">
+          <h4>Why not Neo4j + Graphiti?</h4>
+          <p>Graphiti's temporal knowledge graph is the gold standard for entity/relationship evolution. But it requires Neo4j (Java, JVM, 1GB+ RAM idle). For a single-user system on a MacBook, this is like using a forklift to move groceries. We can replicate the temporal patterns in SQLite graph tables.</p>
+        </div>
+      </div>
+
+      <div class="callout">
+        <p>
+          <strong>The principle:</strong> For a single-user local system, operational simplicity beats feature richness. Every external dependency is a thing that can break at 3am. SQLite never breaks at 3am.
+        </p>
+      </div>
+    </section>
+
+    <!-- Section 7: Implementation Plan -->
+    <section class="section">
+      <div class="section-label"><span class="dot"></span> Implementation Roadmap</div>
+      <h2>How we'd build this incrementally</h2>
+
+      <div class="phase-flow">
+        <div class="phase-item">
+          <h4>Week 1-2: The Lake</h4>
+          <p>Build ingestion crons for Gmail, Calendar, and Granola transcripts. Raw data lands as JSON/MD files in a structured directory. This alone gives you a searchable local mirror of your digital life.</p>
+        </div>
+        <div class="phase-item">
+          <h4>Week 3-4: The Index</h4>
+          <p>SQLite database with FTS5 + sqlite-vec. Chunk all raw artifacts, embed them, build the hybrid retrieval pipeline. Ship as an OpenClaw skill with a natural language query interface. <strong>This is already useful.</strong></p>
+        </div>
+        <div class="phase-item">
+          <h4>Week 5-6: The Graph</h4>
+          <p>LLM-powered entity extraction pipeline. Define the schema (people, companies, projects, relationships). Process all historical data. Add graph tables to the same SQLite DB. Enable multi-hop queries.</p>
+        </div>
+        <div class="phase-item">
+          <h4>Week 7-8: The Brain</h4>
+          <p>Unified retrieval that fuses all three modes. Memory compression for hot facts. Meeting Intelligence becomes a thin layer on top. MCP server for external tool access. Obsidian export for visualization.</p>
+        </div>
+      </div>
+
+      <div class="callout" style="margin-top: 1.5rem;">
+        <p>
+          <strong>Each layer is independently valuable.</strong> You don't need the graph to get value from the index. You don't need the brain to get value from the graph. Ship and iterate — don't try to build the whole thing before getting any benefit.
+        </p>
+      </div>
+    </section>
+
+    <!-- Section 8: Future-Proofing -->
+    <section class="section">
+      <div class="section-label"><span class="dot"></span> Future-Proofing</div>
+      <h2>What makes this last 5+ years</h2>
+
+      <div class="card-grid card-grid-3">
+        <div class="ve-card ve-card--green">
+          <h4>Embedding model independence</h4>
+          <p>Store raw text alongside vectors. When better models emerge (they will), re-embed in hours. The graph structure is model-agnostic — entity relationships don't depend on embeddings.</p>
+        </div>
+        <div class="ve-card ve-card--green">
+          <h4>LLM independence</h4>
+          <p>Extraction runs offline against cached artifacts. Switch from Claude to GPT to Gemini to local models without re-ingesting. The extraction schema is the contract, not the model.</p>
+        </div>
+        <div class="ve-card ve-card--green">
+          <h4>Data portability</h4>
+          <p>One SQLite file + a directory of raw artifacts. No vendor lock-in. Export to any future system. The raw data is always there — you can re-process everything from scratch.</p>
+        </div>
+        <div class="ve-card ve-card--green">
+          <h4>Composability</h4>
+          <p>Meeting Intelligence is just a query pattern. Project tracking is a query pattern. People search is a query pattern. The knowledge graph is the foundation — applications are views.</p>
+        </div>
+        <div class="ve-card ve-card--green">
+          <h4>Privacy by architecture</h4>
+          <p>Everything on your MacBook. No cloud dependency for storage or retrieval. LLM calls for extraction can use local models if paranoia demands it. The system works offline.</p>
+        </div>
+        <div class="ve-card ve-card--green">
+          <h4>Scalability path</h4>
+          <p>SQLite handles 50K+ documents easily. If you outgrow it (years from now), the schema maps directly to PostgreSQL + pgvector + Apache AGE. Migration is a script, not a rewrite.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 9: What to steal -->
+    <section class="section">
+      <div class="section-label"><span class="dot"></span> Steal From The Best</div>
+      <h2>Patterns worth borrowing from each system</h2>
+
+      <div class="card-grid">
+        <div class="ve-card ve-card--gold">
+          <h4>From Mem0</h4>
+          <ul>
+            <li>Two-phase memory pipeline: Extract → Update (ADD/UPDATE/DELETE/NOOP)</li>
+            <li>Memory compression — distill verbose transcripts into atomic facts</li>
+            <li>Conflict resolution: when facts contradict, the newer one wins (with audit trail)</li>
+          </ul>
+        </div>
+        <div class="ve-card ve-card--gold">
+          <h4>From Zep/Graphiti</h4>
+          <ul>
+            <li>Temporal knowledge graph — facts have valid_from/valid_to timestamps</li>
+            <li>Episode-based ingestion — group facts by source event (meeting, email thread)</li>
+            <li>Custom entity types — model your specific domain (WAG subsidiaries, contacts)</li>
+          </ul>
+        </div>
+        <div class="ve-card ve-card--gold">
+          <h4>From OMEGA + Blake Crosley</h4>
+          <ul>
+            <li>SQLite + sqlite-vec as the entire storage layer (proven at 16K+ files, 83MB)</li>
+            <li>Reciprocal Rank Fusion for hybrid search (BM25 + vector, k=60)</li>
+            <li>Model2Vec for CPU-speed local embeddings (30MB, no API calls)</li>
+          </ul>
+        </div>
+        <div class="ve-card ve-card--gold">
+          <h4>From nanograph + Harper Reed</h4>
+          <ul>
+            <li>Schema-as-code: define entity/relationship types in a versioned schema file</li>
+            <li>Graph as a folder/file, not a service — copy, backup, version control</li>
+            <li>"Don't over-organize, just extract" — let the graph reveal structure</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sources -->
+    <footer class="sources">
+      <h3>Sources</h3>
+      <ol>
+        <li><a href="https://omegamax.co/blog/omega-vs-mem0-vs-zep">OMEGA vs Mem0 vs Zep — benchmark comparison (Feb 2026)</a></li>
+        <li><a href="https://dev.to/anajuliabit/mem0-vs-zep-vs-langmem-vs-memoclaw-ai-agent-memory-comparison-2026-1l1k">Mem0 vs Zep vs LangMem vs MemoClaw (2026 comparison)</a></li>
+        <li><a href="https://harper.blog/2026/03/11/2026-immaculate-knowledge-graph/">Harper Reed — "My now immaculate knowledge graph of life" (Mar 2026)</a></li>
+        <li><a href="https://blakecrosley.com/blog/hybrid-retriever-obsidian">Blake Crosley — Hybrid retriever for 16,894 Obsidian files</a></li>
+        <li><a href="https://www.agentsworkshop.ai/p/nanograph-on-device-graphdb-for-agents">nanograph: on-device graphDB for agents (Mar 2026)</a></li>
+        <li><a href="https://medium.com/graph-praxis/graph-rag-in-2026-a-practitioners-guide-to-what-actually-works-dca4962e7517">Graph RAG in 2026: A Practitioner's Guide</a></li>
+        <li><a href="https://docs.mem0.ai/open-source/features/overview">Mem0 Open Source documentation</a></li>
+        <li><a href="https://www.cognee.ai/blog/tutorials/structure-your-skills-with-cognee">Cognee — Structure Your Skills with Knowledge Graph</a></li>
+        <li><a href="https://dasroot.net/posts/2025/12/cognee-vs-mem0-memory-layer-comparison-llm-agents/">Cognee vs Mem0 comparison (Dec 2025)</a></li>
+        <li><a href="https://dev.to/stephenc222/how-to-build-lightweight-graphrag-with-sqlite-53le">Lightweight GraphRAG with SQLite</a></li>
+        <li><a href="https://dev.to/phucnt/kioku-why-i-built-a-knowledge-graph-memory-engine-for-my-ai-agents-da7">Kioku — Knowledge Graph memory engine</a></li>
+        <li><a href="https://medium.com/@bumurzaqov2/top-10-ai-memory-products-2026-09d7900b5ab1">Top 10 AI Memory Products 2026</a></li>
+      </ol>
+    </footer>
+
+  </div>
+</body>
+</html>

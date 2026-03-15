@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+  <title>Zosia's Memory System — Comprehensive Review</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #fafaf9;
+      --bg-subtle: linear-gradient(180deg, #fafaf9 0%, #f5f3ef 100%);
+      --surface: #ffffff;
+      --surface-dim: #f5f3ef;
+      --surface-recessed: #edeae4;
+      --border: rgba(0, 0, 0, 0.07);
+      --border-strong: rgba(0, 0, 0, 0.14);
+      --text: #1c1917;
+      --text-dim: #57534e;
+      --text-muted: #a8a29e;
+      --teal: #0891b2;
+      --teal-dim: rgba(8, 145, 178, 0.08);
+      --teal-mid: rgba(8, 145, 178, 0.15);
+      --red: #dc2626;
+      --red-dim: rgba(220, 38, 38, 0.07);
+      --green: #16a34a;
+      --green-dim: rgba(22, 163, 74, 0.07);
+      --amber: #d97706;
+      --amber-dim: rgba(217, 119, 6, 0.07);
+      --slate: #475569;
+      --deep-blue: #1e3a5f;
+      --deep-blue-dim: rgba(30, 58, 95, 0.06);
+      --gold: #b8860b;
+      --radius: 12px;
+      --radius-sm: 8px;
+      --shadow: 0 1px 3px rgba(0,0,0,0.05);
+      --shadow-md: 0 2px 8px rgba(0,0,0,0.06);
+      --shadow-lg: 0 4px 16px rgba(0,0,0,0.08);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #121110;
+        --bg-subtle: linear-gradient(180deg, #121110 0%, #1a1816 100%);
+        --surface: #1c1a17;
+        --surface-dim: #242220;
+        --surface-recessed: #0f0e0d;
+        --border: rgba(255,255,255,0.06);
+        --border-strong: rgba(255,255,255,0.12);
+        --text: #e7e5e4;
+        --text-dim: #a8a29e;
+        --text-muted: #57534e;
+        --teal-dim: rgba(8,145,178,0.12);
+        --teal-mid: rgba(8,145,178,0.2);
+        --red-dim: rgba(220,38,38,0.12);
+        --green-dim: rgba(22,163,74,0.12);
+        --amber-dim: rgba(217,119,6,0.12);
+        --deep-blue-dim: rgba(30,58,95,0.12);
+        --shadow: 0 1px 3px rgba(0,0,0,0.15);
+        --shadow-md: 0 2px 8px rgba(0,0,0,0.2);
+        --shadow-lg: 0 4px 16px rgba(0,0,0,0.25);
+      }
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', -apple-system, sans-serif;
+      background: var(--bg-subtle);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2.5rem 1.25rem 4rem;
+    }
+
+    /* ─── Header ─── */
+    .hero {
+      text-align: center;
+      padding: 2rem 0 2.5rem;
+      animation: fadeUp 0.5s ease-out;
+    }
+
+    .hero-eyebrow {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--teal);
+    }
+
+    .hero h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      line-height: 1.2;
+      margin: 0.5rem 0 0.4rem;
+      letter-spacing: -0.02em;
+    }
+
+    .hero-sub {
+      color: var(--text-dim);
+      font-size: 0.95rem;
+      max-width: 520px;
+      margin: 0 auto;
+    }
+
+    .hero-date {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 0.6rem;
+    }
+
+    /* ─── Section ─── */
+    .section {
+      margin-top: 2.5rem;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 1rem;
+    }
+
+    .section-num {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.7rem;
+      font-weight: 500;
+      width: 22px;
+      height: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      flex-shrink: 0;
+    }
+
+    .section-num--teal { background: var(--teal-dim); color: var(--teal); }
+    .section-num--red { background: var(--red-dim); color: var(--red); }
+    .section-num--green { background: var(--green-dim); color: var(--green); }
+    .section-num--amber { background: var(--amber-dim); color: var(--amber); }
+    .section-num--blue { background: var(--deep-blue-dim); color: var(--deep-blue); }
+
+    .section-title {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+
+    /* ─── Card ─── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.4rem 1.5rem;
+      box-shadow: var(--shadow);
+    }
+
+    .card + .card { margin-top: 0.6rem; }
+    .card--hero { border-left: 3px solid var(--teal); box-shadow: var(--shadow-md); }
+    .card--alert { border-left: 3px solid var(--red); }
+    .card--success { border-left: 3px solid var(--green); }
+    .card--warn { border-left: 3px solid var(--amber); }
+    .card--blue { border-left: 3px solid var(--deep-blue); }
+
+    .card h3 { font-size: 1rem; font-weight: 600; margin-bottom: 0.4rem; }
+    .card p { color: var(--text-dim); font-size: 0.88rem; line-height: 1.65; }
+    .card p + p { margin-top: 0.4rem; }
+
+    /* ─── Flow ─── */
+    .pipeline {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      align-items: center;
+    }
+
+    .pipeline-node {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 0.9rem 1.2rem;
+      width: 100%;
+      max-width: 520px;
+      box-shadow: var(--shadow);
+    }
+
+    .pipeline-node h4 { font-size: 0.88rem; font-weight: 600; }
+    .pipeline-node p { font-size: 0.8rem; color: var(--text-dim); margin-top: 0.15rem; }
+
+    .pipeline-arrow {
+      width: 2px;
+      height: 24px;
+      background: var(--border-strong);
+      position: relative;
+    }
+
+    .pipeline-arrow::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-left: 4px solid transparent;
+      border-right: 4px solid transparent;
+      border-top: 5px solid var(--border-strong);
+    }
+
+    /* ─── KPI ─── */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 0.6rem;
+      margin-top: 0.8rem;
+    }
+
+    .kpi {
+      background: var(--surface-dim);
+      border-radius: var(--radius-sm);
+      padding: 0.8rem 0.6rem;
+      text-align: center;
+    }
+
+    .kpi-val {
+      font-family: 'Fira Code', monospace;
+      font-size: 1.6rem;
+      font-weight: 700;
+      line-height: 1.1;
+    }
+
+    .kpi-val--teal { color: var(--teal); }
+    .kpi-val--red { color: var(--red); }
+    .kpi-val--green { color: var(--green); }
+    .kpi-val--amber { color: var(--amber); }
+    .kpi-val--blue { color: var(--deep-blue); }
+
+    .kpi-label {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-top: 0.2rem;
+    }
+
+    /* ─── Badge ─── */
+    .b {
+      display: inline-block;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.65rem;
+      font-weight: 500;
+      padding: 0.12rem 0.45rem;
+      border-radius: 4px;
+      vertical-align: middle;
+    }
+
+    .b--teal { background: var(--teal-dim); color: var(--teal); }
+    .b--red { background: var(--red-dim); color: var(--red); }
+    .b--green { background: var(--green-dim); color: var(--green); }
+    .b--amber { background: var(--amber-dim); color: var(--amber); }
+    .b--blue { background: var(--deep-blue-dim); color: var(--deep-blue); }
+
+    /* ─── Bar ─── */
+    .bar-wrap { margin-top: 0.6rem; }
+
+    .bar-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .bar-label {
+      font-size: 0.78rem;
+      font-family: 'Fira Code', monospace;
+      width: 110px;
+      flex-shrink: 0;
+      text-align: right;
+      color: var(--text-dim);
+    }
+
+    .bar-track {
+      flex: 1;
+      height: 8px;
+      background: var(--surface-dim);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 1s ease-out;
+    }
+
+    .bar-fill--teal { background: var(--teal); }
+    .bar-fill--amber { background: var(--amber); }
+    .bar-fill--red { background: var(--red); }
+    .bar-fill--green { background: var(--green); }
+    .bar-fill--blue { background: var(--deep-blue); }
+
+    .bar-val {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      width: 55px;
+      flex-shrink: 0;
+    }
+
+    /* ─── Table ─── */
+    .tbl {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 0.6rem;
+      font-size: 0.84rem;
+    }
+
+    .tbl th {
+      text-align: left;
+      font-size: 0.72rem;
+      font-family: 'Fira Code', monospace;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-muted);
+      padding: 0.5rem 0.6rem;
+      border-bottom: 1px solid var(--border-strong);
+    }
+
+    .tbl td {
+      padding: 0.5rem 0.6rem;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-dim);
+    }
+
+    .tbl tr:last-child td { border-bottom: none; }
+    .tbl .fname { font-weight: 500; color: var(--text); }
+    .tbl .mono { font-family: 'Fira Code', monospace; font-size: 0.78rem; }
+
+    /* ─── List ─── */
+    .flist {
+      list-style: none;
+      margin-top: 0.5rem;
+    }
+
+    .flist li {
+      padding: 0.55rem 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.86rem;
+    }
+
+    .flist li:last-child { border-bottom: none; }
+    .flist .fn { font-weight: 600; }
+    .flist .fd { color: var(--text-dim); font-size: 0.8rem; margin-top: 0.1rem; }
+
+    /* ─── Stacked bars ─── */
+    .stacked-bar {
+      display: flex;
+      height: 28px;
+      border-radius: 6px;
+      overflow: hidden;
+      margin-top: 0.6rem;
+    }
+
+    .stacked-bar > div {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.65rem;
+      font-weight: 500;
+      color: white;
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    .stacked-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem 1rem;
+      margin-top: 0.4rem;
+      font-size: 0.75rem;
+    }
+
+    .stacked-legend span {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .stacked-legend .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+
+    /* ─── Anim ─── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .a { animation: fadeUp 0.45s ease-out both; }
+    .a1 { animation-delay: 0.05s; }
+    .a2 { animation-delay: 0.1s; }
+    .a3 { animation-delay: 0.15s; }
+    .a4 { animation-delay: 0.2s; }
+    .a5 { animation-delay: 0.25s; }
+    .a6 { animation-delay: 0.3s; }
+    .a7 { animation-delay: 0.35s; }
+    .a8 { animation-delay: 0.4s; }
+    .a9 { animation-delay: 0.45s; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .a, .hero { animation: none; }
+    }
+
+    .mono { font-family: 'Fira Code', monospace; }
+    .small { font-size: 0.8rem; color: var(--text-dim); }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ════ HERO ════ -->
+  <div class="hero">
+    <div class="hero-eyebrow">Complete System Review</div>
+    <h1>Zosia's Memory System</h1>
+    <div class="hero-sub">How memories are created, stored, distilled, searched — and where the garbage lives</div>
+    <div class="hero-date">March 8, 2026 · 828 KB across 101 files</div>
+  </div>
+
+  <!-- ════ 1. THE BIG PICTURE ════ -->
+  <div class="section a a1">
+    <div class="section-head">
+      <div class="section-num section-num--teal">1</div>
+      <div class="section-title">The Big Picture</div>
+    </div>
+    <div class="card card--hero">
+      <h3>Memory is a three-stage pipeline</h3>
+      <p>Every conversation flows through three stages: <strong>creation</strong> (automatic), <strong>distillation</strong> (nightly cron), and <strong>recall</strong> (QMD search). Each stage has different actors and different failure modes.</p>
+    </div>
+
+    <div style="margin-top: 1rem;">
+      <div class="pipeline">
+        <div class="pipeline-node" style="border-left: 3px solid var(--teal);">
+          <h4>Stage 1 — Creation (automatic)</h4>
+          <p>OpenClaw's <code>session-memory</code> hook fires on every /new and /reset. It captures the last 30 messages and writes a summary to <code>memory/YYYY-MM-DD-slug.md</code>. I also manually write daily notes (<code>YYYY-MM-DD.md</code>) when something important happens.</p>
+        </div>
+        <div class="pipeline-arrow"></div>
+        <div class="pipeline-node" style="border-left: 3px solid var(--amber);">
+          <h4>Stage 2 — Distillation (nightly cron, 02:00 Dubai)</h4>
+          <p>A cron job reads all un-distilled daily + session files, filters for durable knowledge (lessons, project changes, tech setup changes, corrections), and surgically promotes the good stuff into <strong>MEMORY.md</strong> (top-level, always loaded) and <strong>topic files</strong> (detailed reference). Garbage gets skipped.</p>
+        </div>
+        <div class="pipeline-arrow"></div>
+        <div class="pipeline-node" style="border-left: 3px solid var(--green);">
+          <h4>Stage 3 — Recall (QMD search, on demand)</h4>
+          <p>When I need past context, QMD runs three local AI models on your M2 GPU: keyword search (BM25), semantic vector search, and a reranker. Results from all three merge into the top 8 snippets that get injected into my context.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ 2. MEMORY INVENTORY ════ -->
+  <div class="section a a2">
+    <div class="section-head">
+      <div class="section-num section-num--blue">2</div>
+      <div class="section-title">Memory Inventory — What You Have</div>
+    </div>
+    <div class="card card--blue">
+      <h3>101 files · 828 KB · 36 days of history</h3>
+      <p>Your memory spans Feb 1 – Mar 8, 2026. Here's how it breaks down:</p>
+
+      <div class="kpi-grid" style="grid-template-columns: repeat(5, 1fr);">
+        <div class="kpi">
+          <div class="kpi-val kpi-val--teal">1</div>
+          <div class="kpi-label">MEMORY.md</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-val kpi-val--blue">26</div>
+          <div class="kpi-label">Daily logs</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-val kpi-val--amber">54</div>
+          <div class="kpi-label">Session notes</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-val kpi-val--green">8</div>
+          <div class="kpi-label">Topic files</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-val" style="color: var(--text-muted);">4</div>
+          <div class="kpi-label">Archived</div>
+        </div>
+      </div>
+
+      <!-- Stacked bar showing storage distribution -->
+      <div class="stacked-bar" style="margin-top: 1rem;">
+        <div style="width: 0.5%; background: var(--teal);" title="MEMORY.md: 3.8 KB"></div>
+        <div style="width: 18.1%; background: var(--deep-blue);" title="Daily logs: 150 KB">150 KB</div>
+        <div style="width: 70.1%; background: var(--amber);" title="Session notes: 581 KB">581 KB</div>
+        <div style="width: 7.0%; background: var(--green);" title="Topic files: 58 KB">58 KB</div>
+        <div style="width: 2.8%; background: var(--text-muted);" title="Archive + other: 23 KB"></div>
+      </div>
+      <div class="stacked-legend">
+        <span><div class="dot" style="background: var(--teal);"></div> MEMORY.md (3.8 KB)</span>
+        <span><div class="dot" style="background: var(--deep-blue);"></div> Daily logs (150 KB)</span>
+        <span><div class="dot" style="background: var(--amber);"></div> Session notes (581 KB)</span>
+        <span><div class="dot" style="background: var(--green);"></div> Topic files (58 KB)</span>
+        <span><div class="dot" style="background: var(--text-muted);"></div> Archive + other (23 KB)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ 3. MEMORY HIERARCHY ════ -->
+  <div class="section a a3">
+    <div class="section-head">
+      <div class="section-num section-num--teal">3</div>
+      <div class="section-title">Memory Hierarchy — How It's Organized</div>
+    </div>
+
+    <div class="card card--hero">
+      <h3>Tier 1 — MEMORY.md (always loaded, every session)</h3>
+      <p>61 lines of the most critical knowledge. Loaded into every single session as system context. This is my "always on" brain: core identity, model policy, active projects, safety rules, operational rules.</p>
+      <p><strong>Budget:</strong> 80-line hard limit (currently at 61 — 76% used). If it grows past 80, least-referenced entries get demoted to topic files.</p>
+    </div>
+
+    <div class="card" style="margin-top: 0.6rem;">
+      <h3>Tier 2 — Topic Files (searched on demand)</h3>
+      <p>Eight specialized files holding detailed reference knowledge. Not always loaded — QMD searches them when you ask about a specific topic.</p>
+
+      <table class="tbl">
+        <thead>
+          <tr><th>File</th><th>Size</th><th>Purpose</th><th>Budget</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="fname">tech-setup.md</td><td class="mono">11.0 KB</td><td>Infrastructure, tools, config details</td><td class="mono">&lt;15 KB</td></tr>
+          <tr><td class="fname">projects.md</td><td class="mono">10.5 KB</td><td>All project state + cron details</td><td class="mono">&lt;15 KB</td></tr>
+          <tr><td class="fname">incidents.md</td><td class="mono">16.0 KB</td><td>RCAs and post-mortems</td><td class="mono" style="color: var(--red);">&lt;15 KB ⚠️</td></tr>
+          <tr><td class="fname">lessons.md</td><td class="mono">10.9 KB</td><td>Operational wisdom</td><td class="mono">&lt;12 KB</td></tr>
+          <tr><td class="fname">charlie.md</td><td class="mono">6.3 KB</td><td>Singapore VPS specifics</td><td class="mono">&lt;8 KB</td></tr>
+          <tr><td class="fname">errors.md</td><td class="mono">1.5 KB</td><td>Recurring tool failures, gotchas</td><td class="mono">&lt;10 KB</td></tr>
+          <tr><td class="fname">personal.md</td><td class="mono">0.7 KB</td><td>People, preferences, locations</td><td class="mono">&lt;5 KB</td></tr>
+          <tr><td class="fname">iran-monitor.md</td><td class="mono">1.3 KB</td><td>Archived project reference</td><td class="mono">frozen</td></tr>
+        </tbody>
+      </table>
+      <p style="margin-top: 0.5rem;"><span class="b b--red">NOTE</span> incidents.md is over its 15 KB budget — needs trimming on next distillation run.</p>
+    </div>
+
+    <div class="card" style="margin-top: 0.6rem;">
+      <h3>Tier 3 — Daily Logs &amp; Session Notes (raw material)</h3>
+      <p>The <strong>bulk</strong> of your memory (731 KB, 88% of total). These are the raw inputs that get distilled nightly. Two types:</p>
+      <ul class="flist">
+        <li>
+          <div class="fn"><span class="b b--blue">DAILY</span> YYYY-MM-DD.md — 26 files, 150 KB</div>
+          <div class="fd">Manually written by me during sessions. Decisions, context, todos, corrections. These are the primary distillation targets.</div>
+        </li>
+        <li>
+          <div class="fn"><span class="b b--amber">SESSION</span> YYYY-MM-DD-slug.md — 54 files, 581 KB</div>
+          <div class="fd">Auto-generated by OpenClaw's session-memory hook. Captures the last 30 messages of each session as a conversation summary. These are high-volume but mostly low-signal.</div>
+        </li>
+      </ul>
+    </div>
+
+    <div class="card" style="margin-top: 0.6rem;">
+      <h3>Tier 4 — Archive</h3>
+      <p>4 files (5.6 KB) in <code>archive/2026-02/</code>. Old daily logs from early February that were processed and archived. Still searchable by QMD but rarely hit.</p>
+    </div>
+  </div>
+
+  <!-- ════ 4. CREATION MECHANISMS ════ -->
+  <div class="section a a4">
+    <div class="section-head">
+      <div class="section-num section-num--teal">4</div>
+      <div class="section-title">How Memories Are Created</div>
+    </div>
+
+    <div class="card">
+      <h3>Three memory creation mechanisms</h3>
+
+      <table class="tbl">
+        <thead>
+          <tr><th>Mechanism</th><th>Trigger</th><th>What It Produces</th><th>Volume</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="fname">session-memory hook</td>
+            <td>Automatic on /new, /reset, session end</td>
+            <td>YYYY-MM-DD-slug.md (conversation summary, last 30 messages)</td>
+            <td class="mono">~54 files so far</td>
+          </tr>
+          <tr>
+            <td class="fname">Manual daily notes</td>
+            <td>I write them during sessions when something important happens</td>
+            <td>YYYY-MM-DD.md (decisions, context, todos, corrections)</td>
+            <td class="mono">~26 files so far</td>
+          </tr>
+          <tr>
+            <td class="fname">boot-md hook</td>
+            <td>Automatic on session start</td>
+            <td>Loads MEMORY.md + workspace files into session context</td>
+            <td>Every session</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p style="margin-top: 0.6rem;">The session-memory hook is the dominant producer — 54 of 80 non-topic files (68%). But it's also the noisiest. Many session notes are just greetings, status checks, or one-off lookups.</p>
+    </div>
+  </div>
+
+  <!-- ════ 5. DISTILLATION ════ -->
+  <div class="section a a5">
+    <div class="section-head">
+      <div class="section-num section-num--amber">5</div>
+      <div class="section-title">The Distillation Pipeline</div>
+    </div>
+
+    <div class="card card--warn">
+      <h3>Nightly cron: 02:00 Dubai (22:00 UTC)</h3>
+      <p>A Codex-powered cron job reads all un-distilled files, applies strict criteria to separate signal from noise, and surgically promotes durable knowledge into MEMORY.md and topic files.</p>
+
+      <div class="pipeline" style="margin-top: 1rem;">
+        <div class="pipeline-node">
+          <h4>1. Pre-process</h4>
+          <p>Python script checks marker file (.last-distilled), identifies all files since last run, classifies them as normal/low/skip priority. Handles multi-day catch-up automatically.</p>
+        </div>
+        <div class="pipeline-arrow"></div>
+        <div class="pipeline-node">
+          <h4>2. Distill</h4>
+          <p>Reads criteria.md (what's durable vs garbage). Reads all normal-priority files in full. Scans low-priority headers. Makes <strong>surgical edits</strong> — never rewrites whole files. Promotes in two steps: detail → topic file, one-liner → MEMORY.md.</p>
+        </div>
+        <div class="pipeline-arrow"></div>
+        <div class="pipeline-node">
+          <h4>3. Validate</h4>
+          <p>Python script checks MEMORY.md stays under 80 lines, topic files under their budgets, no structural damage. Pass/warn/fail.</p>
+        </div>
+        <div class="pipeline-arrow"></div>
+        <div class="pipeline-node">
+          <h4>4. Mark Done</h4>
+          <p>Updates .last-distilled marker so next run starts from the right date.</p>
+        </div>
+        <div class="pipeline-arrow"></div>
+        <div class="pipeline-node">
+          <h4>5. Report</h4>
+          <p>Posts summary to Discord #system: files processed, promotions made, garbage skipped.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card card--alert" style="margin-top: 0.6rem;">
+      <h3>⚠️ Current problem: distillation is behind</h3>
+      <p>Last successfully distilled: <strong>March 5</strong>. Last night's run <strong>timed out</strong> (hit 900s limit). That means 3 days of memories (Mar 6, 7, 8 — 18 files) haven't been distilled yet.</p>
+      <p>The pipeline supports multi-day catch-up, so next successful run will process all backlog. But the timeout suggests the job needs more time or the content volume is too high.</p>
+
+      <div class="kpi-grid" style="grid-template-columns: repeat(3, 1fr);">
+        <div class="kpi">
+          <div class="kpi-val kpi-val--red">3</div>
+          <div class="kpi-label">Days behind</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-val kpi-val--red">18</div>
+          <div class="kpi-label">Un-distilled files</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-val kpi-val--amber">900s</div>
+          <div class="kpi-label">Timeout (current)</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top: 0.6rem;">
+      <h3>What the distillation filter looks like</h3>
+      <p>The criteria are strict. Default stance: <strong>SKIP</strong>. Only these survive:</p>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; margin-top: 0.5rem;">
+        <div style="background: var(--green-dim); padding: 0.8rem; border-radius: var(--radius-sm);">
+          <div style="font-weight: 600; font-size: 0.82rem; color: var(--green); margin-bottom: 0.3rem;">✓ Promoted (rare)</div>
+          <div style="font-size: 0.78rem; color: var(--text-dim); line-height: 1.5;">
+            Lessons from failures<br>
+            Project state changes<br>
+            Tech setup changes<br>
+            Incidents &amp; RCAs<br>
+            Preference shifts<br>
+            New safety rules<br>
+            [CORRECTION] entries
+          </div>
+        </div>
+        <div style="background: var(--red-dim); padding: 0.8rem; border-radius: var(--radius-sm);">
+          <div style="font-weight: 600; font-size: 0.82rem; color: var(--red); margin-bottom: 0.3rem;">✗ Skipped (majority)</div>
+          <div style="font-size: 0.78rem; color: var(--text-dim); line-height: 1.5;">
+            Heartbeat results<br>
+            Session greetings<br>
+            Status checks<br>
+            In-session troubleshooting<br>
+            Report outputs<br>
+            Debug sessions<br>
+            Weather, lookups, chat
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ 6. THE GARBAGE ════ -->
+  <div class="section a a6">
+    <div class="section-head">
+      <div class="section-num section-num--red">6</div>
+      <div class="section-title">The Garbage — What's Taking Up Space</div>
+    </div>
+
+    <div class="card card--alert">
+      <h3>581 KB (70%) is session notes — most are low-signal</h3>
+      <p>The session-memory hook captures <em>everything</em>: greetings, one-off questions, routine checks. The 10 largest files alone account for 303 KB — and many are verbose audit dumps or comparison tables that already got their value delivered in-session.</p>
+
+      <table class="tbl" style="margin-top: 0.5rem;">
+        <thead>
+          <tr><th>File</th><th>Size</th><th>Content</th><th>Value</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="fname">2026-03-05-openclaw-audit.md</td><td class="mono">71 KB</td><td>Massive audit session dump</td><td><span class="b b--red">LOW</span> already applied</td></tr>
+          <tr><td class="fname">2026-03-06-macbook-comparison.md</td><td class="mono">47 KB</td><td>MacBook comparison research</td><td><span class="b b--amber">MED</span> one-time use</td></tr>
+          <tr><td class="fname">2026-03-05-multi-agent-blueprint.md</td><td class="mono">29 KB</td><td>Multi-agent architecture plan</td><td><span class="b b--green">HIGH</span> reference</td></tr>
+          <tr><td class="fname">2026-03-05-setup-audit.md</td><td class="mono">23 KB</td><td>Setup audit session</td><td><span class="b b--red">LOW</span> already applied</td></tr>
+          <tr><td class="fname">2026-03-02-nightly-distill.md</td><td class="mono">19 KB</td><td>Distillation debug session</td><td><span class="b b--red">LOW</span> already applied</td></tr>
+          <tr><td class="fname">1password-migration-session-report.md</td><td class="mono">17 KB</td><td>Password migration report</td><td><span class="b b--red">LOW</span> one-time</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card" style="margin-top: 0.6rem;">
+      <h3>Pure stubs — 7 files with zero useful content</h3>
+      <p>These are empty session headers with no real conversation or just a greeting exchange. They add noise to QMD's index without providing any recall value.</p>
+
+      <table class="tbl" style="margin-top: 0.3rem;">
+        <thead>
+          <tr><th>File</th><th>Size</th><th>Content</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="mono">2026-03-04-0745.md</td><td class="mono">179 B</td><td>Empty session header (Discord)</td></tr>
+          <tr><td class="mono">2026-03-03-1916.md</td><td class="mono">174 B</td><td>Empty session header (WhatsApp)</td></tr>
+          <tr><td class="mono">2026-03-05-1638.md</td><td class="mono">179 B</td><td>Empty session header (Discord)</td></tr>
+          <tr><td class="mono">2026-03-03-1610.md</td><td class="mono">179 B</td><td>Empty session header (Discord)</td></tr>
+          <tr><td class="mono">2026-03-07-session-greeting.md</td><td class="mono">861 B</td><td>Just a "Fresh session" greeting</td></tr>
+          <tr><td class="mono">2026-03-03-session-greeting.md</td><td class="mono">804 B</td><td>Just a session start prompt</td></tr>
+          <tr><td class="mono">2026-03-08-session-start.md</td><td class="mono">861 B</td><td>Just a "Fresh session" greeting</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ════ 7. QMD SEARCH ════ -->
+  <div class="section a a7">
+    <div class="section-head">
+      <div class="section-num section-num--green">7</div>
+      <div class="section-title">QMD Search — The Recall Engine</div>
+    </div>
+
+    <div class="card card--success">
+      <h3>Three AI models running on your Mac's GPU</h3>
+      <p>QMD 1.1.5 runs locally on your M2's Metal GPU. No data leaves your machine for memory search.</p>
+
+      <div class="kpi-grid" style="grid-template-columns: repeat(4, 1fr);">
+        <div class="kpi">
+          <div class="kpi-val kpi-val--green">102</div>
+          <div class="kpi-label">Files indexed</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-val kpi-val--green">896</div>
+          <div class="kpi-label">Vector chunks</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-val kpi-val--teal">6.6 MB</div>
+          <div class="kpi-label">Index size</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-val kpi-val--teal">17.8 GB</div>
+          <div class="kpi-label">VRAM available</div>
+        </div>
+      </div>
+
+      <ul class="flist" style="margin-top: 0.8rem;">
+        <li>
+          <div class="fn">Embedding Model <span class="b b--green">embeddinggemma-300M</span></div>
+          <div class="fd">Converts text into 256-dim vectors. Used for semantic similarity search — "Singapore server" matches "Charlie VPS" even with no shared keywords.</div>
+        </li>
+        <li>
+          <div class="fn">Query Expansion Model <span class="b b--teal">qmd-query-expansion-1.7B</span></div>
+          <div class="fd">Takes your search and generates keyword (lex), semantic (vec), and hypothetical answer (hyde) variants. Broadens recall without losing precision.</div>
+        </li>
+        <li>
+          <div class="fn">Reranking Model <span class="b b--amber">Qwen3-Reranker-0.6B</span></div>
+          <div class="fd">Reads each candidate result against your query and re-scores them. Catches nuance that keyword + vector alone miss. Fixed in 1.1.1 to handle long docs properly.</div>
+        </li>
+      </ul>
+    </div>
+
+    <div class="card" style="margin-top: 0.6rem;">
+      <h3>Search flow: query → two paths → rerank → results</h3>
+      <p>Every <code>memory_search</code> call triggers this pipeline (~10-16 seconds):</p>
+
+      <div class="pipeline" style="margin-top: 0.6rem;">
+        <div class="pipeline-node">
+          <h4>1. Query Expansion</h4>
+          <p>Your search text gets expanded into multiple forms: keyword variants, semantic rephrasing, hypothetical answer passages.</p>
+        </div>
+        <div class="pipeline-arrow"></div>
+        <div class="pipeline-node">
+          <h4>2. Dual Search (parallel)</h4>
+          <p><span class="b b--blue">BM25</span> keyword matching runs on the text index. <span class="b b--amber">Vector</span> similarity runs on the embedding index. Both return candidate lists.</p>
+        </div>
+        <div class="pipeline-arrow"></div>
+        <div class="pipeline-node">
+          <h4>3. Reciprocal Rank Fusion</h4>
+          <p>Both candidate lists are merged using RRF scoring — files that appear in both lists get boosted.</p>
+        </div>
+        <div class="pipeline-arrow"></div>
+        <div class="pipeline-node">
+          <h4>4. Rerank</h4>
+          <p>Top candidates are deeply scored by the reranker model. Reads each snippet against your query for semantic relevance.</p>
+        </div>
+        <div class="pipeline-arrow"></div>
+        <div class="pipeline-node">
+          <h4>5. Return top 8</h4>
+          <p>Best snippets returned with file path + line numbers. Injected into session context.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ 8. ISSUES & RECOMMENDATIONS ════ -->
+  <div class="section a a8">
+    <div class="section-head">
+      <div class="section-num section-num--red">8</div>
+      <div class="section-title">Issues Found &amp; Recommendations</div>
+    </div>
+
+    <div class="card card--alert">
+      <h3>Issue 1: Distillation is 3 days behind (timed out)</h3>
+      <p>The nightly distill cron timed out at 900s last run. 18 files from Mar 6-8 haven't been processed. The pipeline handles catch-up, but the timeout may need bumping for multi-day backlog.</p>
+      <p><strong>Fix:</strong> Increase timeout from 900s → 1800s. Or: if backlog is large, run distill manually once to catch up, then let cron handle daily going forward.</p>
+    </div>
+
+    <div class="card card--alert" style="margin-top: 0.6rem;">
+      <h3>Issue 2: incidents.md exceeds its 15 KB budget (16.0 KB)</h3>
+      <p>The incidents topic file has grown past its size target. Older incidents that are fully resolved should be trimmed to one-liner summaries.</p>
+    </div>
+
+    <div class="card card--warn" style="margin-top: 0.6rem;">
+      <h3>Issue 3: 7 garbage stub files polluting the index</h3>
+      <p>Empty session headers and greeting-only files add noise to QMD searches. They match on generic terms ("session", "discord", "started") and waste reranker cycles.</p>
+      <p><strong>Fix:</strong> Delete or archive these stubs. The distillation criteria already mark files under 1 KB with no substance as garbage.</p>
+    </div>
+
+    <div class="card card--warn" style="margin-top: 0.6rem;">
+      <h3>Issue 4: Large session dumps taking 70% of storage</h3>
+      <p>Six files over 17 KB each (total 206 KB) are verbose session transcripts whose value has already been extracted. They slow down embedding and add noise to searches.</p>
+      <p><strong>Fix:</strong> After distillation confirms their knowledge is promoted, archive or trim these to a one-paragraph summary + key decisions.</p>
+    </div>
+
+    <div class="card" style="margin-top: 0.6rem;">
+      <h3>Issue 5: 3 new pending embeddings</h3>
+      <p>Files created since the last embed run (this morning's fix session) haven't been vectorized yet. Low urgency — OpenClaw triggers re-indexing periodically.</p>
+    </div>
+  </div>
+
+  <!-- ════ 9. HEALTH SUMMARY ════ -->
+  <div class="section a a9">
+    <div class="section-head">
+      <div class="section-num section-num--green">9</div>
+      <div class="section-title">Overall Health Summary</div>
+    </div>
+
+    <div class="card">
+      <div class="bar-wrap">
+        <div class="bar-row">
+          <div class="bar-label">MEMORY.md</div>
+          <div class="bar-track"><div class="bar-fill bar-fill--green" style="width: 76%;"></div></div>
+          <div class="bar-val">61/80 ln</div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">tech-setup</div>
+          <div class="bar-track"><div class="bar-fill bar-fill--green" style="width: 73%;"></div></div>
+          <div class="bar-val">11.0 KB</div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">projects</div>
+          <div class="bar-track"><div class="bar-fill bar-fill--green" style="width: 70%;"></div></div>
+          <div class="bar-val">10.5 KB</div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">incidents</div>
+          <div class="bar-track"><div class="bar-fill bar-fill--red" style="width: 107%;"></div></div>
+          <div class="bar-val" style="color: var(--red);">16.0 KB ⚠</div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">lessons</div>
+          <div class="bar-track"><div class="bar-fill bar-fill--amber" style="width: 91%;"></div></div>
+          <div class="bar-val">10.9 KB</div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">charlie</div>
+          <div class="bar-track"><div class="bar-fill bar-fill--green" style="width: 79%;"></div></div>
+          <div class="bar-val">6.3 KB</div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">errors</div>
+          <div class="bar-track"><div class="bar-fill bar-fill--teal" style="width: 15%;"></div></div>
+          <div class="bar-val">1.5 KB</div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">personal</div>
+          <div class="bar-track"><div class="bar-fill bar-fill--teal" style="width: 14%;"></div></div>
+          <div class="bar-val">0.7 KB</div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">Vector coverage</div>
+          <div class="bar-track"><div class="bar-fill bar-fill--green" style="width: 97%;"></div></div>
+          <div class="bar-val">99/102</div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">Distill backlog</div>
+          <div class="bar-track"><div class="bar-fill bar-fill--red" style="width: 100%;"></div></div>
+          <div class="bar-val" style="color: var(--red);">3 days</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

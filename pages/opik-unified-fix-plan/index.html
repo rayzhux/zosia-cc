@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+<title>OpenClaw Unified Fix Plan — Mar 14, 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --font-body: 'IBM Plex Sans', system-ui, sans-serif;
+    --font-mono: 'IBM Plex Mono', 'SF Mono', Consolas, monospace;
+    --bg: #fafaf9; --surface: #ffffff; --surface2: #f5f5f4;
+    --border: rgba(0,0,0,0.06); --border-bright: rgba(0,0,0,0.12);
+    --text: #1c1917; --text-dim: #78716c;
+    --accent: #0369a1; --accent-dim: rgba(3,105,161,0.06);
+    --green: #059669; --green-dim: rgba(5,150,105,0.07);
+    --red: #dc2626; --red-dim: rgba(220,38,38,0.06);
+    --orange: #d97706; --orange-dim: rgba(217,119,6,0.06);
+    --teal: #0891b2; --teal-dim: rgba(8,145,178,0.06);
+    --purple: #7c3aed; --purple-dim: rgba(124,58,237,0.06);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0c0a09; --surface: #1c1917; --surface2: #292524;
+      --border: rgba(255,255,255,0.06); --border-bright: rgba(255,255,255,0.10);
+      --text: #e7e5e4; --text-dim: #a8a29e;
+      --accent: #38bdf8; --accent-dim: rgba(56,189,248,0.08);
+      --green: #34d399; --green-dim: rgba(52,211,153,0.08);
+      --red: #f87171; --red-dim: rgba(248,113,113,0.08);
+      --orange: #fbbf24; --orange-dim: rgba(251,191,36,0.08);
+      --teal: #22d3ee; --teal-dim: rgba(34,211,238,0.08);
+      --purple: #a78bfa; --purple-dim: rgba(167,139,250,0.08);
+    }
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background: var(--bg); color: var(--text); font-family: var(--font-body); line-height: 1.6; min-height: 100vh; -webkit-font-smoothing: antialiased;
+    background-image: radial-gradient(ellipse at 20% 0%, var(--accent-dim) 0%, transparent 50%), radial-gradient(ellipse at 80% 100%, var(--teal-dim) 0%, transparent 40%);
+  }
+  .page { max-width: 1100px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
+  @media (max-width: 768px) { .page { padding: 1.5rem 1rem 3rem; } }
+  .page-header { margin-bottom: 2rem; animation: fadeUp 0.3s ease both; }
+  .page-header h1 { font-size: 1.75rem; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 0.25rem; }
+  .page-header .subtitle { font-family: var(--font-mono); font-size: 0.82rem; color: var(--text-dim); }
+
+  .section { margin-bottom: 2.5rem; }
+  .section-label { font-family: var(--font-mono); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem; }
+  .section-label::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1.5rem; margin-bottom: 1rem; animation: fadeUp 0.4s ease both; }
+  .card h2 { font-size: 1.15rem; font-weight: 700; margin-bottom: 0.5rem; }
+  .card h3 { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.35rem; margin-top: 1rem; }
+  .card h3:first-of-type { margin-top: 0.5rem; }
+  .card p, .card li { font-size: 0.84rem; color: var(--text-dim); line-height: 1.55; }
+  .card ul { padding-left: 1.1rem; margin-top: 0.35rem; }
+  .card li { margin-bottom: 0.25rem; }
+  .card code { font-family: var(--font-mono); font-size: 0.78rem; background: var(--surface2); padding: 0.1rem 0.35rem; border-radius: 3px; }
+  .card pre { background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 0.75rem 1rem; margin: 0.5rem 0; overflow-x: auto; font-family: var(--font-mono); font-size: 0.75rem; line-height: 1.5; color: var(--text); }
+
+  .card--emergency { border-left: 4px solid var(--red); background: linear-gradient(135deg, var(--surface), var(--red-dim)); }
+  .card--p1 { border-left: 4px solid var(--red); }
+  .card--p2 { border-left: 4px solid var(--orange); }
+  .card--p3 { border-left: 4px solid var(--accent); }
+  .card--info { border-left: 4px solid var(--green); }
+
+  .tag { font-family: var(--font-mono); font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.4rem; display: block; }
+  .tag--red { color: var(--red); } .tag--orange { color: var(--orange); } .tag--accent { color: var(--accent); } .tag--green { color: var(--green); } .tag--purple { color: var(--purple); }
+
+  .badge { display: inline-block; font-family: var(--font-mono); font-size: 0.68rem; font-weight: 500; padding: 0.15rem 0.5rem; border-radius: 4px; white-space: nowrap; }
+  .badge--red { background: var(--red-dim); color: var(--red); }
+  .badge--orange { background: var(--orange-dim); color: var(--orange); }
+  .badge--green { background: var(--green-dim); color: var(--green); }
+  .badge--accent { background: var(--accent-dim); color: var(--accent); }
+
+  .table-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); }
+  table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+  thead th { position: sticky; top: 0; background: var(--surface2); font-family: var(--font-mono); font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-dim); text-align: left; padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-bright); white-space: nowrap; }
+  thead th.right { text-align: right; }
+  tbody td { padding: 0.6rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  tbody td.right { text-align: right; font-variant-numeric: tabular-nums; }
+  tbody td.mono { font-family: var(--font-mono); font-size: 0.78rem; }
+  tbody tr:nth-child(even) { background: var(--surface2); }
+
+  .callout { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 8px; padding: 1rem 1.25rem; font-size: 0.85rem; margin: 1rem 0; }
+  .callout strong { color: var(--accent); }
+  .callout--red { border-left-color: var(--red); }
+  .callout--red strong { color: var(--red); }
+
+  .step { display: flex; gap: 0.75rem; margin-bottom: 0.75rem; }
+  .step-num { flex-shrink: 0; width: 24px; height: 24px; border-radius: 50%; background: var(--accent); color: white; font-family: var(--font-mono); font-size: 0.68rem; font-weight: 700; display: flex; align-items: center; justify-content: center; margin-top: 0.15rem; }
+  .step-content { flex: 1; }
+  .step-content p { font-size: 0.82rem; color: var(--text-dim); }
+  .step-content strong { color: var(--text); }
+
+  .timeline { position: relative; padding-left: 2rem; }
+  .timeline::before { content: ''; position: absolute; left: 0.5rem; top: 0; bottom: 0; width: 2px; background: var(--border-bright); }
+  .timeline-item { position: relative; margin-bottom: 1rem; }
+  .timeline-item::before { content: ''; position: absolute; left: -1.65rem; top: 0.4rem; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); border: 2px solid var(--bg); }
+  .timeline-item.zosia::before { background: var(--teal); }
+  .timeline-item.argus::before { background: var(--orange); }
+  .timeline-item .time { font-family: var(--font-mono); font-size: 0.68rem; color: var(--text-dim); }
+  .timeline-item .who { font-family: var(--font-mono); font-size: 0.72rem; font-weight: 600; }
+  .timeline-item .who.zosia { color: var(--teal); }
+  .timeline-item .who.argus { color: var(--orange); }
+  .timeline-item .msg { font-size: 0.8rem; color: var(--text-dim); }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  @media (max-width: 768px) { .grid-2 { grid-template-columns: 1fr; } }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; } }
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="page-header">
+  <h1>🔧 Unified Fix Plan</h1>
+  <div class="subtitle">Combining Zosia + Argus analysis · Mar 14, 2026</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- TASK 1: THE FLOOD DIAGNOSIS -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-label">Task 1 — Why did both agents flood this channel?</div>
+
+  <div class="card card--emergency" style="animation-delay: 0.1s;">
+    <div class="tag tag--red">🚨 Newly discovered · Architectural issue</div>
+    <h2>Dual-Agent Echo + Message Flood</h2>
+
+    <h3>What happened at 10:57 UTC</h3>
+    <div class="timeline" style="margin-top: 0.5rem;">
+      <div class="timeline-item">
+        <div class="time">10:57:52</div>
+        <div class="who">Raymond</div>
+        <div class="msg">Posts the 3-item fix request in #development</div>
+      </div>
+      <div class="timeline-item zosia">
+        <div class="time">10:57:59 (+7s)</div>
+        <div class="who zosia">Zosia</div>
+        <div class="msg">"Let me do the homework first…" — 1 message, starts working</div>
+      </div>
+      <div class="timeline-item argus">
+        <div class="time">10:58:10 (+18s)</div>
+        <div class="who argus">Argus</div>
+        <div class="msg">"I'm checking the current config…" — also starts working on the SAME request</div>
+      </div>
+      <div class="timeline-item zosia">
+        <div class="time">11:01:47</div>
+        <div class="who zosia">Zosia</div>
+        <div class="msg">Sends 1 consolidated reply with fix plan + visual explainer link</div>
+      </div>
+      <div class="timeline-item argus">
+        <div class="time">11:00:53 → 11:01:09</div>
+        <div class="who argus">Argus</div>
+        <div class="msg"><strong>15 separate messages</strong> in 16 seconds — narrating every thought + dumping analysis in fragments</div>
+      </div>
+    </div>
+
+    <h3>Root cause: Both bots receive every guild message</h3>
+    <p>Both Discord bot tokens (Zosia <code>default</code> + Argus <code>argus</code>) are connected to the same guild. When Raymond posts a message, <strong>both bots receive the Discord message event</strong> simultaneously. The gateway routing is:</p>
+    <ul>
+      <li><strong>Default bot</strong> receives message → binding matches <code>guildId: 1467953146176213097</code> → routes to <code>main</code> (Zosia) → ✅ correct</li>
+      <li><strong>Argus bot</strong> receives message → despite <code>requireMention: true</code>, it still processes it → routes to <code>argus</code> → ❌ unintended</li>
+    </ul>
+    <p style="margin-top: 0.5rem;"><strong>The <code>requireMention: true</code> setting on the Argus account is not preventing Argus from responding.</strong> This is either a bug in how the binding/mention filter interacts with the wildcard channel config, or the binding <code>{ accountId: "argus" }</code> bypasses mention filtering.</p>
+
+    <h3>The flood: Argus streams narration as separate Discord messages</h3>
+    <p>Even if Argus only responded once, the <strong>way</strong> it responded is a UX disaster. It sent 15+ fragmented messages in 16 seconds:</p>
+    <ul>
+      <li>"I'm checking the current runtime…"</li>
+      <li>"Now I'm pulling the local evidence…"</li>
+      <li>"I've got the current config and channel map…"</li>
+      <li>"I'm narrowing the browser audit…"</li>
+      <li>Then 11+ messages of analysis, each a paragraph fragment</li>
+    </ul>
+    <p>This is <code>streaming: "partial"</code> combined with Argus narrating its tool calls instead of just doing them silently. The system prompt says "Never output internal reasoning/planning. Final answer only." but Argus isn't following it for intermediate steps.</p>
+  </div>
+
+  <div class="card card--p1" style="animation-delay: 0.2s;">
+    <div class="tag tag--red">Fix — Immediate</div>
+    <h2>Stop Argus from responding to channel messages</h2>
+    <p>Argus is a <strong>background pipeline agent</strong>. It should never respond to channel messages — only to cron triggers and <code>sessions_send</code> from Zosia. Two options:</p>
+
+    <h3>Option A: Remove the Argus binding entirely (recommended)</h3>
+    <p>Delete the binding <code>{ agentId: "argus", match: { channel: "discord", accountId: "argus" } }</code>. Argus cron jobs use <code>delivery.mode: "announce"</code> with explicit channel targets — they don't need an inbound binding to post.</p>
+    <pre>{
+  "bindings": [
+    { "agentId": "main", "match": { "channel": "discord", "guildId": "1467953146176213097" } }
+    // Argus binding removed — cron delivery handles outbound
+  ]
+}</pre>
+    <p><strong>Risk:</strong> Low. Argus cron jobs post via delivery announcements, not via inbound message routing. Need to verify cron delivery still works without a binding — test one cron job manually after the change.</p>
+
+    <h3>Option B: Restrict Argus to only its output channels</h3>
+    <p>If we need Argus to sometimes receive messages (e.g., someone @Argus in a channel), change the wildcard to an explicit channel list with <code>requireMention: true</code> enforced:</p>
+    <pre>"guilds": {
+  "1467953146176213097": {
+    "requireMention": true,
+    "channels": {
+      "1467962275481522380": { "allow": true },  // #daily-news
+      "1467958004811829318": { "allow": true },  // #token-usage
+      "1468180617262010532": { "allow": true },  // #backups
+      "1467971312923181151": { "allow": true },  // #development
+      "1470693532191953052": { "allow": true },  // #reddit
+      "1470710407852462091": { "allow": true },  // #x-gcc
+      "1480919048891142205": { "allow": true }   // #security
+    }
+  }
+}</pre>
+    <p><strong>Risk:</strong> Low. But if <code>requireMention</code> is genuinely broken at the binding level, this won't help either — Option A is safer.</p>
+
+    <div class="callout callout--red">
+      <strong>Recommendation:</strong> Go with Option A. Argus is a pipeline agent — it has no business responding to channel messages. Cron delivery handles all its output. If someone needs to talk to Argus, Zosia can relay via <code>sessions_send</code>. This eliminates the dual-response problem entirely.
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- TASK 2: UNIFIED FIX PLAN -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-label">Task 2 — Unified Fix Plan (Zosia + Argus findings merged)</div>
+
+  <div class="callout">
+    <strong>Both agents reached the same conclusions.</strong> Argus confirmed all cron target channel IDs are valid, the doc-lookup skill text is already mostly correct but execution is too permissive, and the real browser issue is a few broad skills normalizing browser use. The merged plan below takes the best from both analyses.
+  </div>
+</div>
+
+<!-- FIX 0: DUAL AGENT -->
+<div class="section">
+  <div class="section-label">Fix 0 — Dual-agent echo (new, highest priority)</div>
+  <div class="card card--p1" style="animation-delay: 0.3s;">
+    <div class="tag tag--red">Config Change · Requires gateway restart</div>
+    <h2>Remove Argus inbound binding</h2>
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <p><strong>Remove the Argus binding from <code>bindings[]</code></strong></p>
+        <p>Use <code>config.patch</code> to update bindings to only contain the main agent binding. This prevents Argus from ever receiving inbound channel messages.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <p><strong>Test one Argus cron job manually</strong></p>
+        <p>After restart, trigger a low-risk Argus cron job (token report or Opik review) to verify delivery announcements still work without the binding.</p>
+      </div>
+    </div>
+    <p><strong>Impact:</strong> Eliminates dual-response entirely. Argus becomes cron-only as designed.</p>
+  </div>
+</div>
+
+<!-- FIX 1: DOC-LOOKUP -->
+<div class="section">
+  <div class="section-label">Fix 1 — web_fetch speculative URL failures (44 errors / 6 days)</div>
+  <div class="card card--p1" style="animation-delay: 0.4s;">
+    <div class="tag tag--red">Skill + Cache Changes · No restart</div>
+    <h2>Shared docs-home cache + fetch policy enforcement</h2>
+    <p><strong>Both agents agree:</strong> The doc-lookup skill text is already improved, but agents still speculate at runtime. The fix is enforcement, not more instructions.</p>
+
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <p><strong>Copy Zosia's docs-cache to Argus</strong></p>
+        <p><code>cp -r ~/.openclaw/workspace/docs-cache/ ~/.openclaw/workspace-argus/docs-cache/</code></p>
+        <p>Gives Argus instant access to 28 verified entries. Eliminates cold-start probing on every cron run.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <p><strong>Create a shared docs-home registry</strong> (Argus's suggestion)</p>
+        <p>A JSON file mapping product → canonical docs root. Agents check this BEFORE any fetch. Prevents speculative subdomain guessing.</p>
+        <pre>// skills/doc-lookup/references/docs-registry.json
+{
+  "openai": "https://platform.openai.com/docs",
+  "discord": "https://discord.com/developers/docs",
+  "anthropic": "https://docs.anthropic.com",
+  "resend": "https://resend.com/docs",
+  ...
+}</pre>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <p><strong>Add a blocked-domains list</strong> (Zosia's suggestion)</p>
+        <p>A negative cache for domains that consistently 404/403/401. Prevents retrying known-bad URLs.</p>
+        <pre>// skills/doc-lookup/references/blocked-domains.txt
+# Paywalled / bot-blocking news sites
+usnews.com
+aawsat.com
+reuters.com
+bloomberg.com
+ft.com
+wsj.com
+# Known bad doc subdomains  
+docs.resend.com/api/v2  # correct: resend.com/docs</pre>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <p><strong>Tighten SKILL.md with hard rules</strong> (merged from both)</p>
+        <ul>
+          <li>Check docs-registry.json first. If product found → use that root, skip guessing.</li>
+          <li>If <code>web_fetch</code> returns 401/403/404 → do NOT retry that URL or domain variant in the same session.</li>
+          <li>For cron/isolated sessions → always read <code>docs-cache/</code> before any network fetch. If cache &lt;7 days old → use it.</li>
+          <li>No <code>llms.txt</code> probing unless explicitly justified.</li>
+          <li>Subagents doing doc work must inherit the same rules (add to task prompts).</li>
+        </ul>
+      </div>
+    </div>
+
+    <p style="margin-top: 0.5rem;"><strong>Expected impact:</strong> 18% avg error rate → ~4%. Eliminates ~70% of web_fetch errors.</p>
+  </div>
+</div>
+
+<!-- FIX 2: BROWSER -->
+<div class="section">
+  <div class="section-label">Fix 2 — Browser usage where APIs exist (35 errors / 4 days)</div>
+  <div class="card card--p2" style="animation-delay: 0.5s;">
+    <div class="tag tag--orange">Skill Changes · No restart</div>
+    <h2>Tighten browser fallback criteria</h2>
+    <p><strong>Key finding (both agents agree):</strong> Argus already has browser denied in its tool profile. The 35 errors were mostly from pre-Argus cron runs and Zosia interactive sessions. The Argus migration already killed the biggest source.</p>
+
+    <h3>Remaining risk: 3 skills that still normalize browser</h3>
+    <div class="table-wrap" style="margin: 0.75rem 0;">
+      <table>
+        <thead>
+          <tr><th>Skill</th><th>Current Browser Policy</th><th>Fix</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="mono">doc-lookup</td>
+            <td>"use browser-based read only when necessary" (vague)</td>
+            <td>Tighten to: "Browser ONLY if web_fetch &lt;200 chars AND Exa failed AND page is confirmed JS-rendered. Never in cron/background."</td>
+          </tr>
+          <tr>
+            <td class="mono">web-scraper</td>
+            <td>Browser is final cascade step</td>
+            <td>Add: "In cron/isolated contexts, stop at Jina Reader. Never escalate to browser."</td>
+          </tr>
+          <tr>
+            <td class="mono">skill-creator</td>
+            <td>Uses browser for eval viewer</td>
+            <td>No change — legitimate Zosia-only interactive use. Just add "re-snapshot before every action" reminder.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>Expected impact:</strong> 14% avg error rate → ~3%. Mostly already achieved by Argus migration — these changes prevent regression.</p>
+  </div>
+</div>
+
+<!-- FIX 3: DISCORD CHANNELS -->
+<div class="section">
+  <div class="section-label">Fix 3 — Discord channel targeting (18 errors / 4 days)</div>
+  <div class="card card--p3" style="animation-delay: 0.6s;">
+    <div class="tag tag--accent">Config + Workspace Changes · No restart</div>
+    <h2>Channel registry + identifier hygiene</h2>
+    <p><strong>Both agents confirmed:</strong> All 16 active cron target channel IDs are valid. The errors come from agents confusing guild IDs with channel IDs, and from bad message tool call shapes.</p>
+
+    <h3>Argus found a smoking gun</h3>
+    <p>Agents are using the <strong>guild ID</strong> <code>1467953146176213097</code> where a <strong>channel ID</strong> is required. Discord returns "Unknown Channel" because that's not a channel — it's the guild.</p>
+
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <p><strong>Create a machine-readable channel registry</strong> (Argus's suggestion)</p>
+        <p>Generate from <code>message channel-list</code> and store in both workspaces. Includes channel ID, name, type, parent, and whether components are allowed.</p>
+        <pre>// config/discord-channels.json
+{
+  "guild": "1467953146176213097",
+  "channels": {
+    "1467962275481522380": { "name": "📰-daily-news", "type": "text" },
+    "1467958004811829318": { "name": "📊-token-usage", "type": "text" },
+    ...
+  }
+}</pre>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <p><strong>Add channel reference to Argus TOOLS.md</strong></p>
+        <p>Give Argus's cron sessions instant context about available channels, their IDs, and supported actions. Prevents guild-vs-channel confusion.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <p><strong>Add message tool param guidance to Argus AGENTS.md</strong></p>
+        <p>"When using message tool: <code>action=search</code> requires <code>query</code>. <code>action=member-info</code> requires <code>userId</code>. <code>action=channel-info</code> requires <code>channelId</code>. Never pass guild ID where channel ID is expected."</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <p><strong>Clean up dead cron reference</strong> (Argus found)</p>
+        <p>The disabled <code>CF Crawl Endpoint Retest</code> job references channel <code>1481209726351052820</code> which doesn't exist. Remove it.</p>
+      </div>
+    </div>
+
+    <p><strong>Expected impact:</strong> 3.5% avg error rate → ~0.5%.</p>
+  </div>
+</div>
+
+<!-- BONUS: ENV -->
+<div class="section">
+  <div class="section-label">Fix 4 — Environment gaps (16 errors / 4 days)</div>
+  <div class="card card--info" style="animation-delay: 0.7s;">
+    <div class="tag tag--green">Trivial · 2 commands</div>
+    <h2>Install ripgrep + alias python</h2>
+    <pre>brew install ripgrep
+echo 'alias python=python3' >> ~/.zshrc && source ~/.zshrc</pre>
+    <p>Eliminates <code>command not found: rg</code> (9 hits) and <code>command not found: python</code> (7 hits).</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- EXECUTION ORDER -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-label">Implementation Sequence</div>
+  <div class="card" style="animation-delay: 0.8s;">
+    <h2>Safe, incremental execution</h2>
+    <div class="table-wrap" style="margin: 0.75rem 0;">
+      <table>
+        <thead>
+          <tr><th>#</th><th>Action</th><th>Risk</th><th>Restart?</th><th>Impact</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="mono">0</td>
+            <td><strong>Remove Argus inbound binding</strong></td>
+            <td><span class="badge badge--orange">Medium</span></td>
+            <td>Yes (gateway)</td>
+            <td>Kills dual-response flood</td>
+          </tr>
+          <tr>
+            <td class="mono">1</td>
+            <td>Install ripgrep + python alias</td>
+            <td><span class="badge badge--green">None</span></td>
+            <td>No</td>
+            <td>–16 errors</td>
+          </tr>
+          <tr>
+            <td class="mono">2</td>
+            <td>Copy docs-cache → Argus workspace</td>
+            <td><span class="badge badge--green">None</span></td>
+            <td>No</td>
+            <td>Stops Argus cold-start probing</td>
+          </tr>
+          <tr>
+            <td class="mono">3</td>
+            <td>Create docs-registry + blocked-domains</td>
+            <td><span class="badge badge--green">None</span></td>
+            <td>No</td>
+            <td>–30 web_fetch errors</td>
+          </tr>
+          <tr>
+            <td class="mono">4</td>
+            <td>Tighten doc-lookup SKILL.md</td>
+            <td><span class="badge badge--green">Low</span></td>
+            <td>No</td>
+            <td>Enforces fetch discipline</td>
+          </tr>
+          <tr>
+            <td class="mono">5</td>
+            <td>Tighten web-scraper browser fallback</td>
+            <td><span class="badge badge--green">Low</span></td>
+            <td>No</td>
+            <td>–browser errors in cron</td>
+          </tr>
+          <tr>
+            <td class="mono">6</td>
+            <td>Create channel registry + Argus TOOLS.md update</td>
+            <td><span class="badge badge--green">None</span></td>
+            <td>No</td>
+            <td>–18 message errors</td>
+          </tr>
+          <tr>
+            <td class="mono">7</td>
+            <td>Clean up dead cron job reference</td>
+            <td><span class="badge badge--green">None</span></td>
+            <td>No</td>
+            <td>Housekeeping</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Projected 6-day outcome</h3>
+    <div class="grid-2">
+      <div>
+        <p><strong>Current (Mar 9–14):</strong></p>
+        <ul>
+          <li>171 tool errors / 6 days</li>
+          <li>web_fetch: 18% error rate</li>
+          <li>browser: 14% error rate</li>
+          <li>message: 3.5% error rate</li>
+          <li>Dual-agent responses on any message</li>
+        </ul>
+      </div>
+      <div>
+        <p><strong>After fixes (projected):</strong></p>
+        <ul>
+          <li>~35 tool errors / 6 days <span class="badge badge--green">–80%</span></li>
+          <li>web_fetch: ~4% error rate</li>
+          <li>browser: ~3% error rate</li>
+          <li>message: ~0.5% error rate</li>
+          <li>Single-agent responses (Zosia only)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- WHAT WE'RE NOT DOING -->
+<div class="section">
+  <div class="section-label">Explicitly out of scope</div>
+  <div class="card" style="animation-delay: 0.9s;">
+    <ul>
+      <li><strong>Model/cost optimization</strong> — GPT-5.4 is 92.5% of spend. Argus needs the 1M context window. Separate discussion.</li>
+      <li><strong>Gateway port/bind changes</strong> — Never during triage. Safety rule.</li>
+      <li><strong>Removing browser from Zosia</strong> — Legitimate for interactive work. Just tightening when it's used.</li>
+      <li><strong>Argus as conversational agent</strong> — By design, Argus is background-only. Fix 0 enforces this.</li>
+    </ul>
+  </div>
+</div>
+
+</div>
+</body>
+</html>

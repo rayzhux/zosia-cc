@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+  <title>Multi-Agent Architecture Comparison</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --font-body: 'DM Sans', system-ui, sans-serif;
+      --font-heading: 'Instrument Serif', Georgia, serif;
+      --font-mono: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+      --bg: #faf7f5;
+      --surface: #ffffff;
+      --surface-alt: #f3efeb;
+      --border: rgba(0, 0, 0, 0.08);
+      --border-bright: rgba(0, 0, 0, 0.15);
+      --text: #1a1a1a;
+      --text-dim: #6b6560;
+      --text-dimmer: #9b9590;
+      --accent-a: #c2410c;
+      --accent-a-dim: rgba(194, 65, 12, 0.08);
+      --accent-b: #0369a1;
+      --accent-b-dim: rgba(3, 105, 161, 0.08);
+      --accent-c: #65a30d;
+      --accent-c-dim: rgba(101, 163, 13, 0.08);
+      --accent-d: #7e22ce;
+      --accent-d-dim: rgba(126, 34, 206, 0.08);
+      --accent-gold: #b45309;
+      --accent-gold-dim: rgba(180, 83, 9, 0.08);
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.04);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.06);
+      --shadow-lg: 0 8px 24px rgba(0,0,0,0.08);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #1a1816;
+        --surface: #242220;
+        --surface-alt: #2a2826;
+        --border: rgba(255, 255, 255, 0.06);
+        --border-bright: rgba(255, 255, 255, 0.12);
+        --text: #e8e2dc;
+        --text-dim: #a09890;
+        --text-dimmer: #706860;
+        --accent-a: #f97316;
+        --accent-a-dim: rgba(249, 115, 22, 0.12);
+        --accent-b: #38bdf8;
+        --accent-b-dim: rgba(56, 189, 248, 0.12);
+        --accent-c: #84cc16;
+        --accent-c-dim: rgba(132, 204, 22, 0.12);
+        --accent-d: #a855f7;
+        --accent-d-dim: rgba(168, 85, 247, 0.12);
+        --accent-gold: #f59e0b;
+        --accent-gold-dim: rgba(245, 158, 11, 0.12);
+        --shadow-sm: 0 1px 3px rgba(0,0,0,0.2);
+        --shadow-md: 0 4px 12px rgba(0,0,0,0.3);
+        --shadow-lg: 0 8px 24px rgba(0,0,0,0.4);
+      }
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      background-image: radial-gradient(ellipse at 30% 0%, var(--accent-a-dim) 0%, transparent 50%),
+                         radial-gradient(ellipse at 70% 100%, var(--accent-b-dim) 0%, transparent 50%);
+      min-height: 100vh;
+    }
+    .container { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+
+    /* Hero */
+    .hero { text-align: center; padding: 3rem 0 2rem; }
+    .hero h1 {
+      font-family: var(--font-heading);
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 400;
+      line-height: 1.2;
+      margin-bottom: 0.75rem;
+    }
+    .hero .subtitle {
+      font-size: 1.05rem;
+      color: var(--text-dim);
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    /* Section label */
+    .section-label {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-dimmer);
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .section-label .dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+    .section-label .dot-a { background: var(--accent-a); }
+    .section-label .dot-b { background: var(--accent-b); }
+    .section-label .dot-c { background: var(--accent-c); }
+    .section-label .dot-d { background: var(--accent-d); }
+    .section-label .dot-gold { background: var(--accent-gold); }
+
+    h2 {
+      font-family: var(--font-heading);
+      font-size: 1.8rem;
+      font-weight: 400;
+      margin-bottom: 1.25rem;
+      line-height: 1.3;
+    }
+
+    /* Profile cards */
+    .profiles { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin: 2rem 0; }
+    @media (max-width: 700px) { .profiles { grid-template-columns: 1fr; } }
+    .profile-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: var(--shadow-sm);
+      position: relative;
+      overflow: hidden;
+    }
+    .profile-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+    }
+    .profile-card.person-a::before { background: var(--accent-a); }
+    .profile-card.person-b::before { background: var(--accent-b); }
+    .profile-card .name {
+      font-family: var(--font-heading);
+      font-size: 1.4rem;
+      margin-bottom: 0.25rem;
+    }
+    .profile-card .handle {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--text-dimmer);
+      margin-bottom: 0.75rem;
+    }
+    .profile-card .bio { font-size: 0.9rem; color: var(--text-dim); margin-bottom: 1rem; }
+    .stats {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .stat { text-align: center; }
+    .stat .value {
+      font-family: var(--font-mono);
+      font-size: 1.3rem;
+      font-weight: 600;
+    }
+    .stat .label {
+      font-size: 0.72rem;
+      color: var(--text-dimmer);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .stat.accent-a .value { color: var(--accent-a); }
+    .stat.accent-b .value { color: var(--accent-b); }
+
+    /* Architecture diagrams */
+    .arch-section { margin: 3rem 0; }
+    .arch-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin: 1rem 0; }
+    @media (max-width: 700px) { .arch-grid { grid-template-columns: 1fr; } }
+    .arch-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.25rem;
+      box-shadow: var(--shadow-sm);
+    }
+    .arch-box h3 {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .arch-box pre {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      line-height: 1.7;
+      white-space: pre-wrap;
+      overflow-wrap: break-word;
+      background: var(--surface-alt);
+      border-radius: 8px;
+      padding: 1rem;
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    /* Comparison table */
+    .table-wrap {
+      overflow-x: auto;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+      margin: 1.5rem 0;
+      background: var(--surface);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+    }
+    thead th {
+      background: var(--surface-alt);
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 0.85rem 1rem;
+      text-align: left;
+      color: var(--text-dim);
+      border-bottom: 1px solid var(--border-bright);
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+    td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:nth-child(even) td { background: var(--surface-alt); }
+    td:first-child {
+      font-weight: 600;
+      white-space: nowrap;
+      font-size: 0.82rem;
+    }
+    .tag {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .tag-a { background: var(--accent-a-dim); color: var(--accent-a); }
+    .tag-b { background: var(--accent-b-dim); color: var(--accent-b); }
+    .tag-c { background: var(--accent-c-dim); color: var(--accent-c); }
+    .tag-d { background: var(--accent-d-dim); color: var(--accent-d); }
+    .tag-gold { background: var(--accent-gold-dim); color: var(--accent-gold); }
+
+    /* Verdict cards */
+    .verdict-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin: 1.5rem 0; }
+    .verdict-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.25rem;
+      box-shadow: var(--shadow-sm);
+      border-left: 3px solid;
+    }
+    .verdict-card.va { border-left-color: var(--accent-c); }
+    .verdict-card.vb { border-left-color: var(--accent-a); }
+    .verdict-card.vc { border-left-color: var(--accent-b); }
+    .verdict-card h4 {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
+      color: var(--text-dim);
+    }
+    .verdict-card p { font-size: 0.9rem; line-height: 1.5; }
+
+    /* Takeaway section */
+    .takeaway {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 2rem;
+      margin: 2.5rem 0;
+      box-shadow: var(--shadow-md);
+      position: relative;
+    }
+    .takeaway::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent-a), var(--accent-b), var(--accent-c));
+      border-radius: 12px 12px 0 0;
+    }
+    .takeaway h2 { margin-bottom: 1rem; }
+    .takeaway-list { list-style: none; }
+    .takeaway-list li {
+      padding: 0.5rem 0;
+      padding-left: 1.5rem;
+      position: relative;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+    .takeaway-list li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0.85rem;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-c);
+    }
+    .takeaway-list li:nth-child(2)::before { background: var(--accent-a); }
+    .takeaway-list li:nth-child(3)::before { background: var(--accent-b); }
+    .takeaway-list li:nth-child(4)::before { background: var(--accent-d); }
+    .takeaway-list li:nth-child(5)::before { background: var(--accent-gold); }
+    .takeaway-list li strong { font-weight: 600; }
+
+    /* Flow diagram */
+    .flow-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+      box-shadow: var(--shadow-sm);
+      overflow-x: auto;
+    }
+    .flow-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      padding: 0.5rem 0;
+    }
+    .flow-node {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 500;
+      padding: 0.5rem 0.85rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      white-space: nowrap;
+      text-align: center;
+    }
+    .flow-node.primary { background: var(--accent-b-dim); border-color: var(--accent-b); color: var(--accent-b); }
+    .flow-node.secondary { background: var(--accent-a-dim); border-color: var(--accent-a); color: var(--accent-a); }
+    .flow-node.tertiary { background: var(--accent-c-dim); border-color: var(--accent-c); color: var(--accent-c); }
+    .flow-node.gold { background: var(--accent-gold-dim); border-color: var(--accent-gold); color: var(--accent-gold); }
+    .flow-arrow {
+      font-size: 1rem;
+      color: var(--text-dimmer);
+    }
+    .flow-label {
+      font-size: 0.72rem;
+      color: var(--text-dimmer);
+      font-style: italic;
+      text-align: center;
+      width: 100%;
+      margin-top: -0.25rem;
+    }
+
+    /* Key insight callout */
+    .callout {
+      background: var(--accent-gold-dim);
+      border: 1px solid var(--accent-gold);
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      margin: 1.5rem 0;
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+    .callout strong { color: var(--accent-gold); }
+
+    /* Prose */
+    .prose { max-width: 800px; }
+    .prose p { font-size: 0.92rem; line-height: 1.65; margin-bottom: 1rem; color: var(--text); }
+    .prose strong { font-weight: 600; }
+
+    /* Cost table special */
+    .cost-highlight {
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+
+    /* Animations */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .fade-in {
+      animation: fadeUp 0.5s ease both;
+    }
+    .fade-in:nth-child(2) { animation-delay: 0.1s; }
+    .fade-in:nth-child(3) { animation-delay: 0.2s; }
+    .fade-in:nth-child(4) { animation-delay: 0.3s; }
+    @media (prefers-reduced-motion: reduce) {
+      .fade-in { animation: none; }
+    }
+
+    .section-divider {
+      border: none;
+      height: 1px;
+      background: var(--border-bright);
+      margin: 3rem 0;
+    }
+
+    /* Score meter */
+    .score-row { display: flex; gap: 1.25rem; margin: 1rem 0; flex-wrap: wrap; }
+    .score-item { flex: 1; min-width: 140px; }
+    .score-item .score-label {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-dimmer);
+      margin-bottom: 0.25rem;
+    }
+    .score-bar {
+      height: 6px;
+      border-radius: 3px;
+      background: var(--surface-alt);
+      overflow: hidden;
+    }
+    .score-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 0.8s ease;
+    }
+    .score-fill.a { background: var(--accent-a); }
+    .score-fill.b { background: var(--accent-b); }
+
+    footer {
+      text-align: center;
+      padding: 2rem 0 1rem;
+      font-size: 0.75rem;
+      color: var(--text-dimmer);
+      font-family: var(--font-mono);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <!-- Hero -->
+    <div class="hero fade-in">
+      <h1>Two Roads to Multi-Agent</h1>
+      <p class="subtitle">
+        Comparing the "Role-Based Fleet" vs. "Orchestrator + Coding Swarm" architectures — and what makes sense for us
+      </p>
+    </div>
+
+    <!-- Profiles -->
+    <section class="fade-in">
+      <div class="section-label"><span class="dot dot-a"></span> The Two Builders</div>
+      <div class="profiles">
+        <div class="profile-card person-a">
+          <div class="name">Person A — 沈浩 (shenhao)</div>
+          <div class="handle">github.com/shenhao-stu/openclaw-agents</div>
+          <div class="bio">Chinese creator, built a 9-agent fleet for business operations + content production. Open-sourced a one-command multi-agent setup kit. Uses Discord/Feishu channels as natural agent routing.</div>
+          <div class="stats">
+            <div class="stat accent-a"><div class="value">9</div><div class="label">Agents</div></div>
+            <div class="stat accent-a"><div class="value">4</div><div class="label">Workflows</div></div>
+            <div class="stat accent-a"><div class="value">172</div><div class="label">GitHub Stars</div></div>
+          </div>
+        </div>
+        <div class="profile-card person-b">
+          <div class="name">Elvis — @elvissun</div>
+          <div class="handle">x.com/elvissun · 12K likes on the article</div>
+          <div class="bio">Solo SaaS founder building "Agentic PR." Uses OpenClaw "Zoe" as orchestrator that spawns Codex/Claude Code/Gemini agents via tmux. Runs a real B2B product on this stack.</div>
+          <div class="stats">
+            <div class="stat accent-b"><div class="value">1</div><div class="label">Orchestrator</div></div>
+            <div class="stat accent-b"><div class="value">N</div><div class="label">Spawned Agents</div></div>
+            <div class="stat accent-b"><div class="value">94</div><div class="label">Commits/Day Peak</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Architecture Comparison -->
+    <section class="arch-section fade-in">
+      <div class="section-label"><span class="dot dot-b"></span> Architecture Topology</div>
+      <h2>How They're Wired</h2>
+      <div class="arch-grid">
+        <div class="arch-box">
+          <h3><span class="tag tag-a">Person A</span> Role-Based Fleet</h3>
+          <pre>
+Raymond (老板)
+  │
+  ▼
+🧠 总管 (Planner/Orchestrator)
+  ├── 接任务、拆任务、分发
+  ├── A/B/C 决策分级
+  │
+  ├─→ 💡 Ideator (创意生成)
+  ├─→ 🎯 Critic  (质量把关)
+  ├─→ 📰 Scout   (情报扫描)
+  ├─→ 📚 Surveyor(文献调研)
+  ├─→ 💻 Coder   (开发实现)
+  ├─→ ✍️ Writer  (内容写作)
+  ├─→ 🔍 Reviewer(审核校验)
+  └─→ 🐾 Main    (兜底仲裁)
+
+每个 Agent 独立 session、独立配置
+频道/群组 = 路由层</pre>
+        </div>
+        <div class="arch-box">
+          <h3><span class="tag tag-b">Elvis</span> Orchestrator + Swarm</h3>
+          <pre>
+Elvis (老板)
+  │
+  ▼
+🤖 Zoe (OpenClaw 主 Agent)
+  ├── 持有全部业务上下文
+  ├── Obsidian / Memory / Emails / Prod DB
+  │
+  ├─→ spawn Codex Agent 1 (tmux + worktree)
+  ├─→ spawn Codex Agent 2 (tmux + worktree)
+  ├─→ spawn Codex Agent 3 (tmux + worktree)
+  ├─→ spawn Claude Code Agent (tmux)
+  ├─→ spawn Gemini Agent (设计→实现)
+  │
+  ├── 10 min cron babysitter
+  ├── CI: lint → typecheck → test → E2E
+  └── 3x AI code review → Telegram notify
+
+Agent 按需 spawn，完成即销毁
+Zoe 根据失败原因自动 retry</pre>
+        </div>
+      </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Dimension comparison table -->
+    <section class="fade-in">
+      <div class="section-label"><span class="dot dot-c"></span> Head-to-Head</div>
+      <h2>Seven Dimensions</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Dimension</th>
+              <th>Person A — Role Fleet</th>
+              <th>Elvis — Orchestrator Swarm</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Agent Lifecycle</td>
+              <td><span class="tag tag-a">Persistent</span> 9 agents always exist, each with identity + workspace</td>
+              <td><span class="tag tag-b">Ephemeral</span> Agents spawned per-task, destroyed after PR merges</td>
+            </tr>
+            <tr>
+              <td>Context Model</td>
+              <td>Distributed — each agent has its own slice. Cross-agent context requires explicit passing</td>
+              <td>Centralized — Zoe holds ALL context (Obsidian, DB, emails). Agents get task-specific prompts</td>
+            </tr>
+            <tr>
+              <td>Routing</td>
+              <td>Channel-based: enter #research → find researcher. @mention → find specific agent</td>
+              <td>Zoe decides: billing bug → Codex, button fix → Claude, new UI → Gemini first</td>
+            </tr>
+            <tr>
+              <td>Use Case</td>
+              <td>Content production, business ops, research workflows. <span class="tag tag-a">Broad</span></td>
+              <td>Software development. Code → review → deploy. <span class="tag tag-b">Deep</span></td>
+            </tr>
+            <tr>
+              <td>Quality Gate</td>
+              <td>SHARP taste scores (Critic agent), Writer↔Reviewer adversarial loop</td>
+              <td>CI pipeline + 3 AI reviewers (Codex, Gemini, Claude) + screenshot requirement</td>
+            </tr>
+            <tr>
+              <td>Failure Recovery</td>
+              <td>Not specified — relies on human intervention</td>
+              <td>Zoe diagnoses failure cause, rewrites prompt with context, auto-retries (max 3)</td>
+            </tr>
+            <tr>
+              <td>Cost</td>
+              <td>9 agents × model cost. Less controllable — all agents always "on"</td>
+              <td><span class="cost-highlight">~$190/mo</span> (Claude $100 + Codex $90). Agents only cost when running</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Scoring -->
+    <section class="fade-in">
+      <div class="section-label"><span class="dot dot-d"></span> Where Each Wins</div>
+      <h2>Scoring by Strength</h2>
+
+      <div class="score-row">
+        <div class="score-item">
+          <div class="score-label">Context Continuity</div>
+          <div class="score-bar"><div class="score-fill a" style="width: 40%"></div></div>
+          <div class="score-bar" style="margin-top: 4px"><div class="score-fill b" style="width: 95%"></div></div>
+        </div>
+        <div class="score-item">
+          <div class="score-label">Parallelism</div>
+          <div class="score-bar"><div class="score-fill a" style="width: 80%"></div></div>
+          <div class="score-bar" style="margin-top: 4px"><div class="score-fill b" style="width: 90%"></div></div>
+        </div>
+        <div class="score-item">
+          <div class="score-label">Setup Simplicity</div>
+          <div class="score-bar"><div class="score-fill a" style="width: 85%"></div></div>
+          <div class="score-bar" style="margin-top: 4px"><div class="score-fill b" style="width: 50%"></div></div>
+        </div>
+      </div>
+      <div class="score-row">
+        <div class="score-item">
+          <div class="score-label">Error Recovery</div>
+          <div class="score-bar"><div class="score-fill a" style="width: 30%"></div></div>
+          <div class="score-bar" style="margin-top: 4px"><div class="score-fill b" style="width: 90%"></div></div>
+        </div>
+        <div class="score-item">
+          <div class="score-label">Cost Efficiency</div>
+          <div class="score-bar"><div class="score-fill a" style="width: 50%"></div></div>
+          <div class="score-bar" style="margin-top: 4px"><div class="score-fill b" style="width: 85%"></div></div>
+        </div>
+        <div class="score-item">
+          <div class="score-label">Versatility</div>
+          <div class="score-bar"><div class="score-fill a" style="width: 85%"></div></div>
+          <div class="score-bar" style="margin-top: 4px"><div class="score-fill b" style="width: 45%"></div></div>
+        </div>
+      </div>
+      <div style="display: flex; gap: 1.5rem; margin-top: 0.5rem; font-size: 0.72rem; font-family: var(--font-mono); color: var(--text-dimmer);">
+        <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 10px; height: 4px; border-radius: 2px; background: var(--accent-a); display: inline-block;"></span> Person A</span>
+        <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 10px; height: 4px; border-radius: 2px; background: var(--accent-b); display: inline-block;"></span> Elvis</span>
+      </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Verdict -->
+    <section class="fade-in">
+      <div class="section-label"><span class="dot dot-gold"></span> Analysis</div>
+      <h2>The Real Insight</h2>
+
+      <div class="callout">
+        <strong>Core difference:</strong> Person A split by <em>role</em> (who does what). Elvis split by <em>task lifecycle</em> (spawn → work → review → merge → destroy). Person A's agents are permanent staff. Elvis's agents are contractors hired for a job.
+      </div>
+
+      <div class="verdict-grid">
+        <div class="verdict-card va">
+          <h4>Elvis's Key Innovation</h4>
+          <p><strong>The two-tier context split.</strong> OpenClaw holds business context (customers, meetings, decisions). Coding agents hold code context. Neither needs the other's full picture. "Context windows are zero-sum" — this is the single most important insight. His orchestrator writes <em>better prompts each retry</em> because it has memory of what failed and why.</p>
+        </div>
+        <div class="verdict-card vb">
+          <h4>Person A's Key Innovation</h4>
+          <p><strong>Channel = routing.</strong> Using Discord/Feishu channels as natural agent dispatchers is elegant. No routing logic needed — the user self-selects by entering the right channel. The adversarial pairs (Ideator↔Critic, Writer↔Reviewer) with SHARP quality gates enforce real creative tension. For content/research, this is powerful.</p>
+        </div>
+        <div class="verdict-card vc">
+          <h4>What Both Miss</h4>
+          <p><strong>Cross-agent state.</strong> Person A doesn't explain how agents share context in multi-step workflows. Elvis's agents are isolated by design (separate worktrees), which works for code but not for research or strategy. Neither has solved the "agent A's output becomes agent B's enriched input" problem cleanly.</p>
+        </div>
+      </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Our architecture -->
+    <section class="fade-in">
+      <div class="section-label"><span class="dot dot-c"></span> Our Position</div>
+      <h2>Where Zosia Fits</h2>
+
+      <div class="prose">
+        <p>We're actually running a <strong>hybrid of both</strong> — closer to Elvis's model but without the coding-only limitation. Zosia is a single omniscient orchestrator (like Zoe) but also handles the role diversity that Person A splits across 9 agents (research, ops, intel, personal assistant). Our cron jobs are autonomous workers (like Elvis's spawned agents) that run independently on cheap models.</p>
+      </div>
+
+      <div class="flow-box">
+        <div class="flow-label">Current Architecture</div>
+        <div class="flow-row">
+          <div class="flow-node gold">Raymond</div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-node primary">Zosia (Opus)<br><small>All roles + full context</small></div>
+        </div>
+        <div class="flow-row" style="margin-top: 0.5rem;">
+          <div class="flow-node secondary">Reddit Cron<br><small>Codex · daily</small></div>
+          <div class="flow-node secondary">X Monitor<br><small>Codex · daily</small></div>
+          <div class="flow-node secondary">Daily Brief<br><small>Codex · daily</small></div>
+          <div class="flow-node secondary">Security<br><small>Codex · nightly</small></div>
+        </div>
+        <div class="flow-label">Autonomous cron workers (no human input)</div>
+        <div class="flow-row" style="margin-top: 0.5rem;">
+          <div class="flow-node tertiary">ACP Session<br><small>On-demand spawn</small></div>
+          <div class="flow-node tertiary">Coding Agent<br><small>Codex/Claude Code</small></div>
+          <div class="flow-node tertiary">Subagent<br><small>Task-specific</small></div>
+        </div>
+        <div class="flow-label">Ephemeral workers (spawned by Zosia, destroyed after)</div>
+      </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Best practices / Recommendations -->
+    <section class="takeaway fade-in">
+      <h2>Best Practices — What to Take From Each</h2>
+      <ul class="takeaway-list">
+        <li>
+          <strong>From Elvis: Two-tier context separation.</strong> When spawning coding agents, strip business context and give them <em>only</em> the code-relevant prompt + file paths + test expectations. The orchestrator holds the "why," the worker holds the "what." We already do this with ACP sessions — formalize it.
+        </li>
+        <li>
+          <strong>From Elvis: Babysitter cron + retry with diagnosis.</strong> His 10-minute monitoring loop that checks agent status and rewrites prompts on failure is genuinely clever. We could add a "task watchdog" cron for long-running ACP sessions that checks for completion, CI status, and auto-steers stuck agents.
+        </li>
+        <li>
+          <strong>From Person A: A/B/C decision tiers.</strong> Formalize what I can do autonomously (C), what I should do but notify you (B), and what requires explicit approval (A). This is the highest-ROI upgrade — zero cost, immediate autonomy gain.
+        </li>
+        <li>
+          <strong>From Person A: Channel-as-behavior-switch.</strong> Same agent (Zosia), different behavior per Discord channel. #research defaults to deep search mode. #coding auto-spawns ACP. #ops shows system status. No new agents needed — just per-channel prompt modifiers.
+        </li>
+        <li>
+          <strong>Don't copy: Persistent multi-agent fleet.</strong> 9 always-on agents is overkill for our use case. We're not running a content factory or research lab. Our task diversity is high but volume per category is low. One smart orchestrator + ephemeral specialists is cheaper, simpler, and doesn't lose cross-domain context.
+        </li>
+      </ul>
+    </section>
+
+    <footer>
+      Zosia · Multi-Agent Architecture Analysis · March 2026
+    </footer>
+
+  </div>
+</body>
+</html>

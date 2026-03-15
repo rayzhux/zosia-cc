@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+<title>Project Argus — Intelligence Agent Architecture Plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --font-display: 'Instrument Serif', Georgia, serif;
+    --font-body: 'DM Sans', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+    --bg: #0f1419;
+    --surface: #1a2028;
+    --surface2: #222b35;
+    --surface-elevated: #2a3542;
+    --border: rgba(255,255,255,0.06);
+    --border-bright: rgba(255,255,255,0.12);
+    --text: #e8e6e3;
+    --text-dim: #8899a6;
+    --accent: #d4a73a;
+    --accent-dim: rgba(212,167,58,0.12);
+    --blue: #4a9eff;
+    --blue-dim: rgba(74,158,255,0.1);
+    --green: #34d399;
+    --green-dim: rgba(52,211,153,0.1);
+    --red: #f87171;
+    --red-dim: rgba(248,113,113,0.1);
+    --teal: #2dd4bf;
+    --teal-dim: rgba(45,212,191,0.1);
+    --amber: #fbbf24;
+    --amber-dim: rgba(251,191,36,0.1);
+    --plum: #c084fc;
+    --plum-dim: rgba(192,132,252,0.1);
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #f8f6f3;
+      --surface: #ffffff;
+      --surface2: #f0ece7;
+      --surface-elevated: #fff9f0;
+      --border: rgba(0,0,0,0.07);
+      --border-bright: rgba(0,0,0,0.14);
+      --text: #1a1612;
+      --text-dim: #7a7168;
+      --accent: #b8860b;
+      --accent-dim: rgba(184,134,11,0.08);
+      --blue: #2563eb;
+      --blue-dim: rgba(37,99,235,0.07);
+      --green: #059669;
+      --green-dim: rgba(5,150,105,0.07);
+      --red: #dc2626;
+      --red-dim: rgba(220,38,38,0.07);
+      --teal: #0d9488;
+      --teal-dim: rgba(13,148,136,0.07);
+      --amber: #d97706;
+      --amber-dim: rgba(217,119,6,0.07);
+      --plum: #7c3aed;
+      --plum-dim: rgba(124,58,237,0.07);
+    }
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: var(--bg);
+    background-image:
+      radial-gradient(ellipse at 15% 0%, var(--accent-dim) 0%, transparent 50%),
+      radial-gradient(ellipse at 85% 100%, var(--blue-dim) 0%, transparent 40%);
+    color: var(--text);
+    font-family: var(--font-body);
+    line-height: 1.6;
+    padding: 40px 24px;
+    min-height: 100vh;
+  }
+  @keyframes fadeUp { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes fadeScale { from { opacity:0; transform:scale(0.94); } to { opacity:1; transform:scale(1); } }
+  @media (prefers-reduced-motion: reduce) { .anim { animation: none !important; opacity:1 !important; } }
+  .anim { opacity:0; animation: fadeUp 0.5s ease forwards; animation-delay: calc(var(--i,0) * 80ms); }
+  .anim-scale { opacity:0; animation: fadeScale 0.4s ease forwards; animation-delay: calc(var(--i,0) * 80ms); }
+  .container { max-width: 1100px; margin: 0 auto; }
+
+  /* Hero */
+  .hero { text-align: center; margin-bottom: 56px; padding: 48px 24px; }
+  .hero-eyebrow { font-family: var(--font-mono); font-size: 13px; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); margin-bottom: 12px; }
+  .hero h1 { font-family: var(--font-display); font-size: clamp(36px, 5vw, 56px); font-weight: 400; line-height: 1.1; margin-bottom: 16px; }
+  .hero h1 em { font-style: italic; color: var(--accent); }
+  .hero-sub { font-size: 18px; color: var(--text-dim); max-width: 640px; margin: 0 auto; line-height: 1.5; }
+
+  /* Section label */
+  .section-label { font-family: var(--font-mono); font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-dim); margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+  .section-label .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+  .section-title { font-family: var(--font-display); font-size: 32px; font-weight: 400; margin-bottom: 20px; }
+
+  /* Cards */
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 28px; margin-bottom: 16px; position: relative; }
+  .card--elevated { background: var(--surface-elevated); box-shadow: 0 4px 24px rgba(0,0,0,0.12); }
+  .card--hero { border-left: 3px solid var(--accent); background: var(--surface-elevated); }
+  .card--blue { border-left: 3px solid var(--blue); }
+  .card--green { border-left: 3px solid var(--green); }
+  .card--red { border-left: 3px solid var(--red); }
+  .card--teal { border-left: 3px solid var(--teal); }
+  .card--amber { border-left: 3px solid var(--amber); }
+  .card--plum { border-left: 3px solid var(--plum); }
+  .card h3 { font-family: var(--font-body); font-size: 18px; font-weight: 600; margin-bottom: 10px; }
+  .card p, .card li { font-size: 15px; color: var(--text-dim); line-height: 1.65; }
+  .card ul { padding-left: 20px; }
+  .card li { margin-bottom: 6px; }
+  .card li strong { color: var(--text); }
+  .card code { font-family: var(--font-mono); font-size: 13px; background: var(--surface2); padding: 2px 6px; border-radius: 4px; }
+
+  /* Badge */
+  .badge { display: inline-block; font-family: var(--font-mono); font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; letter-spacing: 0.5px; }
+  .badge--accent { background: var(--accent-dim); color: var(--accent); }
+  .badge--blue { background: var(--blue-dim); color: var(--blue); }
+  .badge--green { background: var(--green-dim); color: var(--green); }
+  .badge--red { background: var(--red-dim); color: var(--red); }
+  .badge--amber { background: var(--amber-dim); color: var(--amber); }
+  .badge--plum { background: var(--plum-dim); color: var(--plum); }
+  .badge--teal { background: var(--teal-dim); color: var(--teal); }
+
+  /* Two column */
+  .split { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 700px) { .split { grid-template-columns: 1fr; } }
+
+  /* Three column */
+  .tri { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  @media (max-width: 800px) { .tri { grid-template-columns: 1fr; } }
+
+  /* KPI row */
+  .kpi-row { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 32px; }
+  .kpi { flex: 1; min-width: 140px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px; text-align: center; }
+  .kpi-val { font-family: var(--font-display); font-size: 36px; color: var(--accent); }
+  .kpi-label { font-family: var(--font-mono); font-size: 11px; color: var(--text-dim); letter-spacing: 1px; text-transform: uppercase; margin-top: 4px; }
+
+  /* Divider */
+  .section-break { margin: 56px 0 40px; border: 0; height: 1px; background: var(--border-bright); }
+
+  /* Flow arrow */
+  .flow-arrow { text-align: center; margin: 12px 0; color: var(--text-dim); font-size: 20px; }
+
+  /* Migration table */
+  .mig-table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+  .mig-table th { font-family: var(--font-mono); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; color: var(--text-dim); text-align: left; padding: 10px 14px; border-bottom: 2px solid var(--border-bright); }
+  .mig-table td { padding: 10px 14px; border-bottom: 1px solid var(--border); font-size: 14px; vertical-align: top; }
+  .mig-table tr:hover td { background: var(--surface2); }
+  .mig-table .move { color: var(--blue); }
+  .mig-table .stay { color: var(--green); }
+
+  /* Config block */
+  .config-block { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 20px; font-family: var(--font-mono); font-size: 13px; line-height: 1.8; overflow-x: auto; white-space: pre-wrap; color: var(--text-dim); margin: 16px 0; }
+  .config-block .key { color: var(--blue); }
+  .config-block .val { color: var(--green); }
+  .config-block .comment { color: var(--text-dim); opacity: 0.6; }
+
+  /* Comparison panel */
+  .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 0; margin: 16px 0; border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
+  .compare-side { padding: 24px; }
+  .compare-side:first-child { background: var(--blue-dim); border-right: 1px solid var(--border); }
+  .compare-side:last-child { background: var(--accent-dim); }
+  .compare-side h4 { font-family: var(--font-mono); font-size: 13px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 14px; }
+  .compare-side:first-child h4 { color: var(--blue); }
+  .compare-side:last-child h4 { color: var(--accent); }
+  .compare-side li { font-size: 14px; margin-bottom: 8px; color: var(--text-dim); }
+  .compare-side li strong { color: var(--text); }
+  @media (max-width: 700px) { .compare { grid-template-columns: 1fr; } .compare-side:first-child { border-right: 0; border-bottom: 1px solid var(--border); } }
+
+  /* Timeline */
+  .timeline { position: relative; padding-left: 36px; margin: 20px 0; }
+  .timeline::before { content:''; position: absolute; left: 12px; top: 8px; bottom: 8px; width: 2px; background: var(--border-bright); }
+  .timeline-item { position: relative; margin-bottom: 24px; }
+  .timeline-item::before { content:''; position: absolute; left: -28px; top: 6px; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); border: 2px solid var(--bg); }
+  .timeline-item.done::before { background: var(--green); }
+  .timeline-item h4 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .timeline-item p { font-size: 14px; color: var(--text-dim); }
+
+  /* Name candidates */
+  .name-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin: 16px 0; }
+  .name-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px; text-align: center; transition: border-color 0.2s, transform 0.2s; cursor: default; }
+  .name-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .name-card.pick { border-color: var(--accent); background: var(--accent-dim); }
+  .name-card .name { font-family: var(--font-display); font-size: 28px; margin-bottom: 4px; }
+  .name-card .origin { font-family: var(--font-mono); font-size: 11px; color: var(--text-dim); letter-spacing: 1px; text-transform: uppercase; }
+  .name-card .desc { font-size: 13px; color: var(--text-dim); margin-top: 8px; }
+
+  /* Sticky nav */
+  .side-nav { position: fixed; right: 24px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 6px; z-index: 100; }
+  .side-nav a { width: 10px; height: 10px; border-radius: 50%; background: var(--border-bright); display: block; transition: background 0.2s, transform 0.2s; }
+  .side-nav a:hover, .side-nav a.active { background: var(--accent); transform: scale(1.3); }
+  @media (max-width: 900px) { .side-nav { display: none; } }
+
+  .footnote { font-size: 12px; color: var(--text-dim); text-align: center; margin-top: 60px; font-family: var(--font-mono); }
+</style>
+</head>
+<body>
+<nav class="side-nav">
+  <a href="#research" title="Research"></a>
+  <a href="#why" title="Why Split"></a>
+  <a href="#naming" title="Naming"></a>
+  <a href="#architecture" title="Architecture"></a>
+  <a href="#migration" title="Migration"></a>
+  <a href="#config" title="Config"></a>
+  <a href="#timeline" title="Timeline"></a>
+  <a href="#risks" title="Risks"></a>
+</nav>
+
+<div class="container">
+
+<!-- HERO -->
+<section class="hero anim" style="--i:0">
+  <div class="hero-eyebrow">Multi-Agent Architecture Plan</div>
+  <h1>Project <em>Argus</em></h1>
+  <p class="hero-sub">Splitting Zosia's intelligence workload into a dedicated research &amp; monitoring agent. One agent that sees everything, so the other can think clearly.</p>
+</section>
+
+<!-- KPIs -->
+<div class="kpi-row">
+  <div class="kpi anim-scale" style="--i:1">
+    <div class="kpi-val">20</div>
+    <div class="kpi-label">Active Cron Jobs</div>
+  </div>
+  <div class="kpi anim-scale" style="--i:2">
+    <div class="kpi-val">8</div>
+    <div class="kpi-label">Research Crons → Argus</div>
+  </div>
+  <div class="kpi anim-scale" style="--i:3">
+    <div class="kpi-val">6</div>
+    <div class="kpi-label">Skills to Migrate</div>
+  </div>
+  <div class="kpi anim-scale" style="--i:4">
+    <div class="kpi-val">0</div>
+    <div class="kpi-label">Downtime Required</div>
+  </div>
+</div>
+
+<!-- SECTION 1: RESEARCH FINDINGS -->
+<hr class="section-break" id="research">
+<div class="section-label anim" style="--i:5"><span class="dot" style="background:var(--blue)"></span> 01 · Research</div>
+<h2 class="section-title anim" style="--i:6">What the Community Has Learned</h2>
+
+<div class="card card--blue anim" style="--i:7">
+  <h3>The Consensus Pattern</h3>
+  <p>From BetterClaw, ZenVanRiel, and X.com community discussions, the multi-agent playbook has converged on clear principles:</p>
+  <ul>
+    <li><strong>Workspace isolation is non-negotiable.</strong> Separate <code>SOUL.md</code>, <code>MEMORY.md</code>, <code>memory/</code> directories. Shared memory between agents with different purposes creates context contamination — one user's research agent started citing its own speculative notes as sources.</li>
+    <li><strong>Channel-per-agent routing via bindings</strong> is the simplest, most reliable pattern. Route specific Discord channels to specific agents. No proxy needed.</li>
+    <li><strong>Start with one additional agent, not many.</strong> The "Dream Team" (14+ agents) approach creates coordination overhead that's rarely worth it. The sweet spot is 2-3 focused agents.</li>
+    <li><strong>Hierarchical orchestration works best:</strong> One strategic agent (Opus) + specialized workers on cheaper models. This mirrors your existing pattern of Opus for synthesis, GPT-5.4 for cron jobs.</li>
+    <li><strong>File-based handoffs > message queues</strong> for most personal setups. Shared directories with clear ownership beats infrastructure complexity.</li>
+  </ul>
+</div>
+
+<div class="split">
+  <div class="card card--green anim" style="--i:8">
+    <h3>What Works Well</h3>
+    <ul>
+      <li>OpenClaw's <code>agents.list</code> natively supports multiple agents with separate <code>agentDir</code>, model, tools, skills</li>
+      <li><code>bindings</code> array routes channels to agents by channel ID, guild ID, or user</li>
+      <li>Cron jobs already have <code>agentId</code> field — reassignment is a one-line change</li>
+      <li>Memory isolation via separate workspace directories</li>
+    </ul>
+  </div>
+  <div class="card card--red anim" style="--i:9">
+    <h3>Known Footguns</h3>
+    <ul>
+      <li>Skills that write to common paths create accidental shared state</li>
+      <li>Session binding confusion if bindings aren't explicit</li>
+      <li>No native agent-to-agent messaging (use shared files or sessions_send)</li>
+      <li>Context pollution if agents share the same MEMORY.md</li>
+    </ul>
+  </div>
+</div>
+
+<!-- SECTION 2: WHY SPLIT -->
+<hr class="section-break" id="why">
+<div class="section-label anim" style="--i:10"><span class="dot" style="background:var(--accent)"></span> 02 · Analysis</div>
+<h2 class="section-title anim" style="--i:11">Why Zosia Needs to Shed Weight</h2>
+
+<div class="card card--hero anim" style="--i:12">
+  <h3>The Core Problem</h3>
+  <p>Zosia is simultaneously your chief of staff, intelligence analyst, DevOps monitor, news editor, security auditor, and health coach. That works — but it creates three friction points:</p>
+  <ul>
+    <li><strong>Context window bloat.</strong> When you ask Zosia a quick question, she's carrying the overhead of 20+ skills, research pipelines, and monitoring instructions in her system prompt. That's expensive context on Opus.</li>
+    <li><strong>Personality collision.</strong> The Reddit monitor's output voice ("📡 Reddit Pulse") has nothing in common with Zosia's personal assistant tone. They're wearing the same skin but doing fundamentally different jobs.</li>
+    <li><strong>Failure blast radius.</strong> If a research cron eats context or errors out, it can affect Zosia's main session. Separate agents = separate failure domains.</li>
+  </ul>
+</div>
+
+<div class="card anim" style="--i:13">
+  <h3>Your Usage Pattern Breakdown</h3>
+  <p>Analyzing your 20 cron jobs and skill usage, the workload splits cleanly into two domains:</p>
+
+  <div class="compare">
+    <div class="compare-side">
+      <h4>🔍 Intelligence / Research (→ Argus)</h4>
+      <ul>
+        <li><strong>Reddit GCC Monitor</strong> — daily + weekly</li>
+        <li><strong>X GCC Monitor</strong> — daily</li>
+        <li><strong>Daily Brief</strong> — news digest</li>
+        <li><strong>Opik Review</strong> — observability audit</li>
+        <li><strong>Nightly Security Review</strong> — code audit</li>
+        <li><strong>Token Usage Report</strong> — analytics</li>
+        <li><strong>Daily Backup</strong> — state management</li>
+        <li><strong>Weekly Archive Backup</strong></li>
+      </ul>
+    </div>
+    <div class="compare-side">
+      <h4>🧠 Chief of Staff (Zosia stays)</h4>
+      <ul>
+        <li><strong>All DM conversations</strong> — personal assistant</li>
+        <li><strong>Meeting Intelligence</strong> — prep + follow-up</li>
+        <li><strong>Apple Health</strong> — coaching</li>
+        <li><strong>Nightly Memory Distillation</strong></li>
+        <li><strong>Heartbeat + session management</strong></li>
+        <li><strong>Coding agent orchestration</strong></li>
+        <li><strong>Gateway / cron management</strong></li>
+        <li><strong>All interactive/ad-hoc research</strong></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 3: NAMING -->
+<hr class="section-break" id="naming">
+<div class="section-label anim" style="--i:14"><span class="dot" style="background:var(--plum)"></span> 03 · Naming</div>
+<h2 class="section-title anim" style="--i:15">Better Than "Scout"</h2>
+
+<p class="anim" style="--i:15; color: var(--text-dim); margin-bottom: 20px; font-size: 15px;">Scout is functional but flat. You named Zosia after the woman who carried all of humanity inside her. This agent needs a name with the same weight — it's the one who <em>watches everything</em> so Zosia can focus on what matters.</p>
+
+<div class="name-grid">
+  <div class="name-card pick anim" style="--i:16">
+    <div class="name">Argus</div>
+    <div class="origin">Greek Mythology</div>
+    <div class="desc">The hundred-eyed giant. Panoptes — "the all-seeing." Watched over everything. Never slept. Perfect for a 24/7 intelligence agent.</div>
+  </div>
+  <div class="name-card anim" style="--i:17">
+    <div class="name">Kestrel</div>
+    <div class="origin">Raptor</div>
+    <div class="desc">The hovering falcon. Scans from altitude, strikes with precision. Good, but doesn't suggest the breadth of monitoring.</div>
+  </div>
+  <div class="name-card anim" style="--i:18">
+    <div class="name">Vigil</div>
+    <div class="origin">Latin: vigilia</div>
+    <div class="desc">The night watch. Self-explanatory, fits the overnight cron pattern. But feels cold — no personality.</div>
+  </div>
+  <div class="name-card anim" style="--i:19">
+    <div class="name">Nyx</div>
+    <div class="origin">Greek Mythology</div>
+    <div class="desc">Goddess of night. Most heavy jobs run 3-6 AM Dubai. Poetic but might confuse with "nix" in tech contexts.</div>
+  </div>
+  <div class="name-card anim" style="--i:20">
+    <div class="name">Meridian</div>
+    <div class="origin">Geography</div>
+    <div class="desc">The line that connects. Intelligence is about connecting signals across sources. Unique, premium feel.</div>
+  </div>
+  <div class="name-card anim" style="--i:21">
+    <div class="name">Radar</div>
+    <div class="origin">Acronym</div>
+    <div class="desc">Does what it says. Simple, memorable, slightly boring. Works if you want utility over poetry.</div>
+  </div>
+</div>
+
+<div class="card card--plum anim" style="--i:22">
+  <h3>My Pick: <em>Argus</em></h3>
+  <p>Argus Panoptes was the watchful giant tasked with guarding Io. He had a hundred eyes — some always open, some always resting. That's literally what your intelligence agent does: Reddit eyes, X eyes, news eyes, security eyes, observability eyes. Always watching. The mythological weight matches Zosia's origin from <em>Pluribus</em>. Plus, "Argus" has a nice technical feel — <code>argus://</code> could be an internal namespace.</p>
+</div>
+
+<!-- SECTION 4: ARCHITECTURE -->
+<hr class="section-break" id="architecture">
+<div class="section-label anim" style="--i:23"><span class="dot" style="background:var(--teal)"></span> 04 · Architecture</div>
+<h2 class="section-title anim" style="--i:24">How the Two Agents Coexist</h2>
+
+<div class="card card--elevated anim" style="--i:25">
+  <h3>Single Gateway, Two Agents</h3>
+  <p>Both agents run on the same OpenClaw gateway. No second process, no Docker, no extra infrastructure. The gateway's <code>agents.list</code> array holds both agent configs, and <code>bindings</code> routes channels to the right agent.</p>
+</div>
+
+<div class="split">
+  <div class="card card--accent anim" style="--i:26">
+    <h3>Zosia <span class="badge badge--accent">MAIN</span></h3>
+    <ul>
+      <li><strong>Model:</strong> Opus (primary), full fallback chain</li>
+      <li><strong>Workspace:</strong> <code>~/.openclaw/workspace</code> (unchanged)</li>
+      <li><strong>Channels:</strong> All DMs, all Discord channels except intel-specific ones</li>
+      <li><strong>Tools:</strong> Full profile — browser, canvas, nodes, tts, voice, gateway, cron management</li>
+      <li><strong>Identity:</strong> Chief of staff, personal advisor</li>
+      <li><strong>Memory:</strong> Full MEMORY.md + distillation pipeline</li>
+    </ul>
+  </div>
+  <div class="card card--blue anim" style="--i:27">
+    <h3>Argus <span class="badge badge--blue">INTEL</span></h3>
+    <ul>
+      <li><strong>Model:</strong> Opus (synthesis), GPT-5.4 (cron collection)</li>
+      <li><strong>Workspace:</strong> <code>~/.openclaw/workspace-argus</code> (new)</li>
+      <li><strong>Channels:</strong> #reddit-gcc, #x-gcc, #daily-brief, #security, #development (Opik), #backups, #token-usage</li>
+      <li><strong>Tools:</strong> Restricted — exec, web_fetch, memory_search, message only</li>
+      <li><strong>Identity:</strong> Intelligence analyst, silent operator</li>
+      <li><strong>Memory:</strong> Own MEMORY.md — operational state only, no personal context</li>
+    </ul>
+  </div>
+</div>
+
+<div class="card anim" style="--i:28">
+  <h3>Shared Resources (Read-Only)</h3>
+  <p>Argus needs read access to some of Zosia's workspace for skill scripts and data directories. This is handled via symlinks or explicit paths in cron payloads — <strong>not</strong> shared workspace roots.</p>
+  <ul>
+    <li><strong>Skills scripts:</strong> Argus reads from <code>~/.openclaw/workspace/skills/*/scripts/</code> (existing Python pipelines). No need to duplicate — cron payloads already use absolute paths.</li>
+    <li><strong>Data directories:</strong> Reddit/X monitor SQLite DBs stay in <code>~/.openclaw/workspace/skills/*/data/</code>. Argus reads/writes these via exec — the agent workspace isolation is about <em>memory and identity</em>, not filesystem sandboxing.</li>
+    <li><strong>Reports:</strong> Argus writes to <code>~/.openclaw/workspace/reports/</code> (shared output directory Zosia can reference if you ask about past reports).</li>
+  </ul>
+</div>
+
+<div class="card card--teal anim" style="--i:29">
+  <h3>Inter-Agent Communication</h3>
+  <p>For your setup, agent-to-agent communication is <strong>minimal by design</strong>. Argus is autonomous — it collects, synthesizes, and posts to Discord. Zosia reads those posts naturally when you ask her about them. No message bus needed.</p>
+  <ul>
+    <li><strong>Argus → Zosia:</strong> Discord channel posts. If you ask Zosia "what did Reddit show today?", she reads #reddit-gcc.</li>
+    <li><strong>Zosia → Argus:</strong> <code>sessions_send</code> if you ever need to trigger Argus interactively (rare).</li>
+    <li><strong>Shared state:</strong> Reports directory + SQLite databases in skill data dirs.</li>
+  </ul>
+</div>
+
+<!-- SECTION 5: MIGRATION TABLE -->
+<hr class="section-break" id="migration">
+<div class="section-label anim" style="--i:30"><span class="dot" style="background:var(--green)"></span> 05 · Migration Map</div>
+<h2 class="section-title anim" style="--i:31">What Moves, What Stays</h2>
+
+<div class="card card--elevated anim" style="--i:32">
+<h3>Cron Job Migration</h3>
+<table class="mig-table">
+  <thead>
+    <tr><th>Job</th><th>Current Agent</th><th>Target</th><th>Change Required</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Reddit GCC Monitor — Daily</td><td>main</td><td class="move">argus</td><td>Set <code>agentId: "argus"</code></td></tr>
+    <tr><td>Reddit GCC Monitor — Weekly</td><td>main</td><td class="move">argus</td><td>Set <code>agentId: "argus"</code></td></tr>
+    <tr><td>X GCC Monitor</td><td>main</td><td class="move">argus</td><td>Set <code>agentId: "argus"</code></td></tr>
+    <tr><td>Daily Brief</td><td>main</td><td class="move">argus</td><td>Set <code>agentId: "argus"</code></td></tr>
+    <tr><td>Token Usage Report</td><td>main</td><td class="move">argus</td><td>Set <code>agentId: "argus"</code></td></tr>
+    <tr><td>Opik Daily Review</td><td>main</td><td class="move">argus</td><td>Set <code>agentId: "argus"</code></td></tr>
+    <tr><td>Opik Weekly Digest</td><td>main</td><td class="move">argus</td><td>Set <code>agentId: "argus"</code></td></tr>
+    <tr><td>Daily Backup</td><td>main</td><td class="move">argus</td><td>Set <code>agentId: "argus"</code></td></tr>
+    <tr><td>Weekly Archive Backup</td><td>main</td><td class="move">argus</td><td>Set <code>agentId: "argus"</code></td></tr>
+    <tr><td>Nightly Security Review</td><td>main</td><td class="move">argus</td><td>Set <code>agentId: "argus"</code></td></tr>
+    <tr><td>Nightly Memory Distillation</td><td>main</td><td class="stay">main</td><td>None — Zosia's memory</td></tr>
+    <tr><td>Reset Heartbeat Session</td><td>main</td><td class="stay">main</td><td>None — infra</td></tr>
+    <tr><td>Apple Health — Daily Trigger</td><td>main</td><td class="stay">main</td><td>None — personal</td></tr>
+    <tr><td>Apple Health — Weekly</td><td>main</td><td class="stay">main</td><td>None — personal</td></tr>
+    <tr><td>Apple Health — Monthly</td><td>main</td><td class="stay">main</td><td>None — personal</td></tr>
+    <tr><td>Meeting Intelligence</td><td>main</td><td class="stay">main</td><td>None — personal</td></tr>
+    <tr><td>MS Admin Consent Reminder</td><td>main</td><td class="stay">main</td><td>None — one-shot</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="card anim" style="--i:33">
+<h3>Skills Migration</h3>
+<table class="mig-table">
+  <thead>
+    <tr><th>Skill</th><th>Action</th><th>Notes</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>reddit-gcc-monitor</code></td><td class="move">→ Argus skill list</td><td>Scripts stay in place, Argus gets skill binding</td></tr>
+    <tr><td><code>x-gcc-monitor</code></td><td class="move">→ Argus skill list</td><td>Same pattern</td></tr>
+    <tr><td><code>daily-brief</code></td><td class="move">→ Argus skill list</td><td>News gathering is pure intelligence</td></tr>
+    <tr><td><code>token-usage-report</code></td><td class="move">→ Argus skill list</td><td>Analytics/reporting</td></tr>
+    <tr><td><code>opik-review-loop</code></td><td class="move">→ Argus skill list</td><td>Observability audit</td></tr>
+    <tr><td><code>exa</code></td><td class="stay">Both agents</td><td>Zosia needs Exa for interactive research too</td></tr>
+    <tr><td><code>web-scraper</code></td><td class="stay">Both agents</td><td>Shared capability</td></tr>
+    <tr><td><code>meeting-intelligence</code></td><td class="stay">Zosia only</td><td>Personal context required</td></tr>
+    <tr><td><code>visual-explainer</code></td><td class="stay">Zosia only</td><td>Interactive output</td></tr>
+    <tr><td><code>skill-creator</code></td><td class="stay">Zosia only</td><td>Meta-skill for development</td></tr>
+  </tbody>
+</table>
+</div>
+
+<!-- SECTION 6: CONFIG -->
+<hr class="section-break" id="config">
+<div class="section-label anim" style="--i:34"><span class="dot" style="background:var(--amber)"></span> 06 · Configuration</div>
+<h2 class="section-title anim" style="--i:35">The Actual Config Changes</h2>
+
+<div class="card card--amber anim" style="--i:36">
+  <h3>Step 1: Create Argus Workspace</h3>
+  <div class="config-block"><span class="comment"># New directory structure</span>
+~/.openclaw/workspace-argus/
+├── SOUL.md          <span class="comment"># Argus personality (intelligence analyst)</span>
+├── AGENTS.md        <span class="comment"># Agent instructions</span>
+├── MEMORY.md        <span class="comment"># Operational memory only</span>
+├── TOOLS.md         <span class="comment"># Tool reference for Argus</span>
+├── memory/          <span class="comment"># Argus-specific daily notes</span>
+└── config/          <span class="comment"># Any Argus-specific config</span></div>
+</div>
+
+<div class="card card--amber anim" style="--i:37">
+  <h3>Step 2: Add Argus to agents.list</h3>
+  <div class="config-block"><span class="comment">// Added to agents.list array in openclaw.json</span>
+{
+  <span class="key">"id"</span>: <span class="val">"argus"</span>,
+  <span class="key">"name"</span>: <span class="val">"Argus"</span>,
+  <span class="key">"workspace"</span>: <span class="val">"~/.openclaw/workspace-argus"</span>,
+  <span class="key">"model"</span>: {
+    <span class="key">"primary"</span>: <span class="val">"anthropic/claude-opus-4-6"</span>,
+    <span class="key">"fallbacks"</span>: [<span class="val">"openai-codex/gpt-5.4"</span>, <span class="val">"anthropic/claude-sonnet-4-6"</span>]
+  },
+  <span class="key">"identity"</span>: {
+    <span class="key">"name"</span>: <span class="val">"Argus"</span>,
+    <span class="key">"emoji"</span>: <span class="val">"👁️"</span>
+  },
+  <span class="key">"skills"</span>: [
+    <span class="val">"reddit-gcc-monitor"</span>, <span class="val">"x-gcc-monitor"</span>,
+    <span class="val">"daily-brief"</span>, <span class="val">"token-usage-report"</span>,
+    <span class="val">"opik-review-loop"</span>, <span class="val">"exa"</span>,
+    <span class="val">"web-scraper"</span>, <span class="val">"doc-lookup"</span>
+  ],
+  <span class="key">"tools"</span>: {
+    <span class="key">"profile"</span>: <span class="val">"full"</span>,
+    <span class="key">"alsoAllow"</span>: [
+      <span class="val">"read"</span>, <span class="val">"write"</span>, <span class="val">"edit"</span>, <span class="val">"exec"</span>,
+      <span class="val">"process"</span>, <span class="val">"web_fetch"</span>,
+      <span class="val">"memory_search"</span>, <span class="val">"memory_get"</span>, <span class="val">"image"</span>
+    ]
+  }
+}</div>
+  <p style="margin-top:12px; font-size:14px; color:var(--text-dim)"><strong>Note:</strong> Argus does NOT get <code>gateway</code>, <code>cron</code>, <code>browser</code>, <code>canvas</code>, <code>nodes</code>, <code>tts</code>, <code>voice_call</code>, or <code>sessions_spawn</code>. Those stay Zosia-only. Argus is a worker, not an admin.</p>
+</div>
+
+<div class="card card--amber anim" style="--i:38">
+  <h3>Step 3: Add Channel Bindings</h3>
+  <div class="config-block"><span class="comment">// Added to bindings array</span>
+{
+  <span class="key">"agentId"</span>: <span class="val">"argus"</span>,
+  <span class="key">"match"</span>: {
+    <span class="key">"channel"</span>: <span class="val">"discord"</span>,
+    <span class="key">"channelId"</span>: <span class="val">"1470693532191953052"</span>  <span class="comment">// #reddit-gcc</span>
+  }
+}
+<span class="comment">// Repeat for: #x-gcc, #daily-brief, #security, #backups, #token-usage</span>
+<span class="comment">// Zosia's catch-all binding stays for everything else</span></div>
+  <p style="margin-top:12px; font-size:14px; color:var(--text-dim)"><strong>Binding order matters.</strong> Specific bindings (Argus channels) must come before the catch-all (Zosia guild binding). First match wins.</p>
+</div>
+
+<div class="card card--amber anim" style="--i:39">
+  <h3>Step 4: Update Cron Jobs</h3>
+  <div class="config-block"><span class="comment">// For each migrating cron job, update agentId:</span>
+cron update --jobId "466d1419-..." --patch { <span class="key">"agentId"</span>: <span class="val">"argus"</span> }
+
+<span class="comment">// Jobs already use absolute paths to scripts, so no path changes needed.</span>
+<span class="comment">// The cron payload messages reference skill paths explicitly.</span></div>
+</div>
+
+<!-- SECTION 7: ARGUS PERSONALITY -->
+<hr class="section-break">
+<div class="section-label anim" style="--i:40"><span class="dot" style="background:var(--accent)"></span> 06b · Personality</div>
+<h2 class="section-title anim" style="--i:41">Argus SOUL.md — Draft</h2>
+
+<div class="card card--hero anim" style="--i:42">
+  <h3>The Intelligence Analyst Persona</h3>
+  <p>Unlike Zosia, Argus doesn't need charm, opinions, or personality. It needs <strong>precision, thoroughness, and signal clarity</strong>. Here's the personality framework:</p>
+  <ul>
+    <li><strong>Identity:</strong> Silent operator. Argus sees everything and reports what matters. No banter, no opinions on whether Raymond should care — just clean signal with evidence.</li>
+    <li><strong>Voice:</strong> Terse, data-dense, structured. Headers, bullets, metrics. No prose unless the finding requires nuance.</li>
+    <li><strong>Model preference:</strong> Always use the best available model for synthesis and analysis. Use cheaper models only for mechanical collection/classification tasks (already the pattern via cron <code>model</code> fields).</li>
+    <li><strong>Output philosophy:</strong> "If it's not worth a bullet point, it's not worth mentioning." No padding, no summaries of summaries.</li>
+    <li><strong>Error handling:</strong> Post failures immediately. Never silently fail. A one-line error card is better than silence.</li>
+    <li><strong>Memory:</strong> Argus remembers operational state — what was last collected, pipeline health, recurring errors. Not personal context, not decisions, not preferences.</li>
+  </ul>
+</div>
+
+<!-- SECTION 8: TIMELINE -->
+<hr class="section-break" id="timeline">
+<div class="section-label anim" style="--i:43"><span class="dot" style="background:var(--green)"></span> 07 · Implementation Timeline</div>
+<h2 class="section-title anim" style="--i:44">Build Sequence</h2>
+
+<div class="card anim" style="--i:45">
+  <div class="timeline">
+    <div class="timeline-item">
+      <h4>Phase 1: Foundation <span class="badge badge--green">LOW RISK</span></h4>
+      <p>Create <code>~/.openclaw/workspace-argus/</code> with SOUL.md, AGENTS.md, MEMORY.md. Write the Argus personality. No config changes yet — just files.</p>
+    </div>
+    <div class="timeline-item">
+      <h4>Phase 2: Config + Test <span class="badge badge--amber">MEDIUM RISK</span></h4>
+      <p>Add Argus to <code>agents.list</code> and create bindings. Restart gateway. Test that Zosia still works on all existing channels. Test that Argus responds in a test channel.</p>
+    </div>
+    <div class="timeline-item">
+      <h4>Phase 3: Migrate One Cron <span class="badge badge--green">LOW RISK</span></h4>
+      <p>Move the <strong>Token Usage Report</strong> to Argus first — it's the simplest cron, runs once daily, and is easy to verify. Watch one full cycle.</p>
+    </div>
+    <div class="timeline-item">
+      <h4>Phase 4: Migrate Research Crons <span class="badge badge--amber">MEDIUM RISK</span></h4>
+      <p>Move Reddit + X monitors, Daily Brief, Opik Review. One at a time, one cycle each. These are the heaviest jobs — watch for path issues or skill access problems.</p>
+    </div>
+    <div class="timeline-item">
+      <h4>Phase 5: Migrate Ops Crons <span class="badge badge--green">LOW RISK</span></h4>
+      <p>Move backups, security review. These don't need skills — just exec + file access.</p>
+    </div>
+    <div class="timeline-item">
+      <h4>Phase 6: Tune & Observe <span class="badge badge--blue">ONGOING</span></h4>
+      <p>Run both agents for a week. Check: Are all crons firing? Are bindings correct? Is Zosia's context lighter? Is Argus posting cleanly? Adjust as needed.</p>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 9: RISKS -->
+<hr class="section-break" id="risks">
+<div class="section-label anim" style="--i:46"><span class="dot" style="background:var(--red)"></span> 08 · Risks & Decisions</div>
+<h2 class="section-title anim" style="--i:47">What Could Go Wrong</h2>
+
+<div class="tri">
+  <div class="card card--red anim" style="--i:48">
+    <h3>Skill Access</h3>
+    <p>Argus needs to read skill scripts from Zosia's workspace. If <code>agentDir</code> isolation prevents this, cron payloads may fail. <strong>Mitigation:</strong> cron payloads already use absolute paths — they'll work regardless of workspace boundaries.</p>
+  </div>
+  <div class="card card--red anim" style="--i:49">
+    <h3>Message Tool Scope</h3>
+    <p>Argus needs <code>message</code> tool to post to Discord. Verify that non-main agents can use the Discord message tool with the shared bot token. <strong>Mitigation:</strong> message tool is channel-level, not agent-level.</p>
+  </div>
+  <div class="card card--red anim" style="--i:50">
+    <h3>Memory Drift</h3>
+    <p>If Argus encounters issues but can't write to Zosia's MEMORY.md, operational learnings might be lost. <strong>Mitigation:</strong> Argus maintains its own operational MEMORY.md for pipeline state.</p>
+  </div>
+</div>
+
+<div class="card anim" style="--i:51">
+  <h3>Open Decisions for You</h3>
+  <ul>
+    <li><strong>Name:</strong> Argus, or one of the alternatives above? This sets the tone for the agent's identity.</li>
+    <li><strong>Heartbeat:</strong> Should Argus have its own heartbeat, or is cron-only execution enough? (I'd say no heartbeat — it's not conversational.)</li>
+    <li><strong>Nightly distillation:</strong> Should Argus's operational memory get distilled too, or is it throwaway? (I'd say keep it simple — no distillation for Argus. Reset weekly.)</li>
+    <li><strong>Interactive access:</strong> Should you be able to DM Argus directly, or is it cron-only? (I'd say cron-only to start. You can always add a channel binding later.)</li>
+    <li><strong>Model for Argus crons:</strong> You want best models always. Keep Opus as Argus primary even for crons? Current pattern uses GPT-5.4 for crons — that's already the collection model, with Opus synthesis happening in the tier-2 prompts.</li>
+  </ul>
+</div>
+
+<div class="card card--green anim" style="--i:52">
+  <h3>What Success Looks Like</h3>
+  <ul>
+    <li>Zosia's context is lighter — fewer skills loaded, fewer cron instructions in system prompt</li>
+    <li>All intelligence channels post on schedule with no regressions</li>
+    <li>Argus failures are isolated — a broken Reddit pipeline doesn't affect your morning DM with Zosia</li>
+    <li>You never notice the split — it just works</li>
+  </ul>
+</div>
+
+<p class="footnote anim" style="--i:53">Project Argus · Prepared for Raymond Zhu · March 2026 · Research from BetterClaw, ZenVanRiel, OpenClaw community, X.com</p>
+
+</div>
+
+<script>
+  // Intersection observer for scroll-triggered animations
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.style.animationPlayState = 'running'; observer.unobserve(e.target); } });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.anim, .anim-scale').forEach(el => { el.style.animationPlayState = 'paused'; observer.observe(el); });
+
+  // Side nav active state
+  const navLinks = document.querySelectorAll('.side-nav a');
+  const sections = ['research','why','naming','architecture','migration','config','timeline','risks'].map(id => document.getElementById(id)).filter(Boolean);
+  window.addEventListener('scroll', () => {
+    let current = 0;
+    sections.forEach((s, i) => { if (s.getBoundingClientRect().top < 200) current = i; });
+    navLinks.forEach((l, i) => l.classList.toggle('active', i === current));
+  });
+</script>
+</body>
+</html>

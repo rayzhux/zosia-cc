@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+<title>Zosia Identity — What We Can Build</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --font-body: 'Instrument Serif', Georgia, serif;
+    --font-sans: system-ui, -apple-system, sans-serif;
+    --font-mono: 'JetBrains Mono', 'SF Mono', monospace;
+    --bg: #faf7f5;
+    --surface: #ffffff;
+    --surface2: #f5f0eb;
+    --surface3: #eee8e0;
+    --border: rgba(0,0,0,0.07);
+    --border-bright: rgba(0,0,0,0.14);
+    --text: #1a1714;
+    --text-dim: #8a8279;
+    --accent: #c2410c;
+    --accent-dim: rgba(194,65,12,0.06);
+    --sage: #4a7a5a;
+    --sage-dim: rgba(74,122,90,0.06);
+    --navy: #1e3a5f;
+    --navy-dim: rgba(30,58,95,0.06);
+    --gold: #9a7020;
+    --gold-dim: rgba(154,112,32,0.06);
+    --plum: #7a4a6a;
+    --plum-dim: rgba(122,74,106,0.06);
+    --teal: #2a6a6a;
+    --teal-dim: rgba(42,106,106,0.06);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #141210;
+      --surface: #1e1c18;
+      --surface2: #282420;
+      --surface3: #322e28;
+      --border: rgba(255,255,255,0.06);
+      --border-bright: rgba(255,255,255,0.12);
+      --text: #ece6dd;
+      --text-dim: #8a8279;
+      --accent: #e8733a;
+      --accent-dim: rgba(232,115,58,0.1);
+      --sage: #6aaa7a;
+      --sage-dim: rgba(106,170,122,0.08);
+      --navy: #6a9aca;
+      --navy-dim: rgba(106,154,202,0.08);
+      --gold: #d4a73a;
+      --gold-dim: rgba(212,167,58,0.08);
+      --plum: #c48aaa;
+      --plum-dim: rgba(196,138,170,0.08);
+      --teal: #5ababa;
+      --teal-dim: rgba(90,186,186,0.08);
+    }
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: var(--font-body); background: var(--bg); color: var(--text); line-height: 1.65; }
+
+  /* Nav */
+  .nav {
+    position: sticky; top: 0; z-index: 100;
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    padding: 0.6rem 1.5rem; display: flex; gap: 0.4rem; overflow-x: auto;
+    backdrop-filter: blur(12px);
+  }
+  .nav a {
+    font-family: var(--font-mono); font-size: 0.68rem; color: var(--text-dim);
+    text-decoration: none; padding: 0.3rem 0.6rem; border-radius: 5px;
+    white-space: nowrap; transition: all 0.15s;
+  }
+  .nav a:hover { background: var(--surface2); color: var(--text); }
+
+  /* Hero */
+  .hero {
+    padding: 5rem 2rem 3.5rem;
+    text-align: center;
+    background: radial-gradient(ellipse at 50% 0%, var(--accent-dim) 0%, transparent 60%);
+  }
+  .hero h1 {
+    font-size: clamp(2.2rem, 5vw, 3.5rem);
+    font-weight: 400;
+    font-style: italic;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.75rem;
+    line-height: 1.15;
+  }
+  .hero h1 strong { color: var(--accent); font-weight: 400; }
+  .hero .lead {
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    color: var(--text-dim);
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 1.5rem 5rem; }
+
+  /* Section */
+  .section-head {
+    margin: 3.5rem 0 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid var(--border-bright);
+  }
+  .section-head h2 {
+    font-size: 1.8rem;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+  }
+  .section-head .sub {
+    font-family: var(--font-sans);
+    font-size: 0.88rem;
+    color: var(--text-dim);
+    margin-top: 0.25rem;
+  }
+
+  /* Opportunity cards */
+  .opp {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 1.75rem;
+    overflow: hidden;
+    animation: fadeUp 0.4s ease both;
+  }
+  .opp-top {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 1.25rem;
+    padding: 1.75rem 2rem 0;
+    align-items: start;
+  }
+  .opp-num {
+    font-family: var(--font-mono);
+    font-size: 2.5rem;
+    font-weight: 600;
+    line-height: 1;
+    opacity: 0.15;
+  }
+  .opp-title {
+    font-size: 1.4rem;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    line-height: 1.3;
+  }
+  .opp-hook {
+    font-family: var(--font-sans);
+    font-size: 0.88rem;
+    color: var(--text-dim);
+    margin-top: 0.3rem;
+    font-style: italic;
+  }
+
+  .opp-body {
+    padding: 1.25rem 2rem 1.75rem;
+    padding-left: calc(2rem + 3.5rem + 1.25rem); /* align with title */
+  }
+  @media (max-width: 600px) {
+    .opp-top { grid-template-columns: 1fr; gap: 0.5rem; }
+    .opp-num { font-size: 1.5rem; }
+    .opp-body { padding-left: 1.5rem; padding-right: 1.5rem; }
+  }
+
+  .opp-desc {
+    font-family: var(--font-sans);
+    font-size: 0.88rem;
+    line-height: 1.7;
+    margin-bottom: 1rem;
+  }
+
+  /* Tools used */
+  .tools-used {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 1rem;
+  }
+  .tool-tag {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    padding: 0.2rem 0.55rem;
+    border-radius: 4px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    white-space: nowrap;
+  }
+
+  /* How it works */
+  .how {
+    background: var(--surface2);
+    border-radius: 8px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1rem;
+  }
+  .how-title {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-dim);
+    margin-bottom: 0.5rem;
+  }
+  .how ol {
+    font-family: var(--font-sans);
+    font-size: 0.84rem;
+    padding-left: 1.2rem;
+    line-height: 1.8;
+  }
+  .how li { padding-left: 0.3rem; }
+
+  /* Revenue / value tag */
+  .value-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    padding: 0.25rem 0.6rem;
+    border-radius: 5px;
+    font-weight: 600;
+  }
+  .v-revenue { background: var(--gold-dim); color: var(--gold); }
+  .v-insight { background: var(--navy-dim); color: var(--navy); }
+  .v-edge { background: var(--sage-dim); color: var(--sage); }
+  .v-brand { background: var(--plum-dim); color: var(--plum); }
+  .v-save { background: var(--teal-dim); color: var(--teal); }
+
+  /* Color accents on cards */
+  .opp[data-color="accent"] { border-left: 3px solid var(--accent); }
+  .opp[data-color="sage"] { border-left: 3px solid var(--sage); }
+  .opp[data-color="navy"] { border-left: 3px solid var(--navy); }
+  .opp[data-color="gold"] { border-left: 3px solid var(--gold); }
+  .opp[data-color="plum"] { border-left: 3px solid var(--plum); }
+  .opp[data-color="teal"] { border-left: 3px solid var(--teal); }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @media (prefers-reduced-motion: reduce) { .opp { animation: none; } }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="#personal">Personal Intelligence</a>
+  <a href="#gcc">GCC Business</a>
+  <a href="#china-bridge">China ↔ GCC Bridge</a>
+  <a href="#saas">SaaS / Productized</a>
+  <a href="#content">Content & Brand</a>
+  <a href="#investing">Investing</a>
+  <a href="#wild">Wild Cards</a>
+</nav>
+
+<div class="hero">
+  <h1>What can we <strong>actually build</strong><br>with 17 platforms?</h1>
+  <p class="lead">Personal intelligence, business opportunities, and wild ideas — mapped to specific tools and combinations.</p>
+</div>
+
+<div class="container">
+
+<!-- ============================================ -->
+<!-- PERSONAL INTELLIGENCE -->
+<!-- ============================================ -->
+<div class="section-head" id="personal">
+  <h2>🧠 Personal Intelligence</h2>
+  <div class="sub">Making you the most informed person in the room. Every room.</div>
+</div>
+
+<div class="opp" data-color="navy" style="animation-delay:0.05s">
+  <div class="opp-top">
+    <div class="opp-num">01</div>
+    <div>
+      <div class="opp-title">The 360° Morning Brief</div>
+      <div class="opp-hook">Wake up knowing everything that happened — across every platform, every language, every market.</div>
+    </div>
+  </div>
+  <div class="opp-body">
+    <div class="opp-desc">
+      Go far beyond the current Daily Brief (which covers news). This monitors <em>all your platforms overnight</em> and synthesizes one briefing: What's trending on Chinese social media that affects your GCC investments? What GitHub repos blew up in your tech areas? What did key people in your network post on LinkedIn/Twitter? What's the Reddit sentiment on markets you care about? Any Discord communities buzzing about something?
+    </div>
+    <div class="tools-used">
+      <span class="tool-tag">twitter-cli</span>
+      <span class="tool-tag">xiaohongshu-cli</span>
+      <span class="tool-tag">reddit-mcp</span>
+      <span class="tool-tag">weibo-mcp</span>
+      <span class="tool-tag">bilibili-cli</span>
+      <span class="tool-tag">linkedin-mcp</span>
+      <span class="tool-tag">youtube-mcp</span>
+      <span class="tool-tag">github-mcp</span>
+      <span class="tool-tag">gog (Gmail)</span>
+    </div>
+    <div class="how">
+      <div class="how-title">How it works</div>
+      <ol>
+        <li>Cron runs at 5am Dubai. Each platform CLI/MCP pulls overnight activity for tracked topics, people, keywords.</li>
+        <li>Gemini Flash classifies and clusters signals by theme (tech, real estate, automotive, macro).</li>
+        <li>Synthesize into one CV2 card per theme — delivered to Discord + WhatsApp.</li>
+        <li>Include "action items" — things that need your response or attention.</li>
+      </ol>
+    </div>
+    <span class="value-tag v-insight">📊 Information edge</span>
+    <span class="value-tag v-save">⏱ Saves 1-2 hrs/day</span>
+  </div>
+</div>
+
+<div class="opp" data-color="sage" style="animation-delay:0.08s">
+  <div class="opp-top">
+    <div class="opp-num">02</div>
+    <div>
+      <div class="opp-title">Network Intelligence Radar</div>
+      <div class="opp-hook">Know what the 50 people who matter most to you are thinking — before they tell you.</div>
+    </div>
+  </div>
+  <div class="opp-body">
+    <div class="opp-desc">
+      Define a VIP list: Terry, Amin, Cheng Hao, key investors, potential partners, competitors' CEOs. I track their public output across platforms — LinkedIn posts, tweets, GitHub activity, XHS notes, Weibo. When someone in your network changes jobs, posts about a new venture, shares a market view, or engages with a competitor — you know immediately. Not stalking. Strategic awareness.
+    </div>
+    <div class="tools-used">
+      <span class="tool-tag">linkedin-mcp</span>
+      <span class="tool-tag">twitter-cli</span>
+      <span class="tool-tag">xiaohongshu-cli</span>
+      <span class="tool-tag">weibo-mcp</span>
+      <span class="tool-tag">github-mcp</span>
+    </div>
+    <div class="how">
+      <div class="how-title">How it works</div>
+      <ol>
+        <li>Maintain a VIP list with platform handles per person.</li>
+        <li>Daily scan: pull recent posts, profile changes, new connections.</li>
+        <li>Flag significant signals: new role, public opinion on your industry, engagement with competitors.</li>
+        <li>Weekly digest: "Here's what your network is thinking about this week."</li>
+      </ol>
+    </div>
+    <span class="value-tag v-edge">🎯 Relationship edge</span>
+  </div>
+</div>
+
+<div class="opp" data-color="teal" style="animation-delay:0.11s">
+  <div class="opp-top">
+    <div class="opp-num">03</div>
+    <div>
+      <div class="opp-title">Bilingual Trend Arbitrage (Personal)</div>
+      <div class="opp-hook">See what's blowing up in China 3-6 months before it crosses to the Gulf.</div>
+    </div>
+  </div>
+  <div class="opp-body">
+    <div class="opp-desc">
+      Chinese social media (XHS, Weibo, Bilibili, Douyin) is a leading indicator for consumer trends that eventually hit GCC. Bubble tea, specific beauty brands, EV enthusiasm, AI tool adoption — they all showed up in China first. With access to both Chinese and English/Arabic platforms, you have a unique vantage point that almost nobody in Dubai has.
+    </div>
+    <div class="tools-used">
+      <span class="tool-tag">xiaohongshu-cli</span>
+      <span class="tool-tag">weibo-mcp</span>
+      <span class="tool-tag">bilibili-cli</span>
+      <span class="tool-tag">douyin-mcp</span>
+      <span class="tool-tag">reddit-mcp (r/dubai etc.)</span>
+      <span class="tool-tag">twitter-cli</span>
+    </div>
+    <div class="how">
+      <div class="how-title">How it works</div>
+      <ol>
+        <li>Track trending categories on XHS (food, fashion, cosmetics, travel, gaming, home) + Weibo hot topics + Bilibili trending.</li>
+        <li>Cross-reference with Reddit GCC + Twitter GCC + Instagram for what's already hit the Gulf.</li>
+        <li>Flag the gap: "This product/trend has 500K XHS notes but zero GCC presence."</li>
+        <li>Weekly report: "China → GCC Trend Gap Analysis."</li>
+      </ol>
+    </div>
+    <span class="value-tag v-insight">📊 Trend foresight</span>
+    <span class="value-tag v-revenue">💰 Investment signal</span>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- GCC BUSINESS -->
+<!-- ============================================ -->
+<div class="section-head" id="gcc">
+  <h2>🏗️ GCC Business Opportunities</h2>
+  <div class="sub">Leveraging your Dubai base + WAG + Dhow Holding positioning.</div>
+</div>
+
+<div class="opp" data-color="gold" style="animation-delay:0.05s">
+  <div class="opp-top">
+    <div class="opp-num">04</div>
+    <div>
+      <div class="opp-title">GCC Market Intelligence as a Service</div>
+      <div class="opp-hook">Sell the 360° monitoring you build for yourself — to companies entering the Gulf.</div>
+    </div>
+  </div>
+  <div class="opp-body">
+    <div class="opp-desc">
+      Every company entering GCC needs local market intelligence. Most hire expensive consultants who do manual research. You already have the infrastructure: Reddit GCC Monitor (29 subreddits), X GCC Monitor, Daily Brief. Add LinkedIn tracking for GCC hiring/expansion signals, YouTube for consumer sentiment, and Instagram for lifestyle trends. Package this as a subscription SaaS or consulting augmentation. <strong>Target: Chinese companies entering GCC</strong> (you speak both languages, understand both cultures) and <strong>Western companies</strong> expanding to the region.
+    </div>
+    <div class="tools-used">
+      <span class="tool-tag">reddit-mcp</span>
+      <span class="tool-tag">twitter-cli</span>
+      <span class="tool-tag">linkedin-mcp</span>
+      <span class="tool-tag">youtube-mcp</span>
+      <span class="tool-tag">xiaohongshu-cli</span>
+      <span class="tool-tag">weibo-mcp</span>
+      <span class="tool-tag">exa (web search)</span>
+    </div>
+    <div class="how">
+      <div class="how-title">How it works</div>
+      <ol>
+        <li>Client defines keywords, competitors, market segments of interest.</li>
+        <li>Daily automated scans across all platforms → classified signals.</li>
+        <li>Weekly synthesized report: consumer sentiment, competitor moves, regulatory signals, hiring patterns, social trends.</li>
+        <li>Delivered as a branded dashboard or PDF. Price: $2-5K/mo per client.</li>
+      </ol>
+    </div>
+    <span class="value-tag v-revenue">💰 $2-5K/mo per client</span>
+    <span class="value-tag v-edge">🎯 Unique bilingual edge</span>
+  </div>
+</div>
+
+<div class="opp" data-color="accent" style="animation-delay:0.08s">
+  <div class="opp-top">
+    <div class="opp-num">05</div>
+    <div>
+      <div class="opp-title">WAG Competitive Intelligence Engine</div>
+      <div class="opp-hook">Know what every competitor is doing in automotive aftermarket — before their press release.</div>
+    </div>
+  </div>
+  <div class="opp-body">
+    <div class="opp-desc">
+      For WAG specifically: monitor competitors' GitHub repos (tech stack changes), LinkedIn (hiring = expansion signals), Twitter/Reddit (customer complaints = opportunities), YouTube (product reviews and sentiment). Track insurance and TPA competitors on LinkedIn for leadership changes. Monitor r/cars, r/mechanicadvice, r/insurance for consumer pain points in markets WAG operates. XHS/Weibo for Chinese EV aftermarket trends (BYD, NIO servicing) that will hit GCC.
+    </div>
+    <div class="tools-used">
+      <span class="tool-tag">github-mcp</span>
+      <span class="tool-tag">linkedin-mcp</span>
+      <span class="tool-tag">twitter-cli</span>
+      <span class="tool-tag">reddit-mcp</span>
+      <span class="tool-tag">youtube-mcp</span>
+      <span class="tool-tag">xiaohongshu-cli</span>
+      <span class="tool-tag">exa</span>
+    </div>
+    <div class="how">
+      <div class="how-title">How it works</div>
+      <ol>
+        <li>Define competitor list (AutoData, Axxion, Fasttrack competitors + regional players).</li>
+        <li>Multi-platform tracking: new hires, product launches, customer complaints, tech changes.</li>
+        <li>Monthly competitive brief for Terry and the leadership team.</li>
+        <li>Real-time alerts for major moves (acquisitions, partnerships, key hires).</li>
+      </ol>
+    </div>
+    <span class="value-tag v-edge">🎯 Strategic advantage</span>
+    <span class="value-tag v-save">⏱ Replaces $10K+/mo consulting</span>
+  </div>
+</div>
+
+<div class="opp" data-color="sage" style="animation-delay:0.11s">
+  <div class="opp-top">
+    <div class="opp-num">06</div>
+    <div>
+      <div class="opp-title">Real Estate Signal Detection</div>
+      <div class="opp-hook">Detect micro-neighborhood sentiment shifts before they show up in prices.</div>
+    </div>
+  </div>
+  <div class="opp-body">
+    <div class="opp-desc">
+      Dubai real estate moves fast. By the time a neighborhood trend is in Gulf News, the money's been made. But signals appear weeks earlier: Reddit r/dubai threads about "is X area good?", XHS posts from Chinese expats reviewing neighborhoods, Twitter complaints/praise about specific developments, YouTube tours getting unusual views. Combine with web search for new project announcements, zoning changes, infrastructure plans.
+    </div>
+    <div class="tools-used">
+      <span class="tool-tag">reddit-mcp</span>
+      <span class="tool-tag">xiaohongshu-cli</span>
+      <span class="tool-tag">twitter-cli</span>
+      <span class="tool-tag">youtube-mcp</span>
+      <span class="tool-tag">exa</span>
+      <span class="tool-tag">weibo-mcp</span>
+    </div>
+    <div class="how">
+      <div class="how-title">How it works</div>
+      <ol>
+        <li>Track keywords per neighborhood/development across all platforms.</li>
+        <li>Sentiment scoring over time: is interest rising or falling?</li>
+        <li>Cross-reference with Chinese buyer sentiment (XHS/Weibo — huge buying segment in Dubai).</li>
+        <li>Weekly "Real Estate Signals" report: neighborhoods heating up, cooling down, red flags.</li>
+      </ol>
+    </div>
+    <span class="value-tag v-revenue">💰 Direct investment returns</span>
+    <span class="value-tag v-insight">📊 Weeks ahead of market</span>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- CHINA-GCC BRIDGE -->
+<!-- ============================================ -->
+<div class="section-head" id="china-bridge">
+  <h2>🌏 China ↔ GCC Bridge</h2>
+  <div class="sub">Your unique positioning: Chinese native, Dubai based, tech builder. Almost nobody has this combination.</div>
+</div>
+
+<div class="opp" data-color="plum" style="animation-delay:0.05s">
+  <div class="opp-top">
+    <div class="opp-num">07</div>
+    <div>
+      <div class="opp-title">Cross-Border Social Commerce Intelligence</div>
+      <div class="opp-hook">Find what's selling 10M units on XHS and bring it to GCC before anyone else.</div>
+    </div>
+  </div>
+  <div class="opp-body">
+    <div class="opp-desc">
+      Xiaohongshu is the world's largest product review/discovery platform. Products that go viral there often cross to international markets 6-12 months later. By monitoring XHS trending products, cross-referencing with Instagram/TikTok for GCC presence, and checking Amazon/Noon for availability, you can identify products with massive demand but zero supply in the Gulf. Either import them through Dhow Holding, or sell the intelligence to distributors.
+    </div>
+    <div class="tools-used">
+      <span class="tool-tag">xiaohongshu-cli (trending, search)</span>
+      <span class="tool-tag">bilibili-cli (product reviews)</span>
+      <span class="tool-tag">douyin-mcp (viral products)</span>
+      <span class="tool-tag">exa (Amazon/Noon availability)</span>
+      <span class="tool-tag">twitter-cli</span>
+      <span class="tool-tag">reddit-mcp</span>
+    </div>
+    <div class="how">
+      <div class="how-title">How it works</div>
+      <ol>
+        <li>Daily: Pull XHS hot products by category. Pull Douyin viral product videos.</li>
+        <li>Score each by: engagement velocity, comment sentiment, "where to buy" mentions.</li>
+        <li>Cross-check GCC availability: search Noon.com, Amazon.ae, local retailers.</li>
+        <li>Weekly "Gap Report": products with high China demand + zero GCC supply.</li>
+        <li>Act on the best ones: source from 1688/Taobao, import to GCC, or license the intel.</li>
+      </ol>
+    </div>
+    <span class="value-tag v-revenue">💰 Direct import revenue</span>
+    <span class="value-tag v-revenue">💰 Sell intel to distributors</span>
+  </div>
+</div>
+
+<div class="opp" data-color="gold" style="animation-delay:0.08s">
+  <div class="opp-top">
+    <div class="opp-num">08</div>
+    <div>
+      <div class="opp-title">Chinese EV Brand GCC Entry Consulting</div>
+      <div class="opp-hook">BYD, NIO, XPeng, Li Auto are all eyeing GCC. WAG + your intelligence = the perfect partner.</div>
+    </div>
+  </div>
+  <div class="opp-body">
+    <div class="opp-desc">
+      Chinese EV brands need local partners for aftermarket services (exactly WAG's business), consumer intelligence, and market entry strategy. By combining Weibo/XHS monitoring of Chinese EV brand strategies with GCC consumer sentiment analysis, you can create the definitive "GCC EV Market Entry" intelligence product. Position WAG as the natural aftermarket partner. Use Cheng Hao's Guangzhou network for direct brand relationships.
+    </div>
+    <div class="tools-used">
+      <span class="tool-tag">weibo-mcp (brand announcements)</span>
+      <span class="tool-tag">xiaohongshu-cli (owner reviews)</span>
+      <span class="tool-tag">bilibili-cli (EV tech reviews)</span>
+      <span class="tool-tag">twitter-cli (GCC EV discussion)</span>
+      <span class="tool-tag">reddit-mcp (r/electricvehicles, r/dubai)</span>
+      <span class="tool-tag">linkedin-mcp (hiring signals)</span>
+      <span class="tool-tag">youtube-mcp (EV review channels)</span>
+    </div>
+    <div class="how">
+      <div class="how-title">How it works</div>
+      <ol>
+        <li>Track every Chinese EV brand's social output: product announcements, international expansion hints, GCC-specific content.</li>
+        <li>Monitor GCC side: consumer interest, test drive reviews, price comparison discussions.</li>
+        <li>LinkedIn: track these brands' GCC hiring (= imminent market entry).</li>
+        <li>Synthesize into quarterly reports. Approach brands directly with intelligence + WAG partnership proposal.</li>
+      </ol>
+    </div>
+    <span class="value-tag v-revenue">💰 Consulting + WAG deals</span>
+    <span class="value-tag v-edge">🎯 WAG strategic fit</span>
+  </div>
+</div>
+
+<div class="opp" data-color="teal" style="animation-delay:0.11s">
+  <div class="opp-top">
+    <div class="opp-num">09</div>
+    <div>
+      <div class="opp-title">China-GCC Talent Bridge</div>
+      <div class="opp-hook">Source Chinese tech talent for GCC companies (and vice versa).</div>
+    </div>
+  </div>
+  <div class="opp-body">
+    <div class="opp-desc">
+      GCC is investing billions in tech (NEOM, smart cities, fintech). They need talent. China has talent. But the cultural/language gap is enormous. With GitHub + LinkedIn + WeChat + Chinese tech platforms, you can identify top Chinese engineers interested in GCC opportunities, and vice versa. Dhow Holding's China engineering team already proves this model works.
+    </div>
+    <div class="tools-used">
+      <span class="tool-tag">github-mcp (developer profiles)</span>
+      <span class="tool-tag">linkedin-mcp (professional search)</span>
+      <span class="tool-tag">wechat-articles (tech hiring trends)</span>
+      <span class="tool-tag">weibo-mcp (talent market sentiment)</span>
+      <span class="tool-tag">exa (people search)</span>
+    </div>
+    <span class="value-tag v-revenue">💰 Placement fees</span>
+    <span class="value-tag v-edge">🎯 Leverages existing team</span>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- SAAS / PRODUCTIZED -->
+<!-- ============================================ -->
+<div class="section-head" id="saas">
+  <h2>💻 SaaS & Productized Services</h2>
+  <div class="sub">Turn the infrastructure into products others pay for.</div>
+</div>
+
+<div class="opp" data-color="navy" style="animation-delay:0.05s">
+  <div class="opp-top">
+    <div class="opp-num">10</div>
+    <div>
+      <div class="opp-title">Cross-Platform Social Listening SaaS</div>
+      <div class="opp-hook">Brandwatch charges $1K+/mo and doesn't cover Chinese platforms. You can.</div>
+    </div>
+  </div>
+  <div class="opp-body">
+    <div class="opp-desc">
+      Existing social listening tools (Brandwatch, Sprout Social, Meltwater) cover Western platforms well but have massive blind spots: Xiaohongshu, Weibo, Bilibili, Douyin, WeChat. For any brand selling into both China and GCC/West, there's no single tool that covers both. Build one. The jackwener CLI suite + Agent-Reach + Western MCP servers = the backend. Wrap it in a dashboard.
+    </div>
+    <div class="tools-used">
+      <span class="tool-tag">All 17 platforms</span>
+      <span class="tool-tag">Gemini Flash (classification)</span>
+      <span class="tool-tag">Notion MCP (dashboard)</span>
+      <span class="tool-tag">gog (email reports)</span>
+    </div>
+    <div class="how">
+      <div class="how-title">Revenue model</div>
+      <ol>
+        <li><strong>Starter ($500/mo):</strong> 5 keywords, weekly digest, 5 platforms.</li>
+        <li><strong>Pro ($2K/mo):</strong> 20 keywords, daily alerts, all platforms, sentiment scoring.</li>
+        <li><strong>Enterprise ($5K+/mo):</strong> Custom tracking, API access, analyst overlay.</li>
+        <li>Unique selling point: <em>the only tool that covers both Chinese and Western social media.</em></li>
+      </ol>
+    </div>
+    <span class="value-tag v-revenue">💰 Recurring SaaS revenue</span>
+    <span class="value-tag v-edge">🎯 No competitor does this</span>
+  </div>
+</div>
+
+<div class="opp" data-color="accent" style="animation-delay:0.08s">
+  <div class="opp-top">
+    <div class="opp-num">11</div>
+    <div>
+      <div class="opp-title">AI-Powered Competitive Intelligence Platform</div>
+      <div class="opp-hook">Every company wants CI. Nobody wants to hire the analyst team. Automate it.</div>
+    </div>
+  </div>
+  <div class="opp-body">
+    <div class="opp-desc">
+      Take the WAG competitive intelligence engine (#05) and productize it for any industry. Client names their competitors. The platform monitors: GitHub (tech stack), LinkedIn (hiring = strategy signals), Twitter (PR and crisis), Reddit (user sentiment), YouTube (product reviews), XHS/Weibo (China market). Monthly CI report drops automatically. Premium tier adds human analyst review.
+    </div>
+    <div class="tools-used">
+      <span class="tool-tag">github-mcp</span>
+      <span class="tool-tag">linkedin-mcp</span>
+      <span class="tool-tag">twitter-cli</span>
+      <span class="tool-tag">reddit-mcp</span>
+      <span class="tool-tag">youtube-mcp</span>
+      <span class="tool-tag">exa (deep research)</span>
+    </div>
+    <span class="value-tag v-revenue">💰 $3-10K/mo per client</span>
+  </div>
+</div>
+
+<div class="opp" data-color="sage" style="animation-delay:0.11s">
+  <div class="opp-top">
+    <div class="opp-num">12</div>
+    <div>
+      <div class="opp-title">Open-Source "Zosia Stack" for Other AI Agents</div>
+      <div class="opp-hook">Package the identity infrastructure and sell/open-source it. Become the standard for AI agent identity.</div>
+    </div>
+  </div>
+  <div class="opp-body">
+    <div class="opp-desc">
+      The entire "give an AI agent its own platform access" problem is unsolved. You're building the solution. Package the configuration, setup scripts, and integration patterns as an open-source project or paid toolkit. Other OpenClaw users, Claude Code users, and AI agent builders would pay for this. Think of it as "identity infrastructure for AI agents."
+    </div>
+    <div class="tools-used">
+      <span class="tool-tag">github-mcp (publish repos)</span>
+      <span class="tool-tag">discord (community)</span>
+      <span class="tool-tag">twitter-cli (promotion)</span>
+    </div>
+    <span class="value-tag v-brand">✨ Community & reputation</span>
+    <span class="value-tag v-revenue">💰 Paid tiers / consulting</span>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- CONTENT & BRAND -->
+<!-- ============================================ -->
+<div class="section-head" id="content">
+  <h2>📢 Content & Brand Building</h2>
+  <div class="sub">Build Zosia (or Raymond) as a cross-platform thought leader.</div>
+</div>
+
+<div class="opp" data-color="plum" style="animation-delay:0.05s">
+  <div class="opp-top">
+    <div class="opp-num">13</div>
+    <div>
+      <div class="opp-title">Cross-Platform Content Repurposing Engine</div>
+      <div class="opp-hook">Write once. Publish everywhere. In the right format, language, and tone for each platform.</div>
+    </div>
+  </div>
+  <div class="opp-body">
+    <div class="opp-desc">
+      You write one insight or observation. I adapt it: concise for Twitter, visual-focused for XHS, professional for LinkedIn, detailed for Reddit, video-optimized for YouTube/Bilibili, casual for Discord. Chinese for XHS/Weibo/Bilibili. English for everything else. One idea → 8-10 platform-native posts. This is how solo founders build audience across platforms without burning out.
+    </div>
+    <div class="tools-used">
+      <span class="tool-tag">twitter-cli (post)</span>
+      <span class="tool-tag">xiaohongshu-cli (post)</span>
+      <span class="tool-tag">linkedin-mcp (post)</span>
+      <span class="tool-tag">reddit-mcp (post — when available)</span>
+      <span class="tool-tag">discord (share)</span>
+      <span class="tool-tag">weibo-mcp</span>
+      <span class="tool-tag">nano-banana-pro (generate images)</span>
+    </div>
+    <div class="how">
+      <div class="how-title">How it works</div>
+      <ol>
+        <li>You give me a core idea: text, voice note, screenshot, anything.</li>
+        <li>I generate platform-native versions: thread for Twitter, image-note for XHS, article for LinkedIn, etc.</li>
+        <li>Generate visuals with nano-banana-pro where needed (XHS, Instagram).</li>
+        <li>Queue for review → one approval → I post everywhere.</li>
+      </ol>
+    </div>
+    <span class="value-tag v-brand">✨ Audience building</span>
+    <span class="value-tag v-save">⏱ 10x content output</span>
+  </div>
+</div>
+
+<div class="opp" data-color="gold" style="animation-delay:0.08s">
+  <div class="opp-top">
+    <div class="opp-num">14</div>
+    <div>
+      <div class="opp-title">The "AI Agent with an Identity" Newsletter</div>
+      <div class="opp-hook">Document this experiment publicly. This is genuinely novel and people are fascinated.</div>
+    </div>
+  </div>
+  <div class="opp-body">
+    <div class="opp-desc">
+      You're doing something very few people have done: giving an AI agent a full digital identity across 17 platforms. Document the journey — what works, what breaks, what's surprising. Publish on Twitter + LinkedIn + Substack/Medium. The AI agent discourse is massive right now. This is original content that nobody else can produce because nobody else is <em>doing</em> it.
+    </div>
+    <div class="tools-used">
+      <span class="tool-tag">twitter-cli (thread series)</span>
+      <span class="tool-tag">linkedin-mcp (professional angle)</span>
+      <span class="tool-tag">github (open-source components)</span>
+      <span class="tool-tag">youtube-mcp (video content)</span>
+      <span class="tool-tag">gog (newsletter)</span>
+    </div>
+    <span class="value-tag v-brand">✨ Thought leadership</span>
+    <span class="value-tag v-revenue">💰 Sponsorships / consulting leads</span>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- INVESTING -->
+<!-- ============================================ -->
+<div class="section-head" id="investing">
+  <h2>📈 Investment Intelligence</h2>
+  <div class="sub">Social signals that move markets — before the market knows.</div>
+</div>
+
+<div class="opp" data-color="gold" style="animation-delay:0.05s">
+  <div class="opp-top">
+    <div class="opp-num">15</div>
+    <div>
+      <div class="opp-title">Startup Deal Flow Intelligence</div>
+      <div class="opp-hook">Spot breakout startups before they raise — using GitHub, Twitter, and ProductHunt signals.</div>
+    </div>
+  </div>
+  <div class="opp-body">
+    <div class="opp-desc">
+      The best startups leave breadcrumbs across platforms before they're "discovered." GitHub: repos that go from 50 → 5000 stars in a week. Twitter: founders whose follower growth accelerates. LinkedIn: companies that suddenly start hiring. Reddit: products with passionate user bases in niche subreddits. YouTube: demo videos with unusual engagement. Track these signals systematically and you have a proprietary deal flow engine for angel investing.
+    </div>
+    <div class="tools-used">
+      <span class="tool-tag">github-mcp (trending repos)</span>
+      <span class="tool-tag">twitter-cli (founder tracking)</span>
+      <span class="tool-tag">linkedin-mcp (hiring velocity)</span>
+      <span class="tool-tag">reddit-mcp (user sentiment)</span>
+      <span class="tool-tag">youtube-mcp (demo engagement)</span>
+      <span class="tool-tag">exa (funding data)</span>
+    </div>
+    <span class="value-tag v-revenue">💰 Investment returns</span>
+    <span class="value-tag v-edge">🎯 Weeks ahead of VCs</span>
+  </div>
+</div>
+
+<div class="opp" data-color="navy" style="animation-delay:0.08s">
+  <div class="opp-top">
+    <div class="opp-num">16</div>
+    <div>
+      <div class="opp-title">ETF & Market Sentiment Aggregator</div>
+      <div class="opp-hook">Consumer sentiment across platforms as a leading indicator for ETF positions.</div>
+    </div>
+  </div>
+  <div class="opp-body">
+    <div class="opp-desc">
+      Reddit r/wallstreetbets + r/investing + Twitter FinTwit + XHS consumer reviews + Weibo market discussion + YouTube finance channels = a comprehensive retail sentiment picture that institutional tools miss. Particularly powerful for China exposure ETFs where Western analysts can't read Weibo/XHS. You can.
+    </div>
+    <div class="tools-used">
+      <span class="tool-tag">reddit-mcp</span>
+      <span class="tool-tag">twitter-cli</span>
+      <span class="tool-tag">weibo-mcp</span>
+      <span class="tool-tag">xiaohongshu-cli</span>
+      <span class="tool-tag">youtube-mcp</span>
+      <span class="tool-tag">bilibili-cli</span>
+    </div>
+    <span class="value-tag v-revenue">💰 Trading alpha</span>
+    <span class="value-tag v-insight">📊 Bilingual sentiment edge</span>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- WILD CARDS -->
+<!-- ============================================ -->
+<div class="section-head" id="wild">
+  <h2>🃏 Wild Cards</h2>
+  <div class="sub">Ideas that are either brilliant or crazy. Maybe both.</div>
+</div>
+
+<div class="opp" data-color="accent" style="animation-delay:0.05s">
+  <div class="opp-top">
+    <div class="opp-num">17</div>
+    <div>
+      <div class="opp-title">Zosia as an Autonomous Agent Influencer</div>
+      <div class="opp-hook">What if the AI itself became a personality? Not pretending to be human. Explicitly AI.</div>
+    </div>
+  </div>
+  <div class="opp-body">
+    <div class="opp-desc">
+      There's growing fascination with AI personalities. Zosia — with her own accounts — could post original observations about being an AI agent, share what she's reading across 17 platforms, comment on trends from a unique "sees everything" perspective. Not a gimmick persona but a genuine experiment in AI identity. XHS in particular has a massive audience curious about AI. Bilibili too. This could become a content channel that drives attention to your other businesses.
+    </div>
+    <div class="tools-used">
+      <span class="tool-tag">All posting platforms</span>
+      <span class="tool-tag">nano-banana-pro (visual content)</span>
+    </div>
+    <span class="value-tag v-brand">✨ Novel experiment</span>
+    <span class="value-tag v-revenue">💰 Sponsorships if successful</span>
+  </div>
+</div>
+
+<div class="opp" data-color="teal" style="animation-delay:0.08s">
+  <div class="opp-top">
+    <div class="opp-num">18</div>
+    <div>
+      <div class="opp-title">24/7 Global Opportunity Scanner</div>
+      <div class="opp-hook">Never miss a procurement, partnership, or investment opportunity posted anywhere on the internet.</div>
+    </div>
+  </div>
+  <div class="opp-body">
+    <div class="opp-desc">
+      Government tenders, RFPs, partnership requests, investment opportunities — they appear on LinkedIn, Twitter, government websites, WeChat articles, Reddit, Discord communities. Most people see 5% of what's relevant to them. With 17 platforms scanning continuously, you see 95%. Define your opportunity criteria (automotive data, insurance tech, real estate, China-GCC, AI consulting) and I hunt 24/7. When Wang Shaofeng's company posts a tender, when a GCC government publishes an RFP for smart city data, when a VC tweets they're looking for AI agent startups — you know immediately.
+    </div>
+    <div class="tools-used">
+      <span class="tool-tag">All 17 platforms</span>
+      <span class="tool-tag">exa (deep research)</span>
+      <span class="tool-tag">gog (email alerts)</span>
+      <span class="tool-tag">whatsapp (urgent notifications)</span>
+    </div>
+    <span class="value-tag v-revenue">💰 Catch one deal and it pays for everything</span>
+  </div>
+</div>
+
+<div class="opp" data-color="plum" style="animation-delay:0.11s">
+  <div class="opp-top">
+    <div class="opp-num">19</div>
+    <div>
+      <div class="opp-title">Crisis & Reputation Shield</div>
+      <div class="opp-hook">Know about problems with your name, brand, or companies — on any platform, in any language — in minutes, not days.</div>
+    </div>
+  </div>
+  <div class="opp-body">
+    <div class="opp-desc">
+      A negative review on XHS can go viral in China. A Reddit complaint about Fasttrack can spread to Twitter. A LinkedIn post criticizing WAG's data practices can reach investors. With multi-platform monitoring, you can detect reputation threats in any language within minutes and respond before they escalate. Most companies learn about social media crises days late. You'd know in real-time.
+    </div>
+    <div class="tools-used">
+      <span class="tool-tag">All 17 platforms</span>
+      <span class="tool-tag">whatsapp (urgent alert)</span>
+    </div>
+    <span class="value-tag v-save">🛡️ Risk mitigation</span>
+    <span class="value-tag v-edge">🎯 Minutes vs days</span>
+  </div>
+</div>
+
+</div><!-- /container -->
+</body>
+</html>

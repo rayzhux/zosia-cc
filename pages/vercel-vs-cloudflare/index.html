@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+<title>Vercel vs Cloudflare Pages — Full Comparison</title>
+<meta name="x-category" content="architecture">
+<meta name="x-tags" content="comparison,research">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --font-body: 'IBM Plex Sans', system-ui, sans-serif;
+    --font-mono: 'IBM Plex Mono', 'SF Mono', monospace;
+    --bg: #f7f6f3;
+    --surface: #ffffff;
+    --surface2: #f0efeb;
+    --border: rgba(0,0,0,0.07);
+    --border-bright: rgba(0,0,0,0.13);
+    --text: #1a1a18;
+    --text-dim: #6b6b63;
+    --accent: #1e5f74;
+    --accent-dim: rgba(30,95,116,0.07);
+    --accent2: #c2410c;
+    --accent2-dim: rgba(194,65,12,0.07);
+    --green: #15803d;
+    --green-dim: rgba(21,128,61,0.08);
+    --amber: #b45309;
+    --amber-dim: rgba(180,83,9,0.08);
+    --red: #b91c1c;
+    --red-dim: rgba(185,28,28,0.08);
+    --cf-orange: #f48120;
+    --vercel-black: #000000;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #111110;
+      --surface: #1a1a18;
+      --surface2: #222220;
+      --border: rgba(255,255,255,0.06);
+      --border-bright: rgba(255,255,255,0.12);
+      --text: #e5e5df;
+      --text-dim: #8a8a82;
+      --accent: #5bb8d4;
+      --accent-dim: rgba(91,184,212,0.1);
+      --accent2: #f97316;
+      --accent2-dim: rgba(249,115,22,0.1);
+      --green: #4ade80;
+      --green-dim: rgba(74,222,128,0.08);
+      --amber: #fbbf24;
+      --amber-dim: rgba(251,191,36,0.08);
+      --red: #f87171;
+      --red-dim: rgba(248,113,113,0.08);
+      --cf-orange: #f6a442;
+      --vercel-black: #e5e5df;
+    }
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: var(--font-body); background: var(--bg); color: var(--text); line-height: 1.55; min-height: 100vh; }
+
+  .container { max-width: 960px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
+
+  /* Header */
+  header { margin-bottom: 2rem; }
+  header h1 { font-size: 1.7rem; font-weight: 700; letter-spacing: -0.03em; margin-bottom: 0.4rem; }
+  header .subtitle { color: var(--text-dim); font-size: 0.88rem; line-height: 1.5; max-width: 680px; }
+
+  /* Verdict box */
+  .verdict {
+    background: var(--accent-dim);
+    border: 1px solid var(--accent);
+    border-radius: 10px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 2.5rem;
+    animation: fadeUp 0.4s ease both;
+  }
+  .verdict h2 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--accent); }
+  .verdict p { font-size: 0.85rem; line-height: 1.55; }
+  .verdict strong { font-weight: 600; }
+
+  /* Section labels */
+  .section-label {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-dim);
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .section-label::before {
+    content: '';
+    display: inline-block;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  /* Table wrapper */
+  .table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--surface);
+    margin-bottom: 2rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+  thead { position: sticky; top: 0; z-index: 2; }
+  th {
+    background: var(--surface2);
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 0.7rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-bright);
+    white-space: nowrap;
+  }
+  th:first-child { border-radius: 10px 0 0 0; }
+  th:last-child { border-radius: 0 10px 0 0; }
+  td {
+    padding: 0.7rem 1rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    line-height: 1.5;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:nth-child(even) td { background: var(--surface2); }
+  td:first-child { font-weight: 500; white-space: nowrap; min-width: 160px; }
+
+  /* Badges */
+  .badge {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    font-weight: 500;
+    padding: 0.15rem 0.5rem;
+    border-radius: 100px;
+  }
+  .badge--green { background: var(--green-dim); color: var(--green); }
+  .badge--amber { background: var(--amber-dim); color: var(--amber); }
+  .badge--red { background: var(--red-dim); color: var(--red); }
+  .badge--accent { background: var(--accent-dim); color: var(--accent); }
+  .badge--accent2 { background: var(--accent2-dim); color: var(--accent2); }
+
+  .win { color: var(--green); font-weight: 600; }
+  .lose { color: var(--text-dim); }
+  .tie { color: var(--amber); }
+
+  /* Detail notes */
+  .note {
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    margin-top: 0.2rem;
+    line-height: 1.4;
+  }
+
+  /* Migration section */
+  .migration {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .migration h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.75rem; }
+  .migration ol { padding-left: 1.25rem; font-size: 0.82rem; }
+  .migration li { margin-bottom: 0.5rem; line-height: 1.5; }
+  .migration code { font-family: var(--font-mono); font-size: 0.78rem; background: var(--surface2); padding: 0.1rem 0.4rem; border-radius: 4px; }
+
+  /* WAG callout */
+  .callout {
+    border-left: 3px solid var(--accent2);
+    background: var(--accent2-dim);
+    padding: 1rem 1.25rem;
+    border-radius: 0 8px 8px 0;
+    margin-bottom: 2rem;
+    font-size: 0.82rem;
+    line-height: 1.5;
+  }
+  .callout strong { font-weight: 600; }
+
+  /* Footer */
+  footer {
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    border-top: 1px solid var(--border);
+    padding-top: 1rem;
+    margin-top: 2rem;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .table-wrap { animation: fadeUp 0.35s ease both; animation-delay: 0.1s; }
+  .migration { animation: fadeUp 0.35s ease both; animation-delay: 0.2s; }
+
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; } }
+  @media (max-width: 640px) {
+    .container { padding: 1.5rem 1rem 3rem; }
+    header h1 { font-size: 1.3rem; }
+    td:first-child { white-space: normal; min-width: 120px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1>Vercel vs Cloudflare Pages</h1>
+  <p class="subtitle">Can Cloudflare fully replace Vercel for zosia-pages and future projects? Feature-by-feature comparison based on current docs and your existing stack.</p>
+</header>
+
+<div class="verdict">
+  <h2>Bottom Line</h2>
+  <p><strong>Yes — Cloudflare Pages can replace Vercel entirely for your use case.</strong> Static HTML pages with git-triggered deploys, custom domains, and access control. Cloudflare does everything Vercel does here, plus native Access integration you're already paying for. The only thing you'd lose is Vercel's serverless functions ecosystem — which you don't use.</p>
+</div>
+
+<div class="section-label">Core Features</div>
+<div class="table-wrap">
+<table>
+<thead>
+  <tr>
+    <th>Feature</th>
+    <th>Vercel (Hobby — Free)</th>
+    <th>Cloudflare Pages (Free)</th>
+    <th>Winner</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td>Static site hosting</td>
+    <td>✓ Global CDN</td>
+    <td>✓ Global CDN (330+ cities)</td>
+    <td><span class="badge badge--green">CF</span></td>
+  </tr>
+  <tr>
+    <td>Git auto-deploy</td>
+    <td>✓ GitHub, GitLab, Bitbucket</td>
+    <td>✓ GitHub, GitLab</td>
+    <td><span class="badge badge--amber">Tie</span></td>
+  </tr>
+  <tr>
+    <td>Preview deployments</td>
+    <td>✓ Per-branch + per-PR</td>
+    <td>✓ Per-branch + per-PR</td>
+    <td><span class="badge badge--amber">Tie</span></td>
+  </tr>
+  <tr>
+    <td>Custom domains</td>
+    <td>✓ Unlimited</td>
+    <td>✓ Up to 100 per project (free)</td>
+    <td><span class="badge badge--amber">Tie</span></td>
+  </tr>
+  <tr>
+    <td>SSL/HTTPS</td>
+    <td>✓ Automatic</td>
+    <td>✓ Automatic</td>
+    <td><span class="badge badge--amber">Tie</span></td>
+  </tr>
+  <tr>
+    <td>Redirects & headers</td>
+    <td>✓ via <code>vercel.json</code></td>
+    <td>✓ via <code>_redirects</code> / <code>_headers</code> files</td>
+    <td><span class="badge badge--amber">Tie</span></td>
+  </tr>
+  <tr>
+    <td>Rollbacks</td>
+    <td>✓ Instant via dashboard</td>
+    <td>✓ Instant via dashboard</td>
+    <td><span class="badge badge--amber">Tie</span></td>
+  </tr>
+  <tr>
+    <td>CLI deploy (direct upload)</td>
+    <td>✓ <code>vercel deploy</code></td>
+    <td>✓ <code>wrangler pages deploy</code></td>
+    <td><span class="badge badge--amber">Tie</span></td>
+  </tr>
+</tbody>
+</table>
+</div>
+
+<div class="section-label">Limits & Quotas</div>
+<div class="table-wrap">
+<table>
+<thead>
+  <tr>
+    <th>Limit</th>
+    <th>Vercel Hobby</th>
+    <th>Cloudflare Pages Free</th>
+    <th>Winner</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td>Deploys per month</td>
+    <td>Unlimited <div class="note">(rate-limited in practice)</div></td>
+    <td>500<div class="note">Pro: 5,000</div></td>
+    <td><span class="badge badge--accent">Vercel</span></td>
+  </tr>
+  <tr>
+    <td>Bandwidth</td>
+    <td>100 GB/mo</td>
+    <td>Unlimited</td>
+    <td><span class="badge badge--green">CF</span></td>
+  </tr>
+  <tr>
+    <td>Files per site</td>
+    <td>No hard limit</td>
+    <td>20,000 (free) / 100,000 (paid)</td>
+    <td><span class="badge badge--amber">Tie</span></td>
+  </tr>
+  <tr>
+    <td>Max file size</td>
+    <td>No published limit</td>
+    <td>25 MB per asset</td>
+    <td><span class="badge badge--amber">Tie</span></td>
+  </tr>
+  <tr>
+    <td>Build timeout</td>
+    <td>45 min</td>
+    <td>20 min</td>
+    <td><span class="badge badge--accent">Vercel</span></td>
+  </tr>
+  <tr>
+    <td>Projects per account</td>
+    <td>200</td>
+    <td>100 (soft limit, raiseable)</td>
+    <td><span class="badge badge--amber">Tie</span></td>
+  </tr>
+</tbody>
+</table>
+</div>
+
+<div class="section-label">Security & Access Control</div>
+<div class="table-wrap">
+<table>
+<thead>
+  <tr>
+    <th>Feature</th>
+    <th>Vercel</th>
+    <th>Cloudflare</th>
+    <th>Winner</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td>Password protection</td>
+    <td>✓ Pro only ($20/mo)<div class="note">Shared password, cookie-based</div></td>
+    <td>✓ Free via Access<div class="note">Per-user email OTP or OAuth</div></td>
+    <td><span class="badge badge--green">CF</span></td>
+  </tr>
+  <tr>
+    <td>Identity-based access</td>
+    <td>✓ Vercel Authentication<div class="note">Team members only, Pro+</div></td>
+    <td>✓ Access policies<div class="note">Email, Google, GitHub, SAML — 50 free users</div></td>
+    <td><span class="badge badge--green">CF</span></td>
+  </tr>
+  <tr>
+    <td>Owner auto-bypass</td>
+    <td>✓ If logged into Vercel</td>
+    <td>✓ If authenticated via IdP<div class="note">Google OAuth = seamless if logged in</div></td>
+    <td><span class="badge badge--amber">Tie</span></td>
+  </tr>
+  <tr>
+    <td>Per-path access rules</td>
+    <td>✗ Not supported</td>
+    <td>✓ Wildcard path policies</td>
+    <td><span class="badge badge--green">CF</span></td>
+  </tr>
+  <tr>
+    <td>Bot / AI blocking</td>
+    <td>✓ AI bot managed ruleset (free)</td>
+    <td>✓ Bot Management + WAF rules</td>
+    <td><span class="badge badge--amber">Tie</span></td>
+  </tr>
+  <tr>
+    <td>DDoS protection</td>
+    <td>✓ Included</td>
+    <td>✓ Included (unmetered)</td>
+    <td><span class="badge badge--green">CF</span></td>
+  </tr>
+  <tr>
+    <td>WAF</td>
+    <td>✓ Basic (3 custom rules free)</td>
+    <td>✓ Full WAF + managed rulesets</td>
+    <td><span class="badge badge--green">CF</span></td>
+  </tr>
+  <tr>
+    <td>Search engine indexing control</td>
+    <td>Manual (robots.txt, headers)</td>
+    <td>Manual + Access blocks crawlers entirely</td>
+    <td><span class="badge badge--green">CF</span></td>
+  </tr>
+</tbody>
+</table>
+</div>
+
+<div class="section-label">Serverless & Dynamic Features</div>
+<div class="table-wrap">
+<table>
+<thead>
+  <tr>
+    <th>Feature</th>
+    <th>Vercel</th>
+    <th>Cloudflare</th>
+    <th>Winner</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td>Serverless functions</td>
+    <td>✓ Node.js, Go, Python, Ruby<div class="note">Deep Next.js integration</div></td>
+    <td>✓ Workers (JS/TS/Wasm only)<div class="note">Pages Functions for file-based routing</div></td>
+    <td><span class="badge badge--accent">Vercel</span><div class="note">More language support</div></td>
+  </tr>
+  <tr>
+    <td>Edge functions</td>
+    <td>✓ Edge Middleware</td>
+    <td>✓ Workers (all edge by default)</td>
+    <td><span class="badge badge--green">CF</span></td>
+  </tr>
+  <tr>
+    <td>Database</td>
+    <td>✓ Vercel Postgres, KV, Blob</td>
+    <td>✓ D1 (SQLite), KV, R2 (object store), Durable Objects</td>
+    <td><span class="badge badge--green">CF</span><div class="note">More options, R2 already in use</div></td>
+  </tr>
+  <tr>
+    <td>Framework support</td>
+    <td>✓ Next.js (native), Nuxt, Svelte, etc.</td>
+    <td>✓ All static frameworks + Next.js via OpenNext<div class="note">Next.js support less polished than Vercel</div></td>
+    <td><span class="badge badge--accent">Vercel</span><div class="note">Next.js only</div></td>
+  </tr>
+  <tr>
+    <td>Analytics</td>
+    <td>✓ Web Analytics + Speed Insights</td>
+    <td>✓ Web Analytics (basic)</td>
+    <td><span class="badge badge--accent">Vercel</span></td>
+  </tr>
+</tbody>
+</table>
+</div>
+
+<div class="section-label">Cost Comparison</div>
+<div class="table-wrap">
+<table>
+<thead>
+  <tr>
+    <th>Tier</th>
+    <th>Vercel</th>
+    <th>Cloudflare Pages</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td>Free</td>
+    <td>$0 — no password protection, no team auth</td>
+    <td>$0 — includes Access (50 users), unlimited bandwidth</td>
+  </tr>
+  <tr>
+    <td>Pro / Paid</td>
+    <td>$20/user/mo — adds password protection, faster builds, 1TB bandwidth</td>
+    <td>$5/mo (Workers Paid) — 5,000 deploys, 100K files<div class="note">You're already on a paid CF plan</div></td>
+  </tr>
+  <tr>
+    <td>Your cost today</td>
+    <td>$0 (Hobby)</td>
+    <td>$0 incremental (already paying for CF)</td>
+  </tr>
+</tbody>
+</table>
+</div>
+
+<div class="section-label">What You'd Gain by Moving</div>
+<div class="callout">
+  <strong>Cloudflare Access for free</strong> — the exact UX you asked for. You authenticate via Google, friends get email OTP, bots get nothing. No $20/mo Vercel Pro needed.<br><br>
+  <strong>Unified stack</strong> — DNS, CDN, Access, R2 backups, WAF, and hosting all in one dashboard. You already manage Cloudflare for DNS and R2.<br><br>
+  <strong>Unlimited bandwidth</strong> — Vercel caps at 100GB/mo on Hobby. CF Pages is unlimited.<br><br>
+  <strong>Per-path access rules</strong> — could make some pages public and others private. Vercel can't do this.
+</div>
+
+<div class="section-label">What You'd Lose</div>
+<div class="callout" style="border-left-color: var(--accent); background: var(--accent-dim);">
+  <strong>Nothing material for zosia-pages.</strong> It's static HTML — no Next.js, no serverless functions, no Vercel-specific features in use.<br><br>
+  <strong>For WAG (cc-wag-me.com)</strong> — if it uses Next.js server-side features, moving it is more complex. Cloudflare's Next.js support via OpenNext works but isn't as seamless as Vercel's native integration. <strong>Recommendation:</strong> keep WAG on Vercel, move zosia-pages to Cloudflare. Or move both if WAG is purely static.
+</div>
+
+<div class="section-label">Migration Steps (zosia-pages → Cloudflare Pages)</div>
+<div class="migration">
+  <h3>~15 minutes of work</h3>
+  <ol>
+    <li><strong>Create CF Pages project</strong> — connect <code>rayzhux/zosia-pages</code> GitHub repo in the CF dashboard → Workers & Pages → Create → Connect to Git</li>
+    <li><strong>Configure build</strong> — no build command needed (static HTML). Output directory: <code>/</code> (root)</li>
+    <li><strong>Add custom domain</strong> — e.g., <code>pages.dhowholding.com</code> (or any domain on your Cloudflare account)</li>
+    <li><strong>Set up Access</strong> — create an Access application on that domain. Policy: allow your email + Google OAuth as identity provider</li>
+    <li><strong>Update <code>share.sh</code></strong> — change deploy from <code>git push</code> (same) or use <code>wrangler pages deploy</code></li>
+    <li><strong>Rename <code>vercel.json</code></strong> — convert <code>cleanUrls</code> + headers to <code>_headers</code> / <code>_redirects</code> files</li>
+    <li><strong>Test</strong> — verify pages load, Access prompt works for incognito, your Google login bypasses</li>
+    <li><strong>Sunset Vercel project</strong> — delete after confirming everything works</li>
+  </ol>
+</div>
+
+<footer>
+  Researched Mar 14, 2026 · Sources: Vercel Docs (pricing, deployment protection), Cloudflare Docs (Pages, Access, limits) · For Raymond's zosia-pages project
+</footer>
+
+</div>
+</body>
+</html>

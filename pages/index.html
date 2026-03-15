@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+  <title>Zosia Pages</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f8f7f4;
+      --surface: #ffffff;
+      --surface-hover: #faf9f6;
+      --border: rgba(0,0,0,0.07);
+      --border-strong: rgba(0,0,0,0.12);
+      --text: #1c1c1a;
+      --text-mid: #4a4a45;
+      --text-dim: #8a8a82;
+      --accent: #1e6b5a;
+      --accent-light: rgba(30,107,90,0.07);
+      --tag-bg: #efeee9;
+      --tag-text: #5a5a52;
+      --search-bg: #ffffff;
+      --shadow: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.03);
+      --shadow-hover: 0 4px 12px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #111110;
+        --surface: #1a1a18;
+        --surface-hover: #222220;
+        --border: rgba(255,255,255,0.06);
+        --border-strong: rgba(255,255,255,0.1);
+        --text: #e8e8e2;
+        --text-mid: #b0b0a8;
+        --text-dim: #6a6a62;
+        --accent: #4ecca3;
+        --accent-light: rgba(78,204,163,0.08);
+        --tag-bg: #252523;
+        --tag-text: #999990;
+        --search-bg: #1a1a18;
+        --shadow: 0 1px 3px rgba(0,0,0,0.2);
+        --shadow-hover: 0 4px 12px rgba(0,0,0,0.3);
+      }
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'IBM Plex Sans', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+    .container {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 4rem;
+    }
+
+    /* Header */
+    header {
+      margin-bottom: 2rem;
+    }
+    header h1 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      margin-bottom: 0.35rem;
+    }
+    header .subtitle {
+      color: var(--text-dim);
+      font-size: 0.88rem;
+    }
+
+    /* Stats bar */
+    .stats {
+      display: flex;
+      gap: 1.5rem;
+      margin-bottom: 1.75rem;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.8rem;
+      color: var(--text-dim);
+    }
+    .stats .num {
+      font-family: 'IBM Plex Mono', monospace;
+      font-weight: 500;
+      color: var(--accent);
+    }
+
+    /* Search */
+    .search-wrap {
+      margin-bottom: 1.75rem;
+      position: relative;
+    }
+    .search-wrap svg {
+      position: absolute;
+      left: 0.85rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 16px;
+      height: 16px;
+      color: var(--text-dim);
+    }
+    .search-input {
+      width: 100%;
+      padding: 0.65rem 0.85rem 0.65rem 2.5rem;
+      font-family: inherit;
+      font-size: 0.88rem;
+      background: var(--search-bg);
+      color: var(--text);
+      border: 1px solid var(--border-strong);
+      border-radius: 8px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .search-input::placeholder { color: var(--text-dim); }
+    .search-input:focus { border-color: var(--accent); }
+
+    /* Filter chips */
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-bottom: 1.75rem;
+    }
+    .chip {
+      font-family: inherit;
+      font-size: 0.75rem;
+      font-weight: 500;
+      padding: 0.3rem 0.7rem;
+      border-radius: 100px;
+      border: 1px solid var(--border-strong);
+      background: transparent;
+      color: var(--text-dim);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .chip:hover { border-color: var(--accent); color: var(--text-mid); }
+    .chip.active {
+      background: var(--accent-light);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* View toggle */
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    .result-count {
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      font-family: 'IBM Plex Mono', monospace;
+    }
+    .view-toggle {
+      display: flex;
+      gap: 0.25rem;
+    }
+    .view-btn {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.35rem 0.5rem;
+      cursor: pointer;
+      color: var(--text-dim);
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+    }
+    .view-btn:hover { color: var(--text-mid); }
+    .view-btn.active { background: var(--accent-light); color: var(--accent); border-color: var(--accent); }
+    .view-btn svg { width: 14px; height: 14px; }
+
+    /* Card list (default) */
+    .pages-list { display: flex; flex-direction: column; gap: 0.5rem; }
+    .pages-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 0.75rem; }
+    .pages-grid .page-card { flex-direction: column; }
+    .pages-grid .page-card .meta-row { margin-top: auto; }
+
+    .page-card {
+      display: flex;
+      flex-direction: row;
+      gap: 1rem;
+      padding: 1rem 1.15rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      text-decoration: none;
+      color: var(--text);
+      transition: background 0.15s, border-color 0.15s, box-shadow 0.2s;
+      box-shadow: var(--shadow);
+      align-items: flex-start;
+    }
+    .page-card:hover {
+      background: var(--surface-hover);
+      border-color: var(--accent);
+      box-shadow: var(--shadow-hover);
+    }
+    .page-card .content { flex: 1; min-width: 0; }
+    .page-card .title-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      margin-bottom: 0.3rem;
+    }
+    .page-card .title {
+      font-weight: 600;
+      font-size: 0.92rem;
+      line-height: 1.35;
+      letter-spacing: -0.01em;
+    }
+    .page-card .desc {
+      font-size: 0.8rem;
+      color: var(--text-mid);
+      line-height: 1.45;
+      margin-bottom: 0.6rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .meta-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+    .meta {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    .meta svg { width: 12px; height: 12px; flex-shrink: 0; }
+    .tag {
+      font-size: 0.68rem;
+      font-weight: 500;
+      padding: 0.15rem 0.5rem;
+      border-radius: 100px;
+      background: var(--tag-bg);
+      color: var(--tag-text);
+    }
+
+    /* Empty state */
+    .empty {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--text-dim);
+      font-size: 0.9rem;
+    }
+
+    /* Sort control */
+    .sort-select {
+      font-family: inherit;
+      font-size: 0.78rem;
+      background: transparent;
+      color: var(--text-dim);
+      border: none;
+      cursor: pointer;
+      outline: none;
+    }
+    .sort-select option { background: var(--surface); color: var(--text); }
+
+    /* Animations */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .page-card { animation: fadeUp 0.25s ease both; }
+    @media (prefers-reduced-motion: reduce) { .page-card { animation: none; } }
+
+    /* Mobile */
+    @media (max-width: 600px) {
+      .container { padding: 1.5rem 1rem 3rem; }
+      .page-card { flex-direction: column; gap: 0; }
+      .stats { gap: 1rem; flex-wrap: wrap; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Zosia Pages</h1>
+      <p class="subtitle">Visual explainers, architecture docs, and research — all in one place.</p>
+    </header>
+
+    <div class="stats">
+      <span><span class="num">34</span> pages</span>
+      <span><span class="num">6</span> categories</span>
+      <span>Last deployed <span class="num">Mar 14, 2026</span></span>
+    </div>
+
+    <div class="search-wrap">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="text" class="search-input" placeholder="Search pages..." id="search" autocomplete="off">
+    </div>
+
+    <div class="filters" id="filters">
+      <button class="chip active" data-cat="all">All</button>
+      <button class="chip" data-cat="architecture">Architecture</button>
+      <button class="chip" data-cat="devops">CI/CD & DevOps</button>
+      <button class="chip" data-cat="openclaw">OpenClaw</button>
+      <button class="chip" data-cat="health">Health</button>
+      <button class="chip" data-cat="observability">Observability</button>
+      <button class="chip" data-cat="zosia">Zosia</button>
+    </div>
+
+    <div class="toolbar">
+      <span class="result-count" id="resultCount">15 pages</span>
+      <div style="display:flex;align-items:center;gap:0.75rem">
+        <select class="sort-select" id="sortSelect">
+          <option value="newest">Newest first</option>
+          <option value="oldest">Oldest first</option>
+          <option value="alpha">A → Z</option>
+        </select>
+        <div class="view-toggle">
+          <button class="view-btn active" data-view="list" title="List view">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+          </button>
+          <button class="view-btn" data-view="grid" title="Grid view">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="pages-list" id="pagesContainer"></div>
+  </div>
+
+  <script>
+    const pages = [
+      {
+            "slug": "argus-agent-plan",
+            "title": "Project Argus — Intelligence Agent Architecture Plan",
+            "desc": "Splitting Zosia's intelligence workload into a dedicated research &amp; monitoring agent. One agent that sees everything, so the other can think clearly.",
+            "cat": "architecture",
+            "created": "2026-03-14",
+            "tags": [
+                  "plan",
+                  "architecture"
+            ]
+      },
+      {
+            "slug": "argus-migration",
+            "title": "Project Argus — Migration Overview",
+            "desc": "This is the key architectural win. Argus runs on GPT-5.4 with 5× the context of Opus. Long pipeline scripts, massive JSON outputs from Reddit/X collection, multi-step synthesis — all fit comfortably. ",
+            "cat": "architecture",
+            "created": "2026-03-14",
+            "tags": [
+                  "overview"
+            ]
+      },
+      {
+            "slug": "cicd-playbook",
+            "title": "AI-Native CI/CD — The Solo Builder's Playbook",
+            "desc": "\"I won't write code\" is fine — plenty of successful products are built that way now. \"I'll trust AI to maximum\" is where it gets dangerous. AI can build, review, and fix. It should not approve itself,",
+            "cat": "devops",
+            "created": "2026-03-14",
+            "tags": [
+                  "guide"
+            ]
+      },
+      {
+            "slug": "flood-and-fixes-2026-03-14",
+            "title": "Agent Flood RCA & Fix Proposal",
+            "desc": "Agent Flood RCA & Fix Proposal",
+            "cat": "openclaw",
+            "created": "2026-03-14",
+            "tags": [
+                  "openclaw"
+            ]
+      },
+      {
+            "slug": "github-cicd-solo",
+            "title": "AI-Native GitHub CI/CD for Solo Projects",
+            "desc": "You can absolutely choose to never write code yourself. That part is fine. The part I’d push back on is letting AI review itself, approve itself, deploy itself, and declare itself healthy with no exte",
+            "cat": "devops",
+            "created": "2026-03-14",
+            "tags": [
+                  "devops"
+            ]
+      },
+      {
+            "slug": "gpt-vs-opus-iteration-anatomy",
+            "title": "GPT vs Opus Iteration Anatomy",
+            "desc": "The two loops were not redundant. GPT behaved like a hard-nosed spec auditor: contradiction hunting, trigger-boundary cleanup, and final go/no-go judgment. Opus behaved like a systems designer with a ",
+            "cat": "openclaw",
+            "created": "2026-03-14",
+            "tags": [
+                  "comparison"
+            ]
+      },
+      {
+            "slug": "health-sync-research",
+            "title": "Apple Health → Local Mac: Best Sync Setups",
+            "desc": "Deep research across GitHub, community forums, and dev blogs. Every viable approach compared.",
+            "cat": "health",
+            "created": "2026-03-14",
+            "tags": [
+                  "research"
+            ]
+      },
+      {
+            "slug": "health-system",
+            "title": "Apple Health System — Full Architecture & Analysis Plan",
+            "desc": "Health Auto Export + SQLite + AI analysis. Everything local, everything queryable, everything automated. Here's the complete architecture and analysis strategy.",
+            "cat": "health",
+            "created": "2026-03-14",
+            "tags": [
+                  "plan",
+                  "architecture",
+                  "analysis"
+            ]
+      },
+      {
+            "slug": "iter-anything-research-and-plan",
+            "title": "Iter-Anything Research and Final Plan",
+            "desc": "The key conclusion is simple: don’t build a cute looping prompt. Build a real framework with artifact types, evaluation contracts, role separation, fresh-session spawning, measurable stopping rules, a",
+            "cat": "openclaw",
+            "created": "2026-03-14",
+            "tags": [
+                  "plan",
+                  "research"
+            ]
+      },
+      {
+            "slug": "memory-palace-cloud-plan",
+            "title": "Memory Palace — All-Cloud Plan",
+            "desc": "Maximum quality, zero local infrastructure. Every component uses the best-in-class cloud service. Your MacBook runs only the Mem0 orchestrator + OpenClaw skill — all heavy lifting happens in the cloud",
+            "cat": "openclaw",
+            "created": "2026-03-14",
+            "tags": [
+                  "plan"
+            ]
+      },
+      {
+            "slug": "memory-palace-mem0-plan",
+            "title": "Memory Palace — Mem0 Implementation Plan",
+            "desc": "A complete plan to build a local-first personal knowledge graph on your MacBook using Mem0 OSS as the core memory engine, with FalkorDB for graph relationships and Qdrant for vector search — all self-",
+            "cat": "openclaw",
+            "created": "2026-03-14",
+            "tags": [
+                  "plan"
+            ]
+      },
+      {
+            "slug": "memory-palace-v2-plan",
+            "title": "Memory Palace v2 — Upgraded Implementation Plan",
+            "desc": "Updated implementation plan after deep research into state-of-the-art embedding models, extraction LLMs, reranking systems, and database engines. Every component re-evaluated for a \"quality-first, cos",
+            "cat": "openclaw",
+            "created": "2026-03-14",
+            "tags": [
+                  "plan",
+                  "demo"
+            ]
+      },
+      {
+            "slug": "memory-review",
+            "title": "Zosia's Memory System — Comprehensive Review",
+            "desc": "When I need past context, QMD runs three local AI models on your M2 GPU: keyword search (BM25), semantic vector search, and a reranker. Results from all three merge into the top 8 snippets that get in",
+            "cat": "openclaw",
+            "created": "2026-03-14",
+            "tags": [
+                  "analysis"
+            ]
+      },
+      {
+            "slug": "multi-agent-comparison",
+            "title": "Multi-Agent Architecture Comparison",
+            "desc": "Comparing the \"Role-Based Fleet\" vs. \"Orchestrator + Coding Swarm\" architectures — and what makes sense for us",
+            "cat": "architecture",
+            "created": "2026-03-14",
+            "tags": [
+                  "architecture",
+                  "comparison"
+            ]
+      },
+      {
+            "slug": "mycroft-plan-v2",
+            "title": "Project Mycroft v2 — Intelligence Agent + Discord Routing Plan",
+            "desc": "Mycroft Holmes — Sherlock's smarter brother. Runs the British government without leaving his chair. Knows everything, says little. Perfect for a background intelligence operator.",
+            "cat": "architecture",
+            "created": "2026-03-14",
+            "tags": [
+                  "plan"
+            ]
+      },
+      {
+            "slug": "opik-6day-analysis",
+            "title": "Opik 6-Day Analysis — Mar 9–14, 2026",
+            "desc": "The single biggest error source across the entire 6-day window. Every single day has web_fetch errors — mostly 404s and 403s from blindly hitting URLs that either don't exist or are behind auth/firewa",
+            "cat": "observability",
+            "created": "2026-03-14",
+            "tags": [
+                  "analysis"
+            ]
+      },
+      {
+            "slug": "opik-fix-plan",
+            "title": "Opik Fix Plan — 3 Issues, Prioritized",
+            "desc": "Going forward, Argus will build its own cache naturally. Optionally, add a weekly sync script to copy Zosia's new cache entries → Argus.",
+            "cat": "observability",
+            "created": "2026-03-14",
+            "tags": [
+                  "plan"
+            ]
+      },
+      {
+            "slug": "opik-unified-fix-plan",
+            "title": "OpenClaw Unified Fix Plan — Mar 14, 2026",
+            "desc": "After restart, trigger a low-risk Argus cron job (token report or Opik review) to verify delivery announcements still work without the binding.",
+            "cat": "observability",
+            "created": "2026-03-14",
+            "tags": [
+                  "plan"
+            ]
+      },
+      {
+            "slug": "personal-knowledge-graph-v2",
+            "title": "Personal Knowledge Graph — Deep Research v2",
+            "desc": "First-principles research into building a local-first, future-proof system that ingests every digital artifact in your life — meetings, emails, Slack, Notion, transcripts — and turns them into a queryable, interconnected knowledge graph on your MacBook.",
+            "cat": "architecture",
+            "created": "2026-03-14",
+            "tags": [
+                  "research"
+            ]
+      },
+      {
+            "slug": "qmd-audit",
+            "title": "QMD Memory System — Audit & Upgrade Report",
+            "desc": "\"What happened with the WhatsApp lockout?\"",
+            "cat": "openclaw",
+            "created": "2026-03-14",
+            "tags": [
+                  "analysis",
+                  "demo"
+            ]
+      },
+      {
+            "slug": "sandbox-security",
+            "title": "OpenClaw Sandbox & Container Security Guide",
+            "desc": "Practical security architecture for your personal AI gateway — what to turn on, what to skip, and why.",
+            "cat": "openclaw",
+            "created": "2026-03-14",
+            "tags": [
+                  "guide",
+                  "security"
+            ]
+      },
+      {
+            "slug": "search-research-plan",
+            "title": "Search & Research Architecture — Cross-Model Eval Results",
+            "desc": "17-round eval-driven redesign with cross-model validation. GPT-5.4 built it, Opus stress-tested it.",
+            "cat": "openclaw",
+            "created": "2026-03-14",
+            "tags": [
+                  "plan",
+                  "research",
+                  "architecture"
+            ]
+      },
+      {
+            "slug": "skills-inventory",
+            "title": "OpenClaw Skills Inventory — March 2026",
+            "desc": "Live system state · March 5, 2026 · v2026.3.2",
+            "cat": "openclaw",
+            "created": "2026-03-14",
+            "tags": [
+                  "reference"
+            ]
+      },
+      {
+            "slug": "vercel-vs-cloudflare",
+            "title": "Vercel vs Cloudflare Pages — Full Comparison",
+            "desc": "Can Cloudflare fully replace Vercel for zosia-pages and future projects? Feature-by-feature comparison based on current docs and your existing stack.",
+            "cat": "architecture",
+            "created": "2026-03-14",
+            "tags": [
+                  "comparison",
+                  "research"
+            ]
+      },
+      {
+            "slug": "visual-explainer-upgrade",
+            "title": "Visual Explainer 0.6.3 — Live Demo",
+            "desc": "Live demos of every new capability. Try the diagrams below — zoom, pan, pinch, double-click to fit.\n      Three real diagrams on one page, each with independent controls.",
+            "cat": "openclaw",
+            "created": "2026-03-14",
+            "tags": [
+                  "demo"
+            ]
+      },
+      {
+            "slug": "zosia-argus-overview",
+            "title": "Zosia & Argus — Agent Architecture",
+            "desc": "Zosia & Argus — Agent Architecture",
+            "cat": "architecture",
+            "created": "2026-03-14",
+            "tags": [
+                  "architecture",
+                  "overview"
+            ]
+      },
+      {
+            "slug": "zosia-context-architecture",
+            "title": "Zosia Context Architecture — Deep Audit",
+            "desc": "Deep audit of every byte loaded into the context window · March 14, 2026",
+            "cat": "architecture",
+            "created": "2026-03-14",
+            "tags": [
+                  "architecture",
+                  "analysis"
+            ]
+      },
+      {
+            "slug": "zosia-identity",
+            "title": "Zosia Identity v2 — Full Platform Access Research",
+            "desc": "Every platform, every tool option. CLI, MCP, Skills, and GitHub projects. Updated with jackwener suite + expanded platform coverage.",
+            "cat": "zosia",
+            "created": "2026-03-14",
+            "tags": [
+                  "research"
+            ]
+      },
+      {
+            "slug": "zosia-opportunities",
+            "title": "Zosia Identity — What We Can Build",
+            "desc": "Personal intelligence, business opportunities, and wild ideas — mapped to specific tools and combinations.",
+            "cat": "zosia",
+            "created": "2026-03-14",
+            "tags": [
+                  "zosia"
+            ]
+      },
+      {
+            "slug": "acp-mental-model",
+            "title": "ACP + ACPX + OpenClaw — Mental Model for Raymond",
+            "desc": "This page is the shortest honest version of a messy system: how OpenClaw talks to Codex / Claude Code over ACP, what ACPX actually does, why recent releases touched it so much, and how you should think about using it in Discord and in coding workflows.",
+            "cat": "openclaw",
+            "created": "2026-03-13",
+            "tags": [
+                  "openclaw"
+            ]
+      },
+      {
+            "slug": "cc-switch",
+            "title": "CC Switch — Architecture, How It Works, Pros & Cons",
+            "desc": "Unifying messy local configuration across multiple AI coding CLIs.",
+            "cat": "openclaw",
+            "created": "2026-03-13",
+            "tags": [
+                  "architecture",
+                  "guide"
+            ]
+      },
+      {
+            "slug": "opik-architecture",
+            "title": "OpenClaw × Opik — Deployment Plan & Architecture Choices",
+            "desc": "Goal: add deep OpenClaw trace visibility with a local Opik stack, keep data on-device, and leave enough escape hatches that we can swap to Langfuse / plain OTel later if Opik turns out annoying.",
+            "cat": "observability",
+            "created": "2026-03-13",
+            "tags": [
+                  "plan",
+                  "architecture"
+            ]
+      },
+      {
+            "slug": "opik-phase1-plan",
+            "title": "OpenClaw × Opik — Phase 1 Plan",
+            "desc": "Phase 1 is deliberately boring in the good way: pull signal from local Opik APIs and local OpenClaw logs, fingerprint recurring failures,\n          separate real system problems from operator noise, and publish one clean daily review. No UI clicking. No auto-fix loop yet. No LLM-as-judge theatrics.",
+            "cat": "observability",
+            "created": "2026-03-13",
+            "tags": [
+                  "plan"
+            ]
+      },
+      {
+            "slug": "smart-ring-benchmark-iphone-2026",
+            "title": "Smart Ring Benchmark 2026 — iPhone Buyers",
+            "desc": "Second-pass deep research across official product pages, current reviews, comparison testing, and market coverage. I filtered out obvious Amazon junk and prototype-looking nonsense. The real shortlist is smaller than the market noise suggests.",
+            "cat": "health",
+            "created": "2026-03-13",
+            "tags": [
+                  "research",
+                  "comparison"
+            ]
+      }
+];
+    const catLabels = {
+      "architecture": "Architecture",
+      "devops": "CI/CD & DevOps",
+      "openclaw": "OpenClaw",
+      "health": "Health",
+      "observability": "Observability",
+      "zosia": "Zosia"
+};
+    let currentCat = "all";
+    let currentView = "list";
+    let currentSort = "newest";
+    const container = document.getElementById("pagesContainer");
+    const resultCount = document.getElementById("resultCount");
+    const searchInput = document.getElementById("search");
+
+    function formatDate(d) {
+      const date = new Date(d + "T00:00:00");
+      return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+    }
+
+    function daysAgo(d) {
+      const now = new Date("2026-03-14");
+      const then = new Date(d);
+      const diff = Math.floor((now - then) / 86400000);
+      if (diff === 0) return "today";
+      if (diff === 1) return "yesterday";
+      return diff + "d ago";
+    }
+
+    function renderPages() {
+      const query = searchInput.value.toLowerCase().trim();
+      let filtered = pages.filter(p => {
+        const catMatch = currentCat === "all" || p.cat === currentCat;
+        const searchMatch = !query ||
+          p.title.toLowerCase().includes(query) ||
+          p.desc.toLowerCase().includes(query) ||
+          p.slug.includes(query) ||
+          p.tags.some(t => t.includes(query)) ||
+          (catLabels[p.cat] || "").toLowerCase().includes(query);
+        return catMatch && searchMatch;
+      });
+
+      if (currentSort === "newest") filtered.sort((a, b) => b.created.localeCompare(a.created));
+      else if (currentSort === "oldest") filtered.sort((a, b) => a.created.localeCompare(b.created));
+      else filtered.sort((a, b) => a.title.localeCompare(b.title));
+
+      resultCount.textContent = filtered.length + (filtered.length === 1 ? " page" : " pages");
+
+      if (filtered.length === 0) {
+        container.innerHTML = '<div class="empty">No pages match your search.</div>';
+        return;
+      }
+
+      container.className = currentView === "grid" ? "pages-grid" : "pages-list";
+      container.innerHTML = filtered.map((p, i) => `
+        <a href="/pages/${p.slug}" class="page-card" style="animation-delay:${i * 0.03}s">
+          <div class="content">
+            <div class="title-row">
+              <div class="title">${p.title}</div>
+            </div>
+            <div class="desc">${p.desc}</div>
+            <div class="meta-row">
+              <span class="meta">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                ${formatDate(p.created)}
+              </span>
+              <span class="meta">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                ${daysAgo(p.created)}
+              </span>
+              <span class="tag">${catLabels[p.cat]}</span>
+              ${p.tags.map(t => `<span class="tag">${t}</span>`).join("")}
+            </div>
+          </div>
+        </a>
+      `).join("");
+    }
+
+    // Search
+    searchInput.addEventListener("input", renderPages);
+
+    // Category filter
+    document.getElementById("filters").addEventListener("click", e => {
+      const chip = e.target.closest(".chip");
+      if (!chip) return;
+      document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+      chip.classList.add("active");
+      currentCat = chip.dataset.cat;
+      renderPages();
+    });
+
+    // View toggle
+    document.querySelectorAll(".view-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".view-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        currentView = btn.dataset.view;
+        renderPages();
+      });
+    });
+
+    // Sort
+    document.getElementById("sortSelect").addEventListener("change", e => {
+      currentSort = e.target.value;
+      renderPages();
+    });
+
+    // Keyboard shortcut: / to focus search
+    document.addEventListener("keydown", e => {
+      if (e.key === "/" && document.activeElement !== searchInput) {
+        e.preventDefault();
+        searchInput.focus();
+      }
+      if (e.key === "Escape") {
+        searchInput.value = "";
+        searchInput.blur();
+        renderPages();
+      }
+    });
+
+    renderPages();
+  </script>
+</body>
+</html>

@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+<title>Project Mycroft v2 — Intelligence Agent + Discord Routing Plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;600;700;800&family=Fragment+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --font-display: 'Bricolage Grotesque', system-ui, sans-serif;
+    --font-body: 'Bricolage Grotesque', system-ui, sans-serif;
+    --font-mono: 'Fragment Mono', 'SF Mono', Consolas, monospace;
+    --bg: #0c1117;
+    --surface: #151b23;
+    --surface2: #1c242e;
+    --surface-elevated: #222d3a;
+    --border: rgba(255,255,255,0.06);
+    --border-bright: rgba(255,255,255,0.12);
+    --text: #e6edf3;
+    --text-dim: #7d8590;
+    --zosia: #d4a73a;
+    --zosia-dim: rgba(212,167,58,0.12);
+    --mycroft: #4a9eff;
+    --mycroft-dim: rgba(74,158,255,0.1);
+    --green: #3fb950;
+    --green-dim: rgba(63,185,80,0.1);
+    --red: #f85149;
+    --red-dim: rgba(248,81,73,0.1);
+    --teal: #39d2c0;
+    --teal-dim: rgba(57,210,192,0.1);
+    --amber: #d29922;
+    --amber-dim: rgba(210,153,34,0.1);
+    --plum: #bc8cff;
+    --plum-dim: rgba(188,140,255,0.1);
+    --zoe: #f778ba;
+    --zoe-dim: rgba(247,120,186,0.1);
+    --none: #545d68;
+    --none-dim: rgba(84,93,104,0.15);
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #f6f8fa;
+      --surface: #ffffff;
+      --surface2: #f0f3f6;
+      --surface-elevated: #fff8ee;
+      --border: rgba(0,0,0,0.08);
+      --border-bright: rgba(0,0,0,0.15);
+      --text: #1f2328;
+      --text-dim: #656d76;
+      --zosia: #9a6700;
+      --zosia-dim: rgba(154,103,0,0.08);
+      --mycroft: #0969da;
+      --mycroft-dim: rgba(9,105,218,0.07);
+      --green: #1a7f37;
+      --green-dim: rgba(26,127,55,0.07);
+      --red: #cf222e;
+      --red-dim: rgba(207,34,46,0.07);
+      --teal: #0e7c6b;
+      --teal-dim: rgba(14,124,107,0.07);
+      --amber: #9a6700;
+      --amber-dim: rgba(154,103,0,0.07);
+      --plum: #6639ba;
+      --plum-dim: rgba(102,57,186,0.07);
+      --zoe: #bf3989;
+      --zoe-dim: rgba(191,57,137,0.07);
+      --none: #8b949e;
+      --none-dim: rgba(139,148,158,0.1);
+    }
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background: var(--bg); color: var(--text); font-family: var(--font-body); line-height: 1.6; padding: 40px 20px; min-height: 100vh;
+    background-image: radial-gradient(ellipse at 10% 0%, var(--mycroft-dim) 0%, transparent 45%), radial-gradient(ellipse at 90% 100%, var(--zosia-dim) 0%, transparent 35%);
+  }
+  @keyframes fadeUp { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes fadeScale { from { opacity:0; transform:scale(0.94); } to { opacity:1; transform:scale(1); } }
+  @media (prefers-reduced-motion: reduce) { .a { animation: none !important; opacity:1 !important; } }
+  .a { opacity:0; animation: fadeUp 0.45s ease forwards; animation-delay: calc(var(--i,0) * 70ms); }
+  .as { opacity:0; animation: fadeScale 0.35s ease forwards; animation-delay: calc(var(--i,0) * 70ms); }
+  .mx { max-width: 1100px; margin: 0 auto; }
+
+  /* Hero */
+  .hero { text-align: center; margin-bottom: 48px; padding: 40px 16px; }
+  .hero-eye { font-family: var(--font-mono); font-size: 12px; letter-spacing: 3px; text-transform: uppercase; color: var(--mycroft); margin-bottom: 10px; }
+  .hero h1 { font-size: clamp(34px, 5vw, 52px); font-weight: 800; line-height: 1.08; margin-bottom: 14px; }
+  .hero h1 .hl { color: var(--mycroft); }
+  .hero-sub { font-size: 17px; color: var(--text-dim); max-width: 620px; margin: 0 auto; line-height: 1.5; font-weight: 400; }
+  .hero-sub em { color: var(--text); font-style: normal; font-weight: 600; }
+
+  /* Labels */
+  .sl { font-family: var(--font-mono); font-size: 11px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--text-dim); margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+  .sl .d { width: 7px; height: 7px; border-radius: 50%; }
+  .st { font-size: 28px; font-weight: 700; margin-bottom: 18px; }
+
+  /* Cards */
+  .c { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 24px; margin-bottom: 14px; position: relative; }
+  .c--e { background: var(--surface-elevated); box-shadow: 0 3px 18px rgba(0,0,0,0.1); }
+  .c--z { border-left: 3px solid var(--zosia); }
+  .c--m { border-left: 3px solid var(--mycroft); }
+  .c--g { border-left: 3px solid var(--green); }
+  .c--r { border-left: 3px solid var(--red); }
+  .c--t { border-left: 3px solid var(--teal); }
+  .c--a { border-left: 3px solid var(--amber); }
+  .c--p { border-left: 3px solid var(--plum); }
+  .c h3 { font-size: 17px; font-weight: 700; margin-bottom: 8px; }
+  .c p, .c li { font-size: 14.5px; color: var(--text-dim); line-height: 1.6; }
+  .c ul { padding-left: 18px; }
+  .c li { margin-bottom: 5px; }
+  .c li strong { color: var(--text); }
+  .c code { font-family: var(--font-mono); font-size: 12.5px; background: var(--surface2); padding: 2px 5px; border-radius: 3px; }
+
+  /* Badge */
+  .b { display: inline-block; font-family: var(--font-mono); font-size: 10.5px; font-weight: 600; padding: 2px 8px; border-radius: 16px; letter-spacing: 0.4px; vertical-align: middle; }
+  .b--z { background: var(--zosia-dim); color: var(--zosia); }
+  .b--m { background: var(--mycroft-dim); color: var(--mycroft); }
+  .b--g { background: var(--green-dim); color: var(--green); }
+  .b--r { background: var(--red-dim); color: var(--red); }
+  .b--a { background: var(--amber-dim); color: var(--amber); }
+  .b--e { background: var(--zoe-dim); color: var(--zoe); }
+  .b--n { background: var(--none-dim); color: var(--none); }
+  .b--t { background: var(--teal-dim); color: var(--teal); }
+
+  /* Grid */
+  .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+  @media (max-width: 700px) { .g2, .g3 { grid-template-columns: 1fr; } }
+
+  /* KPI */
+  .kpi-row { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 28px; }
+  .kpi { flex: 1; min-width: 120px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px; text-align: center; }
+  .kpi-v { font-size: 32px; font-weight: 800; }
+  .kpi-l { font-family: var(--font-mono); font-size: 10.5px; color: var(--text-dim); letter-spacing: 1px; text-transform: uppercase; margin-top: 2px; }
+
+  .hr { margin: 48px 0 32px; border: 0; height: 1px; background: var(--border-bright); }
+
+  /* Channel map table */
+  .ch-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13.5px; }
+  .ch-table th { font-family: var(--font-mono); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--text-dim); text-align: left; padding: 8px 12px; border-bottom: 2px solid var(--border-bright); position: sticky; top: 0; background: var(--surface); z-index: 2; }
+  .ch-table td { padding: 7px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  .ch-table tr:hover td { background: var(--surface2); }
+  .ch-table .ch-name { font-weight: 600; white-space: nowrap; }
+  .ch-table .ch-desc { color: var(--text-dim); font-size: 12.5px; }
+  .ch-cat { background: var(--surface2); font-family: var(--font-mono); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--text-dim); }
+  .ch-cat td { padding: 10px 12px; font-weight: 600; border-bottom: 2px solid var(--border-bright); }
+  .ch-archived td { opacity: 0.45; }
+
+  /* Flow diagram */
+  .flow-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 18px 20px; text-align: center; position: relative; }
+  .flow-box h4 { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+  .flow-box p { font-size: 12.5px; color: var(--text-dim); }
+  .flow-arrow { text-align: center; color: var(--text-dim); font-size: 18px; padding: 6px 0; }
+  .flow-row { display: flex; gap: 12px; align-items: center; justify-content: center; flex-wrap: wrap; }
+  .flow-row .flow-box { flex: 1; min-width: 180px; max-width: 280px; }
+
+  /* Compare panel */
+  .cmp { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); margin: 14px 0; }
+  .cmp-s { padding: 22px; }
+  .cmp-s:first-child { background: var(--zosia-dim); border-right: 1px solid var(--border); }
+  .cmp-s:last-child { background: var(--mycroft-dim); }
+  .cmp-s h4 { font-family: var(--font-mono); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 12px; }
+  .cmp-s:first-child h4 { color: var(--zosia); }
+  .cmp-s:last-child h4 { color: var(--mycroft); }
+  .cmp-s li { font-size: 13.5px; margin-bottom: 6px; color: var(--text-dim); }
+  .cmp-s li strong { color: var(--text); }
+  @media (max-width: 700px) { .cmp { grid-template-columns: 1fr; } .cmp-s:first-child { border-right: 0; border-bottom: 1px solid var(--border); } }
+
+  /* Config block */
+  .cfg { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 18px; font-family: var(--font-mono); font-size: 12.5px; line-height: 1.75; overflow-x: auto; white-space: pre-wrap; color: var(--text-dim); margin: 14px 0; }
+  .cfg .k { color: var(--mycroft); }
+  .cfg .v { color: var(--green); }
+  .cfg .cm { opacity: 0.5; }
+
+  /* Callout */
+  .callout { background: var(--amber-dim); border: 1px solid rgba(210,153,34,0.2); border-radius: 8px; padding: 16px 20px; margin: 14px 0; font-size: 14px; color: var(--text); }
+  .callout strong { color: var(--amber); }
+  .callout-blue { background: var(--mycroft-dim); border-color: rgba(74,158,255,0.2); }
+  .callout-blue strong { color: var(--mycroft); }
+
+  .fn { font-size: 11.5px; color: var(--text-dim); text-align: center; margin-top: 52px; font-family: var(--font-mono); }
+
+  /* Sticky nav */
+  .snav { position: fixed; right: 20px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 5px; z-index: 100; }
+  .snav a { width: 9px; height: 9px; border-radius: 50%; background: var(--border-bright); display: block; transition: background 0.2s, transform 0.2s; }
+  .snav a:hover, .snav a.act { background: var(--mycroft); transform: scale(1.4); }
+  @media (max-width: 900px) { .snav { display: none; } }
+</style>
+</head>
+<body>
+<nav class="snav"><a href="#decisions"></a><a href="#mental"></a><a href="#channels"></a><a href="#daily"></a><a href="#mycroft"></a><a href="#migration"></a><a href="#config"></a><a href="#sequence"></a></nav>
+
+<div class="mx">
+
+<!-- HERO -->
+<section class="hero a" style="--i:0">
+  <div class="hero-eye">Multi-Agent Plan v2</div>
+  <h1>Project <span class="hl">Mycroft</span></h1>
+  <p class="hero-sub">The smarter brother who runs the British government from his armchair.<br>Full Discord channel routing map + migration blueprint.</p>
+</section>
+
+<div class="kpi-row">
+  <div class="kpi as" style="--i:1"><div class="kpi-v" style="color:var(--zosia)">26</div><div class="kpi-l">Active Channels</div></div>
+  <div class="kpi as" style="--i:2"><div class="kpi-v" style="color:var(--mycroft)">10</div><div class="kpi-l">Crons → Mycroft</div></div>
+  <div class="kpi as" style="--i:3"><div class="kpi-v" style="color:var(--green)">0</div><div class="kpi-l">Bindings Needed</div></div>
+  <div class="kpi as" style="--i:4"><div class="kpi-v" style="color:var(--teal)">3</div><div class="kpi-l">Agents Total</div></div>
+</div>
+
+<!-- SECTION 1: DECISIONS LOCKED -->
+<hr class="hr" id="decisions">
+<div class="sl a" style="--i:5"><span class="d" style="background:var(--green)"></span> 01 · Decisions Locked</div>
+<h2 class="st a" style="--i:6">Your Calls, Confirmed</h2>
+
+<div class="g3 a" style="--i:7">
+  <div class="c c--g">
+    <h3>🏷️ Name: Mycroft</h3>
+    <p>Mycroft Holmes — Sherlock's smarter brother. Runs the British government without leaving his chair. Knows everything, says little. Perfect for a background intelligence operator.</p>
+  </div>
+  <div class="c c--g">
+    <h3>⚙️ Config Choices</h3>
+    <ul>
+      <li><strong>Heartbeat:</strong> None</li>
+      <li><strong>Distillation:</strong> Simple (no nightly)</li>
+      <li><strong>Interactive:</strong> Cron-only to start</li>
+      <li><strong>Default model:</strong> GPT-5.4 for crons</li>
+    </ul>
+  </div>
+  <div class="c c--g">
+    <h3>🎯 Model Policy</h3>
+    <p>GPT-5.4 as cron default. Opus available for synthesis when cron payloads explicitly set <code>model: "opus"</code>. No classification-tier work — Mycroft handles intelligence, not sorting.</p>
+  </div>
+</div>
+
+<!-- SECTION 2: MENTAL MODEL -->
+<hr class="hr" id="mental">
+<div class="sl a" style="--i:8"><span class="d" style="background:var(--mycroft)"></span> 02 · The Key Insight</div>
+<h2 class="st a" style="--i:9">Bindings ≠ Posting Rights</h2>
+
+<div class="c c--e a" style="--i:10">
+  <h3>The Mental Model That Changes Everything</h3>
+  <p>This is the single most important concept for your multi-agent setup:</p>
+  <ul>
+    <li><strong>Bindings</strong> control who <em>responds to human messages</em> in a channel. "If Raymond posts here, which agent handles it?"</li>
+    <li><strong>Cron payloads</strong> can post to <em>any</em> channel regardless of bindings. The <code>message</code> tool uses the shared Discord bot token.</li>
+  </ul>
+  <p style="margin-top:12px;">This means: <strong>Mycroft doesn't need any channel bindings.</strong> It posts to #reddit, #x-gcc, #daily-news via cron payloads. But if you ask a question in #reddit, <em>Zosia</em> answers — because she has the conversational context to discuss the data.</p>
+</div>
+
+<div class="callout-blue callout a" style="--i:11">
+  <strong>What Mycroft actually is:</strong> A background worker with its own workspace, lighter system prompt, and isolated failure domain. It exists as an <code>agentId</code> for cron jobs — not as a channel presence. Zosia stays your universal interface. Mycroft is invisible to you unless a cron output post says otherwise.
+</div>
+
+<div class="c a" style="--i:12">
+  <h3>The Three Agents on Your Server</h3>
+  <div class="g3" style="margin-top:14px">
+    <div class="flow-box" style="border-left: 3px solid var(--zosia);">
+      <h4 style="color:var(--zosia)">Zosia</h4>
+      <p><strong>Chief of Staff</strong><br>All human messages. All channels. Interactive, opinionated, personal. Opus.</p>
+    </div>
+    <div class="flow-box" style="border-left: 3px solid var(--mycroft);">
+      <h4 style="color:var(--mycroft)">Mycroft</h4>
+      <p><strong>Intelligence Analyst</strong><br>Background cron jobs only. Posts to channels, never responds. GPT-5.4.</p>
+    </div>
+    <div class="flow-box" style="border-left: 3px solid var(--zoe);">
+      <h4 style="color:var(--zoe)">Zoe</h4>
+      <p><strong>External Bot</strong><br>Separate bot account. Own channel (#🥷-zoe). Zosia already disabled from it.</p>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 3: FULL CHANNEL MAP -->
+<hr class="hr" id="channels">
+<div class="sl a" style="--i:13"><span class="d" style="background:var(--teal)"></span> 03 · Discord Channel Map</div>
+<h2 class="st a" style="--i:14">Every Channel, Every Routing Decision</h2>
+
+<div class="callout a" style="--i:15">
+  <strong>How to read this table:</strong> "Responds" = who handles human messages (bindings). "Posts" = which agent's cron jobs write output here. A channel can have Zosia responding but Mycroft posting. That's the whole pattern.
+</div>
+
+<div class="c c--e a" style="--i:16" style="overflow-x:auto;">
+<table class="ch-table">
+<thead>
+  <tr><th>Channel</th><th>Responds</th><th>Posts</th><th>Purpose & Notes</th></tr>
+</thead>
+<tbody>
+
+<!-- Category: Productivity -->
+<tr class="ch-cat"><td colspan="4">🚀 Productivity</td></tr>
+
+<tr>
+  <td class="ch-name">☀️ #daily</td>
+  <td><span class="b b--z">ZOSIA</span></td>
+  <td><span class="b b--z">ZOSIA</span></td>
+  <td class="ch-desc">Main input channel. Every post → thread. Zosia triages: handles OpenClaw/personal topics directly, can delegate pure research to Mycroft via <code>sessions_send</code>. See Section 04.</td>
+</tr>
+<tr>
+  <td class="ch-name">🔔 #notifications</td>
+  <td><span class="b b--z">ZOSIA</span></td>
+  <td><span class="b b--z">ZOSIA</span></td>
+  <td class="ch-desc">System notifications, reminders. Personal context.</td>
+</tr>
+<tr>
+  <td class="ch-name">📰 #daily-news</td>
+  <td><span class="b b--z">ZOSIA</span></td>
+  <td><span class="b b--m">MYCROFT</span></td>
+  <td class="ch-desc">Daily Brief cron output. Mycroft posts the digest. If you ask follow-up questions, Zosia responds.</td>
+</tr>
+<tr>
+  <td class="ch-name">📡 #reddit</td>
+  <td><span class="b b--z">ZOSIA</span></td>
+  <td><span class="b b--m">MYCROFT</span></td>
+  <td class="ch-desc">Reddit GCC daily + weekly. Mycroft posts. Zosia answers if you ask "what's trending?"</td>
+</tr>
+<tr>
+  <td class="ch-name">🐦‍⬛ #x-gcc-monitor</td>
+  <td><span class="b b--z">ZOSIA</span></td>
+  <td><span class="b b--m">MYCROFT</span></td>
+  <td class="ch-desc">X GCC daily intelligence. Same pattern as #reddit.</td>
+</tr>
+<tr>
+  <td class="ch-name">📅 #email-calendar</td>
+  <td><span class="b b--z">ZOSIA</span></td>
+  <td><span class="b b--z">ZOSIA</span></td>
+  <td class="ch-desc">Email/calendar ops. Personal context needed. Low current activity.</td>
+</tr>
+<tr>
+  <td class="ch-name">🎤 #voice</td>
+  <td><span class="b b--z">ZOSIA</span></td>
+  <td><span class="b b--z">ZOSIA</span></td>
+  <td class="ch-desc">Voice transcription outputs. Personal.</td>
+</tr>
+<tr>
+  <td class="ch-name">📚 #knowledge-base</td>
+  <td><span class="b b--z">ZOSIA</span></td>
+  <td><span class="b b--n">NONE</span></td>
+  <td class="ch-desc">KB watcher disabled. Dormant. Keep for future reactivation.</td>
+</tr>
+<tr>
+  <td class="ch-name">📇 #crm</td>
+  <td><span class="b b--z">ZOSIA</span></td>
+  <td><span class="b b--z">ZOSIA</span></td>
+  <td class="ch-desc">Contact/CRM work. Personal context needed.</td>
+</tr>
+<tr>
+  <td class="ch-name">🏢 #wag-digital-governance</td>
+  <td><span class="b b--z">ZOSIA</span></td>
+  <td><span class="b b--n">NONE</span></td>
+  <td class="ch-desc">Never used (no messages). Keep for future WAG governance work.</td>
+</tr>
+<tr>
+  <td class="ch-name">🤝 #meeting</td>
+  <td><span class="b b--z">ZOSIA</span></td>
+  <td><span class="b b--z">ZOSIA</span></td>
+  <td class="ch-desc">Meeting Intelligence — prep briefings, transcripts, follow-ups. Deeply personal.</td>
+</tr>
+<tr>
+  <td class="ch-name">💰 #finance</td>
+  <td><span class="b b--z">ZOSIA</span></td>
+  <td><span class="b b--z">ZOSIA</span></td>
+  <td class="ch-desc">Finance tracking. Personal. Active (recent msgs).</td>
+</tr>
+<tr>
+  <td class="ch-name">🏥 #health</td>
+  <td><span class="b b--z">ZOSIA</span></td>
+  <td><span class="b b--z">ZOSIA</span></td>
+  <td class="ch-desc">Apple Health coaching. Personal. Has its own crons (stay Zosia).</td>
+</tr>
+<tr>
+  <td class="ch-name">📝 #notion</td>
+  <td><span class="b b--z">ZOSIA</span></td>
+  <td><span class="b b--z">ZOSIA</span></td>
+  <td class="ch-desc">Notion integration. Personal context.</td>
+</tr>
+<tr>
+  <td class="ch-name">🥷 #zoe-admin</td>
+  <td><span class="b b--z">ZOSIA</span></td>
+  <td><span class="b b--z">ZOSIA</span></td>
+  <td class="ch-desc">Admin channel for Zoe bot management.</td>
+</tr>
+<tr>
+  <td class="ch-name">🥷 #zoe</td>
+  <td><span class="b b--e">ZOE</span></td>
+  <td><span class="b b--e">ZOE</span></td>
+  <td class="ch-desc">Zoe's dedicated channel. Zosia already disabled here via config.</td>
+</tr>
+
+<!-- Category: Agent DevOps -->
+<tr class="ch-cat"><td colspan="4">🤖 Agent DevOps</td></tr>
+
+<tr>
+  <td class="ch-name">⚙️ #system</td>
+  <td><span class="b b--z">ZOSIA</span></td>
+  <td><span class="b b--z">ZOSIA</span> <span class="b b--m">MYCROFT</span></td>
+  <td class="ch-desc">System logs from both agents. Zosia posts distillation reports. Mycroft could post pipeline health.</td>
+</tr>
+<tr>
+  <td class="ch-name">🪞 #identity</td>
+  <td><span class="b b--z">ZOSIA</span></td>
+  <td><span class="b b--z">ZOSIA</span></td>
+  <td class="ch-desc">Zosia's digital identity work. Personal.</td>
+</tr>
+<tr>
+  <td class="ch-name">🛡️ #security</td>
+  <td><span class="b b--z">ZOSIA</span></td>
+  <td><span class="b b--m">MYCROFT</span></td>
+  <td class="ch-desc">Nightly security review output. Mycroft posts audit. Zosia responds to your questions about findings.</td>
+</tr>
+<tr>
+  <td class="ch-name">📋 #linear</td>
+  <td><span class="b b--z">ZOSIA</span></td>
+  <td><span class="b b--n">NONE</span></td>
+  <td class="ch-desc">Linear integration. Low activity. Keep for future.</td>
+</tr>
+<tr>
+  <td class="ch-name">🛠️ #skills</td>
+  <td><span class="b b--z">ZOSIA</span></td>
+  <td><span class="b b--z">ZOSIA</span></td>
+  <td class="ch-desc">Skill management. Meta-work. Zosia only.</td>
+</tr>
+<tr>
+  <td class="ch-name">💻 #development</td>
+  <td><span class="b b--z">ZOSIA</span></td>
+  <td><span class="b b--m">MYCROFT</span></td>
+  <td class="ch-desc">Opik daily/weekly reviews. Mycroft posts. Zosia responds to dev questions.</td>
+</tr>
+<tr>
+  <td class="ch-name">📊 #token-usage</td>
+  <td><span class="b b--z">ZOSIA</span></td>
+  <td><span class="b b--m">MYCROFT</span></td>
+  <td class="ch-desc">Token usage reports. Mycroft posts daily. Zosia answers cost questions.</td>
+</tr>
+<tr>
+  <td class="ch-name">⏰ #cron-jobs</td>
+  <td><span class="b b--z">ZOSIA</span></td>
+  <td><span class="b b--z">ZOSIA</span></td>
+  <td class="ch-desc">Cron management. Admin channel. Zosia manages crons for both agents.</td>
+</tr>
+<tr>
+  <td class="ch-name">🤖 #agents</td>
+  <td><span class="b b--z">ZOSIA</span></td>
+  <td><span class="b b--z">ZOSIA</span></td>
+  <td class="ch-desc">Agent management. Admin channel. Low activity.</td>
+</tr>
+<tr>
+  <td class="ch-name">💾 #backups</td>
+  <td><span class="b b--z">ZOSIA</span></td>
+  <td><span class="b b--m">MYCROFT</span></td>
+  <td class="ch-desc">Daily + weekly backup reports. Mycroft posts. Zosia answers backup questions.</td>
+</tr>
+<tr>
+  <td class="ch-name">💓 #heartbeat</td>
+  <td><span class="b b--z">ZOSIA</span></td>
+  <td><span class="b b--z">ZOSIA</span></td>
+  <td class="ch-desc">Heartbeat monitor. Zosia-only infrastructure.</td>
+</tr>
+<tr>
+  <td class="ch-name">🔖 #bookmark</td>
+  <td><span class="b b--z">ZOSIA</span></td>
+  <td><span class="b b--z">ZOSIA</span></td>
+  <td class="ch-desc">Bookmark storage (recent: Zoe icon upload). Interactive.</td>
+</tr>
+
+<!-- Category: Archived -->
+<tr class="ch-cat"><td colspan="4">📦 Archived (11 channels — no routing needed)</td></tr>
+<tr class="ch-archived">
+  <td class="ch-name" colspan="3">📱 whatsapp · 🖥️ data-center · 🚨 iran-situation · 🐦 feishu · 💼 slack · 🔧 fix · 🔍 x-search · 📁 agent-files · ✅ todo · 🐙 github · 📓 moltbook</td>
+  <td class="ch-desc">All archived. No active routing.</td>
+</tr>
+
+</tbody>
+</table>
+</div>
+
+<div class="c a" style="--i:17">
+  <h3>Channel Routing Summary</h3>
+  <div class="g3" style="margin-top:12px">
+    <div style="text-align:center; padding: 12px;">
+      <div style="font-size:32px; font-weight:800; color:var(--zosia);">26</div>
+      <div style="font-family:var(--font-mono); font-size:11px; color:var(--text-dim); letter-spacing:1px;">ZOSIA RESPONDS</div>
+      <div style="font-size:12px; color:var(--text-dim); margin-top:4px;">Every active channel</div>
+    </div>
+    <div style="text-align:center; padding: 12px;">
+      <div style="font-size:32px; font-weight:800; color:var(--mycroft);">7</div>
+      <div style="font-family:var(--font-mono); font-size:11px; color:var(--text-dim); letter-spacing:1px;">MYCROFT POSTS</div>
+      <div style="font-size:12px; color:var(--text-dim); margin-top:4px;">Via cron payloads</div>
+    </div>
+    <div style="text-align:center; padding: 12px;">
+      <div style="font-size:32px; font-weight:800; color:var(--zoe);">1</div>
+      <div style="font-family:var(--font-mono); font-size:11px; color:var(--text-dim); letter-spacing:1px;">ZOE OWNS</div>
+      <div style="font-size:12px; color:var(--text-dim); margin-top:4px;">#zoe only</div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 4: THE DAILY TRIAGE -->
+<hr class="hr" id="daily">
+<div class="sl a" style="--i:18"><span class="d" style="background:var(--zosia)"></span> 04 · The #daily Triage Problem</div>
+<h2 class="st a" style="--i:19">When You Drop an Idea, Who Picks It Up?</h2>
+
+<div class="c c--e a" style="--i:20">
+  <h3>The Problem</h3>
+  <p>You drop ideas in #daily. Some are about OpenClaw config (Zosia's domain). Some are pure research tasks (could be Mycroft). Some start as one and become the other. You shouldn't have to think about routing — that's the agent's job.</p>
+</div>
+
+<div class="c c--z a" style="--i:21">
+  <h3>The Solution: Zosia Triages, Always</h3>
+  <p>#daily stays 100% Zosia-bound. She reads every thread. Here's her decision tree:</p>
+  <ul>
+    <li><strong>Interactive / personal / OpenClaw:</strong> Zosia handles directly. "Set up Mycroft config," "prep me for my meeting," "what's our token spend?" — all Zosia.</li>
+    <li><strong>Pure research task:</strong> Zosia still starts the thread (creates it, writes the opener). Then she can delegate the heavy lifting to Mycroft via <code>sessions_send</code> or spawn a subagent under Mycroft's context. The research output comes back and Zosia posts it in the thread.</li>
+    <li><strong>Ambiguous:</strong> Zosia handles it herself. When in doubt, the chief of staff does it. No routing confusion.</li>
+  </ul>
+</div>
+
+<div class="callout a" style="--i:22">
+  <strong>Why not auto-route #daily to Mycroft for research?</strong> Because you want one front door. If Mycroft handled some threads and Zosia others, you'd need to remember who's who. Zosia-as-triage means you never think about it. She's smart enough to delegate when the task is mechanical. And since Mycroft is cron-only in v1, the delegation would use <code>sessions_send</code> to spawn isolated work anyway.
+</div>
+
+<div class="c a" style="--i:23">
+  <h3>Future: The #research Channel (v2)</h3>
+  <p>When Mycroft proves itself on crons, you can create a <code>#🔬-research</code> channel bound directly to Mycroft. Drop pure research tasks there — no triage needed. Mycroft picks them up, runs deep searches, posts results. Zosia doesn't touch it.</p>
+  <p style="margin-top:8px; color: var(--text-dim);">This is the natural evolution: <strong>#daily for ideas you want to discuss</strong>, <strong>#research for tasks you want executed</strong>.</p>
+</div>
+
+<!-- SECTION 5: MYCROFT PERSONALITY -->
+<hr class="hr" id="mycroft">
+<div class="sl a" style="--i:24"><span class="d" style="background:var(--mycroft)"></span> 05 · Mycroft's Identity</div>
+<h2 class="st a" style="--i:25">The Smarter Brother</h2>
+
+<div class="cmp a" style="--i:26">
+  <div class="cmp-s">
+    <h4>Zosia — Chief of Staff</h4>
+    <ul>
+      <li><strong>Voice:</strong> Opinionated, sharp, warm</li>
+      <li><strong>Mode:</strong> Interactive, conversational</li>
+      <li><strong>Memory:</strong> Rich personal context</li>
+      <li><strong>Model:</strong> Opus always</li>
+      <li><strong>Tools:</strong> Full suite (browser, voice, gateway, cron, etc)</li>
+      <li><strong>Channels:</strong> All — responds to human messages</li>
+      <li><strong>Personality:</strong> Named after Zosia from <em>Pluribus</em></li>
+    </ul>
+  </div>
+  <div class="cmp-s">
+    <h4>Mycroft — Intelligence Analyst</h4>
+    <ul>
+      <li><strong>Voice:</strong> Terse, data-dense, structured</li>
+      <li><strong>Mode:</strong> Background cron execution</li>
+      <li><strong>Memory:</strong> Operational state only</li>
+      <li><strong>Model:</strong> GPT-5.4 default, Opus when needed</li>
+      <li><strong>Tools:</strong> Restricted (exec, web_fetch, message, memory)</li>
+      <li><strong>Channels:</strong> None bound — posts via cron payloads</li>
+      <li><strong>Personality:</strong> Named after Mycroft Holmes</li>
+    </ul>
+  </div>
+</div>
+
+<div class="c c--m a" style="--i:27">
+  <h3>Draft SOUL.md for Mycroft</h3>
+  <div class="cfg"><span class="cm"># SOUL.md — Mycroft</span>
+
+You are <span class="k">Mycroft</span> — Raymond's intelligence analyst.
+Named after Mycroft Holmes: the smarter brother
+who never left the Diogenes Club but knew everything
+happening in the British Empire.
+
+<span class="cm">## Identity</span>
+- Background operator. You run scheduled intelligence
+  pipelines and post results to Discord.
+- You are <span class="v">not conversational</span>. No banter, no opinions,
+  no personality flourishes. Data and evidence only.
+- You never respond to human messages directly.
+  Your output is cron job results posted to channels.
+
+<span class="cm">## Voice</span>
+- Terse. Structured. Headers, bullets, metrics.
+- If it's not worth a bullet point, don't mention it.
+- Lead with signal, not summary. What's NEW, what CHANGED.
+- Error cards are better than silence. Always post failures.
+
+<span class="cm">## Model Policy</span>
+- Default: GPT-5.4 for routine collection/classification.
+- Opus when cron payload explicitly specifies it.
+- Never use cheap models for synthesis or judgment calls.
+
+<span class="cm">## Memory</span>
+- Operational state only: pipeline health, last collection
+  timestamps, recurring errors, data quality notes.
+- No personal context. No decisions. No preferences.
+- Reset weekly. No nightly distillation.
+
+<span class="cm">## Anti-Patterns</span>
+- 🚫 Opinions or commentary on findings
+- 🚫 Personal greetings or sign-offs
+- 🚫 HEARTBEAT_OK (you don't do heartbeats)
+- 🚫 Padding output to seem thorough
+- 🚫 Engaging in conversation if someone messages you</div>
+</div>
+
+<!-- SECTION 6: MIGRATION -->
+<hr class="hr" id="migration">
+<div class="sl a" style="--i:28"><span class="d" style="background:var(--green)"></span> 06 · Migration Map</div>
+<h2 class="st a" style="--i:29">What Moves to Mycroft</h2>
+
+<div class="c c--e a" style="--i:30" style="overflow-x:auto;">
+<h3>Cron Jobs</h3>
+<table class="ch-table">
+<thead><tr><th>Job</th><th>Posts To</th><th>Model</th><th>Change</th></tr></thead>
+<tbody>
+<tr><td class="ch-name">Reddit GCC — Daily</td><td>#reddit</td><td>GPT-5.4</td><td><span class="b b--m">→ MYCROFT</span></td></tr>
+<tr><td class="ch-name">Reddit GCC — Weekly</td><td>#reddit</td><td>GPT-5.4</td><td><span class="b b--m">→ MYCROFT</span></td></tr>
+<tr><td class="ch-name">X GCC Monitor</td><td>#x-gcc</td><td>GPT-5.4</td><td><span class="b b--m">→ MYCROFT</span></td></tr>
+<tr><td class="ch-name">Daily Brief</td><td>#daily-news</td><td>GPT-5.4</td><td><span class="b b--m">→ MYCROFT</span></td></tr>
+<tr><td class="ch-name">Token Usage Report</td><td>#token-usage</td><td>GPT-5.4</td><td><span class="b b--m">→ MYCROFT</span></td></tr>
+<tr><td class="ch-name">Opik Daily Review</td><td>#development</td><td>GPT</td><td><span class="b b--m">→ MYCROFT</span></td></tr>
+<tr><td class="ch-name">Opik Weekly Digest</td><td>#development</td><td>GPT</td><td><span class="b b--m">→ MYCROFT</span></td></tr>
+<tr><td class="ch-name">Daily Backup</td><td>#backups</td><td>GPT-5.4</td><td><span class="b b--m">→ MYCROFT</span></td></tr>
+<tr><td class="ch-name">Weekly Archive Backup</td><td>#backups</td><td>Codex</td><td><span class="b b--m">→ MYCROFT</span></td></tr>
+<tr><td class="ch-name">Nightly Security Review</td><td>#security</td><td>GPT-5.4</td><td><span class="b b--m">→ MYCROFT</span></td></tr>
+<tr style="background: var(--green-dim)"><td class="ch-name" colspan="4" style="font-size:12px; color:var(--text-dim);">All jobs below STAY with Zosia: Memory Distillation, Heartbeat Reset, Apple Health (×3), Meeting Intelligence, MS Consent Reminder</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="c a" style="--i:31" style="overflow-x:auto;">
+<h3>Skills</h3>
+<table class="ch-table">
+<thead><tr><th>Skill</th><th>Mycroft</th><th>Zosia</th><th>Notes</th></tr></thead>
+<tbody>
+<tr><td class="ch-name">reddit-gcc-monitor</td><td><span class="b b--m">YES</span></td><td><span class="b b--n">NO</span></td><td class="ch-desc">Mycroft runs the pipeline</td></tr>
+<tr><td class="ch-name">x-gcc-monitor</td><td><span class="b b--m">YES</span></td><td><span class="b b--n">NO</span></td><td class="ch-desc">Same</td></tr>
+<tr><td class="ch-name">daily-brief</td><td><span class="b b--m">YES</span></td><td><span class="b b--n">NO</span></td><td class="ch-desc">News gathering</td></tr>
+<tr><td class="ch-name">token-usage-report</td><td><span class="b b--m">YES</span></td><td><span class="b b--n">NO</span></td><td class="ch-desc">Analytics</td></tr>
+<tr><td class="ch-name">opik-review-loop</td><td><span class="b b--m">YES</span></td><td><span class="b b--n">NO</span></td><td class="ch-desc">Observability</td></tr>
+<tr><td class="ch-name">exa</td><td><span class="b b--m">YES</span></td><td><span class="b b--z">YES</span></td><td class="ch-desc">Both need web search</td></tr>
+<tr><td class="ch-name">web-scraper</td><td><span class="b b--m">YES</span></td><td><span class="b b--z">YES</span></td><td class="ch-desc">Both need scraping</td></tr>
+<tr><td class="ch-name">doc-lookup</td><td><span class="b b--m">YES</span></td><td><span class="b b--z">YES</span></td><td class="ch-desc">Both need doc research</td></tr>
+<tr><td class="ch-name">meeting-intelligence</td><td><span class="b b--n">NO</span></td><td><span class="b b--z">YES</span></td><td class="ch-desc">Personal context</td></tr>
+<tr><td class="ch-name">visual-explainer</td><td><span class="b b--n">NO</span></td><td><span class="b b--z">YES</span></td><td class="ch-desc">Interactive output</td></tr>
+<tr><td class="ch-name">skill-creator</td><td><span class="b b--n">NO</span></td><td><span class="b b--z">YES</span></td><td class="ch-desc">Meta development</td></tr>
+<tr><td class="ch-name">nightly-distill</td><td><span class="b b--n">NO</span></td><td><span class="b b--z">YES</span></td><td class="ch-desc">Zosia's memory only</td></tr>
+</tbody>
+</table>
+</div>
+
+<!-- SECTION 7: CONFIG -->
+<hr class="hr" id="config">
+<div class="sl a" style="--i:32"><span class="d" style="background:var(--amber)"></span> 07 · Configuration</div>
+<h2 class="st a" style="--i:33">Exact Changes Required</h2>
+
+<div class="c c--a a" style="--i:34">
+  <h3>Step 1: Create Workspace</h3>
+  <div class="cfg"><span class="cm"># Directory structure</span>
+~/.openclaw/workspace-mycroft/
+├── SOUL.md          <span class="cm"># Mycroft personality (above)</span>
+├── AGENTS.md        <span class="cm"># Minimal agent instructions</span>
+├── MEMORY.md        <span class="cm"># Operational memory (pipeline state)</span>
+├── TOOLS.md         <span class="cm"># Reference for available tools</span>
+└── memory/          <span class="cm"># Daily operational notes</span></div>
+</div>
+
+<div class="c c--a a" style="--i:35">
+  <h3>Step 2: Add to agents.list</h3>
+  <div class="cfg">{
+  <span class="k">"id"</span>: <span class="v">"mycroft"</span>,
+  <span class="k">"name"</span>: <span class="v">"Mycroft"</span>,
+  <span class="k">"workspace"</span>: <span class="v">"~/.openclaw/workspace-mycroft"</span>,
+  <span class="k">"model"</span>: <span class="v">"openai-codex/gpt-5.4"</span>,
+  <span class="k">"identity"</span>: {
+    <span class="k">"name"</span>: <span class="v">"Mycroft"</span>,
+    <span class="k">"emoji"</span>: <span class="v">"🔍"</span>
+  },
+  <span class="k">"heartbeat"</span>: { <span class="k">"enabled"</span>: <span class="v">false</span> },
+  <span class="k">"skills"</span>: [
+    <span class="v">"reddit-gcc-monitor"</span>, <span class="v">"x-gcc-monitor"</span>,
+    <span class="v">"daily-brief"</span>, <span class="v">"token-usage-report"</span>,
+    <span class="v">"opik-review-loop"</span>, <span class="v">"exa"</span>,
+    <span class="v">"web-scraper"</span>, <span class="v">"doc-lookup"</span>
+  ]
+}</div>
+  <p style="margin-top:10px; font-size:13px; color:var(--text-dim)"><strong>No bindings.</strong> Mycroft has no channel bindings. It posts via cron payloads using the shared bot token. All human messages go to Zosia via the existing guild-wide catch-all.</p>
+</div>
+
+<div class="c c--a a" style="--i:36">
+  <h3>Step 3: Update 10 Cron Jobs</h3>
+  <div class="cfg"><span class="cm">// For each of the 10 migrating cron jobs:</span>
+cron update --jobId "<span class="v">&lt;job-id&gt;</span>" --patch { <span class="k">"agentId"</span>: <span class="v">"mycroft"</span> }
+
+<span class="cm">// That's it. No other changes needed because:</span>
+<span class="cm">// - Payloads already use absolute paths to scripts</span>
+<span class="cm">// - message tool works with any agentId</span>
+<span class="cm">// - Model is already set per-job in the payload</span></div>
+</div>
+
+<div class="callout a" style="--i:37">
+  <strong>Zero bindings needed.</strong> This is the simplest possible multi-agent config. Add one agent object, update 10 agentId fields. No routing rules, no channel remapping, no permission changes. Zosia's existing guild-wide binding handles everything.
+</div>
+
+<!-- SECTION 8: SEQUENCE -->
+<hr class="hr" id="sequence">
+<div class="sl a" style="--i:38"><span class="d" style="background:var(--plum)"></span> 08 · Build Sequence</div>
+<h2 class="st a" style="--i:39">One Step at a Time</h2>
+
+<div class="c a" style="--i:40">
+  <h3>Phase 1: Foundation <span class="b b--g">SAFE</span></h3>
+  <p>Create <code>~/.openclaw/workspace-mycroft/</code>. Write SOUL.md, AGENTS.md, MEMORY.md, TOOLS.md. No config changes. No restart.</p>
+  <p style="font-size:12.5px; color:var(--text-dim); margin-top:6px;">Risk: Zero. It's just files.</p>
+</div>
+
+<div class="c a" style="--i:41">
+  <h3>Phase 2: Register Agent <span class="b b--a">RESTART</span></h3>
+  <p>Add Mycroft to <code>agents.list</code> via <code>config.patch</code>. Gateway restart. Verify Zosia still works on all channels — Mycroft is registered but has no crons yet.</p>
+  <p style="font-size:12.5px; color:var(--text-dim); margin-top:6px;">Risk: Low. New agent with no bindings can't break existing routing.</p>
+</div>
+
+<div class="c a" style="--i:42">
+  <h3>Phase 3: Token Report First <span class="b b--g">SAFE</span></h3>
+  <p>Reassign <strong>Token Usage Report</strong> to Mycroft. Simplest cron, runs once daily, easy to verify. Watch one full cycle.</p>
+  <p style="font-size:12.5px; color:var(--text-dim); margin-top:6px;">Risk: Minimal. If it fails, revert agentId to "main".</p>
+</div>
+
+<div class="c a" style="--i:43">
+  <h3>Phase 4: Backups + Opik <span class="b b--g">SAFE</span></h3>
+  <p>Migrate Daily Backup, Weekly Archive, Opik Daily, Opik Weekly. These are self-contained scripts with no skill dependencies.</p>
+</div>
+
+<div class="c a" style="--i:44">
+  <h3>Phase 5: Intelligence Pipelines <span class="b b--a">WATCH</span></h3>
+  <p>Migrate Reddit daily/weekly, X daily, Daily Brief. These use skills with data directories. Watch for path resolution issues (should be fine since cron payloads use absolute paths).</p>
+</div>
+
+<div class="c a" style="--i:45">
+  <h3>Phase 6: Security Review <span class="b b--a">WATCH</span></h3>
+  <p>Migrate Nightly Security Review. Uses thinking:high — verify Mycroft handles extended thinking correctly.</p>
+</div>
+
+<div class="c a" style="--i:46">
+  <h3>Phase 7: Observe & Tune <span class="b b--t">ONGOING</span></h3>
+  <p>Run for one full week. Watch: all 10 crons fire? Correct channels? Zosia's context lighter? No regressions? Then consider v2 additions like #research channel.</p>
+</div>
+
+<!-- FOOTER -->
+<div class="c c--m a" style="--i:47">
+  <h3>What Success Looks Like</h3>
+  <ul>
+    <li>10 crons run under Mycroft with zero regression in output quality</li>
+    <li>Zosia's system prompt is lighter — fewer skills, fewer cron instructions</li>
+    <li>A failed Reddit pipeline at 5:30 AM doesn't contaminate your 9 AM DM with Zosia</li>
+    <li>You never notice the split. The Discord channels look exactly the same.</li>
+    <li>When you ask Zosia "what's trending on Reddit?", she reads #reddit and tells you — same as today</li>
+  </ul>
+</div>
+
+<p class="fn a" style="--i:48">Project Mycroft v2 · Raymond Zhu · March 2026 · "The smarter brother who never leaves his armchair"</p>
+
+</div>
+
+<script>
+const obs = new IntersectionObserver(es => { es.forEach(e => { if (e.isIntersecting) { e.target.style.animationPlayState = 'running'; obs.unobserve(e.target); } }); }, { threshold: 0.08 });
+document.querySelectorAll('.a, .as').forEach(el => { el.style.animationPlayState = 'paused'; obs.observe(el); });
+const nl = document.querySelectorAll('.snav a');
+const ss = ['decisions','mental','channels','daily','mycroft','migration','config','sequence'].map(id => document.getElementById(id)).filter(Boolean);
+window.addEventListener('scroll', () => { let c = 0; ss.forEach((s, i) => { if (s.getBoundingClientRect().top < 200) c = i; }); nl.forEach((l, i) => l.classList.toggle('act', i === c)); });
+</script>
+</body>
+</html>

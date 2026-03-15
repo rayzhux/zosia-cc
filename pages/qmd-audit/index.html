@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+  <title>QMD Memory System — Audit & Upgrade Report</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f8f6f3;
+      --surface: #ffffff;
+      --surface-dim: #f0ece6;
+      --border: rgba(0, 0, 0, 0.08);
+      --border-strong: rgba(0, 0, 0, 0.15);
+      --text: #1a1a1a;
+      --text-dim: #6b6560;
+      --text-muted: #9e9790;
+      --accent-teal: #0891b2;
+      --accent-teal-dim: rgba(8, 145, 178, 0.08);
+      --accent-teal-mid: rgba(8, 145, 178, 0.15);
+      --accent-red: #dc2626;
+      --accent-red-dim: rgba(220, 38, 38, 0.08);
+      --accent-green: #16a34a;
+      --accent-green-dim: rgba(22, 163, 74, 0.08);
+      --accent-amber: #d97706;
+      --accent-amber-dim: rgba(217, 119, 6, 0.08);
+      --accent-slate: #475569;
+      --radius: 10px;
+      --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-lg: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #151413;
+        --surface: #1e1d1b;
+        --surface-dim: #252422;
+        --border: rgba(255, 255, 255, 0.06);
+        --border-strong: rgba(255, 255, 255, 0.12);
+        --text: #e8e4df;
+        --text-dim: #9e9790;
+        --text-muted: #6b6560;
+        --accent-teal-dim: rgba(8, 145, 178, 0.12);
+        --accent-teal-mid: rgba(8, 145, 178, 0.2);
+        --accent-red-dim: rgba(220, 38, 38, 0.12);
+        --accent-green-dim: rgba(22, 163, 74, 0.12);
+        --accent-amber-dim: rgba(217, 119, 6, 0.12);
+        --shadow: 0 1px 3px rgba(0,0,0,0.2), 0 1px 2px rgba(0,0,0,0.15);
+        --shadow-lg: 0 4px 12px rgba(0,0,0,0.3), 0 2px 4px rgba(0,0,0,0.2);
+      }
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'IBM Plex Sans', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 2rem 1rem;
+    }
+
+    .container {
+      max-width: 860px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 3rem;
+      animation: fadeUp 0.6s ease-out;
+    }
+
+    .header-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent-teal);
+      margin-bottom: 0.75rem;
+    }
+
+    .header h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      line-height: 1.25;
+      margin-bottom: 0.5rem;
+    }
+
+    .header-sub {
+      color: var(--text-dim);
+      font-size: 0.95rem;
+    }
+
+    .header-date {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 0.5rem;
+    }
+
+    /* Section */
+    .section {
+      margin-bottom: 2.5rem;
+    }
+
+    .section-label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 1rem;
+    }
+
+    .section-label .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .section-label .dot--teal { background: var(--accent-teal); }
+    .section-label .dot--red { background: var(--accent-red); }
+    .section-label .dot--green { background: var(--accent-green); }
+    .section-label .dot--amber { background: var(--accent-amber); }
+
+    /* Cards */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      box-shadow: var(--shadow);
+    }
+
+    .card + .card {
+      margin-top: 0.75rem;
+    }
+
+    .card--hero {
+      border-color: var(--accent-teal-mid);
+      background: linear-gradient(135deg, var(--surface) 0%, var(--accent-teal-dim) 100%);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .card--alert {
+      border-color: rgba(220, 38, 38, 0.2);
+      background: linear-gradient(135deg, var(--surface) 0%, var(--accent-red-dim) 100%);
+    }
+
+    .card--success {
+      border-color: rgba(22, 163, 74, 0.2);
+      background: linear-gradient(135deg, var(--surface) 0%, var(--accent-green-dim) 100%);
+    }
+
+    .card--amber {
+      border-color: rgba(217, 119, 6, 0.2);
+      background: linear-gradient(135deg, var(--surface) 0%, var(--accent-amber-dim) 100%);
+    }
+
+    .card h3 {
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .card p {
+      color: var(--text-dim);
+      font-size: 0.9rem;
+      line-height: 1.65;
+    }
+
+    .card p + p {
+      margin-top: 0.5rem;
+    }
+
+    /* Flow diagram */
+    .flow {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+    }
+
+    .flow-node {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1.5rem;
+      width: 100%;
+      max-width: 500px;
+      box-shadow: var(--shadow);
+      position: relative;
+    }
+
+    .flow-node h4 {
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    .flow-node p {
+      font-size: 0.82rem;
+      color: var(--text-dim);
+    }
+
+    .flow-arrow {
+      width: 2px;
+      height: 28px;
+      background: var(--border-strong);
+      position: relative;
+    }
+
+    .flow-arrow::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-top: 6px solid var(--border-strong);
+    }
+
+    /* KPI row */
+    .kpi-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+      margin-top: 0.75rem;
+    }
+
+    @media (max-width: 600px) {
+      .kpi-row { grid-template-columns: 1fr; }
+    }
+
+    .kpi {
+      background: var(--surface-dim);
+      border-radius: 8px;
+      padding: 1rem;
+      text-align: center;
+    }
+
+    .kpi-value {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 1.8rem;
+      font-weight: 700;
+      line-height: 1.1;
+    }
+
+    .kpi-value--red { color: var(--accent-red); }
+    .kpi-value--green { color: var(--accent-green); }
+    .kpi-value--teal { color: var(--accent-teal); }
+
+    .kpi-label {
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      margin-top: 0.25rem;
+    }
+
+    /* Progress bar */
+    .progress-wrap {
+      margin-top: 1rem;
+    }
+
+    .progress-label-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.78rem;
+      font-family: 'IBM Plex Mono', monospace;
+      margin-bottom: 0.4rem;
+    }
+
+    .progress-label-row .left { color: var(--text-dim); }
+    .progress-label-row .right { color: var(--text-muted); }
+
+    .progress-bar {
+      height: 10px;
+      border-radius: 5px;
+      overflow: hidden;
+      background: var(--surface-dim);
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: 5px;
+      transition: width 1.2s ease-out;
+    }
+
+    .progress-fill--red {
+      background: linear-gradient(90deg, var(--accent-red), #ef4444);
+    }
+
+    .progress-fill--green {
+      background: linear-gradient(90deg, var(--accent-green), #22c55e);
+    }
+
+    /* Badge */
+    .badge {
+      display: inline-block;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.7rem;
+      font-weight: 500;
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      margin-right: 0.25rem;
+      vertical-align: middle;
+    }
+
+    .badge--red { background: var(--accent-red-dim); color: var(--accent-red); }
+    .badge--green { background: var(--accent-green-dim); color: var(--accent-green); }
+    .badge--teal { background: var(--accent-teal-dim); color: var(--accent-teal); }
+    .badge--amber { background: var(--accent-amber-dim); color: var(--accent-amber); }
+
+    /* Feature list */
+    .feature-list {
+      list-style: none;
+      margin-top: 0.75rem;
+    }
+
+    .feature-list li {
+      padding: 0.6rem 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.88rem;
+    }
+
+    .feature-list li:last-child { border-bottom: none; }
+
+    .feature-list .feat-name {
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .feature-list .feat-desc {
+      color: var(--text-dim);
+      margin-top: 0.15rem;
+      font-size: 0.82rem;
+    }
+
+    /* Timeline */
+    .timeline {
+      position: relative;
+      padding-left: 1.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 5px;
+      top: 4px;
+      bottom: 4px;
+      width: 2px;
+      background: var(--border-strong);
+    }
+
+    .timeline-item {
+      position: relative;
+      padding-bottom: 1.25rem;
+    }
+
+    .timeline-item:last-child { padding-bottom: 0; }
+
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -1.5rem;
+      top: 6px;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      border: 2px solid var(--accent-teal);
+      background: var(--bg);
+      z-index: 1;
+    }
+
+    .timeline-item--done::before {
+      background: var(--accent-green);
+      border-color: var(--accent-green);
+    }
+
+    .timeline-item--blocked::before {
+      background: var(--accent-amber);
+      border-color: var(--accent-amber);
+    }
+
+    .timeline-item h4 {
+      font-size: 0.88rem;
+      font-weight: 600;
+    }
+
+    .timeline-item p {
+      font-size: 0.82rem;
+      color: var(--text-dim);
+      margin-top: 0.15rem;
+    }
+
+    .mono { font-family: 'IBM Plex Mono', monospace; }
+
+    /* Animations */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .anim { animation: fadeUp 0.5s ease-out both; }
+    .anim-1 { animation-delay: 0.1s; }
+    .anim-2 { animation-delay: 0.2s; }
+    .anim-3 { animation-delay: 0.3s; }
+    .anim-4 { animation-delay: 0.4s; }
+    .anim-5 { animation-delay: 0.5s; }
+    .anim-6 { animation-delay: 0.6s; }
+    .anim-7 { animation-delay: 0.7s; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .anim, .header { animation: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <div class="header">
+      <div class="header-label">Memory System Audit</div>
+      <h1>QMD Upgrade & Vector Fix</h1>
+      <div class="header-sub">What happened, what was broken, and what we fixed</div>
+      <div class="header-date">March 8, 2026</div>
+    </div>
+
+    <!-- SECTION 1: What is QMD? -->
+    <div class="section anim anim-1">
+      <div class="section-label">
+        <span class="dot dot--teal"></span>
+        What is QMD
+      </div>
+      <div class="card card--hero">
+        <h3>QMD is the brain behind your memory search</h3>
+        <p>Every time you ask me something about past conversations, decisions, or context — I search through your memory files using QMD (by Tobi Lütke, Shopify founder). It's a local AI search engine that runs <strong>three models on your Mac's GPU</strong>:</p>
+        <ul class="feature-list">
+          <li>
+            <span class="feat-name">1. Embedding Model</span>
+            <div class="feat-desc">Turns text into numerical vectors (like GPS coordinates for meaning). "Dubai real estate" and "property in UAE" end up near each other in vector space.</div>
+          </li>
+          <li>
+            <span class="feat-name">2. Query Expansion Model</span>
+            <div class="feat-desc">Takes your search and generates alternate phrasings. If you search "Charlie server", it also searches "Singapore VPS", "remote deployment", etc.</div>
+          </li>
+          <li>
+            <span class="feat-name">3. Reranking Model</span>
+            <div class="feat-desc">Takes the initial results and re-scores them by deeply reading each one against your query. Catches nuances that keyword matching misses.</div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- SECTION 2: How search works -->
+    <div class="section anim anim-2">
+      <div class="section-label">
+        <span class="dot dot--teal"></span>
+        How Memory Search Works
+      </div>
+      <div class="flow">
+        <div class="flow-node">
+          <h4>Your Question</h4>
+          <p>"What happened with the WhatsApp lockout?"</p>
+        </div>
+        <div class="flow-arrow"></div>
+        <div class="flow-node">
+          <h4>Two Search Paths Run in Parallel</h4>
+          <p><span class="badge badge--teal">BM25</span> Keyword match — finds files containing "WhatsApp" and "lockout"<br>
+          <span class="badge badge--amber">Vector</span> Meaning match — finds files about messaging outages, auth failures, etc.</p>
+        </div>
+        <div class="flow-arrow"></div>
+        <div class="flow-node">
+          <h4>Results Merged & Reranked</h4>
+          <p>Both lists are fused together. The reranker reads each candidate and scores how well it actually answers your question.</p>
+        </div>
+        <div class="flow-arrow"></div>
+        <div class="flow-node">
+          <h4>Top Results Returned</h4>
+          <p>Best 8 snippets with file paths and line numbers injected into my context.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 3: What was broken -->
+    <div class="section anim anim-3">
+      <div class="section-label">
+        <span class="dot dot--red"></span>
+        What Was Broken
+      </div>
+      <div class="card card--alert">
+        <h3>89% of your memory had no vector embeddings</h3>
+        <p>When I ran <span class="mono">qmd status</span> on your actual memory index, I found <strong>100 files indexed but only 11 had vectors</strong>. The other 89 files were searchable by keywords only — no semantic understanding.</p>
+        <p>This means if you asked "what's the Singapore server situation?" and the file said "Charlie VPS deployment" without the word "Singapore", the vector path would miss it entirely. Only keyword matches would work.</p>
+
+        <div class="kpi-row">
+          <div class="kpi">
+            <div class="kpi-value kpi-value--red">11%</div>
+            <div class="kpi-label">Files with vector embeddings (before)</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-value kpi-value--red">89</div>
+            <div class="kpi-label">Files with keyword-only search</div>
+          </div>
+        </div>
+
+        <div class="progress-wrap">
+          <div class="progress-label-row">
+            <span class="left">Vector coverage before fix</span>
+            <span class="right">11 / 100 files</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill progress-fill--red" style="width: 11%;"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top: 0.75rem;">
+        <h3>Why did this happen?</h3>
+        <p>QMD indexes files in two steps: first it catalogs them (fast), then it generates vector embeddings (slower — requires GPU). The embedding step wasn't keeping up with new files being added. Every daily note, session log, and topic file that got created was cataloged but never embedded.</p>
+        <p>The old version (1.0.8) also had a bug where the reranker would produce <strong>garbage scores</strong> on documents longer than 2048 tokens — meaning even the 11 files that had vectors could get incorrectly ranked.</p>
+      </div>
+    </div>
+
+    <!-- SECTION 4: What we upgraded -->
+    <div class="section anim anim-4">
+      <div class="section-label">
+        <span class="dot dot--teal"></span>
+        Version Upgrade — 1.0.8 → 1.1.5
+      </div>
+      <div class="card">
+        <h3>Key improvements in the new version</h3>
+        <ul class="feature-list">
+          <li>
+            <span class="feat-name"><span class="badge badge--green">1.1.5</span> Intent parameter</span>
+            <div class="feat-desc">Disambiguates vague queries. "Performance" could mean web speed, team health, or sports. With intent="web page load times", the entire search pipeline focuses correctly.</div>
+          </li>
+          <li>
+            <span class="feat-name"><span class="badge badge--green">1.1.2</span> GPU auto-detection rewrite</span>
+            <div class="feat-desc">Replaced 220 lines of manual Metal/CUDA detection with automatic GPU probing. More reliable on your M2 Mac.</div>
+          </li>
+          <li>
+            <span class="feat-name"><span class="badge badge--green">1.1.2</span> Reranking performance fixes</span>
+            <div class="feat-desc">Deduplicates identical content before reranking, caps parallel GPU contexts to prevent VRAM exhaustion.</div>
+          </li>
+          <li>
+            <span class="feat-name"><span class="badge badge--green">1.1.1</span> Reranker truncation fix</span>
+            <div class="feat-desc">Long documents now get properly truncated at 2048 tokens instead of producing garbage scores. This was silently corrupting rankings.</div>
+          </li>
+          <li>
+            <span class="feat-name"><span class="badge badge--green">1.1.0</span> Structured query documents</span>
+            <div class="feat-desc">Can now combine keyword search + semantic search + hypothetical answers in a single query for precision retrieval.</div>
+          </li>
+          <li>
+            <span class="feat-name"><span class="badge badge--green">1.1.0</span> BM25 phrase matching & negation</span>
+            <div class="feat-desc">Exact phrase search with quotes ("rate limiter") and exclusion (-sports) for disambiguation.</div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- SECTION 5: What we fixed -->
+    <div class="section anim anim-5">
+      <div class="section-label">
+        <span class="dot dot--green"></span>
+        Fixes Applied Today
+      </div>
+      <div class="card card--success">
+        <h3>Vector embeddings — fully restored</h3>
+        <p>Ran <span class="mono">qmd embed</span> manually against all 89 pending files. Generated 512 vector chunks in 47 seconds on your M2 GPU.</p>
+
+        <div class="kpi-row">
+          <div class="kpi">
+            <div class="kpi-value kpi-value--green">100%</div>
+            <div class="kpi-label">Files with vector embeddings (after)</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-value kpi-value--green">896</div>
+            <div class="kpi-label">Total vector chunks indexed</div>
+          </div>
+        </div>
+
+        <div class="progress-wrap">
+          <div class="progress-label-row">
+            <span class="left">Vector coverage after fix</span>
+            <span class="right">100 / 100 files</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill progress-fill--green" style="width: 100%;"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top: 0.75rem;">
+        <h3>Collection context descriptions added</h3>
+        <p>Told QMD what each collection contains so its query expansion model generates better search variants. Before, it had no idea whether "memory-root-main" was code, docs, or personal notes.</p>
+        <p><span class="badge badge--teal">MEMORY.md</span> "Curated long-term memory: identity, model policy, projects, safety rules, operational config"</p>
+        <p><span class="badge badge--teal">memory/**</span> "Daily logs, session notes, topic files: tech-setup, projects, incidents, lessons, errors, personal"</p>
+      </div>
+    </div>
+
+    <!-- SECTION 6: What's next -->
+    <div class="section anim anim-6">
+      <div class="section-label">
+        <span class="dot dot--amber"></span>
+        Blocked — Needs OpenClaw Update
+      </div>
+      <div class="card card--amber">
+        <h3>Three features we can't use yet</h3>
+        <p>These are QMD features that require OpenClaw (the gateway software) to update its integration code. We have the features installed locally, but OpenClaw doesn't know how to use them yet.</p>
+
+        <div class="timeline">
+          <div class="timeline-item timeline-item--blocked">
+            <h4><span class="badge badge--amber">HIGH</span> Intent parameter</h4>
+            <p>The biggest potential win. When I search memory, OpenClaw doesn't tell QMD <em>why</em> I'm searching. So "performance" returns a mix of web speed, team, and sports results. With intent, every search would be contextually steered.</p>
+          </div>
+          <div class="timeline-item timeline-item--blocked">
+            <h4><span class="badge badge--amber">MED</span> Structured queries</h4>
+            <p>OpenClaw passes a single text string. QMD 1.1.0+ supports typed queries (keyword + semantic + hypothetical combined) for precision recall.</p>
+          </div>
+          <div class="timeline-item timeline-item--blocked">
+            <h4><span class="badge badge--amber">LOW</span> MCP daemon mode</h4>
+            <p>QMD can run as a persistent background server, keeping GPU models warm between searches (~10s vs ~16s latency). OpenClaw spawns a fresh process each time.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 7: Your memory at a glance -->
+    <div class="section anim anim-7">
+      <div class="section-label">
+        <span class="dot dot--teal"></span>
+        Your Memory System — Current State
+      </div>
+      <div class="card">
+        <h3>What's being indexed</h3>
+        <div class="kpi-row" style="grid-template-columns: 1fr 1fr 1fr;">
+          <div class="kpi">
+            <div class="kpi-value kpi-value--teal">101</div>
+            <div class="kpi-label">Files indexed</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-value kpi-value--teal">896</div>
+            <div class="kpi-label">Vector chunks</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-value kpi-value--teal">6.6 MB</div>
+            <div class="kpi-label">Index size</div>
+          </div>
+        </div>
+
+        <ul class="feature-list" style="margin-top: 1rem;">
+          <li>
+            <span class="feat-name">MEMORY.md</span>
+            <div class="feat-desc">Your curated long-term memory — ~80 lines of distilled knowledge about identity, projects, tools, rules. Updated nightly by cron.</div>
+          </li>
+          <li>
+            <span class="feat-name">memory/*.md</span>
+            <div class="feat-desc">99 files: daily logs (Feb–Mar 2026), session notes, and 7 topic files (tech-setup, projects, incidents, lessons, errors, personal, charlie).</div>
+          </li>
+          <li>
+            <span class="feat-name">GPU</span>
+            <div class="feat-desc">Apple M2 Metal — 17.8 GB VRAM available for embedding, expansion, and reranking models.</div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

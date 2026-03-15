@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OpenClaw × Opik — Phase 1 Plan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --font-body: 'DM Sans', system-ui, sans-serif;
+      --font-mono: 'Fira Code', 'SF Mono', Consolas, monospace;
+
+      --bg: #eef4fb;
+      --surface: rgba(255,255,255,0.86);
+      --surface-strong: rgba(255,255,255,0.96);
+      --surface-muted: rgba(231,239,248,0.92);
+      --border: rgba(17, 39, 74, 0.10);
+      --border-strong: rgba(17, 39, 74, 0.20);
+      --text: #10233f;
+      --text-dim: #5e728d;
+      --blue: #1e3a5f;
+      --blue-dim: rgba(30, 58, 95, 0.10);
+      --teal: #0f766e;
+      --teal-dim: rgba(15, 118, 110, 0.10);
+      --gold: #c58b22;
+      --gold-dim: rgba(197, 139, 34, 0.12);
+      --rose: #9f1239;
+      --rose-dim: rgba(159, 18, 57, 0.10);
+      --shadow: 0 20px 60px rgba(24, 45, 79, 0.10);
+      --accent: var(--gold);
+      --grid: rgba(30, 58, 95, 0.07);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #08111f;
+        --surface: rgba(12, 22, 37, 0.86);
+        --surface-strong: rgba(14, 25, 43, 0.95);
+        --surface-muted: rgba(16, 30, 50, 0.92);
+        --border: rgba(173, 200, 232, 0.10);
+        --border-strong: rgba(173, 200, 232, 0.22);
+        --text: #e6eef9;
+        --text-dim: #90a4bf;
+        --blue: #83a9d8;
+        --blue-dim: rgba(131, 169, 216, 0.14);
+        --teal: #5eead4;
+        --teal-dim: rgba(94, 234, 212, 0.12);
+        --gold: #f2c36d;
+        --gold-dim: rgba(242, 195, 109, 0.12);
+        --rose: #fda4af;
+        --rose-dim: rgba(253, 164, 175, 0.12);
+        --shadow: 0 20px 60px rgba(0, 0, 0, 0.32);
+        --grid: rgba(173, 200, 232, 0.07);
+      }
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: var(--font-body);
+      color: var(--text);
+      background:
+        radial-gradient(circle at 10% 0%, var(--gold-dim) 0, transparent 26%),
+        radial-gradient(circle at 100% 20%, var(--teal-dim) 0, transparent 24%),
+        linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0)),
+        var(--bg);
+      background-image:
+        linear-gradient(var(--grid) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid) 1px, transparent 1px),
+        radial-gradient(circle at 10% 0%, var(--gold-dim) 0, transparent 26%),
+        radial-gradient(circle at 100% 20%, var(--teal-dim) 0, transparent 24%),
+        linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0)),
+        linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0));
+      background-size: 28px 28px, 28px 28px, auto, auto, auto, auto;
+      padding: 36px 40px 60px;
+    }
+
+    .wrap {
+      max-width: 1420px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 190px minmax(0, 1fr);
+      gap: 0 40px;
+    }
+    .main { min-width: 0; }
+
+    .toc {
+      position: sticky;
+      top: 24px;
+      align-self: start;
+      padding: 14px 0;
+      grid-row: 1 / -1;
+      max-height: calc(100dvh - 48px);
+      overflow-y: auto;
+    }
+    .toc::-webkit-scrollbar { width: 3px; }
+    .toc::-webkit-scrollbar-thumb { background: var(--surface-muted); border-radius: 3px; }
+    .toc-title {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--text-dim);
+      padding: 0 0 10px;
+      margin-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    .toc a {
+      display: block;
+      text-decoration: none;
+      color: var(--text-dim);
+      font-size: 11px;
+      line-height: 1.45;
+      padding: 5px 8px;
+      border-radius: 6px;
+      border-left: 2px solid transparent;
+      transition: 160ms ease;
+      margin-bottom: 2px;
+    }
+    .toc a:hover { color: var(--text); background: var(--surface); }
+    .toc a.active { color: var(--text); border-left-color: var(--accent); background: var(--surface); }
+
+    .hero {
+      background: var(--surface-strong);
+      border: 1px solid var(--border-strong);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      padding: 34px 36px;
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 22px;
+    }
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: auto -6% -50px auto;
+      width: 280px;
+      height: 280px;
+      border-radius: 50%;
+      background: radial-gradient(circle, var(--blue-dim) 0%, transparent 68%);
+      pointer-events: none;
+    }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1.8px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 18px;
+    }
+    .eyebrow::before {
+      content: "";
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: currentColor;
+      box-shadow: 0 0 0 5px var(--gold-dim);
+    }
+    h1 {
+      margin: 0 0 12px;
+      font-size: clamp(2.5rem, 4vw, 4.6rem);
+      line-height: 0.95;
+      letter-spacing: -0.04em;
+      max-width: 920px;
+      text-wrap: balance;
+    }
+    .subtitle {
+      max-width: 880px;
+      font-size: 1.05rem;
+      line-height: 1.7;
+      color: var(--text-dim);
+      margin-bottom: 24px;
+    }
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.25fr 0.95fr;
+      gap: 18px;
+      position: relative;
+      z-index: 1;
+    }
+    .hero-card {
+      background: linear-gradient(180deg, var(--surface), rgba(255,255,255,0.02));
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 18px 20px;
+      min-width: 0;
+    }
+    .hero-card h2 {
+      margin: 0 0 10px;
+      font-size: 0.98rem;
+      letter-spacing: -0.02em;
+    }
+    .hero-card p, .hero-card li {
+      color: var(--text-dim);
+      line-height: 1.65;
+      font-size: 0.95rem;
+    }
+    .hero-card ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+    .badge {
+      padding: 7px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text);
+      background: var(--surface-muted);
+    }
+
+    .sec-head {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 28px 0 14px;
+      scroll-margin-top: 70px;
+    }
+    .sec-num {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 700;
+      background: var(--surface-muted);
+      border: 1px solid var(--border);
+      color: var(--gold);
+      flex: 0 0 auto;
+    }
+    .sec-title {
+      font-size: 1.35rem;
+      letter-spacing: -0.03em;
+      margin: 0;
+    }
+    .sec-copy {
+      color: var(--text-dim);
+      font-size: 0.98rem;
+      line-height: 1.7;
+      margin: 0 0 16px 46px;
+      max-width: 900px;
+    }
+
+    .grid-2, .grid-3, .grid-flow {
+      display: grid;
+      gap: 16px;
+    }
+    .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid-flow { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+
+    .card {
+      min-width: 0;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 18px 18px 16px;
+      box-shadow: 0 10px 24px rgba(10, 21, 39, 0.04);
+    }
+    .card.heroish {
+      background: linear-gradient(180deg, color-mix(in srgb, var(--surface) 86%, var(--gold) 14%), var(--surface));
+      border-color: color-mix(in srgb, var(--border) 55%, var(--gold) 45%);
+    }
+    .label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--blue);
+    }
+    .label::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: currentColor;
+    }
+    .label.teal { color: var(--teal); }
+    .label.gold { color: var(--gold); }
+    .label.rose { color: var(--rose); }
+
+    .card h3 {
+      margin: 0 0 10px;
+      font-size: 1.03rem;
+      letter-spacing: -0.02em;
+    }
+    .card p, .card li {
+      margin: 0;
+      color: var(--text-dim);
+      line-height: 1.65;
+      font-size: 0.95rem;
+      overflow-wrap: break-word;
+    }
+    .card ul {
+      margin: 0;
+      padding-left: 18px;
+      display: grid;
+      gap: 8px;
+    }
+    .code {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 0.85em;
+      padding: 0.18rem 0.44rem;
+      border-radius: 7px;
+      border: 1px solid var(--border);
+      background: var(--surface-muted);
+      color: var(--text);
+      word-break: break-word;
+    }
+
+    .flow-step {
+      position: relative;
+      min-height: 100%;
+    }
+    .flow-step:not(:last-child)::after {
+      content: "→";
+      position: absolute;
+      right: -11px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--gold);
+      font-size: 18px;
+      font-weight: 700;
+      z-index: 3;
+    }
+    .flow-index {
+      width: 32px;
+      height: 32px;
+      border-radius: 9px;
+      display: grid;
+      place-items: center;
+      margin-bottom: 12px;
+      border: 1px solid var(--border);
+      background: var(--surface-muted);
+      color: var(--gold);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      box-shadow: 0 10px 24px rgba(10, 21, 39, 0.04);
+    }
+    th, td {
+      text-align: left;
+      padding: 14px 16px;
+      vertical-align: top;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.94rem;
+      line-height: 1.55;
+      overflow-wrap: break-word;
+    }
+    th {
+      background: var(--surface-muted);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: var(--text-dim);
+    }
+    tr:last-child td { border-bottom: none; }
+    td strong { color: var(--text); }
+
+    .callout {
+      margin-top: 16px;
+      padding: 16px 18px;
+      border-radius: 16px;
+      border: 1px solid color-mix(in srgb, var(--border) 45%, var(--rose) 55%);
+      background: linear-gradient(180deg, var(--rose-dim), transparent);
+      color: var(--text-dim);
+      line-height: 1.65;
+    }
+
+    .success-strip {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 8px;
+    }
+    .metric {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 18px;
+    }
+    .metric .num {
+      font-size: 1.8rem;
+      line-height: 1;
+      letter-spacing: -0.04em;
+      margin-bottom: 10px;
+      color: var(--text);
+    }
+    .metric p {
+      margin: 0;
+      color: var(--text-dim);
+      line-height: 1.55;
+      font-size: 0.93rem;
+    }
+
+    @media (max-width: 1150px) {
+      .grid-flow { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .flow-step:nth-child(3)::after, .flow-step:nth-child(6)::after { content: none; }
+      .hero-grid, .grid-3, .success-strip { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 1000px) {
+      body { padding-top: 0; }
+      .wrap { grid-template-columns: 1fr; gap: 0; }
+      .toc {
+        position: sticky;
+        top: 0;
+        z-index: 200;
+        max-height: none;
+        display: flex;
+        gap: 4px;
+        align-items: center;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        background: color-mix(in srgb, var(--bg) 88%, transparent 12%);
+        backdrop-filter: blur(14px);
+        border-bottom: 1px solid var(--border);
+        padding: 10px 0;
+        margin: 0 -40px;
+        padding-left: 40px;
+        padding-right: 40px;
+        grid-row: auto;
+      }
+      .toc::-webkit-scrollbar { display: none; }
+      .toc-title { display: none; }
+      .toc a {
+        white-space: nowrap;
+        flex-shrink: 0;
+        border-left: none;
+        border-bottom: 2px solid transparent;
+        border-radius: 6px 6px 0 0;
+        padding: 7px 10px;
+        font-size: 10px;
+      }
+      .toc a.active {
+        border-left: none;
+        border-bottom-color: var(--accent);
+        background: var(--surface);
+      }
+      .main { padding-top: 22px; }
+      .sec-head { scroll-margin-top: 58px; }
+    }
+
+    @media (max-width: 760px) {
+      body { padding: 0 18px 40px; }
+      .toc { margin: 0 -18px; padding-left: 18px; padding-right: 18px; }
+      .hero { border-radius: 20px; padding: 24px 20px; }
+      .hero-grid, .grid-2, .grid-3, .grid-flow, .success-strip { grid-template-columns: 1fr; }
+      .flow-step::after { content: none !important; }
+      h1 { font-size: 2.3rem; }
+      .sec-copy { margin-left: 0; }
+      .sec-head { align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <nav class="toc" id="toc">
+      <div class="toc-title">Phase 1</div>
+      <a href="#s1">1. Objective</a>
+      <a href="#s2">2. Inputs</a>
+      <a href="#s3">3. Daily pipeline</a>
+      <a href="#s4">4. Classification</a>
+      <a href="#s5">5. Outputs</a>
+      <a href="#s6">6. Guardrails</a>
+      <a href="#s7">7. Success criteria</a>
+    </nav>
+
+    <main class="main">
+      <section class="hero">
+        <div class="eyebrow">OpenClaw × Opik · phase 1 only</div>
+        <h1>Deterministic observability loop.<br>Zero browser nonsense.</h1>
+        <p class="subtitle">
+          Phase 1 is deliberately boring in the good way: pull signal from local Opik APIs and local OpenClaw logs, fingerprint recurring failures,
+          separate real system problems from operator noise, and publish one clean daily review. No UI clicking. No auto-fix loop yet. No LLM-as-judge theatrics.
+        </p>
+
+        <div class="hero-grid">
+          <div class="hero-card">
+            <h2>What Phase 1 does</h2>
+            <ul>
+              <li>Reads local Opik trace/span data for the last 24 hours.</li>
+              <li>Normalizes failures into stable fingerprints so repeats stop hiding in raw logs.</li>
+              <li>Classifies issues into actionable buckets: real bug, workflow noise, external noise, config mistake, cost anomaly.</li>
+              <li>Publishes a short operator review to <span class="code">#development</span> and saves markdown + JSON snapshots locally.</li>
+            </ul>
+          </div>
+          <div class="hero-card">
+            <h2>What Phase 1 explicitly does not do</h2>
+            <ul>
+              <li>No browser automation against Opik.</li>
+              <li>No silent config mutations or automatic remediation.</li>
+              <li>No complex evaluation rules inside Opik yet.</li>
+              <li>No pretending every error is a platform bug when half of it is us using tools stupidly.</li>
+            </ul>
+            <div class="badge-row">
+              <span class="badge">API-first</span>
+              <span class="badge">local-only evidence</span>
+              <span class="badge">daily snapshots</span>
+              <span class="badge">human review output</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div id="s1" class="sec-head"><div class="sec-num">01</div><h2 class="sec-title">Objective</h2></div>
+      <p class="sec-copy">Build a trustworthy feedback loop from observability into operations. The point is not "collect more telemetry"; the point is to make recurring failures obvious enough that we can decide whether to fix, suppress, replace, or redesign the noisy part of the system.</p>
+      <div class="grid-2">
+        <article class="card heroish">
+          <div class="label gold">Primary outcome</div>
+          <h3>One daily operator-grade answer</h3>
+          <p>Every morning, OpenClaw should be able to say: <strong>what broke, what repeated, what cost looked weird, and what deserves fixing next</strong>.</p>
+        </article>
+        <article class="card">
+          <div class="label teal">Design principle</div>
+          <h3>Deterministic first, smart second</h3>
+          <p>Phase 1 uses stable API queries, local scripts, and explicit rules. If the foundation is sloppy, adding more AI just automates the slop faster.</p>
+        </article>
+      </div>
+
+      <div id="s2" class="sec-head"><div class="sec-num">02</div><h2 class="sec-title">Inputs and sources of truth</h2></div>
+      <p class="sec-copy">Everything comes from local deployment surfaces we control. If the UI and the APIs disagree, the APIs win. If memory notes disagree with runtime evidence, runtime wins again.</p>
+      <div class="grid-3">
+        <article class="card">
+          <div class="label">Opik API</div>
+          <h3>Primary telemetry surface</h3>
+          <ul>
+            <li><span class="code">/v1/private/projects</span> to resolve project identity</li>
+            <li><span class="code">/v1/private/traces/search</span> for raw run-level evidence</li>
+            <li><span class="code">/v1/private/spans/search</span> for tool/LLM failure detail</li>
+            <li><span class="code">/v1/private/traces/stats</span> and <span class="code">/v1/private/spans/stats</span> for summary checks</li>
+            <li><span class="code">/v1/private/projects/{id}/metrics</span> for cost / token / count trends</li>
+          </ul>
+        </article>
+        <article class="card">
+          <div class="label teal">OpenClaw runtime</div>
+          <h3>Secondary corroboration</h3>
+          <ul>
+            <li><span class="code">openclaw status</span> for gateway/session health</li>
+            <li>Plugin/runtime warnings from local logs</li>
+            <li>Current Opik exporter status and config sanity</li>
+            <li>Saved daily markdown + JSON review snapshots for recurrence detection</li>
+          </ul>
+        </article>
+        <article class="card">
+          <div class="label rose">Out of scope</div>
+          <h3>Ignored on purpose</h3>
+          <ul>
+            <li>Any browser-driven Opik workflow</li>
+            <li>Cloud-only helper features like single-trace AI debugging</li>
+            <li>Manual visual inspection as a dependency for the loop</li>
+            <li>"Maybe the UI showed something" as an evidence source</li>
+          </ul>
+        </article>
+      </div>
+
+      <div id="s3" class="sec-head"><div class="sec-num">03</div><h2 class="sec-title">Daily pipeline</h2></div>
+      <p class="sec-copy">The first phase loop is six deterministic steps. Simple enough to trust, rich enough to be useful.</p>
+      <div class="grid-flow">
+        <article class="card flow-step">
+          <div class="flow-index">1</div>
+          <div class="label">Collect</div>
+          <h3>Pull 24h data</h3>
+          <p>Query project, traces, spans, and core metrics for the last day from local Opik.</p>
+        </article>
+        <article class="card flow-step">
+          <div class="flow-index">2</div>
+          <div class="label teal">Normalize</div>
+          <h3>Fingerprint errors</h3>
+          <p>Collapse raw messages into stable families like missing binary, stale target, config patch misuse, or bad fetch URL.</p>
+        </article>
+        <article class="card flow-step">
+          <div class="flow-index">3</div>
+          <div class="label gold">Aggregate</div>
+          <h3>Compute pressure</h3>
+          <p>Count frequency, error rate, duration drag, token cost, and top noisy tools/workflows.</p>
+        </article>
+        <article class="card flow-step">
+          <div class="flow-index">4</div>
+          <div class="label rose">Classify</div>
+          <h3>Separate noise from bugs</h3>
+          <p>Tag each fingerprint as real platform issue, workflow misuse, external/docs noise, config mistake, or anomaly.</p>
+        </article>
+        <article class="card flow-step">
+          <div class="flow-index">5</div>
+          <div class="label teal">Persist</div>
+          <h3>Save evidence</h3>
+          <p>Write <span class="code">reports/opik-daily/YYYY-MM-DD.md</span> and snapshot JSON for trend comparison.</p>
+        </article>
+        <article class="card flow-step">
+          <div class="flow-index">6</div>
+          <div class="label gold">Publish</div>
+          <h3>Post operator review</h3>
+          <p>Send one concise daily note to <span class="code">#development</span> with what happened and what deserves fixing next.</p>
+        </article>
+      </div>
+
+      <div id="s4" class="sec-head"><div class="sec-num">04</div><h2 class="sec-title">Classification model</h2></div>
+      <p class="sec-copy">This is the heart of the loop. If we fail to classify correctly, the report becomes another noisy dashboard nobody trusts.</p>
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 18%;">Bucket</th>
+            <th style="width: 32%;">What it means</th>
+            <th style="width: 24%;">Examples</th>
+            <th style="width: 26%;">Expected action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Real system issue</strong></td>
+            <td>Something in OpenClaw, plugin plumbing, or runtime behavior is actually unreliable.</td>
+            <td>Exporter failures, repeated trace write failures, broken local integration paths.</td>
+            <td>Escalate in report; investigate or patch.</td>
+          </tr>
+          <tr>
+            <td><strong>Workflow / operator noise</strong></td>
+            <td>The system is mostly fine, but the calling pattern is dumb or fragile.</td>
+            <td>Stale browser tabs, missing <span class="code">rg</span>, wrong tool assumptions.</td>
+            <td>Fix prompts, wrappers, defaults, or tool choice.</td>
+          </tr>
+          <tr>
+            <td><strong>External / docs noise</strong></td>
+            <td>Bad URLs, flaky docs fetches, or third-party weirdness muddying signal.</td>
+            <td>Repeated <span class="code">web_fetch</span> 404/401 against guessed pages.</td>
+            <td>Cache verified URLs, tighten lookup path.</td>
+          </tr>
+          <tr>
+            <td><strong>Config workflow mistake</strong></td>
+            <td>The operation failed because config editing discipline was sloppy.</td>
+            <td>Bad schema path, malformed patch payload, invalid config patch attempt.</td>
+            <td>Codify safer config edit workflow.</td>
+          </tr>
+          <tr>
+            <td><strong>Cost / usage anomaly</strong></td>
+            <td>Behavior may be correct, but spend or token burn looks off.</td>
+            <td>Sudden token spike, expensive loop, overlong retries.</td>
+            <td>Flag for human review; no auto-action in phase 1.</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="callout"><strong>Rule:</strong> Phase 1 should be blunt. If a failure is mostly self-inflicted workflow churn, say that plainly instead of dressing it up as a platform incident.</div>
+
+      <div id="s5" class="sec-head"><div class="sec-num">05</div><h2 class="sec-title">Outputs</h2></div>
+      <p class="sec-copy">Three outputs, all useful. If one of them disappears, the loop gets weaker fast.</p>
+      <div class="grid-3">
+        <article class="card">
+          <div class="label">Markdown report</div>
+          <h3>Human-readable daily review</h3>
+          <p>Stored under <span class="code">reports/opik-daily/</span>. This is the operator narrative: snapshot, noisy tools, error fingerprints, and suggested fixes.</p>
+        </article>
+        <article class="card">
+          <div class="label teal">Snapshot JSON</div>
+          <h3>Machine-comparable evidence</h3>
+          <p>Stored under <span class="code">reports/opik-daily/snapshots/</span>. Used to detect recurrence across days without scraping chat history or guessing.</p>
+        </article>
+        <article class="card">
+          <div class="label gold">Discord note</div>
+          <h3>Short daily brief</h3>
+          <p>Posted to <span class="code">#development</span>. Keeps the loop visible without forcing anyone to open raw traces just to know what sucked today.</p>
+        </article>
+      </div>
+
+      <div id="s6" class="sec-head"><div class="sec-num">06</div><h2 class="sec-title">Guardrails and non-goals</h2></div>
+      <p class="sec-copy">This phase should diagnose and prioritize — not become a self-editing monster.</p>
+      <div class="grid-2">
+        <article class="card">
+          <div class="label rose">Guardrails</div>
+          <ul>
+            <li>No browser automation anywhere in the loop.</li>
+            <li>No silent config changes, tool disables, or gateway restarts.</li>
+            <li>No dependence on cloud-only Opik helper features.</li>
+            <li>No broad claims without saved evidence in the daily snapshot.</li>
+          </ul>
+        </article>
+        <article class="card">
+          <div class="label teal">Deferred to later phases</div>
+          <ul>
+            <li>Auto-remediation queue with apply-ready patches</li>
+            <li>Weekly trend digest and escalation scoring</li>
+            <li>Rule registry for suppress / ignore / replace decisions</li>
+            <li>Opik evaluator rules for richer online analysis</li>
+          </ul>
+        </article>
+      </div>
+
+      <div id="s7" class="sec-head"><div class="sec-num">07</div><h2 class="sec-title">Success criteria</h2></div>
+      <p class="sec-copy">If Phase 1 works, we’ll know because the loop becomes boringly reliable and the recommendations stop feeling hand-wavy.</p>
+      <div class="success-strip">
+        <article class="metric">
+          <div class="num">1</div>
+          <p>Daily report lands reliably at the same time with zero browser involvement.</p>
+        </article>
+        <article class="metric">
+          <div class="num">2</div>
+          <p>Recurring fingerprints become obvious across days instead of showing up as isolated one-offs.</p>
+        </article>
+        <article class="metric">
+          <div class="num">3</div>
+          <p>The report cleanly distinguishes platform faults from operator/tooling stupidity.</p>
+        </article>
+        <article class="metric">
+          <div class="num">4</div>
+          <p>By the end of a week, we can name the top 3 system improvements with evidence instead of vibes.</p>
+        </article>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    (function() {
+      const toc = document.getElementById('toc');
+      const links = toc.querySelectorAll('a');
+      const sections = [];
+      links.forEach(link => {
+        const id = link.getAttribute('href').slice(1);
+        const el = document.getElementById(id);
+        if (el) sections.push({ id, el, link });
+      });
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            links.forEach(l => l.classList.remove('active'));
+            const match = sections.find(s => s.el === entry.target);
+            if (match) {
+              match.link.classList.add('active');
+              if (window.innerWidth <= 1000) {
+                match.link.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+              }
+            }
+          }
+        });
+      }, { rootMargin: '-10% 0px -80% 0px' });
+      sections.forEach(s => observer.observe(s.el));
+      links.forEach(link => {
+        link.addEventListener('click', e => {
+          e.preventDefault();
+          const id = link.getAttribute('href').slice(1);
+          const el = document.getElementById(id);
+          if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            history.replaceState(null, '', '#' + id);
+          }
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

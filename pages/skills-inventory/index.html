@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+  <title>OpenClaw Skills Inventory — March 2026</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,300..700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f8f6f3;
+      --surface: #ffffff;
+      --surface-alt: #f1ede8;
+      --border: rgba(0,0,0,0.08);
+      --border-strong: rgba(0,0,0,0.15);
+      --text: #1a1714;
+      --text-dim: #6b6560;
+      --text-muted: #9a938d;
+      --accent-ready: #059669;
+      --accent-ready-bg: #ecfdf5;
+      --accent-ready-border: #a7f3d0;
+      --accent-disabled: #d97706;
+      --accent-disabled-bg: #fffbeb;
+      --accent-disabled-border: #fde68a;
+      --accent-missing: #6b7280;
+      --accent-missing-bg: #f3f4f6;
+      --accent-missing-border: #d1d5db;
+      --accent-paused: #dc2626;
+      --accent-paused-bg: #fef2f2;
+      --accent-paused-border: #fecaca;
+      --accent-custom: #0369a1;
+      --accent-custom-bg: #f0f9ff;
+      --accent-custom-border: #bae6fd;
+      --font-body: 'DM Sans', sans-serif;
+      --font-mono: 'Fira Code', monospace;
+      --radius: 10px;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #171412;
+        --surface: #211e1b;
+        --surface-alt: #2a2623;
+        --border: rgba(255,255,255,0.07);
+        --border-strong: rgba(255,255,255,0.14);
+        --text: #ede8e3;
+        --text-dim: #9a938d;
+        --text-muted: #6b6560;
+        --accent-ready-bg: #052e16;
+        --accent-ready-border: #166534;
+        --accent-disabled-bg: #451a03;
+        --accent-disabled-border: #92400e;
+        --accent-missing-bg: #1f2937;
+        --accent-missing-border: #4b5563;
+        --accent-paused-bg: #450a0a;
+        --accent-paused-border: #991b1b;
+        --accent-custom-bg: #0c2d48;
+        --accent-custom-border: #0369a1;
+        --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+        --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+      }
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 2rem 1.5rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .hero {
+      text-align: center;
+      margin-bottom: 2.5rem;
+      padding: 2rem 0;
+    }
+
+    .hero h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.5rem;
+    }
+
+    .hero .subtitle {
+      color: var(--text-dim);
+      font-size: 1rem;
+    }
+
+    .stats-bar {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin: 1.5rem 0 2.5rem;
+    }
+
+    .stat {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.75rem 1.25rem;
+      text-align: center;
+      box-shadow: var(--shadow-sm);
+      min-width: 120px;
+    }
+
+    .stat .num {
+      font-size: 1.75rem;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      line-height: 1.2;
+    }
+
+    .stat .label {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .stat.ready .num { color: var(--accent-ready); }
+    .stat.disabled .num { color: var(--accent-disabled); }
+    .stat.missing .num { color: var(--accent-missing); }
+    .stat.custom .num { color: var(--accent-custom); }
+
+    .section {
+      margin-bottom: 2.5rem;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--border-strong);
+    }
+
+    .section-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .section-header h2 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+
+    .section-count {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      margin-left: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--surface);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+      font-size: 0.9rem;
+    }
+
+    thead th {
+      text-align: left;
+      padding: 0.7rem 1rem;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-dim);
+      background: var(--surface-alt);
+      border-bottom: 1px solid var(--border-strong);
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+
+    tbody td {
+      padding: 0.6rem 1rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover { background: var(--surface-alt); }
+
+    .skill-name {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .source-tag {
+      display: inline-block;
+      font-size: 0.65rem;
+      padding: 0.1rem 0.4rem;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      vertical-align: middle;
+      margin-left: 0.4rem;
+    }
+
+    .source-bundled { background: var(--accent-missing-bg); color: var(--accent-missing); border: 1px solid var(--accent-missing-border); }
+    .source-workspace { background: var(--accent-custom-bg); color: var(--accent-custom); border: 1px solid var(--accent-custom-border); }
+    .source-managed { background: var(--accent-disabled-bg); color: var(--accent-disabled); border: 1px solid var(--accent-disabled-border); }
+    .source-extra { background: var(--accent-ready-bg); color: var(--accent-ready); border: 1px solid var(--accent-ready-border); }
+
+    .desc {
+      color: var(--text-dim);
+      font-size: 0.82rem;
+      line-height: 1.45;
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: 0.65rem;
+      font-family: var(--font-mono);
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+
+    .badge-ready { background: var(--accent-ready-bg); color: var(--accent-ready); border: 1px solid var(--accent-ready-border); }
+    .badge-disabled { background: var(--accent-disabled-bg); color: var(--accent-disabled); border: 1px solid var(--accent-disabled-border); }
+    .badge-missing { background: var(--accent-missing-bg); color: var(--accent-missing); border: 1px solid var(--accent-missing-border); }
+    .badge-paused { background: var(--accent-paused-bg); color: var(--accent-paused); border: 1px solid var(--accent-paused-border); }
+    .badge-config { background: var(--accent-custom-bg); color: var(--accent-custom); border: 1px solid var(--accent-custom-border); }
+
+    .cli-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem 1.5rem;
+      box-shadow: var(--shadow-sm);
+      margin-top: 2rem;
+    }
+
+    .cli-section h3 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+    }
+
+    .cli-cmd {
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      background: var(--surface-alt);
+      padding: 0.5rem 0.75rem;
+      border-radius: 6px;
+      margin-bottom: 0.5rem;
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: baseline;
+      gap: 0.5rem;
+    }
+
+    .cli-cmd .prompt { color: var(--accent-ready); user-select: none; }
+    .cli-cmd code { flex: 1; }
+    .cli-cmd .note { color: var(--text-muted); font-size: 0.75rem; margin-left: auto; }
+
+    .note-box {
+      background: var(--accent-custom-bg);
+      border: 1px solid var(--accent-custom-border);
+      border-radius: var(--radius);
+      padding: 1rem 1.25rem;
+      margin-top: 1rem;
+      font-size: 0.85rem;
+      color: var(--text-dim);
+    }
+
+    .note-box strong { color: var(--text); }
+
+    @media (max-width: 700px) {
+      body { padding: 1rem 0.75rem; }
+      .hero h1 { font-size: 1.5rem; }
+      .stats-bar { gap: 0.5rem; }
+      .stat { min-width: 90px; padding: 0.5rem 0.75rem; }
+      .stat .num { font-size: 1.3rem; }
+      thead th, tbody td { padding: 0.5rem 0.6rem; }
+      .desc { font-size: 0.78rem; }
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .section { animation: fadeUp 0.4s ease both; }
+    .section:nth-child(2) { animation-delay: 0.05s; }
+    .section:nth-child(3) { animation-delay: 0.1s; }
+    .section:nth-child(4) { animation-delay: 0.15s; }
+    .section:nth-child(5) { animation-delay: 0.2s; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .section { animation: none; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>OpenClaw Skills Inventory</h1>
+  <p class="subtitle">Live system state · March 5, 2026 · v2026.3.2</p>
+</div>
+
+<div class="stats-bar">
+  <div class="stat ready"><div class="num">25</div><div class="label">Ready</div></div>
+  <div class="stat disabled"><div class="num">13</div><div class="label">Disabled</div></div>
+  <div class="stat missing"><div class="num">21</div><div class="label">Missing CLI</div></div>
+  <div class="stat custom"><div class="num">7</div><div class="label">Custom-Built</div></div>
+</div>
+
+<!-- READY SKILLS -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-dot" style="background: var(--accent-ready);"></div>
+    <h2>Ready — Active &amp; Usable</h2>
+    <span class="section-count">25 skills</span>
+  </div>
+  <table>
+    <thead><tr><th>Skill</th><th>Description</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><span class="skill-name">exa</span><span class="source-tag source-workspace">custom</span></td>
+        <td class="desc">Primary web search, company research, people search, and deep research via Exa API (MCP). Replaces Brave Search.</td>
+        <td><span class="badge badge-config">MCP</span></td>
+      </tr>
+      <tr>
+        <td><span class="skill-name">pplx-search</span><span class="source-tag source-managed">managed</span></td>
+        <td class="desc">Quick web search via Perplexity Sonar Pro Search (OpenRouter). Fast answers with citations.</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="skill-name">pplx-research</span><span class="source-tag source-workspace">custom</span></td>
+        <td class="desc">Deep multi-step web research via Perplexity Sonar Deep Research (direct API). 1–5+ min, detailed reports.</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="skill-name">kimi-cn</span><span class="source-tag source-workspace">custom</span></td>
+        <td class="desc">Query Kimi K2.5 via Moonshot China endpoint with built-in Chinese web search. For data behind the Chinese-language barrier only.</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="skill-name">gog</span><span class="source-tag source-workspace">custom</span></td>
+        <td class="desc">Google Workspace CLI — Gmail, Calendar, Drive, Contacts, Sheets, Docs. Core daily driver.</td>
+        <td><span class="badge badge-config">API key</span></td>
+      </tr>
+      <tr>
+        <td><span class="skill-name">reddit-gcc-monitor</span><span class="source-tag source-workspace">custom</span></td>
+        <td class="desc">Daily Reddit intelligence for GCC/MENA markets. Scans 23 subreddits, AI-classifies, delivers digest to Discord.</td>
+        <td><span class="badge badge-ready">cron active</span></td>
+      </tr>
+      <tr>
+        <td><span class="skill-name">visual-explainer</span><span class="source-tag source-workspace">custom</span></td>
+        <td class="desc">Generate beautiful self-contained HTML pages for diagrams, architecture overviews, comparisons, slide decks.</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="skill-name">x-gcc-monitor</span><span class="source-tag source-workspace">custom</span></td>
+        <td class="desc">X.com social listening for GCC/MENA business intelligence. Dual-engine collection → classify → synthesize.</td>
+        <td><span class="badge badge-paused">paused $177/mo</span></td>
+      </tr>
+      <tr>
+        <td><span class="skill-name">acp-router</span><span class="source-tag source-extra">extension</span></td>
+        <td class="desc">Route coding requests to Pi, Claude Code, Codex, OpenCode, or Gemini CLI via ACP runtime sessions.</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="skill-name">coding-agent</span><span class="source-tag source-bundled">bundled</span></td>
+        <td class="desc">Delegate coding tasks to Codex, Claude Code, or Pi via background PTY process. For builds, PR reviews, refactors.</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="skill-name">github</span><span class="source-tag source-bundled">bundled</span></td>
+        <td class="desc">GitHub ops via <code>gh</code> CLI — issues, PRs, CI runs, code review, API queries.</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="skill-name">mcporter</span><span class="source-tag source-bundled">bundled</span></td>
+        <td class="desc">List, configure, auth, and call MCP servers/tools directly (HTTP or stdio). Gateway for external tool integrations.</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="skill-name">oracle</span><span class="source-tag source-bundled">bundled</span></td>
+        <td class="desc">Browser automation for ChatGPT Pro ($200/mo). Prompt + file bundling, engines, sessions.</td>
+        <td><span class="badge badge-config">MCP</span></td>
+      </tr>
+      <tr>
+        <td><span class="skill-name">discord</span><span class="source-tag source-bundled">bundled</span></td>
+        <td class="desc">Discord operations — send, manage channels, polls, reactions, threads, roles, moderation via message tool.</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="skill-name">voice-call</span><span class="source-tag source-bundled">bundled</span></td>
+        <td class="desc">Voice calls via Telnyx. Notify mode, streaming, funnel webhooks via Tailscale.</td>
+        <td><span class="badge badge-config">Telnyx</span></td>
+      </tr>
+      <tr>
+        <td><span class="skill-name">nano-banana-pro</span><span class="source-tag source-bundled">bundled</span></td>
+        <td class="desc">Generate or edit images via Gemini 3 Pro Image generation.</td>
+        <td><span class="badge badge-config">API key</span></td>
+      </tr>
+      <tr>
+        <td><span class="skill-name">nano-pdf</span><span class="source-tag source-bundled">bundled</span></td>
+        <td class="desc">Edit PDFs with natural-language instructions via CLI.</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="skill-name">openai-whisper-api</span><span class="source-tag source-bundled">bundled</span></td>
+        <td class="desc">Transcribe audio via OpenAI Whisper API. Handles all voice notes.</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="skill-name">summarize</span><span class="source-tag source-bundled">bundled</span></td>
+        <td class="desc">Summarize/extract text from URLs, podcasts, YouTube, local files. Transcript fallback.</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="skill-name">video-frames</span><span class="source-tag source-bundled">bundled</span></td>
+        <td class="desc">Extract frames or short clips from videos using ffmpeg.</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="skill-name">peekaboo</span><span class="source-tag source-bundled">bundled</span></td>
+        <td class="desc">Capture and automate macOS UI — screenshots, window control, accessibility tree.</td>
+        <td><span class="badge badge-config">enabled</span></td>
+      </tr>
+      <tr>
+        <td><span class="skill-name">healthcheck</span><span class="source-tag source-bundled">bundled</span></td>
+        <td class="desc">Host security hardening, firewall/SSH audits, risk posture, periodic cron checks.</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="skill-name">weather</span><span class="source-tag source-bundled">bundled</span></td>
+        <td class="desc">Current weather and forecasts via wttr.in or Open-Meteo. No API key needed.</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="skill-name">clawhub</span><span class="source-tag source-bundled">bundled</span></td>
+        <td class="desc">Search, install, update, and publish skills from clawhub.com marketplace.</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="skill-name">skill-creator</span><span class="source-tag source-bundled">bundled</span></td>
+        <td class="desc">Create or update AgentSkill packages with scripts, references, and assets.</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- DISABLED SKILLS -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-dot" style="background: var(--accent-disabled);"></div>
+    <h2>Disabled — Installed but turned off in config</h2>
+    <span class="section-count">13 skills</span>
+  </div>
+  <table>
+    <thead><tr><th>Skill</th><th>Description</th><th>Why Disabled</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><span class="skill-name">openai-image-gen</span></td>
+        <td class="desc">Batch-generate images via OpenAI Images API with random prompt sampler + gallery.</td>
+        <td class="desc">Replaced by nano-banana-pro (Gemini)</td>
+      </tr>
+      <tr>
+        <td><span class="skill-name">gemini</span></td>
+        <td class="desc">Gemini CLI for one-shot Q&A, summaries, and generation.</td>
+        <td class="desc">Direct model access via provider config instead</td>
+      </tr>
+      <tr>
+        <td><span class="skill-name">model-usage</span></td>
+        <td class="desc">CodexBar CLI to summarize per-model usage and costs.</td>
+        <td class="desc">Replaced by /status and session_status</td>
+      </tr>
+      <tr>
+        <td><span class="skill-name">gh-issues</span></td>
+        <td class="desc">Fetch GitHub issues, spawn sub-agents for fixes, open PRs, monitor reviews.</td>
+        <td class="desc">Superseded by github + coding-agent combo</td>
+      </tr>
+      <tr>
+        <td><span class="skill-name">apple-notes</span></td>
+        <td class="desc">Manage Apple Notes via <code>memo</code> CLI (create, view, edit, search, export).</td>
+        <td class="desc">Not in use</td>
+      </tr>
+      <tr>
+        <td><span class="skill-name">apple-reminders</span></td>
+        <td class="desc">Manage Apple Reminders via <code>remindctl</code> CLI.</td>
+        <td class="desc">Not in use</td>
+      </tr>
+      <tr>
+        <td><span class="skill-name">bear-notes</span></td>
+        <td class="desc">Create, search, and manage Bear notes via <code>grizzly</code> CLI.</td>
+        <td class="desc">Not in use</td>
+      </tr>
+      <tr>
+        <td><span class="skill-name">things-mac</span></td>
+        <td class="desc">Manage Things 3 via CLI — add/update projects + todos, search tasks.</td>
+        <td class="desc">Not in use</td>
+      </tr>
+      <tr>
+        <td><span class="skill-name">1password</span></td>
+        <td class="desc">1Password CLI (<code>op</code>) — set up, sign in, read/inject/run secrets.</td>
+        <td class="desc">Not configured</td>
+      </tr>
+      <tr>
+        <td><span class="skill-name">bluebubbles</span></td>
+        <td class="desc">Send/manage iMessages via BlueBubbles server integration.</td>
+        <td class="desc">Not configured</td>
+      </tr>
+      <tr>
+        <td><span class="skill-name">imsg</span></td>
+        <td class="desc">iMessage/SMS CLI — list chats, history, send messages via Messages.app.</td>
+        <td class="desc">Not configured</td>
+      </tr>
+      <tr>
+        <td><span class="skill-name">obsidian</span></td>
+        <td class="desc">Work with Obsidian vaults and automate via obsidian-cli.</td>
+        <td class="desc">Using memory/*.md instead</td>
+      </tr>
+      <tr>
+        <td><span class="skill-name">songsee</span></td>
+        <td class="desc">Generate spectrograms and audio feature visualizations.</td>
+        <td class="desc">Not in use</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- MISSING SKILLS -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-dot" style="background: var(--accent-missing);"></div>
+    <h2>Missing — Bundled but CLI dependency not installed</h2>
+    <span class="section-count">21 skills</span>
+  </div>
+  <table>
+    <thead><tr><th>Skill</th><th>Description</th><th>Requires</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><span class="skill-name">blogwatcher</span></td>
+        <td class="desc">Monitor blogs and RSS/Atom feeds for updates.</td>
+        <td class="desc"><code>blogwatcher</code> CLI</td>
+      </tr>
+      <tr>
+        <td><span class="skill-name">blucli</span></td>
+        <td class="desc">BluOS CLI for speaker discovery, playback, grouping, volume.</td>
+        <td class="desc"><code>blu</code> CLI + BluOS speakers</td>
+      </tr>
+      <tr>
+        <td><span class="skill-name">camsnap</span></td>
+        <td class="desc">Capture frames or clips from RTSP/ONVIF cameras.</td>
+        <td class="desc"><code>camsnap</code> CLI + cameras</td>
+      </tr>
+      <tr>
+        <td><span class="skill-name">eightctl</span></td>
+        <td class="desc">Control Eight Sleep pods — status, temp, alarms, schedules.</td>
+        <td class="desc"><code>eightctl</code> CLI + Eight Sleep</td>
+      </tr>
+      <tr>
+        <td><span class="skill-name">gifgrep</span></td>
+        <td class="desc">Search GIF providers, download results, extract stills/sheets.</td>
+        <td class="desc"><code>gifgrep</code> CLI</td>
+      </tr>
+      <tr>
+        <td><span class="skill-name">goplaces</span></td>
+        <td class="desc">Google Places API for text search, place details, reviews.</td>
+        <td class="desc"><code>goplaces</code> CLI (API key configured ✓)</td>
+      </tr>
+      <tr>
+        <td><span class="skill-name">himalaya</span></td>
+        <td class="desc">Email management via IMAP/SMTP — list, read, write, search, organize.</td>
+        <td class="desc"><code>himalaya</code> CLI</td>
+      </tr>
+      <tr>
+        <td><span class="skill-name">notion</span></td>
+        <td class="desc">Notion API — create/manage pages, databases, blocks.</td>
+        <td class="desc"><code>notion</code> CLI (API token configured ✓)</td>
+      </tr>
+      <tr>
+        <td><span class="skill-name">openai-whisper</span></td>
+        <td class="desc">Local speech-to-text with Whisper CLI (no API key, runs on device).</td>
+        <td class="desc"><code>whisper</code> CLI</td>
+      </tr>
+      <tr>
+        <td><span class="skill-name">openhue</span></td>
+        <td class="desc">Control Philips Hue lights and scenes.</td>
+        <td class="desc"><code>openhue</code> CLI + Hue Bridge</td>
+      </tr>
+      <tr>
+        <td><span class="skill-name">ordercli</span></td>
+        <td class="desc">Foodora order checking and active order status.</td>
+        <td class="desc"><code>ordercli</code> CLI</td>
+      </tr>
+      <tr>
+        <td><span class="skill-name">sag</span></td>
+        <td class="desc">ElevenLabs text-to-speech with mac-style <code>say</code> UX.</td>
+        <td class="desc"><code>sag</code> CLI + ElevenLabs key</td>
+      </tr>
+      <tr>
+        <td><span class="skill-name">session-logs</span></td>
+        <td class="desc">Search and analyze your own session logs using jq.</td>
+        <td class="desc"><code>jq</code> + log files</td>
+      </tr>
+      <tr>
+        <td><span class="skill-name">sherpa-onnx-tts</span></td>
+        <td class="desc">Local text-to-speech via sherpa-onnx (offline, no cloud).</td>
+        <td class="desc"><code>sherpa-onnx</code> binary</td>
+      </tr>
+      <tr>
+        <td><span class="skill-name">slack</span></td>
+        <td class="desc">Control Slack — reactions, pins, messages in channels/DMs.</td>
+        <td class="desc">Slack app config</td>
+      </tr>
+      <tr>
+        <td><span class="skill-name">sonoscli</span></td>
+        <td class="desc">Control Sonos speakers — discover, status, play, volume, group.</td>
+        <td class="desc"><code>sonoscli</code> CLI + Sonos speakers</td>
+      </tr>
+      <tr>
+        <td><span class="skill-name">spotify-player</span></td>
+        <td class="desc">Terminal Spotify playback/search via <code>spogo</code> or <code>spotify_player</code>.</td>
+        <td class="desc"><code>spogo</code> CLI + Spotify Premium</td>
+      </tr>
+      <tr>
+        <td><span class="skill-name">tmux</span></td>
+        <td class="desc">Remote-control tmux sessions — send keystrokes, scrape pane output.</td>
+        <td class="desc"><code>tmux</code></td>
+      </tr>
+      <tr>
+        <td><span class="skill-name">trello</span></td>
+        <td class="desc">Manage Trello boards, lists, and cards via REST API.</td>
+        <td class="desc">Trello API token</td>
+      </tr>
+      <tr>
+        <td><span class="skill-name">wacli</span></td>
+        <td class="desc">Send WhatsApp messages to others or search/sync WhatsApp history.</td>
+        <td class="desc"><code>wacli</code> CLI</td>
+      </tr>
+      <tr>
+        <td><span class="skill-name">xurl</span></td>
+        <td class="desc">Authenticated X (Twitter) API v2 — post, reply, search, DMs, media uploads.</td>
+        <td class="desc"><code>xurl</code> CLI (bearer token configured ✓)</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- CLI REFERENCE -->
+<div class="cli-section">
+  <h3>Quick Commands to See Skills</h3>
+  <div class="cli-cmd"><span class="prompt">$</span><code>openclaw skills list</code><span class="note">full table with status</span></div>
+  <div class="cli-cmd"><span class="prompt">$</span><code>openclaw skills list --eligible</code><span class="note">only ready skills</span></div>
+  <div class="cli-cmd"><span class="prompt">$</span><code>openclaw skills check</code><span class="note">check dependencies</span></div>
+  <div class="cli-cmd"><span class="prompt">$</span><code>openclaw skills info &lt;name&gt;</code><span class="note">detail on one skill</span></div>
+  <div class="cli-cmd"><span class="prompt">$</span><code>openclaw dashboard</code><span class="note">opens Control UI in browser</span></div>
+
+  <div class="note-box">
+    <strong>Dashboard UI:</strong> <code>openclaw dashboard</code> opens the web Control UI at <code>https://mba-m2.tail400b7.ts.net</code>. The dashboard shows sessions, config, and gateway status — but skills aren't listed there yet. For now, <code>openclaw skills list</code> is the one-stop command. You can also ask me anytime.
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+<title>AI-Native CI/CD — The Solo Builder's Playbook</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;600;700;800&family=Fragment+Mono&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --font-body: 'Bricolage Grotesque', system-ui, sans-serif;
+    --font-mono: 'Fragment Mono', 'SF Mono', Consolas, monospace;
+
+    --bg: #f6f3ee;
+    --surface: #ffffff;
+    --surface2: #efeadf;
+    --surface-elevated: #fffdf8;
+    --border: rgba(30, 58, 95, 0.09);
+    --border-strong: rgba(30, 58, 95, 0.18);
+    --text: #1a1a1a;
+    --text-dim: #6b6560;
+
+    --navy: #1e3a5f;
+    --navy-dim: rgba(30, 58, 95, 0.08);
+    --gold: #b5860f;
+    --gold-dim: rgba(181, 134, 15, 0.09);
+    --gold-bright: #d4a73a;
+    --sage: #3d7a4a;
+    --sage-dim: rgba(61, 122, 74, 0.08);
+    --cranberry: #9b2c3f;
+    --cranberry-dim: rgba(155, 44, 63, 0.08);
+    --slate: #4a5568;
+    --slate-dim: rgba(74, 85, 104, 0.08);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #141210;
+      --surface: #1e1b18;
+      --surface2: #28241f;
+      --surface-elevated: #2a2620;
+      --border: rgba(212, 167, 58, 0.10);
+      --border-strong: rgba(212, 167, 58, 0.22);
+      --text: #ede5d8;
+      --text-dim: #a09585;
+
+      --navy: #7aaed4;
+      --navy-dim: rgba(122, 174, 212, 0.12);
+      --gold: #d4a73a;
+      --gold-dim: rgba(212, 167, 58, 0.14);
+      --gold-bright: #e8c060;
+      --sage: #7edb83;
+      --sage-dim: rgba(126, 219, 131, 0.12);
+      --cranberry: #f08cab;
+      --cranberry-dim: rgba(240, 140, 171, 0.12);
+      --slate: #94a3b8;
+      --slate-dim: rgba(148, 163, 184, 0.12);
+    }
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--font-body);
+    color: var(--text);
+    background: var(--bg);
+    background-image:
+      radial-gradient(ellipse at 15% 0%, var(--gold-dim) 0%, transparent 44%),
+      radial-gradient(ellipse at 90% 100%, var(--navy-dim) 0%, transparent 36%);
+    padding: 48px 48px 100px;
+    overflow-wrap: break-word;
+  }
+  a { color: var(--navy); }
+
+  /* ── NAV ── */
+  .wrap { max-width: 1340px; margin: 0 auto; display: grid; grid-template-columns: 180px 1fr; gap: 0 44px; }
+  .main { min-width: 0; }
+
+  .toc { position: sticky; top: 28px; align-self: start; max-height: calc(100dvh - 56px); overflow-y: auto; padding: 10px 0; grid-row: 1 / -1; }
+  .toc::-webkit-scrollbar { width: 3px; }
+  .toc::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 99px; }
+  .toc-title { font-family: var(--font-mono); font-size: 9px; letter-spacing: 2.2px; text-transform: uppercase; color: var(--text-dim); padding-bottom: 12px; margin-bottom: 10px; border-bottom: 1px solid var(--border); }
+  .toc a { display: block; font-size: 12px; color: var(--text-dim); text-decoration: none; padding: 5px 10px; border-left: 2px solid transparent; border-radius: 0 6px 6px 0; margin-bottom: 2px; transition: all .15s; line-height: 1.45; }
+  .toc a:hover { color: var(--text); background: var(--surface); }
+  .toc a.active { color: var(--gold); border-left-color: var(--gold); font-weight: 600; }
+
+  /* ── ANIMATION ── */
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeScale { from { opacity: 0; transform: scale(.94); } to { opacity: 1; transform: scale(1); } }
+  .anim { animation: fadeUp .5s ease both; animation-delay: calc(var(--d, 0) * .07s); }
+  .anim-s { animation: fadeScale .4s ease both; animation-delay: calc(var(--d, 0) * .07s); }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+
+  /* ── HERO ── */
+  .hero {
+    background: linear-gradient(175deg, var(--surface-elevated), var(--surface));
+    border: 1px solid var(--border-strong);
+    border-radius: 28px;
+    padding: 48px 44px;
+    box-shadow: 0 20px 50px rgba(0,0,0,.06);
+    margin-bottom: 28px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    right: -40px; bottom: -60px;
+    width: 380px; height: 380px;
+    background: radial-gradient(circle, var(--gold-dim) 0%, transparent 65%);
+    pointer-events: none;
+  }
+  .hero-badge {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gold);
+    border: 1px solid var(--gold-dim);
+    border-radius: 99px;
+    padding: 5px 14px;
+    margin-bottom: 24px;
+  }
+  h1 {
+    font-size: clamp(38px, 5.5vw, 62px);
+    font-weight: 800;
+    line-height: 1.0;
+    letter-spacing: -2.5px;
+    max-width: 14ch;
+    margin-bottom: 20px;
+  }
+  .lead {
+    font-size: 19px;
+    line-height: 1.65;
+    color: var(--text);
+    max-width: 62ch;
+    margin-bottom: 32px;
+  }
+  .lead strong { color: var(--navy); }
+
+  .hero-split { display: grid; grid-template-columns: 1fr 340px; gap: 32px; align-items: start; }
+
+  .thesis {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--gold);
+    border-radius: 0 16px 16px 0;
+    padding: 22px 24px;
+  }
+  .thesis-title { font-size: 15px; font-weight: 700; margin-bottom: 8px; color: var(--navy); }
+  .thesis p { font-size: 14px; line-height: 1.7; color: var(--text-dim); }
+
+  .kpi-strip {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-top: 28px;
+  }
+  .kpi {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+    text-align: center;
+  }
+  .kpi-val { font-size: 34px; font-weight: 800; line-height: 1; letter-spacing: -1px; }
+  .kpi-lbl { font-family: var(--font-mono); font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-dim); margin-top: 8px; }
+
+  /* ── SECTION HEADS ── */
+  .sec { scroll-margin-top: 60px; display: flex; align-items: center; gap: 14px; margin: 36px 0 18px; }
+  .sec-n { width: 34px; height: 34px; border-radius: 999px; background: var(--navy-dim); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 12px; color: var(--navy); flex-shrink: 0; }
+  .sec h2 { font-size: 26px; font-weight: 700; letter-spacing: -.7px; }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 22px;
+    padding: 28px;
+    box-shadow: 0 8px 30px rgba(0,0,0,.04);
+  }
+  .card--hero {
+    background: linear-gradient(175deg, var(--surface-elevated), var(--surface));
+    box-shadow: 0 12px 40px rgba(0,0,0,.06);
+    border-color: var(--border-strong);
+  }
+  .card--flush { padding: 0; overflow: hidden; }
+
+  /* ── GRIDS ── */
+  .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .g3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  .g2 > *, .g3 > * { min-width: 0; }
+  .stack { display: grid; gap: 18px; }
+
+  /* ── LANE CARDS ── */
+  .lane {
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    padding: 20px;
+    background: var(--surface);
+  }
+  .lane--navy { border-left: 3px solid var(--navy); }
+  .lane--gold { border-left: 3px solid var(--gold); }
+  .lane--sage { border-left: 3px solid var(--sage); }
+  .lane--cranberry { border-left: 3px solid var(--cranberry); }
+  .lane--slate { border-left: 3px solid var(--slate); }
+  .lane-eyebrow { font-family: var(--font-mono); font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 10px; }
+  .lane-eyebrow--navy { color: var(--navy); }
+  .lane-eyebrow--gold { color: var(--gold); }
+  .lane-eyebrow--sage { color: var(--sage); }
+  .lane-eyebrow--cranberry { color: var(--cranberry); }
+  .lane-eyebrow--slate { color: var(--slate); }
+  .lane h3 { font-size: 17px; font-weight: 700; margin-bottom: 8px; }
+  .lane p { font-size: 13px; line-height: 1.65; color: var(--text-dim); }
+
+  /* ── PIPELINE ── */
+  .pipe { display: flex; gap: 0; align-items: stretch; overflow-x: auto; padding-bottom: 6px; }
+  .pipe-step {
+    flex-shrink: 0;
+    min-width: 160px;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    padding: 18px 16px;
+    background: var(--surface);
+  }
+  .pipe-arr { display: flex; align-items: center; padding: 0 3px; flex-shrink: 0; }
+  .pipe-arr svg { width: 28px; height: 28px; }
+
+  /* ── COMPARE ── */
+  .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .compare > * { min-width: 0; }
+  .cmp-card { border-radius: 16px; border: 1px solid var(--border); overflow: hidden; }
+  .cmp-head { padding: 12px 18px; font-family: var(--font-mono); font-size: 11px; letter-spacing: 1.4px; text-transform: uppercase; border-bottom: 1px solid var(--border); }
+  .cmp-head--no { background: var(--cranberry-dim); color: var(--cranberry); }
+  .cmp-head--yes { background: var(--sage-dim); color: var(--sage); }
+  .cmp-body { padding: 18px 20px; background: var(--surface); }
+
+  /* ── TABLE ── */
+  .tw { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; overflow: hidden; }
+  .ts { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; line-height: 1.6; }
+  thead { position: sticky; top: 0; z-index: 1; }
+  th { background: var(--surface2); text-align: left; padding: 14px 18px; border-bottom: 2px solid var(--border-strong); font-family: var(--font-mono); font-size: 10px; letter-spacing: 1.4px; text-transform: uppercase; color: var(--text-dim); white-space: nowrap; }
+  td { padding: 14px 18px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  tbody tr:nth-child(even) { background: var(--gold-dim); }
+  tbody tr:last-child td { border-bottom: none; }
+  code { font-family: var(--font-mono); font-size: 11px; background: var(--navy-dim); color: var(--navy); padding: 2px 6px; border-radius: 4px; }
+
+  .badge { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 4px 11px; font-family: var(--font-mono); font-size: 10px; letter-spacing: .4px; text-transform: uppercase; white-space: nowrap; }
+  .badge::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+  .badge--hard { color: var(--sage); background: var(--sage-dim); }
+  .badge--soft { color: var(--gold); background: var(--gold-dim); }
+  .badge--context { color: var(--slate); background: var(--slate-dim); }
+
+  /* ── LISTS ── */
+  .li { list-style: none; display: grid; gap: 10px; }
+  .li li { position: relative; padding-left: 16px; line-height: 1.65; font-size: 14px; }
+  .li li::before { content: '›'; position: absolute; left: 0; color: var(--gold); font-weight: 700; }
+
+  /* ── CALLOUT ── */
+  .callout {
+    border-left: 3px solid var(--gold);
+    background: var(--gold-dim);
+    border-radius: 0 14px 14px 0;
+    padding: 18px 22px;
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--text-dim);
+  }
+  .callout strong { color: var(--text); }
+
+  /* ── PULLQUOTE ── */
+  .pullquote {
+    margin: 32px 0;
+    padding: 0 0 0 28px;
+    border-left: 3px solid var(--navy);
+  }
+  .pullquote p {
+    font-size: 22px;
+    font-weight: 600;
+    line-height: 1.35;
+    letter-spacing: -.4px;
+    color: var(--navy);
+  }
+
+  /* ── TIMELINE ── */
+  .timeline { position: relative; padding-left: 32px; }
+  .timeline::before { content: ''; position: absolute; left: 11px; top: 0; bottom: 0; width: 2px; background: var(--border-strong); border-radius: 99px; }
+  .tl-item { position: relative; margin-bottom: 22px; }
+  .tl-item::before { content: ''; position: absolute; left: -27px; top: 6px; width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--gold); background: var(--bg); }
+  .tl-item:last-child::before { background: var(--gold); }
+  .tl-when { font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 1.3px; margin-bottom: 6px; }
+  .tl-when--navy { color: var(--navy); }
+  .tl-when--gold { color: var(--gold); }
+  .tl-when--sage { color: var(--sage); }
+  .tl-title { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+  .tl-copy { font-size: 13px; line-height: 1.65; color: var(--text-dim); }
+
+  /* ── COLLAPSIBLE ── */
+  details.coll { border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+  details.coll summary { list-style: none; cursor: pointer; padding: 14px 20px; font-family: var(--font-mono); font-size: 12px; display: flex; align-items: center; gap: 8px; background: var(--surface); transition: background .15s; }
+  details.coll summary::-webkit-details-marker { display: none; }
+  details.coll summary::before { content: '▸'; color: var(--text-dim); transition: transform .15s; font-size: 11px; }
+  details.coll[open] summary::before { transform: rotate(90deg); }
+  details.coll summary:hover { background: var(--surface-elevated); }
+  .coll-body { padding: 18px 20px; border-top: 1px solid var(--border); font-size: 14px; line-height: 1.7; color: var(--text-dim); }
+  .coll-body strong { color: var(--text); }
+
+  .foot { font-family: var(--font-mono); font-size: 11px; color: var(--text-dim); margin-top: 14px; letter-spacing: .3px; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 1060px) {
+    .wrap { grid-template-columns: 1fr; }
+    .toc { position: sticky; top: 0; z-index: 20; display: flex; gap: 4px; overflow-x: auto; max-height: none; background: color-mix(in srgb, var(--bg) 90%, transparent); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); margin: 0 -48px 22px; padding: 10px 48px; grid-row: auto; }
+    .toc-title { display: none; }
+    .toc a { white-space: nowrap; border-left: none; border-bottom: 2px solid transparent; border-radius: 4px 4px 0 0; font-size: 11px; }
+    .toc a.active { border-left: none; border-bottom-color: var(--gold); }
+    .sec { scroll-margin-top: 58px; }
+    .hero-split, .g2, .g3, .compare { grid-template-columns: 1fr; }
+    .kpi-strip { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 700px) {
+    body { padding: 20px 20px 60px; }
+    .toc { margin: 0 -20px 16px; padding: 10px 20px; }
+    .hero { padding: 28px 22px; border-radius: 20px; }
+    .card { padding: 20px; border-radius: 18px; }
+    h1 { max-width: none; }
+    .pipe-step { min-width: 140px; }
+    th, td { padding: 11px 14px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav class="toc" id="toc">
+    <div class="toc-title">Playbook</div>
+    <a href="#s1">1. Your operating model</a>
+    <a href="#s2">2. The PR lifecycle</a>
+    <a href="#s3">3. Hard vs soft gates</a>
+    <a href="#s4">4. AI reviewer roles</a>
+    <a href="#s5">5. Deploy + observe</a>
+    <a href="#s6">6. Full stack rec</a>
+    <a href="#s7">7. Rollout timeline</a>
+  </nav>
+
+  <main class="main">
+    <!-- ═══════════════ HERO ═══════════════ -->
+    <section class="hero anim" style="--d:0">
+      <span class="hero-badge">Solo builder playbook — 2026</span>
+      <div class="hero-split">
+        <div>
+          <h1>Your AI software factory, properly wired</h1>
+          <p class="lead">You don't write code. You write <strong>requirements, constraints, and quality policy</strong>. AI does the implementation. GitHub rules, previews, and production telemetry stop it from shipping garbage. This page is the complete architecture for that workflow.</p>
+          <div class="kpi-strip">
+            <div class="kpi anim-s" style="--d:2"><div class="kpi-val" style="color:var(--navy)">0</div><div class="kpi-lbl">lines you write</div></div>
+            <div class="kpi anim-s" style="--d:3"><div class="kpi-val" style="color:var(--gold)">1</div><div class="kpi-lbl">default reviewer</div></div>
+            <div class="kpi anim-s" style="--d:4"><div class="kpi-val" style="color:var(--sage)">5</div><div class="kpi-lbl">required checks</div></div>
+            <div class="kpi anim-s" style="--d:5"><div class="kpi-val" style="color:var(--cranberry)">∞</div><div class="kpi-lbl">AI fix loops</div></div>
+          </div>
+        </div>
+        <div class="thesis anim" style="--d:3">
+          <div class="thesis-title">The pushback you need to hear</div>
+          <p>"I won't write code" is fine — plenty of successful products are built that way now. "I'll trust AI to maximum" is where it gets dangerous. AI can build, review, and fix. It should not approve itself, deploy itself, and declare itself healthy. That's not leverage. That's an unsupervised loop with your production database inside it.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════ S1: OPERATING MODEL ═══════════════ -->
+    <div class="sec anim" style="--d:0" id="s1"><span class="sec-n">01</span><h2>Your operating model</h2></div>
+    <section class="card card--hero anim stack" style="--d:1">
+      <div class="g3">
+        <div class="lane lane--navy">
+          <div class="lane-eyebrow lane-eyebrow--navy">Control plane</div>
+          <h3>Linear is the work queue</h3>
+          <p>Every piece of work starts as a Linear issue with a problem statement, acceptance criteria, and non-goals. AI builds from specs, not vibes. If the issue is vague, the PR will be vague.</p>
+        </div>
+        <div class="lane lane--gold">
+          <div class="lane-eyebrow lane-eyebrow--gold">Execution plane</div>
+          <h3>AI handles all implementation</h3>
+          <p>One issue → one branch → one PR. Small diffs let reviewers be sharp, previews be fast, and rollback be painless. Giant cross-cutting PRs are where AI-native projects die.</p>
+        </div>
+        <div class="lane lane--sage">
+          <div class="lane-eyebrow lane-eyebrow--sage">Truth plane</div>
+          <h3>CI + Sentry decide reality</h3>
+          <p>Tests, type checks, preview deploys, and production telemetry are the external truth layer. They exist because AI can write code that passes its own review but breaks in production.</p>
+        </div>
+      </div>
+
+      <div class="pullquote">
+        <p>Your job isn't coding anymore. It's owning the quality bar: branch protections, deploy policy, rollback rules, and the definition of "green enough to ship."</p>
+      </div>
+    </section>
+
+    <!-- ═══════════════ S2: PR LIFECYCLE ═══════════════ -->
+    <div class="sec anim" style="--d:0" id="s2"><span class="sec-n">02</span><h2>The PR lifecycle</h2></div>
+    <section class="card anim stack" style="--d:1">
+      <div class="pipe">
+        <div class="pipe-step" style="border-left:3px solid var(--navy)">
+          <div class="lane-eyebrow lane-eyebrow--navy">Step 1</div>
+          <h3 style="font-size:15px;margin-bottom:5px">Linear issue ready</h3>
+          <p style="font-size:12px;color:var(--text-dim);line-height:1.55">Problem, acceptance criteria, rollout notes.</p>
+        </div>
+        <div class="pipe-arr"><svg viewBox="0 0 28 28" fill="none" stroke="var(--border-strong)" stroke-width="2" stroke-linecap="round"><path d="M8 14h12M16 9l4 5-4 5"/></svg></div>
+        <div class="pipe-step" style="border-left:3px solid var(--gold)">
+          <div class="lane-eyebrow lane-eyebrow--gold">Step 2</div>
+          <h3 style="font-size:15px;margin-bottom:5px">AI opens branch + PR</h3>
+          <p style="font-size:12px;color:var(--text-dim);line-height:1.55"><code>feat/</code> or <code>fix/</code>. No long-lived <code>dev</code>.</p>
+        </div>
+        <div class="pipe-arr"><svg viewBox="0 0 28 28" fill="none" stroke="var(--border-strong)" stroke-width="2" stroke-linecap="round"><path d="M8 14h12M16 9l4 5-4 5"/></svg></div>
+        <div class="pipe-step" style="border-left:3px solid var(--cranberry)">
+          <div class="lane-eyebrow lane-eyebrow--cranberry">Step 3</div>
+          <h3 style="font-size:15px;margin-bottom:5px">PR = the work zone</h3>
+          <p style="font-size:12px;color:var(--text-dim);line-height:1.55">CI, AI review, preview deploy, fix loops — all here.</p>
+        </div>
+        <div class="pipe-arr"><svg viewBox="0 0 28 28" fill="none" stroke="var(--border-strong)" stroke-width="2" stroke-linecap="round"><path d="M8 14h12M16 9l4 5-4 5"/></svg></div>
+        <div class="pipe-step" style="border-left:3px solid var(--sage)">
+          <div class="lane-eyebrow lane-eyebrow--sage">Step 4</div>
+          <h3 style="font-size:15px;margin-bottom:5px">Merge to <code>main</code></h3>
+          <p style="font-size:12px;color:var(--text-dim);line-height:1.55">Auto-merge after all required checks pass.</p>
+        </div>
+        <div class="pipe-arr"><svg viewBox="0 0 28 28" fill="none" stroke="var(--border-strong)" stroke-width="2" stroke-linecap="round"><path d="M8 14h12M16 9l4 5-4 5"/></svg></div>
+        <div class="pipe-step" style="border-left:3px solid var(--slate)">
+          <div class="lane-eyebrow lane-eyebrow--slate">Step 5</div>
+          <h3 style="font-size:15px;margin-bottom:5px">Deploy from <code>main</code></h3>
+          <p style="font-size:12px;color:var(--text-dim);line-height:1.55">Production has one canonical source. Always.</p>
+        </div>
+      </div>
+
+      <div class="compare">
+        <div class="cmp-card">
+          <div class="cmp-head cmp-head--no">Antipatterns</div>
+          <div class="cmp-body">
+            <ul class="li">
+              <li>A permanent <code>dev</code> branch "because real teams use them"</li>
+              <li>Direct pushes to <code>main</code> — even "quick fixes"</li>
+              <li>Production deploys from feature branches</li>
+              <li>Mega-PRs touching auth, DB schema, and UI in one diff</li>
+              <li>AI reviewing + approving + deploying its own work in a closed loop</li>
+            </ul>
+          </div>
+        </div>
+        <div class="cmp-card">
+          <div class="cmp-head cmp-head--yes">What to do instead</div>
+          <div class="cmp-body">
+            <ul class="li">
+              <li>Short-lived feature branches, killed after merge</li>
+              <li>PR is the single place where all quality work happens</li>
+              <li>Protected <code>main</code> is always in a deployable state</li>
+              <li>Small PRs, fast merges, visible previews, clean rollback boundaries</li>
+              <li>External truth layer (CI + Sentry) that AI can't override</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════ S3: GATES ═══════════════ -->
+    <div class="sec anim" style="--d:0" id="s3"><span class="sec-n">03</span><h2>Hard gates vs soft gates</h2></div>
+    <section class="card anim stack" style="--d:1">
+      <p style="font-size:15px;line-height:1.7;color:var(--text-dim);max-width:72ch">If a check is objective and deterministic, make it block merges. If it's interpretive, keep it advisory. Three bots arguing about variable naming while a broken migration slides through is the exact failure mode you're trying to avoid.</p>
+
+      <div class="tw">
+        <div class="ts">
+          <table>
+            <thead><tr><th style="min-width:140px">Check</th><th style="min-width:200px">What it catches</th><th>Gate type</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Lint + format</strong></td><td>Style drift, dead imports, obvious mistakes — before anyone wastes review time.</td><td><span class="badge badge--hard">required</span></td></tr>
+              <tr><td><strong>Typecheck</strong></td><td>Broken signatures, invalid imports, contract violations.</td><td><span class="badge badge--hard">required</span></td></tr>
+              <tr><td><strong>Tests</strong></td><td>Behavioral correctness. At minimum: a smoke path for the critical user journey.</td><td><span class="badge badge--hard">required</span></td></tr>
+              <tr><td><strong>Build</strong></td><td>Whether the deploy artifact actually compiles and packages.</td><td><span class="badge badge--hard">required</span></td></tr>
+              <tr><td><strong>Preview deploy</strong></td><td>The running app on a real URL. Catches UI/integration problems that tests miss.</td><td><span class="badge badge--hard">required for ui apps</span></td></tr>
+              <tr><td><strong>AI review</strong></td><td>Suspicious logic, missing tests, security patterns, maintainability risks.</td><td><span class="badge badge--soft">advisory</span></td></tr>
+              <tr><td><strong>SAST / dep scan</strong></td><td>Known CVEs, dangerous patterns. Useful but noisy if not tuned.</td><td><span class="badge badge--soft">advisory by default</span></td></tr>
+              <tr><td><strong>Prod approval</strong></td><td>Human pause before production. Worth it only when blast radius is real.</td><td><span class="badge badge--context">context-dependent</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="callout"><strong>The rule:</strong> deterministic checks block. AI advises. If you let AI block on subjective style opinions, you'll spend more time managing the bot than managing the product.</div>
+    </section>
+
+    <!-- ═══════════════ S4: AI ROLES ═══════════════ -->
+    <div class="sec anim" style="--d:0" id="s4"><span class="sec-n">04</span><h2>AI reviewer roles</h2></div>
+    <section class="card anim stack" style="--d:1">
+      <p style="font-size:15px;line-height:1.7;color:var(--text-dim);max-width:72ch">One always-on reviewer. Two specialists invoked when needed. If all three pile onto every PR, you get duplicate comments, inconsistent severity, and attention fatigue. Keep the signal clean.</p>
+
+      <div class="g3">
+        <div class="lane lane--gold">
+          <div class="lane-eyebrow lane-eyebrow--gold">Always on</div>
+          <h3>CodeRabbit</h3>
+          <p>Default PR reviewer. Built for continuous review and planning. Comments on every PR automatically. This is your first line of AI review — reliable, configurable, and doesn't need prompting.</p>
+        </div>
+        <div class="lane lane--navy">
+          <div class="lane-eyebrow lane-eyebrow--navy">On demand</div>
+          <h3>Codex</h3>
+          <p>Invoke for security regressions, architecture scrutiny, and autonomous CI-fix loops. Best at: "this PR touches auth — give it a deep security pass" or "CI is red, fix it."</p>
+        </div>
+        <div class="lane lane--sage">
+          <div class="lane-eyebrow lane-eyebrow--sage">On demand</div>
+          <h3>Claude</h3>
+          <p>Invoke for issue-to-PR generation, implementation critique, and tricky repo-context reasoning. Best at: "turn this Linear issue into a working PR" or "review this migration for backward compat."</p>
+        </div>
+      </div>
+
+      <div class="g2">
+        <div class="lane lane--slate">
+          <div class="lane-eyebrow lane-eyebrow--slate">Give them context</div>
+          <h3>Repository instructions</h3>
+          <ul class="li" style="margin-top:8px">
+            <li>Keep a top-level <code>AGENTS.md</code> with review guidance.</li>
+            <li>Specify what matters in <em>this</em> repo: auth rules, PII policy, perf budgets, migration constraints.</li>
+            <li>Tell reviewers what to ignore: docs typos, generated files, subjective renames.</li>
+            <li>Link AI work to Linear issue IDs and acceptance criteria.</li>
+          </ul>
+        </div>
+        <div class="lane lane--cranberry">
+          <div class="lane-eyebrow lane-eyebrow--cranberry">Don't let them</div>
+          <h3>Unsupervised dangerous ops</h3>
+          <ul class="li" style="margin-top:8px">
+            <li>Approve their own deployment workflow changes.</li>
+            <li>Change secret handling without human scrutiny.</li>
+            <li>Ship giant cross-cutting PRs with no preview and no rollback plan.</li>
+            <li>Declare production healthy based only on their own review passing.</li>
+          </ul>
+        </div>
+      </div>
+
+      <details class="coll">
+        <summary>Why not make AI review a hard gate?</summary>
+        <div class="coll-body"><strong>You can</strong> — but only if the tool lets you scope severity. Making CodeRabbit block on every comment means it can hold up a PR over a naming suggestion. The better pattern: let AI flag <strong>critical/security</strong> findings as blocking, and keep everything else advisory. Most teams that start with "AI blocks all PRs" end up turning it off within a month because the false-positive rate is exhausting.</div>
+      </details>
+    </section>
+
+    <!-- ═══════════════ S5: DEPLOY + OBSERVE ═══════════════ -->
+    <div class="sec anim" style="--d:0" id="s5"><span class="sec-n">05</span><h2>Deploy + observe</h2></div>
+    <section class="card anim stack" style="--d:1">
+      <div class="g2">
+        <div>
+          <h3 style="margin-bottom:14px;font-size:18px">Environment model</h3>
+          <div class="pipe">
+            <div class="pipe-step" style="border-left:3px solid var(--gold)">
+              <div class="lane-eyebrow lane-eyebrow--gold">Every PR</div>
+              <h3 style="font-size:15px;margin-bottom:4px">Preview</h3>
+              <p style="font-size:12px;color:var(--text-dim);line-height:1.5">Vercel/Railway preview URL. Shareable. Optional smoke/E2E against it.</p>
+            </div>
+            <div class="pipe-arr"><svg viewBox="0 0 28 28" fill="none" stroke="var(--border-strong)" stroke-width="2" stroke-linecap="round"><path d="M8 14h12M16 9l4 5-4 5"/></svg></div>
+            <div class="pipe-step" style="border-left:3px solid var(--sage)">
+              <div class="lane-eyebrow lane-eyebrow--sage">Merge to main</div>
+              <h3 style="font-size:15px;margin-bottom:4px">Production</h3>
+              <p style="font-size:12px;color:var(--text-dim);line-height:1.5">Deploy only from protected <code>main</code>. Manual approval only when blast radius demands it.</p>
+            </div>
+          </div>
+          <div class="callout" style="margin-top:14px"><strong>Default for you:</strong> preview every PR, auto-deploy prod on merge. Don't build a staging environment unless you actually need release batching or stakeholder signoff.</div>
+        </div>
+        <div>
+          <h3 style="margin-bottom:14px;font-size:18px">Observability loop</h3>
+          <ul class="li">
+            <li><strong>Sentry from day one.</strong> Front-end and back-end exceptions, before the first real user shows up.</li>
+            <li><strong>Release tags</strong> on every production deploy so stack traces map to shipped commits.</li>
+            <li><strong>Uptime / health checks</strong> for critical endpoints and scheduled jobs.</li>
+            <li><strong>Regression intake</strong> back into Linear — AI picks up new bugs as work items automatically.</li>
+            <li><strong>Product analytics</strong> only where it sharpens roadmap or bug triage. Don't track for tracking's sake.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="tw">
+        <div class="ts">
+          <table>
+            <thead><tr><th>Platform</th><th>Default setup</th><th>When to tighten</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Vercel</strong></td><td>Auto previews on PR, auto prod on merge to <code>main</code>.</td><td>Add protected environment or post-deploy smoke tests once auth/billing risk grows.</td></tr>
+              <tr><td><strong>Railway</strong></td><td>Great for services, workers, APIs, cron-backed apps.</td><td>Add health endpoints, migration discipline, and env-var separation once state matters.</td></tr>
+              <tr><td><strong>AWS</strong></td><td>Use only when you actually need its control surface.</td><td>Prefer OIDC and least-privilege IAM roles. Secret sprawl gets ugly fast otherwise.</td></tr>
+              <tr><td><strong>Sentry</strong></td><td>Mandatory from first production launch.</td><td>Tune alert noise and ownership rules as project complexity grows.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════ S6: FULL STACK ═══════════════ -->
+    <div class="sec anim" style="--d:0" id="s6"><span class="sec-n">06</span><h2>Full recommended stack</h2></div>
+    <section class="card card--hero anim stack" style="--d:1">
+      <div class="tw">
+        <div class="ts">
+          <table>
+            <thead><tr><th>Area</th><th>Recommendation</th><th>Why this, not something else</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Issue tracking</strong></td><td>Linear</td><td>Clean handoff from product spec → AI execution. Better than GitHub Issues for structured requirements.</td></tr>
+              <tr><td><strong>Default AI reviewer</strong></td><td>CodeRabbit</td><td>Built for continuous PR review. One default voice is enough — three overlapping bots create noise.</td></tr>
+              <tr><td><strong>Specialist reviewers</strong></td><td>Codex + Claude</td><td>Invoke on demand for security, architecture, CI-fix loops, and issue-to-PR generation.</td></tr>
+              <tr><td><strong>Required CI checks</strong></td><td>Lint, typecheck, tests, build, preview</td><td>The minimum useful wall for AI-generated code. Catches the things AI reviews miss.</td></tr>
+              <tr><td><strong>Hosting</strong></td><td>Vercel / Railway</td><td>Faster loops, easier previews, less infra yak-shaving than raw AWS.</td></tr>
+              <tr><td><strong>Observability</strong></td><td>Sentry + uptime</td><td>Production truth has to exist outside the PR conversation.</td></tr>
+              <tr><td><strong>Branching</strong></td><td>Feature branch → PR → <code>main</code></td><td>Trunk-based development. No <code>dev</code> branch, no release trains, no ceremony.</td></tr>
+              <tr><td><strong>Merge mode</strong></td><td>Auto-merge after green checks</td><td>Once your gates are solid, manual merge approval adds delay without adding safety.</td></tr>
+              <tr><td><strong>Security</strong></td><td>Minimal <code>GITHUB_TOKEN</code>, pinned actions, OIDC</td><td>Workflow files are attack surface. Don't let bots casually rewrite them.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="g3">
+        <div class="lane lane--navy">
+          <div class="lane-eyebrow lane-eyebrow--navy">Git policy</div>
+          <h3>Protect main hard</h3>
+          <p>Require PRs, required checks, conversation resolution. Use GitHub rulesets over legacy branch protection — cleaner policy management.</p>
+        </div>
+        <div class="lane lane--gold">
+          <div class="lane-eyebrow lane-eyebrow--gold">Workflow policy</div>
+          <h3>Treat CI as prod infra</h3>
+          <p>Minimal token permissions, pinned action SHAs where practical. <code>.github/workflows/**</code> changes get extra scrutiny.</p>
+        </div>
+        <div class="lane lane--cranberry">
+          <div class="lane-eyebrow lane-eyebrow--cranberry">Delivery policy</div>
+          <h3>Small PRs or nothing</h3>
+          <p>If a PR touches auth, payments, infra, and UI all at once — split it. You're not proving bravery. You're making rollback impossible.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════ S7: TIMELINE ═══════════════ -->
+    <div class="sec anim" style="--d:0" id="s7"><span class="sec-n">07</span><h2>30-day rollout</h2></div>
+    <section class="card anim stack" style="--d:1">
+      <div class="timeline">
+        <div class="tl-item">
+          <div class="tl-when tl-when--navy">Week 1 — Foundation</div>
+          <div class="tl-title">Wire the safety rails</div>
+          <div class="tl-copy">Protect <code>main</code> with rulesets. Set up lint/typecheck/test/build as required checks. Connect Vercel or Railway for preview deploys. Install Sentry. Write your repo's <code>AGENTS.md</code> with review instructions for AI.</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-when tl-when--gold">Week 2 — AI work loops</div>
+          <div class="tl-title">Close the Linear → PR loop</div>
+          <div class="tl-copy">Set up Linear → branch → PR automation. Enable CodeRabbit as default reviewer. Configure <code>@codex</code> and <code>@claude</code> comment triggers for specialist review. Test the full cycle: issue → AI branch → PR → CI → review → merge → deploy.</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-when tl-when--sage">Weeks 3–4 — Tighten</div>
+          <div class="tl-title">Close the production feedback loop</div>
+          <div class="tl-copy">Add smoke tests on preview URLs. Enable Sentry release tagging on deploy. Set up regression-to-Linear intake so AI auto-picks up prod bugs. Add manual prod approval only if your app handles auth, payments, or user data that would be costly to break.</div>
+        </div>
+      </div>
+
+      <div class="callout"><strong>If you do only three things first:</strong> protect <code>main</code>, get preview deploys on every PR, and install Sentry before your first real user shows up. Those three buy you an absurd amount of sanity for about an hour of setup.</div>
+
+      <details class="coll">
+        <summary>What about the Linear → AI automation specifically?</summary>
+        <div class="coll-body"><strong>Symphony (OpenAI) and similar tools</strong> are emerging for Linear → agent orchestration. The pattern: a webhook fires when a Linear issue moves to "Ready for Dev," an agent picks it up, creates a branch, writes code, opens a PR, and links it back to the issue. You've already looked at this — the key is making sure the PR still goes through the full CI + review flow, not a shortcut path. The automation is in the <em>creation</em> of work, not the <em>approval</em> of work.</div>
+      </details>
+
+      <p class="foot">Sources: GitHub docs on branch protection, rulesets, environments, and Actions security. CodeRabbit, Codex, and Claude Code GitHub integration docs. All verified March 2026.</p>
+    </section>
+  </main>
+</div>
+
+<script>
+(function(){
+  var toc=document.getElementById('toc'),links=toc.querySelectorAll('a'),sections=[];
+  links.forEach(function(l){var id=l.getAttribute('href').slice(1),el=document.getElementById(id);if(el)sections.push({el:el,link:l})});
+  var obs=new IntersectionObserver(function(entries){entries.forEach(function(e){if(!e.isIntersecting)return;links.forEach(function(l){l.classList.remove('active')});var m=sections.find(function(s){return s.el===e.target});if(m){m.link.classList.add('active');if(window.innerWidth<=1060)m.link.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'})}})},{rootMargin:'-12% 0px -78% 0px'});
+  sections.forEach(function(s){obs.observe(s.el)});
+  links.forEach(function(l){l.addEventListener('click',function(e){e.preventDefault();var id=l.getAttribute('href').slice(1),el=document.getElementById(id);if(el){el.scrollIntoView({behavior:'smooth',block:'start'});history.replaceState(null,'','#'+id)}})});
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+<title>Opik 6-Day Analysis — Mar 9–14, 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --font-body: 'IBM Plex Sans', system-ui, sans-serif;
+    --font-mono: 'IBM Plex Mono', 'SF Mono', Consolas, monospace;
+    --bg: #fafaf9;
+    --surface: #ffffff;
+    --surface2: #f5f5f4;
+    --surface-elevated: #ffffff;
+    --border: rgba(0,0,0,0.06);
+    --border-bright: rgba(0,0,0,0.12);
+    --text: #1c1917;
+    --text-dim: #78716c;
+    --accent: #0369a1;
+    --accent-dim: rgba(3,105,161,0.06);
+    --accent2: #0891b2;
+    --green: #059669;
+    --green-dim: rgba(5,150,105,0.07);
+    --red: #dc2626;
+    --red-dim: rgba(220,38,38,0.06);
+    --orange: #d97706;
+    --orange-dim: rgba(217,119,6,0.06);
+    --teal: #0891b2;
+    --teal-dim: rgba(8,145,178,0.06);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0c0a09;
+      --surface: #1c1917;
+      --surface2: #292524;
+      --surface-elevated: #292524;
+      --border: rgba(255,255,255,0.06);
+      --border-bright: rgba(255,255,255,0.10);
+      --text: #e7e5e4;
+      --text-dim: #a8a29e;
+      --accent: #38bdf8;
+      --accent-dim: rgba(56,189,248,0.08);
+      --accent2: #22d3ee;
+      --green: #34d399;
+      --green-dim: rgba(52,211,153,0.08);
+      --red: #f87171;
+      --red-dim: rgba(248,113,113,0.08);
+      --orange: #fbbf24;
+      --orange-dim: rgba(251,191,36,0.08);
+      --teal: #22d3ee;
+      --teal-dim: rgba(34,211,238,0.08);
+    }
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: var(--bg);
+    background-image:
+      radial-gradient(ellipse at 20% 0%, var(--accent-dim) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 100%, var(--teal-dim) 0%, transparent 40%);
+    color: var(--text);
+    font-family: var(--font-body);
+    line-height: 1.6;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+  .page { max-width: 1100px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
+  @media (max-width: 768px) { .page { padding: 1.5rem 1rem 3rem; } }
+
+  /* Header */
+  .page-header { margin-bottom: 2.5rem; }
+  .page-header h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.25rem;
+  }
+  .page-header .subtitle {
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    color: var(--text-dim);
+  }
+
+  /* KPI Row */
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2.5rem;
+  }
+  .kpi {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.25rem;
+    animation: fadeUp 0.5s ease both;
+  }
+  .kpi:nth-child(1) { animation-delay: 0.05s; }
+  .kpi:nth-child(2) { animation-delay: 0.1s; }
+  .kpi:nth-child(3) { animation-delay: 0.15s; }
+  .kpi:nth-child(4) { animation-delay: 0.2s; }
+  .kpi:nth-child(5) { animation-delay: 0.25s; }
+  .kpi .label {
+    font-size: 0.72rem;
+    font-family: var(--font-mono);
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 0.35rem;
+  }
+  .kpi .value {
+    font-size: 1.6rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  .kpi .detail {
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    margin-top: 0.2rem;
+  }
+  .kpi--hero {
+    border-color: var(--accent);
+    border-width: 1.5px;
+    background: linear-gradient(135deg, var(--surface), var(--accent-dim));
+  }
+
+  /* Sections */
+  .section { margin-bottom: 2.5rem; }
+  .section-label {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .section-label::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    flex-shrink: 0;
+  }
+  .section h2 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+  }
+
+  /* Tables */
+  .table-wrap {
+    overflow-x: auto;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+  }
+  thead th {
+    position: sticky;
+    top: 0;
+    background: var(--surface2);
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-dim);
+    text-align: left;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border-bright);
+    white-space: nowrap;
+  }
+  thead th.right { text-align: right; }
+  tbody td {
+    padding: 0.65rem 1rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  tbody td.right { text-align: right; font-variant-numeric: tabular-nums; }
+  tbody td.mono { font-family: var(--font-mono); font-size: 0.78rem; }
+  tbody tr:nth-child(even) { background: var(--surface2); }
+  tbody tr:hover { background: var(--accent-dim); }
+  tbody tr { animation: fadeUp 0.3s ease both; }
+
+  /* Badges */
+  .badge {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    font-weight: 500;
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+  .badge--red { background: var(--red-dim); color: var(--red); }
+  .badge--orange { background: var(--orange-dim); color: var(--orange); }
+  .badge--green { background: var(--green-dim); color: var(--green); }
+  .badge--teal { background: var(--teal-dim); color: var(--teal); }
+  .badge--accent { background: var(--accent-dim); color: var(--accent); }
+
+  /* Sparkbar */
+  .sparkbar {
+    display: inline-block;
+    width: 60px;
+    height: 8px;
+    background: var(--surface2);
+    border-radius: 4px;
+    overflow: hidden;
+    vertical-align: middle;
+    margin-left: 0.4rem;
+  }
+  .sparkbar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.6s ease;
+  }
+  .sparkbar-fill--red { background: var(--red); }
+  .sparkbar-fill--orange { background: var(--orange); }
+  .sparkbar-fill--green { background: var(--green); }
+  .sparkbar-fill--accent { background: var(--accent); }
+
+  /* Cards */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1rem;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.25rem;
+    animation: fadeUp 0.4s ease both;
+  }
+  .card h3 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+  .card p, .card li {
+    font-size: 0.82rem;
+    color: var(--text-dim);
+    line-height: 1.55;
+  }
+  .card ul { padding-left: 1.1rem; margin-top: 0.35rem; }
+  .card li { margin-bottom: 0.25rem; }
+  .card--priority {
+    border-left: 3px solid var(--red);
+  }
+  .card--suggestion {
+    border-left: 3px solid var(--accent);
+  }
+  .card--info {
+    border-left: 3px solid var(--green);
+  }
+  .card .tag {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 0.4rem;
+  }
+  .card .tag--red { color: var(--red); }
+  .card .tag--accent { color: var(--accent); }
+  .card .tag--green { color: var(--green); }
+
+  /* Trend mini chart */
+  .trend-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
+    height: 50px;
+    padding: 0.5rem 0;
+  }
+  .trend-bar {
+    flex: 1;
+    border-radius: 3px 3px 0 0;
+    min-width: 12px;
+    position: relative;
+    transition: height 0.5s ease;
+  }
+  .trend-bar .tip {
+    position: absolute;
+    top: -18px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    color: var(--text-dim);
+    white-space: nowrap;
+  }
+  .trend-label {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    color: var(--text-dim);
+    text-align: center;
+    margin-top: 0.25rem;
+  }
+  .trend-row {
+    display: flex;
+    gap: 4px;
+    margin-top: 0.25rem;
+  }
+  .trend-row span {
+    flex: 1;
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    color: var(--text-dim);
+  }
+
+  /* Callout */
+  .callout {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 8px;
+    padding: 1rem 1.25rem;
+    font-size: 0.85rem;
+    margin: 1.5rem 0;
+  }
+  .callout strong { color: var(--accent); }
+
+  /* Animations */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; }
+  }
+
+  /* Details */
+  details {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-top: 1rem;
+  }
+  details summary {
+    padding: 0.75rem 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    cursor: pointer;
+    list-style: none;
+  }
+  details summary::before {
+    content: '▸ ';
+    color: var(--accent);
+  }
+  details[open] summary::before { content: '▾ '; }
+  details .inner { padding: 0.75rem 1rem 1rem; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <div class="page-header" style="animation: fadeUp 0.3s ease both;">
+    <h1>Opik 6-Day Analysis</h1>
+    <div class="subtitle">Mar 9 → Mar 14, 2026 · OpenClaw telemetry deep dive</div>
+  </div>
+
+  <!-- KPIs: 6-day aggregate -->
+  <div class="kpi-row">
+    <div class="kpi kpi--hero">
+      <div class="label">Total Traces</div>
+      <div class="value">555</div>
+      <div class="detail">avg 92.5/day</div>
+    </div>
+    <div class="kpi">
+      <div class="label">Total Tokens</div>
+      <div class="value">299M</div>
+      <div class="detail">avg 49.8M/day</div>
+    </div>
+    <div class="kpi">
+      <div class="label">Est. Cost</div>
+      <div class="value">$97.60</div>
+      <div class="detail">avg $16.27/day</div>
+    </div>
+    <div class="kpi">
+      <div class="label">Tool Errors</div>
+      <div class="value">171</div>
+      <div class="detail">3.3% of 5,220 calls</div>
+    </div>
+    <div class="kpi">
+      <div class="label">Top Offender</div>
+      <div class="value" style="font-size: 1.1rem;">web_fetch</div>
+      <div class="detail">19.4% error rate (latest)</div>
+    </div>
+  </div>
+
+  <!-- Section: Daily Cost & Volume Trend -->
+  <div class="section">
+    <div class="section-label">Cost & Volume Trend</div>
+
+    <div class="card-grid" style="grid-template-columns: 1fr 1fr;">
+      <div class="card">
+        <h3>Daily Cost ($)</h3>
+        <div class="trend-chart" style="height: 70px; align-items: flex-end;">
+          <div class="trend-bar" style="height: 71%; background: var(--accent);" title="$20.25"><div class="tip">$20</div></div>
+          <div class="trend-bar" style="height: 100%; background: var(--red);" title="$28.53"><div class="tip">$29</div></div>
+          <div class="trend-bar" style="height: 30%; background: var(--accent);" title="$8.58"><div class="tip">$9</div></div>
+          <div class="trend-bar" style="height: 11%; background: var(--green);" title="$3.18"><div class="tip">$3</div></div>
+          <div class="trend-bar" style="height: 77%; background: var(--accent);" title="$21.96"><div class="tip">$22</div></div>
+          <div class="trend-bar" style="height: 56%; background: var(--accent);" title="$16.10"><div class="tip">$16</div></div>
+        </div>
+        <div class="trend-row">
+          <span>Mar 9</span><span>Mar 10</span><span>Mar 11</span><span>Mar 12</span><span>Mar 13</span><span>Mar 14</span>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Daily Tool Errors</h3>
+        <div class="trend-chart" style="height: 70px; align-items: flex-end;">
+          <div class="trend-bar" style="height: 56%; background: var(--red);" title="38"><div class="tip">38</div></div>
+          <div class="trend-bar" style="height: 100%; background: var(--red);" title="68"><div class="tip">68</div></div>
+          <div class="trend-bar" style="height: 47%; background: var(--orange);" title="32"><div class="tip">32</div></div>
+          <div class="trend-bar" style="height: 3%; background: var(--green);" title="2"><div class="tip">2</div></div>
+          <div class="trend-bar" style="height: 18%; background: var(--orange);" title="12"><div class="tip">12</div></div>
+          <div class="trend-bar" style="height: 28%; background: var(--orange);" title="19"><div class="tip">19</div></div>
+        </div>
+        <div class="trend-row">
+          <span>Mar 9</span><span>Mar 10</span><span>Mar 11</span><span>Mar 12</span><span>Mar 13</span><span>Mar 14</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout" style="margin-top: 1rem;">
+      <strong>Pattern:</strong> Mar 10 was the noisiest day — 68 tool errors, $29 cost, 124 traces. The spike was browser + web_fetch heavy (skill eval & doc-lookup runs). Mar 12 was the cleanest day — only 2 tool errors, $3 cost. The system isn't degrading; noise correlates with workflow complexity, not platform health.
+    </div>
+  </div>
+
+  <!-- Section: The 3 Real Problems -->
+  <div class="section">
+    <div class="section-label">Root Cause Analysis — The 3 Real Problems</div>
+
+    <div class="card-grid" style="grid-template-columns: 1fr;">
+
+      <div class="card card--priority" style="animation-delay: 0.1s;">
+        <div class="tag tag--red">Problem 1 — Recurring 6/6 Days</div>
+        <h3>web_fetch: Speculative URL Fetching</h3>
+        <p>The single biggest error source across the entire 6-day window. Every single day has web_fetch errors — mostly 404s and 403s from blindly hitting URLs that either don't exist or are behind auth/firewalls.</p>
+        <ul>
+          <li><strong>Mar 9:</strong> 19 errors / 171 calls (11.1%) — 17 were "404 with security wrapper"</li>
+          <li><strong>Mar 10:</strong> 22 errors / 174 calls (12.6%) — 17 x 404, 4 x 401, 1 DNS failure</li>
+          <li><strong>Mar 11:</strong> 7 errors / 15 calls (46.7%) — 7 x 401 security wrapper</li>
+          <li><strong>Mar 12:</strong> 0 errors / 16 calls (0%) — clean day, low volume</li>
+          <li><strong>Mar 13:</strong> 7 errors / 38 calls (18.4%) — 5 x 404, 2 x 403</li>
+          <li><strong>Mar 14:</strong> 7 errors / 36 calls (19.4%) — 5 x 404, 2 x 403</li>
+        </ul>
+        <p style="margin-top: 0.5rem;"><strong>Root cause:</strong> The doc-lookup skill and cron-spawned agents guess at documentation URLs (e.g. docs.resend.com, Postmark pages) without verifying they exist first. The "security wrapper" errors are OpenClaw's own safety envelope on external content — the URLs themselves are returning 404/403/401.</p>
+      </div>
+
+      <div class="card card--priority" style="animation-delay: 0.2s;">
+        <div class="tag tag--red">Problem 2 — Recurring 4/6 Days</div>
+        <h3>browser: Stale References & Timeouts</h3>
+        <p>Browser errors appeared on 4 of 6 days and accounted for the second-highest error volume. Two distinct failure modes:</p>
+        <ul>
+          <li><strong>Stale tab/target IDs:</strong> 24 errors across Mar 9–11. Agent tries to interact with a tab ID from a previous snapshot that's already gone.</li>
+          <li><strong>UI action timeouts:</strong> 5 errors across Mar 9–13. Clicking or waiting for elements that never appear (8–10s timeouts).</li>
+          <li><strong>Element not found:</strong> 6 errors on Mar 10. Referencing e207, e269, e437 etc. from stale snapshots.</li>
+        </ul>
+        <p style="margin-top: 0.5rem;"><strong>Root cause:</strong> Agents use browser automation for tasks that could be done via API/exec/web_fetch. When they do use browser, they don't re-snapshot before acting. The skill eval runs on Mar 9–10 generated most of this noise — but the pattern (use API paths instead of browser) is a real design fix.</p>
+      </div>
+
+      <div class="card card--suggestion" style="animation-delay: 0.3s;">
+        <div class="tag tag--accent">Problem 3 — Recurring 4/6 Days</div>
+        <h3>message: Bad Target / Missing Params</h3>
+        <p>Discord message errors keep appearing — "unknown channel", "guildId required", "query required", "userId required", bad CV2 block types. Most are from cron-spawned agents that don't have the right channel context.</p>
+        <ul>
+          <li><strong>Mar 14:</strong> 10 errors / 183 calls (5.5%) — 8 x "unknown channel"</li>
+          <li><strong>Mar 11:</strong> 5 errors / 59 calls (8.5%) — mixed param errors</li>
+          <li><strong>Mar 13:</strong> 2 errors / 64 calls (3.1%) — channel type mismatch</li>
+          <li><strong>Mar 10:</strong> 1 error / 25 calls (4%)</li>
+        </ul>
+        <p style="margin-top: 0.5rem;"><strong>Root cause:</strong> Cron job payloads and sub-agents reference Discord channel IDs that are wrong or use actions not supported on the target channel type. This is a configuration problem, not a runtime problem.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section: Tool Error Rate Table -->
+  <div class="section">
+    <div class="section-label">Tool Error Rates — Day by Day</div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Tool</th>
+            <th class="right">Mar 9</th>
+            <th class="right">Mar 10</th>
+            <th class="right">Mar 11</th>
+            <th class="right">Mar 12</th>
+            <th class="right">Mar 13</th>
+            <th class="right">Mar 14</th>
+            <th class="right">6-Day Avg</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="mono">web_fetch</td>
+            <td class="right">11.1% <span class="sparkbar"><span class="sparkbar-fill sparkbar-fill--orange" style="width:23%"></span></span></td>
+            <td class="right">12.6% <span class="sparkbar"><span class="sparkbar-fill sparkbar-fill--orange" style="width:26%"></span></span></td>
+            <td class="right"><span class="badge badge--red">46.7%</span></td>
+            <td class="right"><span class="badge badge--green">0%</span></td>
+            <td class="right">18.4% <span class="sparkbar"><span class="sparkbar-fill sparkbar-fill--red" style="width:37%"></span></span></td>
+            <td class="right">19.4% <span class="sparkbar"><span class="sparkbar-fill sparkbar-fill--red" style="width:39%"></span></span></td>
+            <td class="right"><span class="badge badge--red">18.0%</span></td>
+          </tr>
+          <tr>
+            <td class="mono">browser</td>
+            <td class="right">8.5% <span class="sparkbar"><span class="sparkbar-fill sparkbar-fill--orange" style="width:17%"></span></span></td>
+            <td class="right"><span class="badge badge--red">19.4%</span></td>
+            <td class="right"><span class="badge badge--red">19.1%</span></td>
+            <td class="right"><span class="badge badge--green">0%</span></td>
+            <td class="right"><span class="badge badge--red">23.1%</span></td>
+            <td class="right">—</td>
+            <td class="right"><span class="badge badge--red">14.0%</span></td>
+          </tr>
+          <tr>
+            <td class="mono">message</td>
+            <td class="right"><span class="badge badge--green">0%</span></td>
+            <td class="right">4.0%</td>
+            <td class="right">8.5% <span class="sparkbar"><span class="sparkbar-fill sparkbar-fill--orange" style="width:17%"></span></span></td>
+            <td class="right"><span class="badge badge--green">0%</span></td>
+            <td class="right">3.1%</td>
+            <td class="right">5.5% <span class="sparkbar"><span class="sparkbar-fill sparkbar-fill--orange" style="width:11%"></span></span></td>
+            <td class="right"><span class="badge badge--orange">3.5%</span></td>
+          </tr>
+          <tr>
+            <td class="mono">exec</td>
+            <td class="right">1.6%</td>
+            <td class="right">1.8%</td>
+            <td class="right">1.1%</td>
+            <td class="right">2.3%</td>
+            <td class="right"><span class="badge badge--green">0%</span></td>
+            <td class="right">0.5%</td>
+            <td class="right"><span class="badge badge--green">1.2%</span></td>
+          </tr>
+          <tr>
+            <td class="mono">read</td>
+            <td class="right">2.1%</td>
+            <td class="right">2.5%</td>
+            <td class="right">0.8%</td>
+            <td class="right"><span class="badge badge--green">0%</span></td>
+            <td class="right"><span class="badge badge--green">0%</span></td>
+            <td class="right">0.7%</td>
+            <td class="right"><span class="badge badge--green">1.0%</span></td>
+          </tr>
+          <tr>
+            <td class="mono">gateway</td>
+            <td class="right"><span class="badge badge--red">28.6%</span></td>
+            <td class="right"><span class="badge badge--red">26.7%</span></td>
+            <td class="right">6.3%</td>
+            <td class="right">—</td>
+            <td class="right"><span class="badge badge--green">0%</span></td>
+            <td class="right">—</td>
+            <td class="right"><span class="badge badge--orange">10.3%</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="font-size: 0.75rem; color: var(--text-dim); margin-top: 0.5rem;">
+      "—" = tool not called that day. Error rates above 10% are flagged red, 3–10% orange, below 3% green.
+    </p>
+  </div>
+
+  <!-- Section: Error Fingerprint Recurrence -->
+  <div class="section">
+    <div class="section-label">Error Fingerprint Recurrence Map</div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Fingerprint</th>
+            <th>Tool</th>
+            <th class="right">Total Hits</th>
+            <th class="right">Days Active</th>
+            <th>Classification</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="--i:0">
+            <td class="mono">404 with security wrapper</td>
+            <td class="mono">web_fetch</td>
+            <td class="right">44</td>
+            <td class="right"><span class="badge badge--red">5/6</span></td>
+            <td><span class="badge badge--red">Workflow debt</span></td>
+          </tr>
+          <tr style="--i:1">
+            <td class="mono">stale tab/target id</td>
+            <td class="mono">browser</td>
+            <td class="right">24</td>
+            <td class="right"><span class="badge badge--red">3/6</span></td>
+            <td><span class="badge badge--red">Workflow debt</span></td>
+          </tr>
+          <tr style="--i:2">
+            <td class="mono">unknown channel</td>
+            <td class="mono">message</td>
+            <td class="right">9</td>
+            <td class="right"><span class="badge badge--orange">3/6</span></td>
+            <td><span class="badge badge--orange">Config debt</span></td>
+          </tr>
+          <tr style="--i:3">
+            <td class="mono">401 with security wrapper</td>
+            <td class="mono">web_fetch</td>
+            <td class="right">12</td>
+            <td class="right"><span class="badge badge--orange">3/6</span></td>
+            <td><span class="badge badge--red">Workflow debt</span></td>
+          </tr>
+          <tr style="--i:4">
+            <td class="mono">ripgrep missing (rg)</td>
+            <td class="mono">exec</td>
+            <td class="right">9</td>
+            <td class="right"><span class="badge badge--orange">3/6</span></td>
+            <td><span class="badge badge--teal">Env missing</span></td>
+          </tr>
+          <tr style="--i:5">
+            <td class="mono">ui action timeout</td>
+            <td class="mono">browser</td>
+            <td class="right">5</td>
+            <td class="right"><span class="badge badge--orange">3/6</span></td>
+            <td><span class="badge badge--red">Workflow debt</span></td>
+          </tr>
+          <tr style="--i:6">
+            <td class="mono">command not found: python</td>
+            <td class="mono">exec</td>
+            <td class="right">7</td>
+            <td class="right"><span class="badge badge--orange">4/6</span></td>
+            <td><span class="badge badge--teal">Env missing</span></td>
+          </tr>
+          <tr style="--i:7">
+            <td class="mono">element not found (stale ref)</td>
+            <td class="mono">browser</td>
+            <td class="right">6</td>
+            <td class="right">1/6</td>
+            <td><span class="badge badge--accent">One-off (eval)</span></td>
+          </tr>
+          <tr style="--i:8">
+            <td class="mono">config.patch validation</td>
+            <td class="mono">gateway</td>
+            <td class="right">4</td>
+            <td class="right">2/6</td>
+            <td><span class="badge badge--accent">Operator error</span></td>
+          </tr>
+          <tr style="--i:9">
+            <td class="mono">guildId / query required</td>
+            <td class="mono">message</td>
+            <td class="right">4</td>
+            <td class="right"><span class="badge badge--orange">3/6</span></td>
+            <td><span class="badge badge--orange">Config debt</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Section: Model Cost Distribution -->
+  <div class="section">
+    <div class="section-label">Model Usage & Cost</div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Model</th>
+            <th class="right">Trace Days</th>
+            <th class="right">Total Tokens</th>
+            <th class="right">Est. Cost</th>
+            <th class="right">Avg Cost/Day</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="mono">gpt-5.4</td>
+            <td class="right">6/6</td>
+            <td class="right">228.7M</td>
+            <td class="right"><span class="badge badge--red">$90.28</span></td>
+            <td class="right">$15.05</td>
+          </tr>
+          <tr>
+            <td class="mono">claude-opus-4-6</td>
+            <td class="right">6/6</td>
+            <td class="right">61.9M</td>
+            <td class="right"><span class="badge badge--green">$3.15</span></td>
+            <td class="right">$0.53</td>
+          </tr>
+          <tr>
+            <td class="mono">gpt-5.3-codex</td>
+            <td class="right">3/6</td>
+            <td class="right">8.4M</td>
+            <td class="right">$3.05</td>
+            <td class="right">$0.51</td>
+          </tr>
+          <tr>
+            <td class="mono">claude-sonnet-4-6</td>
+            <td class="right">1/6</td>
+            <td class="right">1.8M</td>
+            <td class="right">$0.34</td>
+            <td class="right">$0.34</td>
+          </tr>
+          <tr>
+            <td class="mono">grok-4.1-fast:online</td>
+            <td class="right">2/6</td>
+            <td class="right">0.2M</td>
+            <td class="right"><span class="badge badge--green">$0.00</span></td>
+            <td class="right">$0.00</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout">
+      <strong>Key insight:</strong> GPT-5.4 is responsible for 92.5% of total cost ($90 of $97). It was the dominant model on the noisiest/most expensive days (Mar 9–10, Mar 13). Opus handles comparable trace counts for ~30x less cost. The cost problem is a model-selection problem — cron jobs and sub-agents default to GPT-5.4 when they could use cheaper models for routine work.
+    </div>
+  </div>
+
+  <!-- Section: Recommendations -->
+  <div class="section">
+    <div class="section-label">Recommendations — Prioritized</div>
+    <div class="card-grid" style="grid-template-columns: 1fr;">
+
+      <div class="card card--priority" style="animation-delay: 0.1s;">
+        <div class="tag tag--red">Priority 1 · High Impact · Low Effort</div>
+        <h3>Build a verified URL cache for doc-lookup</h3>
+        <p>44 of the 62 web_fetch errors (71%) are the same pattern: hitting a guessed URL → 404/401/403. Create a simple <code>docs-cache/verified-urls.json</code> mapping (product → known-good URL). The doc-lookup skill checks this map before fetching. If the URL isn't cached, try <code>llms.txt</code> or the product's canonical docs domain first. This eliminates the #1 error source across all 6 days.</p>
+        <ul>
+          <li>File: <code>~/.openclaw/workspace/config/verified-doc-urls.json</code></li>
+          <li>Skill: Update <code>doc-lookup/SKILL.md</code> to check map first</li>
+          <li>Expected impact: –70% of web_fetch errors overnight</li>
+        </ul>
+      </div>
+
+      <div class="card card--priority" style="animation-delay: 0.2s;">
+        <div class="tag tag--red">Priority 2 · High Impact · Medium Effort</div>
+        <h3>Stop using browser where API/script paths exist</h3>
+        <p>35 browser errors across 4 days. Most were from using browser automation for tasks that have direct API or CLI equivalents (Opik has a REST API, Discord has the message tool, etc). The browser should be reserved for tasks that genuinely need it — JS-rendered pages with no API alternative, interactive forms, OAuth flows.</p>
+        <ul>
+          <li>Audit skills that spawn browser actions — replace with API calls</li>
+          <li>When browser IS needed: always re-snapshot before acting on element refs</li>
+          <li>Expected impact: –80% of browser errors, faster execution</li>
+        </ul>
+      </div>
+
+      <div class="card card--suggestion" style="animation-delay: 0.3s;">
+        <div class="tag tag--accent">Priority 3 · Medium Impact · Low Effort</div>
+        <h3>Fix cron job Discord channel targets</h3>
+        <p>9 "unknown channel" errors on Mar 14 alone. Cron-spawned agents are using stale or wrong channel IDs. Audit all cron jobs that post to Discord and verify the channel IDs match real channels in the guild.</p>
+        <ul>
+          <li>Run: <code>cron list</code> → check each job's target channel</li>
+          <li>Cross-reference with <code>message channel-list</code></li>
+          <li>Expected impact: eliminates message targeting errors entirely</li>
+        </ul>
+      </div>
+
+      <div class="card card--suggestion" style="animation-delay: 0.4s;">
+        <div class="tag tag--accent">Priority 4 · Medium Impact · Trivial Effort</div>
+        <h3>Install ripgrep & alias python → python3</h3>
+        <p>16 errors across 4 days from missing <code>rg</code> and <code>python</code>. These are trivially fixable environment setup items.</p>
+        <ul>
+          <li><code>brew install ripgrep</code></li>
+          <li>Add <code>alias python=python3</code> to <code>~/.zshrc</code> or install <code>python-is-python3</code></li>
+          <li>Expected impact: eliminates two recurring error fingerprints</li>
+        </ul>
+      </div>
+
+      <div class="card card--info" style="animation-delay: 0.5s;">
+        <div class="tag tag--green">Priority 5 · Cost Reduction · Medium Effort</div>
+        <h3>Route routine cron work to cheaper models</h3>
+        <p>GPT-5.4 is eating 92.5% of spend. Many cron jobs (daily brief, token report, Opik review) are routine summarization — they don't need GPT-5.4. Route these to Opus (30x cheaper per token in practice) or Sonnet/Flash for the mechanical parts. Keep GPT-5.4 for interactive sessions and complex reasoning tasks.</p>
+        <ul>
+          <li>Audit cron jobs: which ones specify a model? Which inherit the default?</li>
+          <li>Set explicit model overrides on routine cron payloads</li>
+          <li>Expected impact: –40-60% cost reduction ($6-10/day saved)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- What's NOT broken -->
+  <div class="section">
+    <div class="section-label">What's Not Broken</div>
+    <div class="card-grid">
+      <div class="card card--info">
+        <div class="tag tag--green">Healthy</div>
+        <h3>Core Runtime</h3>
+        <p>exec, read, write, edit, process — all under 2.5% error rate across 6 days. The OpenClaw platform itself is stable. Gateway errors dropped from 28.6% on Mar 9 to 0% by Mar 13 (config.patch learning curve, now resolved).</p>
+      </div>
+      <div class="card card--info">
+        <div class="tag tag--green">Healthy</div>
+        <h3>Trace Ingestion</h3>
+        <p>555 traces, 5,360 spans ingested cleanly over 6 days. No Opik write failures, no exporter issues, no lost telemetry. The observability pipeline itself is rock solid.</p>
+      </div>
+    </div>
+  </div>
+
+  <details>
+    <summary>Full 6-day raw data summary</summary>
+    <div class="inner">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Day</th><th class="right">Traces</th><th class="right">Spans</th><th class="right">Tool Errors</th><th class="right">Tokens (M)</th><th class="right">Cost ($)</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="mono">Mar 9</td><td class="right">85</td><td class="right">1,039</td><td class="right">38</td><td class="right">63.4</td><td class="right">20.25</td></tr>
+            <tr><td class="mono">Mar 10</td><td class="right">124</td><td class="right">1,647</td><td class="right">68</td><td class="right">84.9</td><td class="right">28.53</td></tr>
+            <tr><td class="mono">Mar 11</td><td class="right">93</td><td class="right">945</td><td class="right">32</td><td class="right">51.3</td><td class="right">8.58</td></tr>
+            <tr><td class="mono">Mar 12</td><td class="right">92</td><td class="right">244</td><td class="right">2</td><td class="right">19.4</td><td class="right">3.18</td></tr>
+            <tr><td class="mono">Mar 13</td><td class="right">90</td><td class="right">740</td><td class="right">12</td><td class="right">45.4</td><td class="right">21.96</td></tr>
+            <tr><td class="mono">Mar 14</td><td class="right">71</td><td class="right">745</td><td class="right">19</td><td class="right">34.8</td><td class="right">16.10</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </details>
+
+</div>
+</body>
+</html>

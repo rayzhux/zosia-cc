@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+  <title>Project Argus — Migration Overview</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f8f6f3;
+      --surface: #ffffff;
+      --surface-alt: #f0ede8;
+      --border: rgba(0,0,0,0.08);
+      --border-strong: rgba(0,0,0,0.15);
+      --text: #1a1a1a;
+      --text-dim: #6b6560;
+      --text-muted: #9a948e;
+      --accent-zosia: #1e3a5f;
+      --accent-zosia-dim: rgba(30,58,95,0.08);
+      --accent-argus: #c2410c;
+      --accent-argus-dim: rgba(194,65,12,0.08);
+      --accent-gold: #d4a73a;
+      --accent-gold-dim: rgba(212,167,58,0.12);
+      --accent-green: #059669;
+      --accent-green-dim: rgba(5,150,105,0.08);
+      --accent-red: #be123c;
+      --accent-red-dim: rgba(190,18,60,0.08);
+      --font-display: 'Instrument Serif', Georgia, serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #141210;
+        --surface: #1e1c18;
+        --surface-alt: #262420;
+        --border: rgba(255,255,255,0.06);
+        --border-strong: rgba(255,255,255,0.12);
+        --text: #e8e4de;
+        --text-dim: #9a948e;
+        --text-muted: #6b6560;
+        --accent-zosia: #6b9fd4;
+        --accent-zosia-dim: rgba(107,159,212,0.12);
+        --accent-argus: #f97316;
+        --accent-argus-dim: rgba(249,115,22,0.12);
+        --accent-gold: #eab54c;
+        --accent-gold-dim: rgba(234,181,76,0.12);
+        --accent-green: #34d399;
+        --accent-green-dim: rgba(52,211,153,0.1);
+        --accent-red: #f43f5e;
+        --accent-red-dim: rgba(244,63,94,0.1);
+      }
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: var(--font-mono);
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--text);
+      background: var(--bg);
+      padding: 2rem 1.5rem 4rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .hero {
+      text-align: center;
+      padding: 3rem 1rem 2.5rem;
+      margin-bottom: 2.5rem;
+      border-bottom: 1px solid var(--border-strong);
+    }
+    .hero h1 {
+      font-family: var(--font-display);
+      font-size: 2.8rem;
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.5rem;
+    }
+    .hero .subtitle {
+      color: var(--text-dim);
+      font-size: 0.85rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .hero .date {
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      margin-top: 0.5rem;
+    }
+    h2 {
+      font-family: var(--font-display);
+      font-size: 1.8rem;
+      font-weight: 400;
+      margin: 2.5rem 0 1.2rem;
+      padding-bottom: 0.3rem;
+      border-bottom: 1px solid var(--border);
+    }
+    h3 {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-dim);
+      margin-bottom: 0.8rem;
+    }
+
+    /* Split comparison */
+    .split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin: 1.5rem 0;
+    }
+    @media (max-width: 700px) {
+      .split { grid-template-columns: 1fr; }
+    }
+    .agent-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.5rem;
+      position: relative;
+    }
+    .agent-card--zosia {
+      border-top: 3px solid var(--accent-zosia);
+    }
+    .agent-card--argus {
+      border-top: 3px solid var(--accent-argus);
+    }
+    .agent-card .agent-name {
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      margin-bottom: 0.2rem;
+    }
+    .agent-card .agent-role {
+      color: var(--text-dim);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 1rem;
+    }
+    .agent-card .agent-model {
+      display: inline-block;
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.15rem 0.5rem;
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      margin-bottom: 1rem;
+    }
+
+    /* Stat rows */
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 0.4rem 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.8rem;
+    }
+    .stat-row:last-child { border-bottom: none; }
+    .stat-label { color: var(--text-dim); }
+    .stat-value { font-weight: 600; }
+    .stat-value--zosia { color: var(--accent-zosia); }
+    .stat-value--argus { color: var(--accent-argus); }
+
+    /* Skills lists */
+    .skills-section {
+      margin: 1.5rem 0;
+    }
+    .skill-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+    .skill-tag {
+      display: inline-block;
+      font-size: 0.7rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 3px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+    }
+    .skill-tag--kept {
+      background: var(--accent-zosia-dim);
+      border-color: var(--accent-zosia);
+      color: var(--accent-zosia);
+    }
+    .skill-tag--moved {
+      background: var(--accent-argus-dim);
+      border-color: var(--accent-argus);
+      color: var(--accent-argus);
+    }
+    .skill-tag--shared {
+      background: var(--accent-gold-dim);
+      border-color: var(--accent-gold);
+      color: var(--accent-gold);
+    }
+    .skill-tag--new {
+      background: var(--accent-green-dim);
+      border-color: var(--accent-green);
+      color: var(--accent-green);
+    }
+
+    /* Before/After comparison table */
+    .compare-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+      font-size: 0.8rem;
+    }
+    .compare-table th {
+      text-align: left;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-dim);
+      padding: 0.6rem 0.8rem;
+      border-bottom: 2px solid var(--border-strong);
+      background: var(--surface-alt);
+    }
+    .compare-table td {
+      padding: 0.5rem 0.8rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    .compare-table tr:nth-child(even) td {
+      background: var(--surface-alt);
+    }
+    .compare-table .label-col {
+      font-weight: 500;
+      color: var(--text);
+      min-width: 140px;
+    }
+    .change-badge {
+      display: inline-block;
+      font-size: 0.65rem;
+      padding: 0.1rem 0.35rem;
+      border-radius: 3px;
+      font-weight: 600;
+      margin-left: 0.3rem;
+      vertical-align: middle;
+    }
+    .change-badge--removed {
+      background: var(--accent-red-dim);
+      color: var(--accent-red);
+    }
+    .change-badge--added {
+      background: var(--accent-green-dim);
+      color: var(--accent-green);
+    }
+    .change-badge--same {
+      background: var(--surface-alt);
+      color: var(--text-muted);
+    }
+
+    /* Cron migration list */
+    .cron-list {
+      list-style: none;
+      margin: 0.5rem 0;
+    }
+    .cron-list li {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.35rem 0;
+      font-size: 0.8rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .cron-list li:last-child { border-bottom: none; }
+    .cron-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .cron-dot--zosia { background: var(--accent-zosia); }
+    .cron-dot--argus { background: var(--accent-argus); }
+    .cron-schedule {
+      color: var(--text-muted);
+      font-size: 0.7rem;
+      margin-left: auto;
+      flex-shrink: 0;
+    }
+
+    /* Mental model section */
+    .mental-model {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+    }
+    .mental-model h3 {
+      color: var(--accent-gold);
+      margin-bottom: 0.6rem;
+    }
+    .rule {
+      padding: 0.6rem 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.85rem;
+      line-height: 1.5;
+    }
+    .rule:last-child { border-bottom: none; }
+    .rule strong {
+      color: var(--text);
+    }
+    .rule em {
+      color: var(--text-dim);
+      font-style: normal;
+    }
+    .rule code {
+      background: var(--surface-alt);
+      padding: 0.1rem 0.3rem;
+      border-radius: 3px;
+      font-size: 0.75rem;
+      font-family: var(--font-mono);
+    }
+
+    /* Flow diagram */
+    .flow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.8rem;
+      margin: 1.5rem 0;
+      flex-wrap: wrap;
+    }
+    .flow-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.6rem 1rem;
+      font-size: 0.75rem;
+      text-align: center;
+      min-width: 120px;
+    }
+    .flow-box--zosia { border-left: 3px solid var(--accent-zosia); }
+    .flow-box--argus { border-left: 3px solid var(--accent-argus); }
+    .flow-box--discord { border-left: 3px solid var(--accent-gold); }
+    .flow-arrow {
+      color: var(--text-muted);
+      font-size: 1.2rem;
+    }
+    .flow-box .flow-label {
+      font-weight: 600;
+      display: block;
+      margin-bottom: 0.2rem;
+    }
+    .flow-box .flow-desc {
+      color: var(--text-dim);
+      font-size: 0.65rem;
+    }
+
+    /* Context window comparison */
+    .ctx-bar-wrap {
+      margin: 0.8rem 0;
+    }
+    .ctx-bar-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      margin-bottom: 0.3rem;
+    }
+    .ctx-bar {
+      height: 20px;
+      border-radius: 4px;
+      background: var(--surface-alt);
+      overflow: hidden;
+      position: relative;
+    }
+    .ctx-bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.6s ease;
+    }
+    .ctx-bar-fill--zosia { background: var(--accent-zosia); }
+    .ctx-bar-fill--argus { background: var(--accent-argus); }
+
+    /* Legend */
+    .legend {
+      display: flex;
+      gap: 1.2rem;
+      flex-wrap: wrap;
+      margin: 1rem 0;
+      font-size: 0.7rem;
+      color: var(--text-dim);
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      padding: 2rem 0 0;
+      border-top: 1px solid var(--border);
+      margin-top: 2.5rem;
+      color: var(--text-muted);
+      font-size: 0.7rem;
+    }
+
+    /* Animations */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .agent-card, .mental-model, .compare-table, .flow {
+      animation: fadeUp 0.5s ease both;
+    }
+    .split .agent-card:nth-child(2) { animation-delay: 0.1s; }
+    @media (prefers-reduced-motion: reduce) {
+      .agent-card, .mental-model, .compare-table, .flow { animation: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="hero">
+    <h1>Project Argus</h1>
+    <div class="subtitle">Zosia Before & After · Architecture · Mental Model</div>
+    <div class="date">March 14, 2026 — Migration Complete</div>
+  </div>
+
+  <!-- Agent Identity Cards -->
+  <h2>The Two Agents</h2>
+  <div class="split">
+    <div class="agent-card agent-card--zosia">
+      <div class="agent-name">🫧 Zosia</div>
+      <div class="agent-role">Chief of Staff — Interactive</div>
+      <div class="agent-model">anthropic/claude-opus-4-6</div>
+      <div class="stat-row">
+        <span class="stat-label">Context Window</span>
+        <span class="stat-value stat-value--zosia">200K tokens</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Cron Jobs</span>
+        <span class="stat-value stat-value--zosia">7 jobs (was 17)</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Workspace</span>
+        <span class="stat-value">~/.openclaw/workspace</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Heartbeat</span>
+        <span class="stat-value">Every 30m → Discord</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Memory</span>
+        <span class="stat-value">Full (MEMORY.md + daily + topics)</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Bindings</span>
+        <span class="stat-value">Discord guild + all channels</span>
+      </div>
+    </div>
+    <div class="agent-card agent-card--argus">
+      <div class="agent-name">👁️ Argus</div>
+      <div class="agent-role">Intelligence Analyst — Background</div>
+      <div class="agent-model">openai-codex/gpt-5.4</div>
+      <div class="stat-row">
+        <span class="stat-label">Context Window</span>
+        <span class="stat-value stat-value--argus">1.05M tokens</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Cron Jobs</span>
+        <span class="stat-value stat-value--argus">10 jobs (all migrated)</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Workspace</span>
+        <span class="stat-value">~/.openclaw/workspace-argus</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Heartbeat</span>
+        <span class="stat-value">None</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Memory</span>
+        <span class="stat-value">Operational only (pipeline state)</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Bindings</span>
+        <span class="stat-value">None (posts via message tool)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Context Window Comparison -->
+  <h2>Context Window</h2>
+  <p style="color: var(--text-dim); font-size: 0.8rem; margin-bottom: 1rem;">
+    This is the key architectural win. Argus runs on GPT-5.4 with 5× the context of Opus. Long pipeline scripts, massive JSON outputs from Reddit/X collection, multi-step synthesis — all fit comfortably. Zosia on Opus keeps the deeper reasoning for interactive work where it matters.
+  </p>
+  <div class="ctx-bar-wrap">
+    <div class="ctx-bar-label">
+      <span><strong style="color: var(--accent-zosia);">Zosia</strong> · Opus 4.6</span>
+      <span>200K tokens</span>
+    </div>
+    <div class="ctx-bar">
+      <div class="ctx-bar-fill ctx-bar-fill--zosia" style="width: 19%;"></div>
+    </div>
+  </div>
+  <div class="ctx-bar-wrap">
+    <div class="ctx-bar-label">
+      <span><strong style="color: var(--accent-argus);">Argus</strong> · GPT-5.4</span>
+      <span>1,050K tokens</span>
+    </div>
+    <div class="ctx-bar">
+      <div class="ctx-bar-fill ctx-bar-fill--argus" style="width: 100%;"></div>
+    </div>
+  </div>
+
+  <!-- Zosia Before/After -->
+  <h2>Zosia — Before vs After</h2>
+  <table class="compare-table">
+    <thead>
+      <tr>
+        <th>Dimension</th>
+        <th>Before (Solo)</th>
+        <th>After (With Argus)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="label-col">Cron Jobs</td>
+        <td>17 jobs — all on main</td>
+        <td>7 jobs <span class="change-badge change-badge--removed">−10</span></td>
+      </tr>
+      <tr>
+        <td class="label-col">Concurrent Load</td>
+        <td>Up to 8 pipelines + heartbeat + interactive at peak morning</td>
+        <td>Heartbeat + interactive only; pipelines isolated</td>
+      </tr>
+      <tr>
+        <td class="label-col">Context Pressure</td>
+        <td>Pipeline payloads + skill files consumed Opus context</td>
+        <td>Only personal/interactive context; pipelines never touch Opus</td>
+      </tr>
+      <tr>
+        <td class="label-col">Cost per Pipeline</td>
+        <td>Jobs used Opus fallback when GPT-5.4 was specified but context was shared</td>
+        <td>Argus runs GPT-5.4 only — ~5× cheaper per token than Opus</td>
+      </tr>
+      <tr>
+        <td class="label-col">Responsibility</td>
+        <td>Everything: conversations + intelligence + memory + health + security</td>
+        <td>Conversations, memory, health coaching, meeting intel, personal</td>
+      </tr>
+      <tr>
+        <td class="label-col">Skills Loaded</td>
+        <td>All 30+ skills in system prompt</td>
+        <td>All 30+ skills (unchanged — Argus has its own subset) <span class="change-badge change-badge--same">same</span></td>
+      </tr>
+      <tr>
+        <td class="label-col">Session Memory</td>
+        <td>Full MEMORY.md + nightly distillation (sometimes polluted with pipeline logs)</td>
+        <td>Full MEMORY.md — clean, personal context only</td>
+      </tr>
+      <tr>
+        <td class="label-col">Model</td>
+        <td>Opus 4.6 (200K ctx)</td>
+        <td>Opus 4.6 (200K ctx) <span class="change-badge change-badge--same">same</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Skills Distribution -->
+  <h2>Skills Distribution</h2>
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background: var(--accent-zosia);"></div> Zosia only</div>
+    <div class="legend-item"><div class="legend-dot" style="background: var(--accent-argus);"></div> Argus only</div>
+    <div class="legend-item"><div class="legend-dot" style="background: var(--accent-gold);"></div> Both agents</div>
+  </div>
+
+  <div class="split">
+    <div class="skills-section">
+      <h3>Zosia's Skills (unchanged — all still available)</h3>
+      <div class="skill-grid">
+        <span class="skill-tag skill-tag--kept">meeting-intelligence</span>
+        <span class="skill-tag skill-tag--kept">nightly-distill</span>
+        <span class="skill-tag skill-tag--kept">voice-call</span>
+        <span class="skill-tag skill-tag--kept">peekaboo</span>
+        <span class="skill-tag skill-tag--kept">nano-banana-pro</span>
+        <span class="skill-tag skill-tag--kept">nano-pdf</span>
+        <span class="skill-tag skill-tag--kept">acp-router</span>
+        <span class="skill-tag skill-tag--kept">coding-agent</span>
+        <span class="skill-tag skill-tag--kept">discord</span>
+        <span class="skill-tag skill-tag--kept">notion</span>
+        <span class="skill-tag skill-tag--kept">oracle</span>
+        <span class="skill-tag skill-tag--kept">skill-creator</span>
+        <span class="skill-tag skill-tag--kept">slack</span>
+        <span class="skill-tag skill-tag--kept">node-connect</span>
+        <span class="skill-tag skill-tag--kept">session-logs</span>
+        <span class="skill-tag skill-tag--kept">visual-explainer</span>
+        <span class="skill-tag skill-tag--kept">video-frames</span>
+        <span class="skill-tag skill-tag--kept">openai-whisper-api</span>
+        <span class="skill-tag skill-tag--kept">clawhub</span>
+        <span class="skill-tag skill-tag--kept">mcporter</span>
+        <span class="skill-tag skill-tag--shared">exa</span>
+        <span class="skill-tag skill-tag--shared">gog</span>
+        <span class="skill-tag skill-tag--shared">github</span>
+        <span class="skill-tag skill-tag--shared">weather</span>
+        <span class="skill-tag skill-tag--shared">summarize</span>
+        <span class="skill-tag skill-tag--shared">doc-lookup</span>
+        <span class="skill-tag skill-tag--shared">web-scraper</span>
+        <span class="skill-tag skill-tag--shared">kimi-cn</span>
+        <span class="skill-tag skill-tag--shared">healthcheck</span>
+        <span class="skill-tag skill-tag--shared">reddit-gcc-monitor</span>
+        <span class="skill-tag skill-tag--shared">x-gcc-monitor</span>
+        <span class="skill-tag skill-tag--shared">daily-brief</span>
+        <span class="skill-tag skill-tag--shared">token-usage-report</span>
+        <span class="skill-tag skill-tag--shared">opik-review-loop</span>
+        <span class="skill-tag skill-tag--shared">goplaces</span>
+      </div>
+    </div>
+    <div class="skills-section">
+      <h3>Argus's Skills (14 — pipeline-focused subset)</h3>
+      <div class="skill-grid">
+        <span class="skill-tag skill-tag--moved">reddit-gcc-monitor</span>
+        <span class="skill-tag skill-tag--moved">x-gcc-monitor</span>
+        <span class="skill-tag skill-tag--moved">daily-brief</span>
+        <span class="skill-tag skill-tag--moved">token-usage-report</span>
+        <span class="skill-tag skill-tag--moved">opik-review-loop</span>
+        <span class="skill-tag skill-tag--moved">healthcheck</span>
+        <span class="skill-tag skill-tag--shared">exa</span>
+        <span class="skill-tag skill-tag--shared">doc-lookup</span>
+        <span class="skill-tag skill-tag--shared">gog</span>
+        <span class="skill-tag skill-tag--shared">github</span>
+        <span class="skill-tag skill-tag--shared">summarize</span>
+        <span class="skill-tag skill-tag--shared">weather</span>
+        <span class="skill-tag skill-tag--shared">web-scraper</span>
+        <span class="skill-tag skill-tag--shared">kimi-cn</span>
+      </div>
+      <p style="color: var(--text-dim); font-size: 0.7rem; margin-top: 0.8rem;">
+        Note: Zosia still has all pipeline skills loaded. She can read pipeline outputs and give opinions. She just doesn't run them on cron anymore.
+      </p>
+    </div>
+  </div>
+
+  <!-- Cron Job Migration -->
+  <h2>Cron Jobs — Final Assignment</h2>
+  <div class="split">
+    <div>
+      <h3 style="color: var(--accent-zosia);">Zosia · 7 jobs</h3>
+      <ul class="cron-list">
+        <li><span class="cron-dot cron-dot--zosia"></span> Nightly Memory Distillation <span class="cron-schedule">10pm UTC</span></li>
+        <li><span class="cron-dot cron-dot--zosia"></span> Reset Heartbeat Session <span class="cron-schedule">3:50am Dubai</span></li>
+        <li><span class="cron-dot cron-dot--zosia"></span> Meeting Intel Briefing Scanner <span class="cron-schedule">*/30 8-20 Sun-Thu</span></li>
+        <li><span class="cron-dot cron-dot--zosia"></span> Apple Health Daily Trigger <span class="cron-schedule">9:12am Dubai</span></li>
+        <li><span class="cron-dot cron-dot--zosia"></span> Apple Health Weekly Summary <span class="cron-schedule">Sun 8:37pm</span></li>
+        <li><span class="cron-dot cron-dot--zosia"></span> Apple Health Monthly Review <span class="cron-schedule">1st 8:43pm</span></li>
+        <li><span class="cron-dot cron-dot--zosia"></span> Meeting Intel Reminder <span class="cron-schedule">one-shot</span></li>
+      </ul>
+    </div>
+    <div>
+      <h3 style="color: var(--accent-argus);">Argus · 10 jobs</h3>
+      <ul class="cron-list">
+        <li><span class="cron-dot cron-dot--argus"></span> Reddit GCC Daily Pulse <span class="cron-schedule">5:30am UTC</span></li>
+        <li><span class="cron-dot cron-dot--argus"></span> Reddit GCC Weekly Summary <span class="cron-schedule">Sat 10am Dubai</span></li>
+        <li><span class="cron-dot cron-dot--argus"></span> X GCC Monitor <span class="cron-schedule">5:45am UTC</span></li>
+        <li><span class="cron-dot cron-dot--argus"></span> Daily Brief (GCC·Tech·EV) <span class="cron-schedule">9:05am Dubai</span></li>
+        <li><span class="cron-dot cron-dot--argus"></span> Token Usage Report <span class="cron-schedule">9:10am Dubai</span></li>
+        <li><span class="cron-dot cron-dot--argus"></span> Opik Daily Review <span class="cron-schedule">9:20am Dubai</span></li>
+        <li><span class="cron-dot cron-dot--argus"></span> Opik Weekly Digest <span class="cron-schedule">Sun 9:40am</span></li>
+        <li><span class="cron-dot cron-dot--argus"></span> Daily Backup <span class="cron-schedule">6:05am Dubai</span></li>
+        <li><span class="cron-dot cron-dot--argus"></span> Weekly Archive Backup <span class="cron-schedule">Sun 6:20am</span></li>
+        <li><span class="cron-dot cron-dot--argus"></span> Nightly Security Review <span class="cron-schedule">3:30am Dubai</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Mental Model -->
+  <h2>Mental Model — How to Use Discord</h2>
+
+  <div class="mental-model">
+    <h3>The simple rule</h3>
+    <div class="rule">
+      <strong>You talk to Zosia. You read Argus's output.</strong><br>
+      <em>Argus posts to channels on schedule. Zosia is who you DM and @ in channels. They never talk to each other — Discord channels are the handoff.</em>
+    </div>
+  </div>
+
+  <div class="flow">
+    <div class="flow-box flow-box--argus">
+      <span class="flow-label">Argus</span>
+      <span class="flow-desc">runs pipeline at 5:30am</span>
+    </div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-box flow-box--discord">
+      <span class="flow-label">Discord #reddit-gcc</span>
+      <span class="flow-desc">CV2 card posted</span>
+    </div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-box flow-box--zosia">
+      <span class="flow-label">You ask Zosia</span>
+      <span class="flow-desc">"what did Reddit find today?"</span>
+    </div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-box flow-box--zosia">
+      <span class="flow-label">Zosia reads channel</span>
+      <span class="flow-desc">adds her own take</span>
+    </div>
+  </div>
+
+  <div class="mental-model">
+    <h3>When you want Argus to do something</h3>
+    <div class="rule">
+      <strong>Don't message Argus directly.</strong> He has no channel bindings — he can't hear you. Instead, tell Zosia: <em>"re-run the Reddit pipeline"</em> or <em>"trigger the daily brief now"</em>. Zosia uses <code>cron run --jobId</code> to kick Argus's jobs on demand.
+    </div>
+    <div class="rule">
+      <strong>Argus cron jobs are the only way to invoke Argus.</strong> Each job is a self-contained instruction. Zosia manages them (create, update, disable, trigger) via her <code>cron</code> tool. Argus doesn't have the cron tool — he can't modify his own schedule.
+    </div>
+    <div class="rule">
+      <strong>If a pipeline breaks overnight</strong>, Argus posts an error card to the relevant channel. When you wake up and see it, ask Zosia to investigate — she'll read the error, check logs, fix the script, and re-trigger.
+    </div>
+  </div>
+
+  <div class="mental-model">
+    <h3>Channel ownership (unchanged)</h3>
+    <div class="rule">
+      <strong>#reddit-gcc</strong> — Argus posts daily/weekly. Zosia reads when you ask about Reddit signals.
+    </div>
+    <div class="rule">
+      <strong>#x-gcc</strong> — Argus posts daily. Same pattern.
+    </div>
+    <div class="rule">
+      <strong>#daily-brief</strong> — Argus posts the morning brief. Zosia discusses it with you.
+    </div>
+    <div class="rule">
+      <strong>#backups</strong> — Argus posts backup confirmations.
+    </div>
+    <div class="rule">
+      <strong>#security</strong> — Argus posts nightly security reviews.
+    </div>
+    <div class="rule">
+      <strong>#development</strong> — Argus posts Opik reviews.
+    </div>
+    <div class="rule">
+      <strong>#heartbeat</strong> — Still Zosia only.
+    </div>
+    <div class="rule">
+      <strong>#meeting, #health</strong> — Still Zosia only (personal coaching).
+    </div>
+    <div class="rule">
+      <strong>#daily, DMs, all other channels</strong> — Still Zosia only (interactive).
+    </div>
+  </div>
+
+  <div class="mental-model">
+    <h3>Rollback</h3>
+    <div class="rule">
+      Any job → <code>cron update --jobId X --agentId main</code> and it's back on Zosia. One command. No config change needed.
+    </div>
+  </div>
+
+  <div class="footer">
+    Project Argus · Built March 14, 2026 · E Pluribus Unum
+  </div>
+
+</body>
+</html>

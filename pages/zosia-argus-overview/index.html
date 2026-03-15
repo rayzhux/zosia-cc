@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+  <title>Zosia & Argus — Agent Architecture</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #faf7f5;
+      --surface: #ffffff;
+      --surface-dim: #f3efe9;
+      --border: rgba(0,0,0,0.08);
+      --border-strong: rgba(0,0,0,0.15);
+      --text: #1a1615;
+      --text-dim: #6b5e57;
+      --text-muted: #9a8e87;
+      --zosia-accent: #1e3a5f;
+      --zosia-accent-dim: rgba(30,58,95,0.08);
+      --zosia-accent-glow: rgba(30,58,95,0.15);
+      --argus-accent: #c2410c;
+      --argus-accent-dim: rgba(194,65,12,0.08);
+      --argus-accent-glow: rgba(194,65,12,0.15);
+      --shared-accent: #059669;
+      --shared-accent-dim: rgba(5,150,105,0.08);
+      --cron-accent: #7c3f00;
+      --cron-accent-dim: rgba(124,63,0,0.06);
+      --font-display: 'Instrument Serif', Georgia, serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+      --font-body: 'JetBrains Mono', monospace;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #141210;
+        --surface: #1c1917;
+        --surface-dim: #221f1c;
+        --border: rgba(255,255,255,0.06);
+        --border-strong: rgba(255,255,255,0.12);
+        --text: #e8e0d8;
+        --text-dim: #9a8e87;
+        --text-muted: #6b5e57;
+        --zosia-accent: #6fa8dc;
+        --zosia-accent-dim: rgba(111,168,220,0.08);
+        --zosia-accent-glow: rgba(111,168,220,0.12);
+        --argus-accent: #f97316;
+        --argus-accent-dim: rgba(249,115,22,0.08);
+        --argus-accent-glow: rgba(249,115,22,0.12);
+        --shared-accent: #34d399;
+        --shared-accent-dim: rgba(52,211,153,0.08);
+        --cron-accent: #d4a73a;
+        --cron-accent-dim: rgba(212,167,58,0.06);
+      }
+    }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      font-size: 13px;
+      min-height: 100vh;
+    }
+
+    .page {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 3rem 2rem 4rem;
+    }
+
+    /* Hero */
+    .hero {
+      text-align: center;
+      margin-bottom: 3.5rem;
+      animation: fadeUp 0.6s ease-out;
+    }
+    .hero h1 {
+      font-family: var(--font-display);
+      font-size: 2.8rem;
+      font-weight: 400;
+      letter-spacing: -0.01em;
+      margin-bottom: 0.5rem;
+    }
+    .hero h1 .z { color: var(--zosia-accent); }
+    .hero h1 .a { color: var(--argus-accent); }
+    .hero h1 .amp { color: var(--text-muted); font-style: italic; }
+    .hero .subtitle {
+      font-size: 0.85rem;
+      color: var(--text-dim);
+      letter-spacing: 0.04em;
+    }
+    .hero .updated {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      margin-top: 0.5rem;
+    }
+
+    /* Agent comparison */
+    .agents-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+    }
+    @media (max-width: 700px) {
+      .agents-grid { grid-template-columns: 1fr; }
+    }
+
+    .agent-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.8rem;
+      position: relative;
+      overflow: hidden;
+      animation: fadeUp 0.5s ease-out both;
+    }
+    .agent-card:nth-child(1) { animation-delay: 0.1s; }
+    .agent-card:nth-child(2) { animation-delay: 0.2s; }
+
+    .agent-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+    }
+    .agent-card.zosia::before { background: var(--zosia-accent); }
+    .agent-card.argus::before { background: var(--argus-accent); }
+
+    .agent-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1.2rem;
+    }
+    .agent-emoji {
+      font-size: 1.8rem;
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 10px;
+    }
+    .zosia .agent-emoji { background: var(--zosia-accent-dim); }
+    .argus .agent-emoji { background: var(--argus-accent-dim); }
+
+    .agent-name {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      font-weight: 400;
+    }
+    .zosia .agent-name { color: var(--zosia-accent); }
+    .argus .agent-name { color: var(--argus-accent); }
+
+    .agent-role {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      letter-spacing: 0.03em;
+    }
+
+    .attr-list {
+      list-style: none;
+      margin-top: 1rem;
+    }
+    .attr-list li {
+      padding: 0.4rem 0;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      gap: 0.5rem;
+      font-size: 0.8rem;
+    }
+    .attr-list li:last-child { border-bottom: none; }
+    .attr-label {
+      color: var(--text-muted);
+      min-width: 80px;
+      flex-shrink: 0;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding-top: 1px;
+    }
+    .attr-value {
+      color: var(--text);
+    }
+    .attr-value code {
+      background: var(--surface-dim);
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+    }
+
+    /* Section headers */
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin: 3rem 0 1.5rem;
+      animation: fadeUp 0.5s ease-out both;
+    }
+    .section-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .section-dot.zosia { background: var(--zosia-accent); }
+    .section-dot.argus { background: var(--argus-accent); }
+    .section-dot.shared { background: var(--shared-accent); }
+    .section-dot.cron { background: var(--cron-accent); }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      font-weight: 400;
+    }
+    .section-count {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      background: var(--surface-dim);
+      padding: 2px 8px;
+      border-radius: 10px;
+    }
+
+    /* Skills grid */
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 0.75rem;
+    }
+    .skill-chip {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.6rem 0.8rem;
+      font-size: 0.78rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      animation: fadeUp 0.4s ease-out both;
+    }
+    .skill-chip .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .skill-chip.zosia-only .dot { background: var(--zosia-accent); }
+    .skill-chip.argus-only .dot { background: var(--argus-accent); }
+    .skill-chip.shared .dot { background: var(--shared-accent); }
+
+    /* Cron timeline */
+    .cron-list {
+      list-style: none;
+    }
+    .cron-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.8rem 1rem;
+      margin-bottom: 0.6rem;
+      display: grid;
+      grid-template-columns: 70px 1fr auto;
+      gap: 0.75rem;
+      align-items: center;
+      animation: fadeUp 0.4s ease-out both;
+      font-size: 0.8rem;
+    }
+    .cron-time {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      font-weight: 500;
+    }
+    .cron-name {
+      font-weight: 500;
+    }
+    .cron-agent {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+    .cron-agent.zosia {
+      color: var(--zosia-accent);
+      background: var(--zosia-accent-dim);
+    }
+    .cron-agent.argus {
+      color: var(--argus-accent);
+      background: var(--argus-accent-dim);
+    }
+    .cron-freq {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+    }
+    .cron-disabled {
+      opacity: 0.4;
+    }
+
+    /* Boundary rules */
+    .rules-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+    @media (max-width: 700px) {
+      .rules-grid { grid-template-columns: 1fr; }
+    }
+    .rule-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.2rem;
+      animation: fadeUp 0.4s ease-out both;
+    }
+    .rule-card h4 {
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-bottom: 0.6rem;
+      color: var(--text);
+    }
+    .rule-card ul {
+      list-style: none;
+      font-size: 0.78rem;
+      color: var(--text-dim);
+    }
+    .rule-card ul li {
+      padding: 0.25rem 0;
+      padding-left: 1em;
+      position: relative;
+    }
+    .rule-card ul li::before {
+      content: '·';
+      position: absolute;
+      left: 0;
+      color: var(--text-muted);
+      font-weight: bold;
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      margin-top: 3rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { animation: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+
+    <div class="hero">
+      <h1><span class="z">Zosia</span> <span class="amp">&</span> <span class="a">Argus</span></h1>
+      <div class="subtitle">OpenClaw dual-agent architecture — Raymond's personal AI staff</div>
+      <div class="updated">Last updated: 14 Mar 2026</div>
+    </div>
+
+    <!-- Agent Cards -->
+    <div class="agents-grid">
+      <div class="agent-card zosia">
+        <div class="agent-header">
+          <div class="agent-emoji">🫧</div>
+          <div>
+            <div class="agent-name">Zosia</div>
+            <div class="agent-role">Chief of Staff</div>
+          </div>
+        </div>
+        <ul class="attr-list">
+          <li><span class="attr-label">Agent ID</span><span class="attr-value"><code>main</code></span></li>
+          <li><span class="attr-label">Model</span><span class="attr-value"><code>opus</code> (Claude Opus 4.6)</span></li>
+          <li><span class="attr-label">Workspace</span><span class="attr-value"><code>~/.openclaw/workspace</code></span></li>
+          <li><span class="attr-label">Mode</span><span class="attr-value">Interactive · conversational · proactive</span></li>
+          <li><span class="attr-label">Channels</span><span class="attr-value">Discord, WhatsApp, Telegram, Slack, Voice</span></li>
+          <li><span class="attr-label">Heartbeat</span><span class="attr-value">Every 30m → <code>#heartbeat</code></span></li>
+          <li><span class="attr-label">Memory</span><span class="attr-value">Full personal + nightly distillation</span></li>
+          <li><span class="attr-label">Persona</span><span class="attr-value">Sharp, opinionated, humorous. Named after Zosia from <em>Pluribus</em>.</span></li>
+          <li><span class="attr-label">Purpose</span><span class="attr-value">Raymond's primary interface. Handles all conversations, decisions, research, coding delegation, meeting intelligence, and personal context.</span></li>
+        </ul>
+      </div>
+
+      <div class="agent-card argus">
+        <div class="agent-header">
+          <div class="agent-emoji">👁️</div>
+          <div>
+            <div class="agent-name">Argus</div>
+            <div class="agent-role">Intelligence Analyst</div>
+          </div>
+        </div>
+        <ul class="attr-list">
+          <li><span class="attr-label">Agent ID</span><span class="attr-value"><code>argus</code></span></li>
+          <li><span class="attr-label">Model</span><span class="attr-value"><code>gpt</code> (GPT-5.4)</span></li>
+          <li><span class="attr-label">Workspace</span><span class="attr-value"><code>~/.openclaw/workspace-argus</code></span></li>
+          <li><span class="attr-label">Mode</span><span class="attr-value">Background · cron-driven · non-conversational</span></li>
+          <li><span class="attr-label">Channels</span><span class="attr-value">Discord only (post results)</span></li>
+          <li><span class="attr-label">Heartbeat</span><span class="attr-value">None</span></li>
+          <li><span class="attr-label">Memory</span><span class="attr-value">Operational state only · no personal context</span></li>
+          <li><span class="attr-label">Persona</span><span class="attr-value">Terse, structured, data-only. Named after Argus Panoptes, the hundred-eyed giant.</span></li>
+          <li><span class="attr-label">Purpose</span><span class="attr-value">Runs scheduled intelligence pipelines — Reddit/X monitors, daily briefs, security reviews, backups, token reports, Opik reviews. Posts results to Discord.</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Skills -->
+    <div class="section-header">
+      <div class="section-dot zosia"></div>
+      <div class="section-title">Zosia-Only Skills</div>
+      <span class="section-count">22</span>
+    </div>
+    <div class="skills-grid">
+      <div class="skill-chip zosia-only"><span class="dot"></span>acp-router</div>
+      <div class="skill-chip zosia-only"><span class="dot"></span>clawhub</div>
+      <div class="skill-chip zosia-only"><span class="dot"></span>coding-agent</div>
+      <div class="skill-chip zosia-only"><span class="dot"></span>discord</div>
+      <div class="skill-chip zosia-only"><span class="dot"></span>mcporter</div>
+      <div class="skill-chip zosia-only"><span class="dot"></span>meeting-intelligence</div>
+      <div class="skill-chip zosia-only"><span class="dot"></span>nano-banana-pro</div>
+      <div class="skill-chip zosia-only"><span class="dot"></span>nano-pdf</div>
+      <div class="skill-chip zosia-only"><span class="dot"></span>nightly-distill</div>
+      <div class="skill-chip zosia-only"><span class="dot"></span>node-connect</div>
+      <div class="skill-chip zosia-only"><span class="dot"></span>notion</div>
+      <div class="skill-chip zosia-only"><span class="dot"></span>openai-whisper-api</div>
+      <div class="skill-chip zosia-only"><span class="dot"></span>oracle</div>
+      <div class="skill-chip zosia-only"><span class="dot"></span>peekaboo</div>
+      <div class="skill-chip zosia-only"><span class="dot"></span>session-logs</div>
+      <div class="skill-chip zosia-only"><span class="dot"></span>skill-creator</div>
+      <div class="skill-chip zosia-only"><span class="dot"></span>slack</div>
+      <div class="skill-chip zosia-only"><span class="dot"></span>video-frames</div>
+      <div class="skill-chip zosia-only"><span class="dot"></span>visual-explainer</div>
+      <div class="skill-chip zosia-only"><span class="dot"></span>voice-call</div>
+      <div class="skill-chip zosia-only"><span class="dot"></span>goplaces</div>
+      <div class="skill-chip zosia-only"><span class="dot"></span>kimi-cn</div>
+    </div>
+
+    <div class="section-header">
+      <div class="section-dot argus"></div>
+      <div class="section-title">Argus-Only Skills</div>
+      <span class="section-count">5</span>
+    </div>
+    <div class="skills-grid">
+      <div class="skill-chip argus-only"><span class="dot"></span>reddit-gcc-monitor</div>
+      <div class="skill-chip argus-only"><span class="dot"></span>x-gcc-monitor</div>
+      <div class="skill-chip argus-only"><span class="dot"></span>daily-brief</div>
+      <div class="skill-chip argus-only"><span class="dot"></span>token-usage-report</div>
+      <div class="skill-chip argus-only"><span class="dot"></span>opik-review-loop</div>
+    </div>
+
+    <div class="section-header">
+      <div class="section-dot shared"></div>
+      <div class="section-title">Shared Skills</div>
+      <span class="section-count">7</span>
+    </div>
+    <div class="skills-grid">
+      <div class="skill-chip shared"><span class="dot"></span>healthcheck</div>
+      <div class="skill-chip shared"><span class="dot"></span>exa</div>
+      <div class="skill-chip shared"><span class="dot"></span>doc-lookup</div>
+      <div class="skill-chip shared"><span class="dot"></span>gog</div>
+      <div class="skill-chip shared"><span class="dot"></span>github</div>
+      <div class="skill-chip shared"><span class="dot"></span>summarize</div>
+      <div class="skill-chip shared"><span class="dot"></span>web-scraper</div>
+    </div>
+
+    <!-- Cron Schedule -->
+    <div class="section-header">
+      <div class="section-dot cron"></div>
+      <div class="section-title">Daily Schedule</div>
+      <span class="section-count">14 active · 3 disabled</span>
+    </div>
+
+    <ul class="cron-list">
+      <li class="cron-item"><span class="cron-time">02:00</span><span class="cron-name">Nightly Memory Distillation</span><span class="cron-agent zosia">Zosia</span></li>
+      <li class="cron-item"><span class="cron-time">03:30</span><span class="cron-name">Nightly Security Review</span><span class="cron-agent argus">Argus</span></li>
+      <li class="cron-item"><span class="cron-time">03:50</span><span class="cron-name">Reset Heartbeat Session</span><span class="cron-agent zosia">Zosia</span></li>
+      <li class="cron-item"><span class="cron-time">05:30*</span><span class="cron-name">Reddit GCC Daily Pulse</span><span class="cron-agent argus">Argus</span></li>
+      <li class="cron-item"><span class="cron-time">05:45*</span><span class="cron-name">X GCC Monitor</span><span class="cron-agent argus">Argus</span></li>
+      <li class="cron-item"><span class="cron-time">06:05</span><span class="cron-name">Daily Backup</span><span class="cron-agent argus">Argus</span></li>
+      <li class="cron-item"><span class="cron-time">06:20☀</span><span class="cron-name">Weekly Archive Backup</span><span class="cron-agent argus">Argus</span></li>
+      <li class="cron-item"><span class="cron-time">08-20:30☀</span><span class="cron-name">Pre-Meeting Briefing Scanner</span><span class="cron-agent zosia">Zosia</span></li>
+      <li class="cron-item"><span class="cron-time">09:05</span><span class="cron-name">Daily Brief — GCC · Tech · EV</span><span class="cron-agent argus">Argus</span></li>
+      <li class="cron-item"><span class="cron-time">09:10</span><span class="cron-name">Token Usage Report</span><span class="cron-agent argus">Argus</span></li>
+      <li class="cron-item"><span class="cron-time">09:12</span><span class="cron-name">Apple Health Trigger Scan</span><span class="cron-agent zosia">Zosia</span></li>
+      <li class="cron-item"><span class="cron-time">09:20</span><span class="cron-name">Opik Daily Review</span><span class="cron-agent argus">Argus</span></li>
+      <li class="cron-item"><span class="cron-time">09:40☀</span><span class="cron-name">Opik Weekly Digest</span><span class="cron-agent argus">Argus</span></li>
+      <li class="cron-item"><span class="cron-time">10:00⑥</span><span class="cron-name">Reddit Weekly Summary</span><span class="cron-agent argus">Argus</span></li>
+      <li class="cron-item"><span class="cron-time">20:37☀</span><span class="cron-name">Apple Health Weekly Summary</span><span class="cron-agent zosia">Zosia</span></li>
+      <li class="cron-item"><span class="cron-time">20:43①</span><span class="cron-name">Apple Health Monthly Review</span><span class="cron-agent zosia">Zosia</span></li>
+    </ul>
+    <div style="font-size: 0.65rem; color: var(--text-muted); margin-top: 0.5rem; padding-left: 0.5rem;">
+      All times Asia/Dubai unless marked * (UTC). ☀ = Sunday only. ⑥ = Saturday only. ① = 1st of month.
+    </div>
+
+    <!-- Boundaries -->
+    <div class="section-header">
+      <div class="section-dot shared"></div>
+      <div class="section-title">Boundaries & Rules</div>
+    </div>
+
+    <div class="rules-grid">
+      <div class="rule-card">
+        <h4>Zosia owns</h4>
+        <ul>
+          <li>All interactive conversations (DM, group, voice)</li>
+          <li>Gateway config, cron management, system admin</li>
+          <li>Personal memory, decisions, preferences</li>
+          <li>Meeting intelligence & briefings</li>
+          <li>Coding delegation (ACP / sub-agents)</li>
+          <li>All external comms (email, Slack, WhatsApp)</li>
+          <li>Browser automation, UI control, voice calls</li>
+        </ul>
+      </div>
+      <div class="rule-card">
+        <h4>Argus owns</h4>
+        <ul>
+          <li>Scheduled intelligence pipelines</li>
+          <li>Reddit & X GCC monitoring</li>
+          <li>Daily news briefs</li>
+          <li>Security reviews</li>
+          <li>Backups (daily + weekly archive)</li>
+          <li>Token usage reporting</li>
+          <li>Opik observability reviews</li>
+        </ul>
+      </div>
+      <div class="rule-card">
+        <h4>Argus cannot</h4>
+        <ul>
+          <li>Use browser, canvas, voice, TTS, or nodes</li>
+          <li>Modify gateway config</li>
+          <li>Manage cron jobs (only executes them)</li>
+          <li>Access Zosia's workspace files</li>
+          <li>Engage in conversation</li>
+          <li>Post to WhatsApp, Telegram, or Slack</li>
+        </ul>
+      </div>
+      <div class="rule-card">
+        <h4>Coordination model</h4>
+        <ul>
+          <li>Zosia can send Argus research tasks via <code>sessions_send</code></li>
+          <li>Argus posts results to Discord channels</li>
+          <li>Zosia reads Argus's posts when Raymond asks</li>
+          <li>No direct Argus→Zosia communication</li>
+          <li>Shared skills (exa, gog, etc.) are independently available to both</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Tool access -->
+    <div class="section-header">
+      <div class="section-dot shared"></div>
+      <div class="section-title">Tool Access</div>
+    </div>
+
+    <div class="rules-grid">
+      <div class="rule-card">
+        <h4>Zosia — full access</h4>
+        <ul>
+          <li>read, write, edit, exec, process</li>
+          <li>web_fetch, browser, canvas</li>
+          <li>memory_search, memory_get</li>
+          <li>sessions_spawn, subagents</li>
+          <li>cron, gateway, nodes, agents_list</li>
+          <li>image, tts, voice_call</li>
+          <li>message (all channels)</li>
+        </ul>
+      </div>
+      <div class="rule-card">
+        <h4>Argus — restricted</h4>
+        <ul>
+          <li>read, write, edit, exec, process</li>
+          <li>web_fetch, memory_search, memory_get</li>
+          <li>sessions_spawn, subagents</li>
+          <li>image, pdf</li>
+          <li>message (Discord only)</li>
+          <li style="color: var(--argus-accent);">Denied: browser, canvas, voice_call, tts, nodes, gateway, agents_list, whatsapp_login, cron</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer">
+      Built by Zosia · OpenClaw dual-agent architecture · Raymond Zhu
+    </div>
+  </div>
+</body>
+</html>

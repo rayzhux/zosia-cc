@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CC Switch — Architecture, How It Works, Pros & Cons</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:wght@400;500;600&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f7f4ef;
+    --surface: rgba(255,255,255,0.88);
+    --surface-2: #f1ebe4;
+    --border: rgba(41, 32, 23, 0.10);
+    --border-strong: rgba(41, 32, 23, 0.18);
+    --text: #241c16;
+    --text-dim: #72685f;
+    --navy: #1f3a5b;
+    --navy-dim: rgba(31,58,91,0.09);
+    --gold: #b8832f;
+    --gold-dim: rgba(184,131,47,0.12);
+    --rose: #9f3855;
+    --rose-dim: rgba(159,56,85,0.10);
+    --teal: #136f63;
+    --teal-dim: rgba(19,111,99,0.10);
+    --green: #557c3b;
+    --green-dim: rgba(85,124,59,0.10);
+    --shadow: 0 12px 40px rgba(36, 28, 22, 0.08);
+    --font-body: 'DM Sans', system-ui, sans-serif;
+    --font-display: 'Instrument Serif', Georgia, serif;
+    --font-mono: 'IBM Plex Mono', monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #13100d;
+      --surface: rgba(28, 24, 20, 0.92);
+      --surface-2: #1d1814;
+      --border: rgba(255,255,255,0.08);
+      --border-strong: rgba(255,255,255,0.15);
+      --text: #efe6db;
+      --text-dim: #b1a596;
+      --navy: #7db0ea;
+      --navy-dim: rgba(125,176,234,0.12);
+      --gold: #f2c068;
+      --gold-dim: rgba(242,192,104,0.12);
+      --rose: #f49ab2;
+      --rose-dim: rgba(244,154,178,0.12);
+      --teal: #72d9ca;
+      --teal-dim: rgba(114,217,202,0.12);
+      --green: #b6dd88;
+      --green-dim: rgba(182,221,136,0.12);
+      --shadow: 0 18px 48px rgba(0,0,0,0.28);
+    }
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    font-family: var(--font-body);
+    color: var(--text);
+    background:
+      radial-gradient(circle at 10% 10%, var(--gold-dim), transparent 30%),
+      radial-gradient(circle at 90% 0%, var(--navy-dim), transparent 32%),
+      linear-gradient(180deg, var(--bg), color-mix(in srgb, var(--bg) 90%, black 10%));
+  }
+  .page {
+    max-width: 1380px;
+    margin: 0 auto;
+    padding: 28px 24px 80px;
+  }
+  .hero {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    border-radius: 28px;
+    padding: 28px 32px 26px;
+    backdrop-filter: blur(10px);
+    margin-bottom: 24px;
+  }
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--navy);
+    margin-bottom: 16px;
+  }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--navy); display: inline-block; }
+  h1 {
+    font-family: var(--font-display);
+    font-size: clamp(42px, 6vw, 72px);
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    margin: 0 0 14px;
+    max-width: 900px;
+  }
+  .lede {
+    max-width: 980px;
+    color: var(--text-dim);
+    font-size: 18px;
+    line-height: 1.65;
+    margin-bottom: 20px;
+  }
+  .kpis {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+  }
+  .kpi {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 16px 18px;
+    min-width: 0;
+  }
+  .kpi .value {
+    font-family: var(--font-display);
+    font-size: 36px;
+    line-height: 1;
+    margin-bottom: 8px;
+    color: var(--navy);
+  }
+  .kpi .label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.10em;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+  }
+  .kpi .desc { font-size: 13px; line-height: 1.5; color: var(--text-dim); }
+  .layout {
+    display: grid;
+    grid-template-columns: 280px minmax(0, 1fr);
+    gap: 24px;
+    align-items: start;
+  }
+  .toc {
+    position: sticky;
+    top: 18px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 18px;
+    box-shadow: var(--shadow);
+  }
+  .toc h2 {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin: 0 0 12px;
+    color: var(--text-dim);
+    font-family: var(--font-mono);
+  }
+  .toc a {
+    display: block;
+    color: var(--text);
+    text-decoration: none;
+    padding: 10px 12px;
+    border-radius: 12px;
+    margin-bottom: 6px;
+    font-size: 14px;
+    border: 1px solid transparent;
+  }
+  .toc a:hover { background: var(--surface-2); border-color: var(--border); }
+  .content { display: grid; gap: 22px; }
+  section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 22px 24px;
+    box-shadow: var(--shadow);
+  }
+  .section-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+  .section-num {
+    width: 34px; height: 34px; border-radius: 50%; display:flex; align-items:center; justify-content:center;
+    background: var(--navy-dim); color: var(--navy); font-family: var(--font-mono); font-size: 12px; font-weight: 600;
+    flex-shrink: 0;
+  }
+  .section-head h2 {
+    font-size: 28px;
+    margin: 0;
+    letter-spacing: -0.03em;
+  }
+  .section-head p { margin: 4px 0 0; color: var(--text-dim); }
+  .grid-2, .grid-3, .grid-4 {
+    display: grid;
+    gap: 14px;
+  }
+  .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .card {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 16px 16px 15px;
+    min-width: 0;
+  }
+  .card h3 {
+    margin: 0 0 8px;
+    font-size: 16px;
+    letter-spacing: -0.02em;
+  }
+  .card p, .card li { color: var(--text-dim); font-size: 14px; line-height: 1.58; }
+  .badge {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    padding: 4px 8px;
+    border-radius: 999px;
+    margin: 0 6px 8px 0;
+    border: 1px solid var(--border);
+    background: white;
+  }
+  @media (prefers-color-scheme: dark) { .badge { background: rgba(255,255,255,0.03); } }
+  .badge.navy { color: var(--navy); background: var(--navy-dim); border-color: transparent; }
+  .badge.gold { color: var(--gold); background: var(--gold-dim); border-color: transparent; }
+  .badge.rose { color: var(--rose); background: var(--rose-dim); border-color: transparent; }
+  .badge.teal { color: var(--teal); background: var(--teal-dim); border-color: transparent; }
+  .badge.green { color: var(--green); background: var(--green-dim); border-color: transparent; }
+  .mermaid-wrap {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 18px;
+    display: flex;
+    justify-content: center;
+    overflow: auto;
+  }
+  .mermaid { min-width: 780px; }
+  .table-wrap { overflow-x: auto; }
+  table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    min-width: 760px;
+    font-size: 14px;
+  }
+  th, td {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    text-align: left;
+  }
+  th {
+    position: sticky;
+    top: 0;
+    background: color-mix(in srgb, var(--surface-2) 88%, transparent 12%);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-dim);
+  }
+  tr:nth-child(even) td { background: color-mix(in srgb, var(--surface-2) 70%, transparent 30%); }
+  code {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    background: var(--navy-dim);
+    color: var(--navy);
+    padding: 2px 6px;
+    border-radius: 6px;
+    overflow-wrap: anywhere;
+  }
+  ul { margin: 10px 0 0 18px; padding: 0; }
+  .quote {
+    border-left: 3px solid var(--gold);
+    padding: 14px 16px;
+    background: var(--gold-dim);
+    border-radius: 0 16px 16px 0;
+    color: var(--text);
+    font-size: 16px;
+    line-height: 1.6;
+  }
+  .footer-note { color: var(--text-dim); font-size: 13px; line-height: 1.6; }
+  .mini {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  @media (max-width: 1100px) {
+    .layout { grid-template-columns: 1fr; }
+    .toc { position: static; }
+    .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid-3 { grid-template-columns: 1fr; }
+    .grid-2 { grid-template-columns: 1fr; }
+    .mermaid { min-width: 680px; }
+  }
+  @media (max-width: 720px) {
+    .page { padding: 16px 14px 60px; }
+    .hero, section { padding: 18px; border-radius: 18px; }
+    .kpis, .grid-4 { grid-template-columns: 1fr; }
+    .mermaid { min-width: 620px; }
+    h1 { font-size: 46px; }
+  }
+</style>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'base',
+    securityLevel: 'loose',
+    flowchart: { useMaxWidth: false, htmlLabels: true, curve: 'basis' },
+    themeVariables: {
+      background: 'transparent',
+      primaryColor: '#1f3a5b22',
+      primaryTextColor: '#241c16',
+      primaryBorderColor: '#1f3a5b',
+      lineColor: '#8a7b6d',
+      secondaryColor: '#b8832f22',
+      tertiaryColor: '#136f6320',
+      fontFamily: 'DM Sans, system-ui, sans-serif',
+      fontSize: '18px'
+    }
+  });
+</script>
+</head>
+<body>
+  <div class="page">
+    <header class="hero">
+      <div class="eyebrow"><span class="dot"></span> visual teardown · repo architecture review</div>
+      <h1>CC Switch is basically a control plane for five AI CLIs.</h1>
+      <p class="lede">Under the hood, it is a <strong>Tauri desktop app</strong> with a <strong>React + TypeScript frontend</strong>, a <strong>Rust backend</strong>, a <strong>SQLite single source of truth</strong>, and a synchronization layer that writes settings back into the native config files of Claude Code, Codex, Gemini CLI, OpenCode, and OpenClaw. The smart part is not “AI” — it’s the adapter/orchestration layer around incompatible local tools.</p>
+      <div class="kpis">
+        <div class="kpi"><div class="value">5</div><div class="label">managed CLIs</div><div class="desc">Claude Code, Codex, Gemini CLI, OpenCode, OpenClaw</div></div>
+        <div class="kpi"><div class="value">Tauri 2</div><div class="label">desktop shell</div><div class="desc">Rust backend + web frontend, cross-platform packaging</div></div>
+        <div class="kpi"><div class="value">SQLite</div><div class="label">core state store</div><div class="desc">Providers, MCP, prompts, skills, usage metadata, backups</div></div>
+        <div class="kpi"><div class="value">Local proxy</div><div class="label">optional runtime path</div><div class="desc">Hot switching, failover, format conversion, request rectifier</div></div>
+      </div>
+    </header>
+
+    <div class="layout">
+      <aside class="toc">
+        <h2>On this page</h2>
+        <a href="#how">What it does</a>
+        <a href="#arch">Architecture</a>
+        <a href="#flow">How switching works</a>
+        <a href="#strengths">Pros</a>
+        <a href="#weaknesses">Cons / risks</a>
+        <a href="#judgment">My judgment</a>
+        <a href="#sources">Sources</a>
+      </aside>
+
+      <main class="content">
+        <section id="how">
+          <div class="section-head">
+            <div class="section-num">01</div>
+            <div><h2>What problem it solves</h2><p>Unifying messy local configuration across multiple AI coding CLIs.</p></div>
+          </div>
+          <div class="quote">Instead of manually editing JSON, TOML, and <code>.env</code> files for each assistant, CC Switch stores a normalized provider/config model once and pushes the right shape into each target app.</div>
+          <div class="grid-4" style="margin-top:16px;">
+            <div class="card"><span class="badge navy">provider mgmt</span><h3>Provider switching</h3><p>One-click switching between official logins, cloud providers, Bedrock/NIM-style endpoints, and relay presets.</p></div>
+            <div class="card"><span class="badge teal">shared config</span><h3>MCP / prompts / skills</h3><p>Acts like a common registry and sync layer so one desktop app can manage tool ecosystems across several CLIs.</p></div>
+            <div class="card"><span class="badge gold">ops layer</span><h3>Local proxy / failover</h3><p>Adds a runtime indirection layer with health monitoring, failover queues, and app takeover for some tools.</p></div>
+            <div class="card"><span class="badge rose">state hygiene</span><h3>Persistence & backups</h3><p>SQLite as SSOT, JSON for device-local settings, auto-backups, atomic writes to avoid bricking configs.</p></div>
+          </div>
+        </section>
+
+        <section id="arch">
+          <div class="section-head">
+            <div class="section-num">02</div>
+            <div><h2>Technical architecture</h2><p>Desktop shell, typed UI, Rust orchestration core, then adapters into real CLI config files.</p></div>
+          </div>
+          <div class="mermaid-wrap">
+            <div class="mermaid">
+flowchart TD
+    U["User<br/>desktop UI + tray"] --> FE["React + TypeScript frontend<br/>components · hooks · TanStack Query"]
+    FE --> IPC["Tauri IPC boundary"]
+    IPC --> BE["Rust backend<br/>commands · services · DAO"]
+    BE --> DB[("SQLite<br/>~/.cc-switch/cc-switch.db")]
+    BE --> JSON["settings.json<br/>device-level prefs"]
+    BE --> CFG["CLI config writers/readers<br/>JSON · TOML · .env · Markdown files"]
+    BE --> PROXY["Local proxy / failover service<br/>health checks · routing · rectifier"]
+    CFG --> APPS["Claude Code · Codex · Gemini CLI<br/>OpenCode · OpenClaw"]
+    DB --> CLOUD["Optional cloud sync<br/>Dropbox / OneDrive / iCloud / WebDAV"]
+            </div>
+          </div>
+          <div class="grid-3" style="margin-top:16px;">
+            <div class="card"><span class="badge navy">frontend</span><h3>Renderer layer</h3><p>Vite + React 18 + TS, Radix UI-ish component stack, React Hook Form, Zod, TanStack Query, CodeMirror, Recharts, DnD kit, i18n.</p></div>
+            <div class="card"><span class="badge gold">backend</span><h3>Tauri/Rust core</h3><p>Rust services own file IO, proxy behavior, deep links, updater hooks, database access, session browsing, and OS-level desktop integration.</p></div>
+            <div class="card"><span class="badge teal">integration</span><h3>Adapter pattern</h3><p>The real product is an adapter layer that understands each target CLI’s config conventions and sync semantics.</p></div>
+          </div>
+          <div class="table-wrap" style="margin-top:16px;">
+            <table>
+              <thead>
+                <tr><th>Layer</th><th>Main tech</th><th>What it likely owns</th><th>Why it matters</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><strong>Desktop shell</strong></td><td>Tauri 2</td><td>Windowing, tray icon, updater, deep links, IPC, native packaging</td><td>Lets it be a serious desktop utility instead of a browser tab with local hacks</td></tr>
+                <tr><td><strong>UI</strong></td><td>React + TS + Vite</td><td>Forms, dashboards, list management, prompts/skills editors</td><td>Keeps a lot of complex state manageable and typed</td></tr>
+                <tr><td><strong>Service layer</strong></td><td>Rust</td><td>Provider switching, file sync, proxying, backups, session management</td><td>Safer for local file mutation and background services than doing everything in JS</td></tr>
+                <tr><td><strong>Persistence</strong></td><td>SQLite + JSON</td><td>SSOT plus device-local preferences</td><td>Strong choice for atomicity and portability</td></tr>
+                <tr><td><strong>Projection layer</strong></td><td>Config writers</td><td>Write real files back into each tool’s expected format</td><td>This is the hardest and most fragile part of the whole system</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="flow">
+          <div class="section-head">
+            <div class="section-num">03</div>
+            <div><h2>How it actually works</h2><p>The switch is not magic — it is a controlled rewrite-and-sync pipeline.</p></div>
+          </div>
+          <div class="grid-2">
+            <div class="card">
+              <span class="badge green">happy path</span>
+              <h3>Provider switch flow</h3>
+              <ul>
+                <li>User selects provider preset or custom endpoint.</li>
+                <li>App loads normalized provider data from SQLite.</li>
+                <li>Backend merges shared config snippets and app-specific settings.</li>
+                <li>Backend writes target tool config in the correct native format.</li>
+                <li>Some apps require CLI/terminal restart; Claude Code can hot-switch in some cases.</li>
+              </ul>
+            </div>
+            <div class="card">
+              <span class="badge rose">tricky bit</span>
+              <h3>Backfill / live-file sync</h3>
+              <p>CC Switch says it can preserve and extract common config from the currently active provider, then reapply it when switching. That means it is not only writing canonical state outwards — it also tries to ingest state from live files back into its model.</p>
+            </div>
+          </div>
+          <div class="mermaid-wrap" style="margin-top:16px;">
+            <div class="mermaid">
+flowchart TD
+    A["Choose provider"] --> B["Read normalized state<br/>from SQLite"]
+    B --> C["Merge shared config snippet<br/>+ app-specific fields"]
+    C --> D["Transform into target app format<br/>JSON / TOML / Markdown / env"]
+    D --> E["Atomic write + backup"]
+    E --> F["Target CLI reads updated config"]
+    F --> G["User restarts CLI if needed"]
+    C --> H["Optional local proxy / failover path"]
+            </div>
+          </div>
+        </section>
+
+        <section id="strengths">
+          <div class="section-head">
+            <div class="section-num">04</div>
+            <div><h2>Pros</h2><p>Why this project is interesting beyond just “nice GUI.”</p></div>
+          </div>
+          <div class="grid-3">
+            <div class="card"><span class="badge navy">real utility</span><h3>Solves a genuinely annoying problem</h3><p>There is a real market gap: AI coding CLIs keep multiplying, each with its own config surface, plugins, MCP setup, prompt files, and account switching pain.</p></div>
+            <div class="card"><span class="badge gold">good architecture choice</span><h3>Tauri + Rust is a sensible stack</h3><p>For a local config-mutating desktop tool, this is a better fit than Electron-only chaos. Smaller footprint, better native integration, and more disciplined backend control.</p></div>
+            <div class="card"><span class="badge teal">state design</span><h3>SQLite SSOT is the right move</h3><p>Using SQLite plus atomic writes/backups is more serious than storing everything in a pile of JSON blobs and hoping for the best.</p></div>
+            <div class="card"><span class="badge green">platform breadth</span><h3>Cross-tool abstraction is ambitious</h3><p>The app is not just a frontend for one CLI. It is trying to become the “Raycast for AI coding tool config,” which is strategically interesting.</p></div>
+            <div class="card"><span class="badge rose">distribution</span><h3>Desktop packaging matters</h3><p>Homebrew, MSI, AppImage, Flatpak, RPM, Deb — this is trying to be actually installable, not just GitHub-star bait.</p></div>
+            <div class="card"><span class="badge gold">workflow glue</span><h3>Proxy/failover layer is the differentiator</h3><p>Once a manager can also route, rectify, and fail over requests, it stops being only a config editor and starts behaving like a local AI operations console.</p></div>
+          </div>
+        </section>
+
+        <section id="weaknesses">
+          <div class="section-head">
+            <div class="section-num">05</div>
+            <div><h2>Cons, risks, and sharp edges</h2><p>This is where it gets interesting — and where I’d be skeptical.</p></div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Risk</th><th>Why it exists</th><th>Why you should care</th><th>My take</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><strong>Config adapter fragility</strong></td><td>Every upstream CLI can change config shape, auth flow, file names, semantics, or reload behavior.</td><td>One upstream release can silently break part of the app.</td><td>This is the core tax of the whole project.</td></tr>
+                <tr><td><strong>Relay-heavy ecosystem smell</strong></td><td>The README is saturated with API relay sponsors and cost-arbitrage narratives.</td><td>It creates trust, security, and sustainability questions.</td><td>Useful, but a little sketchy around incentives.</td></tr>
+                <tr><td><strong>Secret concentration</strong></td><td>A single desktop app manages credentials/config for multiple AI tools.</td><td>If compromised, it becomes a nice buffet.</td><td>High-value local target.</td></tr>
+                <tr><td><strong>Semantic mismatch across tools</strong></td><td>MCP, prompts, skills, and provider fields are not truly identical between apps.</td><td>“Unified management” can flatten differences that actually matter.</td><td>Abstraction leaks are inevitable.</td></tr>
+                <tr><td><strong>Proxy complexity</strong></td><td>Health monitoring, failover, format conversion, rectification, takeover — this is real infra logic.</td><td>More power, but also more places for silent misrouting or subtle failures.</td><td>The proxy layer is the coolest part and the most dangerous part.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="grid-2" style="margin-top:16px;">
+            <div class="card">
+              <span class="badge rose">trust model</span>
+              <h3>Biggest non-technical concern</h3>
+              <p>The project sits awkwardly between “productivity manager” and “traffic switching layer for third-party relays.” That doesn’t make it bad, but it absolutely affects how much trust I’d place in it for primary credentials.</p>
+            </div>
+            <div class="card">
+              <span class="badge gold">operational concern</span>
+              <h3>Maintenance burden</h3>
+              <p>The more upstream tools it supports, the more breakage matrix it inherits: OS differences, config migrations, auth changes, prompt file conventions, and plugin sync semantics.</p>
+            </div>
+          </div>
+        </section>
+
+        <section id="judgment">
+          <div class="section-head">
+            <div class="section-num">06</div>
+            <div><h2>My judgment</h2><p>What I think this project is, and what it isn’t.</p></div>
+          </div>
+          <div class="grid-2">
+            <div class="card">
+              <span class="badge green">what it is</span>
+              <h3>A desktop orchestration shell for AI coding CLIs</h3>
+              <p>At heart, CC Switch is a local control plane that normalizes provider management, config writing, prompt/MCP/skills syncing, and optional proxy/failover behavior across several coding assistants.</p>
+            </div>
+            <div class="card">
+              <span class="badge navy">what it isn't</span>
+              <h3>Not a new assistant runtime</h3>
+              <p>It does not replace Claude Code, Codex, Gemini CLI, OpenCode, or OpenClaw. It sits above them and manipulates their configuration and runtime entry points.</p>
+            </div>
+          </div>
+          <div class="quote" style="margin-top:16px;">If you switch providers and tools a lot, this is genuinely useful. If you mostly live in one stack, it may be adding a second layer of complexity to hide a first layer that wasn’t hurting you that much.</div>
+          <div class="grid-3" style="margin-top:16px;">
+            <div class="card"><span class="badge gold">best fit</span><h3>Power users juggling many CLIs</h3><p>Especially people experimenting with official endpoints, Bedrock-style configs, proxies, relays, MCP setups, and prompt packs across several assistants.</p></div>
+            <div class="card"><span class="badge rose">bad fit</span><h3>Users who care most about security minimalism</h3><p>If your bias is least privilege and minimal local attack surface, a “manager for all credentials and configs” may feel like too much concentration of risk.</p></div>
+            <div class="card"><span class="badge teal">my net take</span><h3>Technically solid, strategically clever, trust-sensitive</h3><p>The architecture looks competent. The business/relay ecosystem around it is where I’d keep one eyebrow raised.</p></div>
+          </div>
+        </section>
+
+        <section id="sources">
+          <div class="section-head">
+            <div class="section-num">07</div>
+            <div><h2>Sources used</h2><p>Direct repo/docs inspection, not vibes.</p></div>
+          </div>
+          <div class="grid-2">
+            <div class="card">
+              <div class="mini">Repository & docs</div>
+              <ul>
+                <li><code>README.md</code> — product framing, features, architecture, storage model</li>
+                <li><code>docs/user-manual/en/README.md</code> — feature/manual structure</li>
+                <li><code>package.json</code> — frontend/runtime dependencies</li>
+                <li><code>src-tauri/Cargo.toml</code> — backend capabilities and Rust dependency surface</li>
+                <li><code>src-tauri/tauri.conf.json</code> — packaging, security policy, deep link, updater config</li>
+              </ul>
+            </div>
+            <div class="card">
+              <div class="mini">Caveats</div>
+              <ul>
+                <li>This page explains architecture from public repo material, not from executing the app.</li>
+                <li>I treated sponsor/relay claims as product context, not endorsements.</li>
+                <li>The visual summary is my synthesis, not the project author’s own framing.</li>
+              </ul>
+            </div>
+          </div>
+          <p class="footer-note" style="margin-top:14px;">Local file: <code>~/.agent/diagrams/cc-switch-architecture-review.html</code></p>
+        </section>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

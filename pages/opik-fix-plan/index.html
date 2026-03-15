@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+<title>Opik Fix Plan — 3 Issues, Prioritized</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --font-body: 'IBM Plex Sans', system-ui, sans-serif;
+    --font-mono: 'IBM Plex Mono', 'SF Mono', Consolas, monospace;
+    --bg: #fafaf9;
+    --surface: #ffffff;
+    --surface2: #f5f5f4;
+    --border: rgba(0,0,0,0.06);
+    --border-bright: rgba(0,0,0,0.12);
+    --text: #1c1917;
+    --text-dim: #78716c;
+    --accent: #0369a1;
+    --accent-dim: rgba(3,105,161,0.06);
+    --green: #059669;
+    --green-dim: rgba(5,150,105,0.07);
+    --red: #dc2626;
+    --red-dim: rgba(220,38,38,0.06);
+    --orange: #d97706;
+    --orange-dim: rgba(217,119,6,0.06);
+    --teal: #0891b2;
+    --teal-dim: rgba(8,145,178,0.06);
+    --purple: #7c3aed;
+    --purple-dim: rgba(124,58,237,0.06);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0c0a09;
+      --surface: #1c1917;
+      --surface2: #292524;
+      --border: rgba(255,255,255,0.06);
+      --border-bright: rgba(255,255,255,0.10);
+      --text: #e7e5e4;
+      --text-dim: #a8a29e;
+      --accent: #38bdf8;
+      --accent-dim: rgba(56,189,248,0.08);
+      --green: #34d399;
+      --green-dim: rgba(52,211,153,0.08);
+      --red: #f87171;
+      --red-dim: rgba(248,113,113,0.08);
+      --orange: #fbbf24;
+      --orange-dim: rgba(251,191,36,0.08);
+      --teal: #22d3ee;
+      --teal-dim: rgba(34,211,238,0.08);
+      --purple: #a78bfa;
+      --purple-dim: rgba(167,139,250,0.08);
+    }
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: var(--bg);
+    background-image:
+      radial-gradient(ellipse at 20% 0%, var(--accent-dim) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 100%, var(--teal-dim) 0%, transparent 40%);
+    color: var(--text);
+    font-family: var(--font-body);
+    line-height: 1.6;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+  .page { max-width: 1100px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
+  @media (max-width: 768px) { .page { padding: 1.5rem 1rem 3rem; } }
+  .page-header { margin-bottom: 2rem; }
+  .page-header h1 { font-size: 1.75rem; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 0.25rem; }
+  .page-header .subtitle { font-family: var(--font-mono); font-size: 0.82rem; color: var(--text-dim); }
+
+  .section { margin-bottom: 2.5rem; }
+  .section-label {
+    font-family: var(--font-mono); font-size: 0.72rem; text-transform: uppercase;
+    letter-spacing: 0.08em; color: var(--accent); margin-bottom: 0.75rem;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .section-label::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+
+  .card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    padding: 1.5rem; margin-bottom: 1rem; animation: fadeUp 0.4s ease both;
+  }
+  .card h2 { font-size: 1.15rem; font-weight: 700; margin-bottom: 0.5rem; }
+  .card h3 { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.35rem; margin-top: 1rem; }
+  .card h3:first-of-type { margin-top: 0.5rem; }
+  .card p, .card li { font-size: 0.84rem; color: var(--text-dim); line-height: 1.55; }
+  .card ul { padding-left: 1.1rem; margin-top: 0.35rem; }
+  .card li { margin-bottom: 0.25rem; }
+  .card code { font-family: var(--font-mono); font-size: 0.78rem; background: var(--surface2); padding: 0.1rem 0.35rem; border-radius: 3px; }
+  .card pre { background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 0.75rem 1rem; margin: 0.5rem 0; overflow-x: auto; font-family: var(--font-mono); font-size: 0.75rem; line-height: 1.5; color: var(--text); }
+
+  .card--p1 { border-left: 4px solid var(--red); }
+  .card--p2 { border-left: 4px solid var(--orange); }
+  .card--p3 { border-left: 4px solid var(--accent); }
+  .card--info { border-left: 4px solid var(--green); }
+  .card--warning { border-left: 4px solid var(--purple); }
+
+  .tag {
+    font-family: var(--font-mono); font-size: 0.65rem; text-transform: uppercase;
+    letter-spacing: 0.06em; margin-bottom: 0.4rem; display: block;
+  }
+  .tag--red { color: var(--red); }
+  .tag--orange { color: var(--orange); }
+  .tag--accent { color: var(--accent); }
+  .tag--green { color: var(--green); }
+  .tag--purple { color: var(--purple); }
+
+  .badge {
+    display: inline-block; font-family: var(--font-mono); font-size: 0.68rem; font-weight: 500;
+    padding: 0.15rem 0.5rem; border-radius: 4px; white-space: nowrap;
+  }
+  .badge--red { background: var(--red-dim); color: var(--red); }
+  .badge--orange { background: var(--orange-dim); color: var(--orange); }
+  .badge--green { background: var(--green-dim); color: var(--green); }
+  .badge--accent { background: var(--accent-dim); color: var(--accent); }
+  .badge--purple { background: var(--purple-dim); color: var(--purple); }
+
+  .table-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); }
+  table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+  thead th {
+    position: sticky; top: 0; background: var(--surface2);
+    font-family: var(--font-mono); font-size: 0.7rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-dim);
+    text-align: left; padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-bright); white-space: nowrap;
+  }
+  thead th.right { text-align: right; }
+  tbody td { padding: 0.6rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  tbody td.right { text-align: right; font-variant-numeric: tabular-nums; }
+  tbody td.mono { font-family: var(--font-mono); font-size: 0.78rem; }
+  tbody tr:nth-child(even) { background: var(--surface2); }
+
+  .callout {
+    background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--accent);
+    border-radius: 8px; padding: 1rem 1.25rem; font-size: 0.85rem; margin: 1rem 0;
+  }
+  .callout strong { color: var(--accent); }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  @media (max-width: 768px) { .grid-2 { grid-template-columns: 1fr; } }
+
+  .step { display: flex; gap: 0.75rem; margin-bottom: 0.75rem; }
+  .step-num {
+    flex-shrink: 0; width: 24px; height: 24px; border-radius: 50%;
+    background: var(--accent); color: white; font-family: var(--font-mono);
+    font-size: 0.68rem; font-weight: 700; display: flex; align-items: center;
+    justify-content: center; margin-top: 0.15rem;
+  }
+  .step-content { flex: 1; }
+  .step-content p { font-size: 0.82rem; color: var(--text-dim); }
+  .step-content strong { color: var(--text); }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; } }
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="page-header" style="animation: fadeUp 0.3s ease both;">
+  <h1>🔧 Opik Fix Plan — 3 Root Causes</h1>
+  <div class="subtitle">Deep analysis + implementation plan · Mar 14, 2026</div>
+</div>
+
+<!-- Argus context callout -->
+<div class="callout" style="animation: fadeUp 0.35s ease both;">
+  <strong>Architecture context:</strong> As of today, Argus (GPT-5.4 background agent) runs most cron jobs. Zosia (Opus interactive agent) handles conversations. Argus has <code>browser</code> in its tool deny list — it literally cannot use browser. The fixes below respect this split and modify shared skills + cron payloads accordingly.
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- FIX 1 -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-label">Fix 1 — web_fetch speculative URL failures</div>
+
+  <div class="card card--p1" style="animation-delay: 0.1s;">
+    <div class="tag tag--red">Priority 1 · 44 errors / 6 days · 71% of web_fetch errors</div>
+    <h2>Root Cause Deep Dive</h2>
+    <p>The <code>doc-lookup</code> skill (v1.2.0) was already patched to stop guessing <code>llms.txt</code> URLs. That fix worked — but three deeper problems remain:</p>
+
+    <h3>Problem A: No docs-cache in Argus's workspace</h3>
+    <p>The doc-lookup skill writes cache files to <code>docs-cache/</code> in the agent's workspace. Zosia's workspace has 28 cached entries. <strong>Argus's workspace has zero</strong> — no <code>docs-cache/</code> directory exists at <code>~/.openclaw/workspace-argus/</code>. Every Argus cron run that triggers doc-lookup starts from scratch and hits the same URLs that already failed for Zosia.</p>
+
+    <h3>Problem B: Cron-spawned sub-agents don't inherit cache</h3>
+    <p>When a cron job spawns as <code>sessionTarget: "isolated"</code>, it gets the agent's workspace but may not read the cache directory proactively. The skill says "check cache first" but there's no enforcement — agents often skip to Step 2 (resolve canonical source) and probe URLs speculatively.</p>
+
+    <h3>Problem C: The daily-brief pipeline hits blocked domains</h3>
+    <p>The daily-brief skill already has a hardened blocked-domain list (Reuters, Bloomberg, FT, WSJ). But the Exa crawl fallback path still occasionally returns URLs from these domains, and the agent tries <code>web_fetch</code> on them before checking the blocklist. 5 of the 44 errors are this exact pattern.</p>
+  </div>
+
+  <div class="card card--info" style="animation-delay: 0.2s;">
+    <div class="tag tag--green">Proposed Fix — 3 Steps</div>
+    <h2>Implementation Plan</h2>
+
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <p><strong>Create Argus docs-cache with Zosia's entries</strong></p>
+        <p>Copy <code>~/.openclaw/workspace/docs-cache/</code> → <code>~/.openclaw/workspace-argus/docs-cache/</code>. This gives Argus instant access to 28 verified entries. Future cron runs hit cache first instead of blind-probing.</p>
+        <p>Going forward, Argus will build its own cache naturally. Optionally, add a weekly sync script to copy Zosia's new cache entries → Argus.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <p><strong>Add a known-blocked-domains list to the doc-lookup skill</strong></p>
+        <p>Create <code>skills/doc-lookup/references/blocked-domains.txt</code> with domains that consistently 404/403/401 (from the Opik data: Resend docs subdomain variants, Postmark API variants, paywalled news sites). The skill's Step 2 checks this list before making any fetch. If matched → skip and note it silently.</p>
+        <p>This is better than a verified-URL cache because it's a <em>negative</em> cache — we don't need to enumerate all good URLs, just avoid known-bad patterns.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <p><strong>Tighten doc-lookup SKILL.md retry behavior</strong></p>
+        <p>Add a rule: "If <code>web_fetch</code> returns 401/403/404 on a URL, do not retry that exact URL or pattern in the same session. Log the failure silently and move to the next source in the ladder."</p>
+        <p>Also add: "For cron/isolated sessions: always read <code>docs-cache/</code> before any network fetch. If the cache entry is &lt;7 days old, use it and skip network entirely."</p>
+      </div>
+    </div>
+
+    <h3>Expected Impact</h3>
+    <p>~70% reduction in web_fetch errors. From 18% avg error rate → ~5%. The remaining 5% will be genuine first-time misses on new projects — which is normal and acceptable.</p>
+
+    <h3>Argus Considerations</h3>
+    <ul>
+      <li>Argus has <code>doc-lookup</code> in its skills list — fixes to the skill SKILL.md affect both agents</li>
+      <li>The blocked-domains reference file lives in the shared managed skills dir, accessible to both</li>
+      <li>docs-cache is per-workspace (isolated), so Argus's cache won't pollute Zosia's</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- FIX 2 -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-label">Fix 2 — Browser usage where APIs exist</div>
+
+  <div class="card card--p2" style="animation-delay: 0.3s;">
+    <div class="tag tag--orange">Priority 2 · 35 errors / 4 days · Stale refs + timeouts</div>
+    <h2>Root Cause Deep Dive</h2>
+
+    <h3>Skills that mention browser (audit results)</h3>
+    <div class="table-wrap" style="margin: 0.75rem 0;">
+      <table>
+        <thead>
+          <tr>
+            <th>Skill</th>
+            <th>Browser Policy</th>
+            <th>Used by Argus?</th>
+            <th>Risk</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="mono">daily-brief</td>
+            <td>"Do NOT use browser automation" ✅</td>
+            <td>Yes (cron)</td>
+            <td><span class="badge badge--green">Safe</span> — explicit ban</td>
+          </tr>
+          <tr>
+            <td class="mono">opik-review-loop</td>
+            <td>"Never use browser automation" ✅</td>
+            <td>Yes (cron)</td>
+            <td><span class="badge badge--green">Safe</span> — explicit ban</td>
+          </tr>
+          <tr>
+            <td class="mono">web-scraper</td>
+            <td>Browser is final fallback in cascade</td>
+            <td>Yes</td>
+            <td><span class="badge badge--orange">Medium</span> — Argus has browser denied, but Zosia can still reach it</td>
+          </tr>
+          <tr>
+            <td class="mono">doc-lookup</td>
+            <td>"use browser-based read only when necessary"</td>
+            <td>Yes</td>
+            <td><span class="badge badge--red">High</span> — vague language, agents may interpret broadly</td>
+          </tr>
+          <tr>
+            <td class="mono">skill-creator</td>
+            <td>Uses browser for eval viewer</td>
+            <td>No</td>
+            <td><span class="badge badge--green">Safe</span> — Zosia-only, interactive</td>
+          </tr>
+          <tr>
+            <td class="mono">visual-explainer</td>
+            <td>Browser for sharing flow</td>
+            <td>No</td>
+            <td><span class="badge badge--green">Safe</span> — Zosia-only, interactive</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Where the 35 errors actually came from</h3>
+    <ul>
+      <li><strong>Skill eval runs (Mar 9–10):</strong> 24 stale tab/target ID errors — these were Zosia (main agent) running skill-creator browser evals. Not a recurring cron problem.</li>
+      <li><strong>Doc-lookup browser fallback (Mar 10–11):</strong> 6 element-not-found errors — Zosia used browser to read JS-rendered doc pages after web_fetch returned thin content.</li>
+      <li><strong>Opik review (Mar 12–13):</strong> 5 UI action timeouts — agents trying to navigate Opik dashboard via browser instead of REST API. This is the only pattern that could recur in cron.</li>
+    </ul>
+
+    <h3>Critical insight: Argus already can't use browser</h3>
+    <p>Argus has <code>browser</code> in its tool deny list. So the 5 Opik browser errors from Mar 12–13 were from <strong>before</strong> the Argus migration (those cron jobs ran under <code>main</code> agent at the time). Now that Opik review runs under Argus, browser is literally unavailable — that specific error source is already dead.</p>
+    <p>The remaining risk is Zosia's interactive sessions: doc-lookup and web-scraper can still fall back to browser when web_fetch returns thin content.</p>
+  </div>
+
+  <div class="card card--info" style="animation-delay: 0.4s;">
+    <div class="tag tag--green">Proposed Fix — 2 Steps</div>
+    <h2>Implementation Plan</h2>
+
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <p><strong>Tighten doc-lookup's browser fallback language</strong></p>
+        <p>Change Step 6 ("Deepen only if needed") from vague "use browser-based read only when necessary" to explicit criteria:</p>
+        <p>"Use browser ONLY when: (a) the content is confirmed JS-rendered AND (b) web_fetch returned &lt;200 chars AND (c) Exa crawl also failed AND (d) the question genuinely requires that page's content. Always re-snapshot before acting on any browser element ref."</p>
+        <p>For cron/background contexts, add: "Never use browser. If web_fetch and Exa both fail, report the gap and move on."</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <p><strong>No cron payload changes needed</strong></p>
+        <p>All Argus cron jobs already explicitly ban browser or have it tool-denied. The opik-review-loop, daily-brief, and security review cron prompts all contain "do not use browser automation". These are already correct post-Argus migration.</p>
+        <p>For Zosia's interactive browser usage: the main risk is skill-creator eval runs (24 errors on Mar 9–10). These are legitimate uses — the fix is just to always re-snapshot before acting, which is already best practice. No skill change needed; just operational awareness.</p>
+      </div>
+    </div>
+
+    <h3>Expected Impact</h3>
+    <p>~90% reduction in browser errors for cron jobs (already achieved by Argus migration). For Zosia interactive: ~50% reduction by tightening doc-lookup's fallback criteria. Net: from 14% avg error rate → ~3%.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- FIX 3 -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-label">Fix 3 — Discord channel targeting errors</div>
+
+  <div class="card card--p3" style="animation-delay: 0.5s;">
+    <div class="tag tag--accent">Priority 3 · 18 errors / 4 days · "Unknown channel" + bad params</div>
+    <h2>Root Cause Deep Dive</h2>
+
+    <h3>Cron job → Discord channel audit</h3>
+    <div class="table-wrap" style="margin: 0.75rem 0;">
+      <table>
+        <thead>
+          <tr>
+            <th>Cron Job</th>
+            <th>Target Channel</th>
+            <th>Channel Exists?</th>
+            <th>Agent</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="mono">Daily Brief</td>
+            <td class="mono">1467962275481522380</td>
+            <td><span class="badge badge--green">✅ #📰-daily-news</span></td>
+            <td>Argus</td>
+          </tr>
+          <tr>
+            <td class="mono">Token Usage Report</td>
+            <td class="mono">1467958004811829318</td>
+            <td><span class="badge badge--green">✅ #📊-token-usage</span></td>
+            <td>Argus</td>
+          </tr>
+          <tr>
+            <td class="mono">Daily Backup</td>
+            <td class="mono">1468180617262010532</td>
+            <td><span class="badge badge--green">✅ #💾-backups</span></td>
+            <td>Argus</td>
+          </tr>
+          <tr>
+            <td class="mono">Weekly Archive</td>
+            <td class="mono">1468180617262010532</td>
+            <td><span class="badge badge--green">✅ #💾-backups</span></td>
+            <td>Argus</td>
+          </tr>
+          <tr>
+            <td class="mono">Security Review</td>
+            <td class="mono">1480919048891142205</td>
+            <td><span class="badge badge--green">✅ #🛡️-security</span></td>
+            <td>Argus</td>
+          </tr>
+          <tr>
+            <td class="mono">Opik Daily</td>
+            <td class="mono">1467971312923181151</td>
+            <td><span class="badge badge--green">✅ #💻-development</span></td>
+            <td>Argus</td>
+          </tr>
+          <tr>
+            <td class="mono">Opik Weekly</td>
+            <td class="mono">1467971312923181151</td>
+            <td><span class="badge badge--green">✅ #💻-development</span></td>
+            <td>Argus</td>
+          </tr>
+          <tr>
+            <td class="mono">Reddit Daily</td>
+            <td class="mono">1470693532191953052</td>
+            <td><span class="badge badge--green">✅ #📡-reddit</span></td>
+            <td>Argus</td>
+          </tr>
+          <tr>
+            <td class="mono">Reddit Weekly</td>
+            <td class="mono">1470693532191953052</td>
+            <td><span class="badge badge--green">✅ #📡-reddit</span></td>
+            <td>Argus</td>
+          </tr>
+          <tr>
+            <td class="mono">X GCC Monitor</td>
+            <td class="mono">1470710407852462091</td>
+            <td><span class="badge badge--green">✅ #🐦‍⬛-x-gcc-monitor</span></td>
+            <td>Argus</td>
+          </tr>
+          <tr>
+            <td class="mono">Nightly Distill</td>
+            <td class="mono">1467964100666462370</td>
+            <td><span class="badge badge--green">✅ #⚙️-system</span></td>
+            <td>Zosia</td>
+          </tr>
+          <tr>
+            <td class="mono">Meeting Briefing</td>
+            <td class="mono">1481333560475652218</td>
+            <td><span class="badge badge--green">✅ #🤝-meeting</span></td>
+            <td>Zosia</td>
+          </tr>
+          <tr>
+            <td class="mono">Apple Health Daily</td>
+            <td class="mono">1481336256448168140</td>
+            <td><span class="badge badge--green">✅ #🏥-health</span></td>
+            <td>Zosia</td>
+          </tr>
+          <tr>
+            <td class="mono">Apple Health Weekly</td>
+            <td class="mono">1481336256448168140</td>
+            <td><span class="badge badge--green">✅ #🏥-health</span></td>
+            <td>Zosia</td>
+          </tr>
+          <tr>
+            <td class="mono">Apple Health Monthly</td>
+            <td class="mono">1481336256448168140</td>
+            <td><span class="badge badge--green">✅ #🏥-health</span></td>
+            <td>Zosia</td>
+          </tr>
+          <tr>
+            <td class="mono">Heartbeat Reset</td>
+            <td class="mono">1468239771028422828</td>
+            <td><span class="badge badge--green">✅ #💓-heartbeat</span></td>
+            <td>Zosia</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p style="margin-top: 1rem;">Surprising result: <strong>all 16 cron job channel targets are valid.</strong> Every channel ID in every cron payload maps to a real channel in the guild.</p>
+
+    <h3>So where are the "unknown channel" errors coming from?</h3>
+    <p>Two sources:</p>
+    <ul>
+      <li><strong>Argus Discord account context:</strong> Argus posts via the <code>argus</code> Discord account (separate bot token). When cron payloads say <code>message(action=send, channel=discord, target=channel:XXXX)</code>, the message tool routes through the Argus bot token — which has <code>requireMention: true</code> and only a wildcard <code>"*": { "allow": true }</code> guild config. If the Argus bot hasn't been added to the guild with proper permissions, or if the message tool resolves <code>accountId</code> from bindings and picks the wrong one, you get "unknown channel".</li>
+      <li><strong>Message action mismatches:</strong> The <code>guildId required</code> and <code>query required</code> errors happen when agents call <code>message(action=search)</code> or <code>message(action=channel-info)</code> without passing all required params. This is the agent constructing bad tool calls, not a config issue.</li>
+    </ul>
+  </div>
+
+  <div class="card card--info" style="animation-delay: 0.6s;">
+    <div class="tag tag--green">Proposed Fix — 3 Steps</div>
+    <h2>Implementation Plan</h2>
+
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <p><strong>Ensure Argus cron payloads specify <code>accountId: "argus"</code></strong></p>
+        <p>When Argus runs a cron job and calls <code>message(action=send)</code>, it needs to explicitly pass <code>accountId: "argus"</code> so the message tool routes through the Argus bot token. Without this, the tool may default to the <code>default</code> account or fail to resolve the channel.</p>
+        <p>Add a line to each Argus cron payload prompt: "When posting to Discord, always pass <code>accountId: 'argus'</code> in the message tool call."</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <p><strong>Add Discord channel reference to Argus TOOLS.md</strong></p>
+        <p>Create a channel reference section in <code>~/.openclaw/workspace-argus/TOOLS.md</code> listing all channels Argus posts to, with their IDs and names. This gives cron-spawned agents instant context without guessing.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <p><strong>Fix bad message tool call shapes in skill prompts</strong></p>
+        <p>The <code>guildId required</code> and <code>query required</code> errors are from agents calling <code>message(action=search)</code> or <code>message(action=member-info)</code> without required params. Add a note to the Argus AGENTS.md: "When using the message tool: action=search requires query param; action=member-info requires userId param; action=channel-info requires channelId param."</p>
+      </div>
+    </div>
+
+    <h3>Expected Impact</h3>
+    <p>Eliminates the 8 "unknown channel" errors from Mar 14 and the 4 "required param" errors. Net: from 3.5% avg error rate → ~0.5%.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- BONUS: ENV fixes -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-label">Bonus — Quick environment fixes</div>
+
+  <div class="card card--warning" style="animation-delay: 0.7s;">
+    <div class="tag tag--purple">Trivial · 16 errors / 4 days</div>
+    <h2>Install ripgrep + alias python</h2>
+    <p>Two trivial env fixes that eliminate recurring noise:</p>
+    <pre>brew install ripgrep
+echo 'alias python=python3' >> ~/.zshrc
+source ~/.zshrc</pre>
+    <p>These account for 16 errors across 4 days — all <code>command not found: rg</code> and <code>command not found: python</code>.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- Implementation order -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-label">Implementation Sequence</div>
+
+  <div class="card" style="animation-delay: 0.8s;">
+    <h2>Execution Order (safe, incremental)</h2>
+
+    <div class="table-wrap" style="margin: 0.75rem 0;">
+      <table>
+        <thead>
+          <tr>
+            <th>Step</th>
+            <th>Action</th>
+            <th>Risk</th>
+            <th>Files Changed</th>
+            <th>Restart?</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="mono">1</td>
+            <td>Install ripgrep + python alias</td>
+            <td><span class="badge badge--green">None</span></td>
+            <td><code>~/.zshrc</code></td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td class="mono">2</td>
+            <td>Copy docs-cache → Argus workspace</td>
+            <td><span class="badge badge--green">None</span></td>
+            <td><code>workspace-argus/docs-cache/</code></td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td class="mono">3</td>
+            <td>Create blocked-domains.txt for doc-lookup</td>
+            <td><span class="badge badge--green">None</span></td>
+            <td><code>skills/doc-lookup/references/</code></td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td class="mono">4</td>
+            <td>Tighten doc-lookup SKILL.md (retry + browser)</td>
+            <td><span class="badge badge--green">Low</span></td>
+            <td><code>skills/doc-lookup/SKILL.md</code></td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td class="mono">5</td>
+            <td>Add Discord channel reference to Argus TOOLS.md</td>
+            <td><span class="badge badge--green">None</span></td>
+            <td><code>workspace-argus/TOOLS.md</code></td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td class="mono">6</td>
+            <td>Update Argus cron payloads with accountId hint</td>
+            <td><span class="badge badge--orange">Low-Med</span></td>
+            <td>Cron job prompts</td>
+            <td>No (cron update)</td>
+          </tr>
+          <tr>
+            <td class="mono">7</td>
+            <td>Add message tool param guidance to Argus AGENTS.md</td>
+            <td><span class="badge badge--green">None</span></td>
+            <td><code>workspace-argus/AGENTS.md</code></td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout">
+      <strong>Key safety note:</strong> None of these require a gateway restart. All changes are to workspace files, skill definitions, and cron payloads. No config.patch, no port changes, no auth changes. Zero risk of the "kill yourself by restarting" failure mode.
+    </div>
+
+    <h3>Projected Impact (next 6-day window)</h3>
+    <div class="grid-2">
+      <div>
+        <p><strong>Before (current 6-day avg):</strong></p>
+        <ul>
+          <li>171 tool errors / 6 days</li>
+          <li>web_fetch: 18% error rate</li>
+          <li>browser: 14% error rate</li>
+          <li>message: 3.5% error rate</li>
+          <li>$97.60 / 6 days</li>
+        </ul>
+      </div>
+      <div>
+        <p><strong>After (projected):</strong></p>
+        <ul>
+          <li>~40 tool errors / 6 days (–77%)</li>
+          <li>web_fetch: ~5% error rate</li>
+          <li>browser: ~3% error rate</li>
+          <li>message: ~0.5% error rate</li>
+          <li>Cost unchanged (model routing is a separate initiative)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- What we're NOT doing -->
+<div class="section">
+  <div class="section-label">What we're deliberately not doing</div>
+  <div class="card" style="animation-delay: 0.9s;">
+    <ul>
+      <li><strong>Not changing models or cost structure</strong> — that's a separate initiative. The 92.5% GPT-5.4 cost concentration is real but it's by design (Argus runs on GPT-5.4 for context window reasons).</li>
+      <li><strong>Not modifying gateway config</strong> — all fixes are workspace-level. Zero restart risk.</li>
+      <li><strong>Not adding a verified-URL positive cache</strong> — the negative cache (blocked-domains) + existing docs-cache is sufficient. A positive cache would need constant maintenance.</li>
+      <li><strong>Not removing browser from Zosia</strong> — browser is legitimately useful for interactive work (skill evals, JS-rendered pages, OAuth flows). The fix is tightening when it's used, not removing it.</li>
+    </ul>
+  </div>
+</div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+<title>Zosia Context Architecture — Deep Audit</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap');
+
+  :root {
+    --bg: #1a1a2e;
+    --surface: #16213e;
+    --card: #0f3460;
+    --accent: #e94560;
+    --accent2: #53a8b6;
+    --accent3: #f0c27f;
+    --text: #e0e0e0;
+    --text-muted: #8899aa;
+    --border: #2a3a5e;
+    --layer1: #e94560;
+    --layer2: #f0c27f;
+    --layer3: #53a8b6;
+    --layer-skill: #b39ddb;
+    --ok: #66bb6a;
+    --warn: #ffa726;
+    --danger: #ef5350;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    padding: 2rem;
+  }
+
+  h1 {
+    font-family: 'Instrument Serif', serif;
+    font-size: 2.4rem;
+    color: #fff;
+    margin-bottom: 0.3rem;
+  }
+
+  h2 {
+    font-family: 'Instrument Serif', serif;
+    font-size: 1.8rem;
+    color: #fff;
+    margin: 2.5rem 0 1rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.5rem;
+  }
+
+  h3 {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: var(--accent2);
+    margin: 1.5rem 0 0.5rem;
+  }
+
+  .subtitle {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 2rem;
+  }
+
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.2rem;
+    text-align: center;
+  }
+
+  .stat-card .number {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 2rem;
+    font-weight: 500;
+    color: var(--accent);
+  }
+
+  .stat-card .label {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.3rem;
+  }
+
+  /* Layer diagram */
+  .layer-diagram {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin: 1.5rem 0;
+  }
+
+  .layer-row {
+    display: flex;
+    align-items: stretch;
+    gap: 0.5rem;
+    min-height: 60px;
+  }
+
+  .layer-badge {
+    width: 120px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px 0 0 8px;
+    padding: 0.5rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 500;
+    flex-shrink: 0;
+  }
+
+  .layer-badge .badge-label { font-size: 0.7rem; opacity: 0.8; }
+
+  .layer-content {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 0 8px 8px 0;
+    padding: 0.8rem 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  .file-chip {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    padding: 0.25rem 0.6rem;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    white-space: nowrap;
+  }
+
+  .file-chip .size {
+    opacity: 0.7;
+    font-size: 0.65rem;
+  }
+
+  .l0 { background: rgba(255,255,255,0.1); color: #ccc; }
+  .l1 { background: rgba(233,69,96,0.15); color: var(--layer1); border: 1px solid rgba(233,69,96,0.3); }
+  .l2 { background: rgba(240,194,127,0.15); color: var(--layer2); border: 1px solid rgba(240,194,127,0.3); }
+  .l3 { background: rgba(83,168,182,0.15); color: var(--layer3); border: 1px solid rgba(83,168,182,0.3); }
+  .ls { background: rgba(179,157,219,0.15); color: var(--layer-skill); border: 1px solid rgba(179,157,219,0.3); }
+
+  .badge-l0 { background: rgba(255,255,255,0.08); color: #ccc; }
+  .badge-l1 { background: rgba(233,69,96,0.2); color: var(--layer1); }
+  .badge-l2 { background: rgba(240,194,127,0.2); color: var(--layer2); }
+  .badge-l3 { background: rgba(83,168,182,0.2); color: var(--layer3); }
+  .badge-ls { background: rgba(179,157,219,0.2); color: var(--layer-skill); }
+
+  /* Table */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+    font-size: 0.85rem;
+  }
+
+  th {
+    background: var(--surface);
+    color: var(--accent2);
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 500;
+    text-align: left;
+    padding: 0.6rem 0.8rem;
+    border-bottom: 2px solid var(--border);
+  }
+
+  td {
+    padding: 0.5rem 0.8rem;
+    border-bottom: 1px solid rgba(42,58,94,0.5);
+    vertical-align: top;
+  }
+
+  tr:hover td { background: rgba(255,255,255,0.02); }
+
+  .mono { font-family: 'IBM Plex Mono', monospace; font-size: 0.8rem; }
+  .bytes { color: var(--accent); font-family: 'IBM Plex Mono', monospace; }
+  .warn-text { color: var(--warn); }
+  .danger-text { color: var(--danger); }
+  .ok-text { color: var(--ok); }
+  .muted { color: var(--text-muted); }
+
+  /* Bar chart */
+  .bar-container { margin: 1rem 0; }
+  .bar-row {
+    display: flex;
+    align-items: center;
+    margin: 0.3rem 0;
+    gap: 0.5rem;
+  }
+  .bar-label {
+    width: 200px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    text-align: right;
+    flex-shrink: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .bar-track {
+    flex: 1;
+    height: 20px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 3px;
+    overflow: hidden;
+    position: relative;
+  }
+  .bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.3s;
+    display: flex;
+    align-items: center;
+    padding-left: 0.4rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    color: #fff;
+    min-width: fit-content;
+  }
+
+  /* Flow diagram */
+  .flow-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin: 1.5rem 0;
+    flex-wrap: wrap;
+  }
+
+  .flow-box {
+    padding: 0.6rem 1rem;
+    border-radius: 6px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    text-align: center;
+    min-width: 100px;
+  }
+
+  .flow-arrow {
+    font-size: 1.2rem;
+    color: var(--text-muted);
+    padding: 0 0.3rem;
+  }
+
+  /* Recommendation cards */
+  .rec-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+  }
+
+  .rec-card {
+    background: var(--surface);
+    border-left: 3px solid;
+    border-radius: 0 8px 8px 0;
+    padding: 1rem 1.2rem;
+  }
+
+  .rec-card.high { border-color: var(--danger); }
+  .rec-card.medium { border-color: var(--warn); }
+  .rec-card.low { border-color: var(--ok); }
+
+  .rec-title {
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 0.3rem;
+  }
+
+  .rec-body { font-size: 0.82rem; color: var(--text-muted); }
+  .rec-savings { font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; margin-top: 0.5rem; }
+
+  /* Overlap analysis */
+  .overlap-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.2rem;
+    margin: 1rem 0;
+  }
+
+  .overlap-title {
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin-bottom: 0.8rem;
+    color: var(--accent3);
+  }
+
+  .overlap-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid rgba(42,58,94,0.3);
+    font-size: 0.82rem;
+  }
+
+  .overlap-item:last-child { border-bottom: none; }
+
+  .overlap-files { flex: 1; }
+  .overlap-verdict {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 3px;
+    margin-left: 1rem;
+    white-space: nowrap;
+  }
+
+  @media (max-width: 768px) {
+    body { padding: 1rem; }
+    h1 { font-size: 1.8rem; }
+    .layer-row { flex-direction: column; }
+    .layer-badge { width: 100%; border-radius: 8px 8px 0 0; flex-direction: row; gap: 0.5rem; }
+    .layer-content { border-radius: 0 0 8px 8px; }
+    .bar-label { width: 120px; }
+    .flow-container { flex-direction: column; }
+    .flow-arrow { transform: rotate(90deg); }
+  }
+</style>
+</head>
+<body>
+
+<h1>Zosia Context Architecture</h1>
+<p class="subtitle">Deep audit of every byte loaded into the context window · March 14, 2026</p>
+
+<!-- ═══ EXECUTIVE SUMMARY ═══ -->
+<div class="summary-grid">
+  <div class="stat-card">
+    <div class="number">~19 KB</div>
+    <div class="label">Layer 1 Boot Load</div>
+  </div>
+  <div class="stat-card">
+    <div class="number">~15 KB</div>
+    <div class="label">Layer 2 (read on demand)</div>
+  </div>
+  <div class="stat-card">
+    <div class="number">~90 KB</div>
+    <div class="label">Layer 3 Topic Files</div>
+  </div>
+  <div class="stat-card">
+    <div class="number">34</div>
+    <div class="label">Skills Registered</div>
+  </div>
+  <div class="stat-card">
+    <div class="number">~135 KB</div>
+    <div class="label">Largest Skill (visual-explainer)</div>
+  </div>
+</div>
+
+<!-- ═══ LAYER ARCHITECTURE ═══ -->
+<h2>🧅 Layer Architecture</h2>
+<p style="margin-bottom: 1rem; font-size: 0.85rem; color: var(--text-muted);">
+  Every session starts with Layer 0 (OpenClaw system prompt, ~10-15 KB injected by the gateway) + Layer 1 (your workspace files). Layer 2 files are only read when referenced. Layer 3 is searched via <code>memory_search</code>. Skills are read only when triggered.
+</p>
+
+<div class="layer-diagram">
+
+  <div class="layer-row">
+    <div class="layer-badge badge-l0">
+      <span>LAYER 0</span>
+      <span class="badge-label">System Prompt</span>
+    </div>
+    <div class="layer-content">
+      <span class="file-chip l0">OpenClaw system prompt <span class="size">~12 KB</span></span>
+      <span class="file-chip l0">Tool definitions <span class="size">~8 KB</span></span>
+      <span class="file-chip l0">Skills registry <span class="size">~5 KB (34 descriptions)</span></span>
+      <span class="file-chip l0">Runtime metadata <span class="size">~1 KB</span></span>
+    </div>
+  </div>
+
+  <div class="layer-row">
+    <div class="layer-badge badge-l1">
+      <span>LAYER 1</span>
+      <span class="badge-label">Boot Injected</span>
+    </div>
+    <div class="layer-content">
+      <span class="file-chip l1">AGENTS.md <span class="size">3.2 KB</span></span>
+      <span class="file-chip l1">SOUL.md <span class="size">6.1 KB</span></span>
+      <span class="file-chip l1">TOOLS.md <span class="size">4.6 KB</span></span>
+      <span class="file-chip l1">USER.md <span class="size">1.5 KB</span></span>
+      <span class="file-chip l1">MEMORY.md <span class="size">3.0 KB</span></span>
+      <span class="file-chip l1">HEARTBEAT.md <span class="size">0.1 KB</span></span>
+      <span class="file-chip l1">IDENTITY.md <span class="size">0.1 KB (stub)</span></span>
+    </div>
+  </div>
+
+  <div class="layer-row">
+    <div class="layer-badge badge-l2">
+      <span>LAYER 2</span>
+      <span class="badge-label">Read on Reference</span>
+    </div>
+    <div class="layer-content">
+      <span class="file-chip l2">config/heartbeat-instructions.md <span class="size">10.2 KB 🔴</span></span>
+      <span class="file-chip l2">config/security-rules.md <span class="size">5.3 KB</span></span>
+    </div>
+  </div>
+
+  <div class="layer-row">
+    <div class="layer-badge badge-l3">
+      <span>LAYER 3</span>
+      <span class="badge-label">Searched / Retrieved</span>
+    </div>
+    <div class="layer-content">
+      <span class="file-chip l3">topics/tech-setup.md <span class="size">13.7 KB</span></span>
+      <span class="file-chip l3">topics/projects.md <span class="size">15.0 KB</span></span>
+      <span class="file-chip l3">topics/incidents.md <span class="size">18.1 KB</span></span>
+      <span class="file-chip l3">topics/lessons.md <span class="size">12.7 KB</span></span>
+      <span class="file-chip l3">topics/errors.md <span class="size">6.5 KB</span></span>
+      <span class="file-chip l3">topics/charlie.md <span class="size">6.8 KB</span></span>
+      <span class="file-chip l3">topics/iran-monitor.md <span class="size">1.3 KB</span></span>
+      <span class="file-chip l3">topics/personal.md <span class="size">0.7 KB</span></span>
+      <span class="file-chip l3">~70 daily log files <span class="size">varies</span></span>
+    </div>
+  </div>
+
+  <div class="layer-row">
+    <div class="layer-badge badge-ls">
+      <span>SKILLS</span>
+      <span class="badge-label">Loaded on Trigger</span>
+    </div>
+    <div class="layer-content">
+      <span class="file-chip ls">visual-explainer <span class="size">38 KB 🔴🔴</span></span>
+      <span class="file-chip ls">skill-creator <span class="size">30 KB 🔴</span></span>
+      <span class="file-chip ls">opik-review-loop <span class="size">11 KB</span></span>
+      <span class="file-chip ls">doc-lookup <span class="size">10 KB</span></span>
+      <span class="file-chip ls">daily-brief <span class="size">7 KB</span></span>
+      <span class="file-chip ls">exa <span class="size">7 KB</span></span>
+      <span class="file-chip ls">reddit-gcc <span class="size">5.8 KB</span></span>
+      <span class="file-chip ls">web-scraper <span class="size">5.8 KB</span></span>
+      <span class="file-chip ls">+ 26 more built-in <span class="size">1-7 KB each</span></span>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══ HOW LOADING WORKS ═══ -->
+<h2>⚡ Load Flow</h2>
+
+<div class="flow-container">
+  <div class="flow-box l0">Gateway boots<br>System prompt injected</div>
+  <span class="flow-arrow">→</span>
+  <div class="flow-box l1">Boot-md hook reads<br>AGENTS + SOUL + TOOLS<br>+ USER + MEMORY + HEARTBEAT<br>+ IDENTITY</div>
+  <span class="flow-arrow">→</span>
+  <div class="flow-box" style="background: rgba(255,255,255,0.05); color: var(--text);">User message arrives</div>
+  <span class="flow-arrow">→</span>
+  <div class="flow-box ls">Skill matcher scans<br>34 descriptions<br>(already in L0)</div>
+  <span class="flow-arrow">→</span>
+  <div class="flow-box ls">If matched: read()<br>SKILL.md → context</div>
+</div>
+
+<div class="flow-container" style="margin-top: 0.5rem;">
+  <div class="flow-box l2">HEARTBEAT.md says<br>"read heartbeat-instructions.md"</div>
+  <span class="flow-arrow">→</span>
+  <div class="flow-box l2">10 KB loaded into<br>context on heartbeat tick</div>
+  <span class="flow-arrow">=</span>
+  <div class="flow-box" style="background: rgba(233,69,96,0.1); color: var(--accent); border: 1px solid rgba(233,69,96,0.3);">Layer 2 indirection<br>adds a read() call<br>every heartbeat</div>
+</div>
+
+<div class="flow-container" style="margin-top: 0.5rem;">
+  <div class="flow-box l1">AGENTS.md says<br>"check security-rules.md<br>before exec"</div>
+  <span class="flow-arrow">→</span>
+  <div class="flow-box l2">5.3 KB loaded on<br>first exec call</div>
+  <span class="flow-arrow">=</span>
+  <div class="flow-box" style="background: rgba(240,194,127,0.1); color: var(--accent3); border: 1px solid rgba(240,194,127,0.3);">Layer 2 indirection<br>reasonable — only on<br>dangerous commands</div>
+</div>
+
+
+<!-- ═══ SIZE COMPARISON ═══ -->
+<h2>📊 Size Comparison — Everything That Touches Context</h2>
+
+<div class="bar-container">
+  <div class="bar-row">
+    <span class="bar-label">visual-explainer SKILL</span>
+    <div class="bar-track"><div class="bar-fill" style="width: 95%; background: var(--danger);">38.3 KB 🔴</div></div>
+  </div>
+  <div class="bar-row">
+    <span class="bar-label">skill-creator SKILL</span>
+    <div class="bar-track"><div class="bar-fill" style="width: 75%; background: var(--warn);">30.0 KB</div></div>
+  </div>
+  <div class="bar-row">
+    <span class="bar-label">topics/incidents.md</span>
+    <div class="bar-track"><div class="bar-fill" style="width: 45%; background: var(--layer3);">18.1 KB</div></div>
+  </div>
+  <div class="bar-row">
+    <span class="bar-label">topics/projects.md</span>
+    <div class="bar-track"><div class="bar-fill" style="width: 37%; background: var(--layer3);">15.0 KB</div></div>
+  </div>
+  <div class="bar-row">
+    <span class="bar-label">topics/tech-setup.md</span>
+    <div class="bar-track"><div class="bar-fill" style="width: 34%; background: var(--layer3);">13.7 KB</div></div>
+  </div>
+  <div class="bar-row">
+    <span class="bar-label">topics/lessons.md</span>
+    <div class="bar-track"><div class="bar-fill" style="width: 32%; background: var(--layer3);">12.7 KB</div></div>
+  </div>
+  <div class="bar-row">
+    <span class="bar-label">opik-review-loop SKILL</span>
+    <div class="bar-track"><div class="bar-fill" style="width: 28%; background: var(--layer-skill);">11.4 KB</div></div>
+  </div>
+  <div class="bar-row">
+    <span class="bar-label">heartbeat-instructions.md</span>
+    <div class="bar-track"><div class="bar-fill" style="width: 25%; background: var(--layer2);">10.2 KB</div></div>
+  </div>
+  <div class="bar-row">
+    <span class="bar-label">doc-lookup SKILL</span>
+    <div class="bar-track"><div class="bar-fill" style="width: 26%; background: var(--layer-skill);">10.4 KB</div></div>
+  </div>
+  <div class="bar-row">
+    <span class="bar-label">topics/errors.md</span>
+    <div class="bar-track"><div class="bar-fill" style="width: 16%; background: var(--layer3);">6.5 KB</div></div>
+  </div>
+  <div class="bar-row">
+    <span class="bar-label">topics/charlie.md</span>
+    <div class="bar-track"><div class="bar-fill" style="width: 17%; background: var(--layer3);">6.8 KB</div></div>
+  </div>
+  <div class="bar-row">
+    <span class="bar-label">SOUL.md</span>
+    <div class="bar-track"><div class="bar-fill" style="width: 15%; background: var(--layer1);">6.1 KB</div></div>
+  </div>
+  <div class="bar-row">
+    <span class="bar-label">security-rules.md</span>
+    <div class="bar-track"><div class="bar-fill" style="width: 13%; background: var(--layer2);">5.3 KB</div></div>
+  </div>
+  <div class="bar-row">
+    <span class="bar-label">TOOLS.md</span>
+    <div class="bar-track"><div class="bar-fill" style="width: 11%; background: var(--layer1);">4.6 KB</div></div>
+  </div>
+  <div class="bar-row">
+    <span class="bar-label">AGENTS.md</span>
+    <div class="bar-track"><div class="bar-fill" style="width: 8%; background: var(--layer1);">3.2 KB</div></div>
+  </div>
+  <div class="bar-row">
+    <span class="bar-label">MEMORY.md</span>
+    <div class="bar-track"><div class="bar-fill" style="width: 7%; background: var(--layer1);">3.0 KB</div></div>
+  </div>
+  <div class="bar-row">
+    <span class="bar-label">USER.md</span>
+    <div class="bar-track"><div class="bar-fill" style="width: 4%; background: var(--layer1);">1.5 KB</div></div>
+  </div>
+</div>
+
+
+<!-- ═══ OVERLAP ANALYSIS ═══ -->
+<h2>🔍 Overlap & Redundancy Analysis</h2>
+
+<div class="overlap-section">
+  <div class="overlap-title">Content that exists in multiple places</div>
+
+  <div class="overlap-item">
+    <div class="overlap-files">
+      <strong>Model/provider info</strong><br>
+      <span class="muted">TOOLS.md (provider details, ports) ↔ MEMORY.md (model policy) ↔ topics/tech-setup.md (full model section) ↔ Runtime config (canonical)</span>
+    </div>
+    <span class="overlap-verdict danger-text" style="background: rgba(239,83,80,0.1);">3-WAY OVERLAP</span>
+  </div>
+
+  <div class="overlap-item">
+    <div class="overlap-files">
+      <strong>VPS / Charlie info</strong><br>
+      <span class="muted">TOOLS.md (gateway port) ↔ topics/tech-setup.md (Singapore VPS section) ↔ topics/charlie.md (full 6.8 KB guide)</span>
+    </div>
+    <span class="overlap-verdict warn-text" style="background: rgba(255,167,38,0.1);">3 FILES</span>
+  </div>
+
+  <div class="overlap-item">
+    <div class="overlap-files">
+      <strong>Web scraping pipeline</strong><br>
+      <span class="muted">TOOLS.md (full cascade doc) ↔ skills/web-scraper/SKILL.md (same info, skill-oriented)</span>
+    </div>
+    <span class="overlap-verdict warn-text" style="background: rgba(255,167,38,0.1);">DUPLICATED</span>
+  </div>
+
+  <div class="overlap-item">
+    <div class="overlap-files">
+      <strong>Safety rules</strong><br>
+      <span class="muted">AGENTS.md (Security Seal section) ↔ config/security-rules.md (detailed version) ↔ MEMORY.md (critical safety rules)</span>
+    </div>
+    <span class="overlap-verdict warn-text" style="background: rgba(255,167,38,0.1);">3-WAY</span>
+  </div>
+
+  <div class="overlap-item">
+    <div class="overlap-files">
+      <strong>Secrets management</strong><br>
+      <span class="muted">TOOLS.md (secrets section) ↔ MEMORY.md (secrets section) ↔ topics/tech-setup.md (env vars)</span>
+    </div>
+    <span class="overlap-verdict warn-text" style="background: rgba(255,167,38,0.1);">3-WAY</span>
+  </div>
+
+  <div class="overlap-item">
+    <div class="overlap-files">
+      <strong>MCP / Exa setup</strong><br>
+      <span class="muted">TOOLS.md (MCP Servers section) ↔ skills/exa/SKILL.md (Exa skill)</span>
+    </div>
+    <span class="overlap-verdict ok-text" style="background: rgba(102,187,106,0.1);">OK — different purpose</span>
+  </div>
+
+  <div class="overlap-item">
+    <div class="overlap-files">
+      <strong>IDENTITY.md</strong><br>
+      <span class="muted">Empty stub that says "See SOUL.md". Loaded every session for 0 value.</span>
+    </div>
+    <span class="overlap-verdict danger-text" style="background: rgba(239,83,80,0.1);">DEAD WEIGHT</span>
+  </div>
+
+</div>
+
+
+<!-- ═══ HEARTBEAT: THE BIGGEST OFFENDER ═══ -->
+<h2>💓 Heartbeat: The Context Hog</h2>
+<p style="font-size: 0.85rem; margin-bottom: 1rem;">
+  The heartbeat system is the single biggest context consumer per invocation. Here's the chain:
+</p>
+
+<div class="flow-container">
+  <div class="flow-box l0" style="font-size: 0.7rem;">System prompt<br>mentions heartbeat<br>~200 bytes</div>
+  <span class="flow-arrow">→</span>
+  <div class="flow-box l1" style="font-size: 0.7rem;">HEARTBEAT.md<br>119 bytes<br>"read config/heartbeat-instructions.md"</div>
+  <span class="flow-arrow">→</span>
+  <div class="flow-box l2" style="font-size: 0.7rem;">heartbeat-instructions.md<br><strong>10,191 bytes</strong><br>256 lines of rules</div>
+  <span class="flow-arrow">→</span>
+  <div class="flow-box" style="background: rgba(233,69,96,0.15); color: var(--accent); border: 1px solid rgba(233,69,96,0.3); font-size: 0.7rem;">+ gog calls<br>+ cron list<br>+ VPS checks<br>= 15-25 tool calls</div>
+</div>
+
+<p style="font-size: 0.82rem; color: var(--text-muted); margin-top: 0.8rem;">
+  Every 30 min (or whenever heartbeat fires), that 10 KB file gets read into context. It's the most-read file in the entire system, and it's huge — calendar IDs, Discord channel IDs, JSON templates, escalation matrices, state schemas. Much of this is reference material that could be a script.
+</p>
+
+
+<!-- ═══ RECOMMENDATIONS ═══ -->
+<h2>🛠️ Recommendations — Making Zosia Lighter</h2>
+
+<div class="rec-grid">
+
+  <div class="rec-card high">
+    <div class="rec-title">1. Shrink heartbeat-instructions.md</div>
+    <div class="rec-body">
+      At 10.2 KB / 256 lines, this is the heaviest per-invocation file. Move calendar IDs and Discord channel IDs into a JSON config file that the heartbeat script reads directly. Keep instructions to ~3 KB of prose. The JSON templates for CV2 cards can be examples, not full specs repeated 4x.
+    </div>
+    <div class="rec-savings ok-text">Savings: ~7 KB per heartbeat tick (fires 20-30x/day)</div>
+  </div>
+
+  <div class="rec-card high">
+    <div class="rec-title">2. Delete IDENTITY.md</div>
+    <div class="rec-body">
+      92-byte stub that says "See SOUL.md". Loaded every single session. Delete it — OpenClaw's boot-md hook will just skip it if missing.
+    </div>
+    <div class="rec-savings ok-text">Savings: 1 file read eliminated per session</div>
+  </div>
+
+  <div class="rec-card high">
+    <div class="rec-title">3. Deduplicate TOOLS.md ↔ topics/tech-setup.md</div>
+    <div class="rec-body">
+      TOOLS.md has provider details, VPS info, and web scraping docs that are also in tech-setup.md. Make TOOLS.md a <em>routing table</em> only — what tool to use for what. Move the "how it works" docs into tech-setup.md (Layer 3, searched not loaded).
+    </div>
+    <div class="rec-savings ok-text">Savings: ~2 KB from Layer 1 boot load</div>
+  </div>
+
+  <div class="rec-card medium">
+    <div class="rec-title">4. Trim topics/incidents.md</div>
+    <div class="rec-body">
+      18 KB of incident history — the largest topic file. Archive resolved incidents older than 30 days. Keep only the lesson learned (which goes in lessons.md anyway). This file gets pulled into context on any memory_search about past problems.
+    </div>
+    <div class="rec-savings ok-text">Savings: ~12 KB from Layer 3 search results</div>
+  </div>
+
+  <div class="rec-card medium">
+    <div class="rec-title">5. Consolidate safety rules</div>
+    <div class="rec-body">
+      Safety info lives in 3 places: AGENTS.md (Security Seal), security-rules.md, and MEMORY.md (Critical Safety Rules). AGENTS.md should say "red/yellow line rules in config/security-rules.md" without repeating the patterns. MEMORY.md should drop the safety section entirely (it's in AGENTS.md).
+    </div>
+    <div class="rec-savings ok-text">Savings: ~800 bytes from Layer 1</div>
+  </div>
+
+  <div class="rec-card medium">
+    <div class="rec-title">6. Review visual-explainer size</div>
+    <div class="rec-body">
+      At 38 KB, this is the single largest SKILL.md. It's loaded every time you ask for a diagram. The full Mermaid theming guide, CSS patterns, and template references could move to sub-files that are read conditionally (already partially done with references/).
+    </div>
+    <div class="rec-savings ok-text">Savings: ~20 KB per visual-explainer invocation</div>
+  </div>
+
+  <div class="rec-card low">
+    <div class="rec-title">7. HEARTBEAT.md → inline in system prompt</div>
+    <div class="rec-body">
+      HEARTBEAT.md is 119 bytes that says "read the heartbeat file". This indirection adds a file read for zero value. If the heartbeat trigger text is already in the system prompt (it is), this file is redundant. Delete it.
+    </div>
+    <div class="rec-savings ok-text">Savings: 1 fewer file loaded at boot</div>
+  </div>
+
+</div>
+
+
+<!-- ═══ PROPOSED SLIMMED STRUCTURE ═══ -->
+<h2>📐 Proposed Slim Structure</h2>
+
+<table>
+<thead>
+  <tr><th>Layer</th><th>File</th><th>Current</th><th>Proposed</th><th>Action</th></tr>
+</thead>
+<tbody>
+  <tr>
+    <td><span class="file-chip l1" style="font-size: 0.7rem;">L1</span></td>
+    <td class="mono">AGENTS.md</td>
+    <td class="bytes">3.2 KB</td>
+    <td class="bytes ok-text">2.5 KB</td>
+    <td>Remove duplicated safety patterns (point to security-rules.md)</td>
+  </tr>
+  <tr>
+    <td><span class="file-chip l1" style="font-size: 0.7rem;">L1</span></td>
+    <td class="mono">SOUL.md</td>
+    <td class="bytes">6.1 KB</td>
+    <td class="bytes">6.1 KB</td>
+    <td class="ok-text">Keep — this IS Zosia. Worth every byte.</td>
+  </tr>
+  <tr>
+    <td><span class="file-chip l1" style="font-size: 0.7rem;">L1</span></td>
+    <td class="mono">TOOLS.md</td>
+    <td class="bytes">4.6 KB</td>
+    <td class="bytes ok-text">2.5 KB</td>
+    <td>Routing table only. Move scraping/MCP docs to tech-setup.md</td>
+  </tr>
+  <tr>
+    <td><span class="file-chip l1" style="font-size: 0.7rem;">L1</span></td>
+    <td class="mono">USER.md</td>
+    <td class="bytes">1.5 KB</td>
+    <td class="bytes">1.5 KB</td>
+    <td class="ok-text">Keep — compact and essential</td>
+  </tr>
+  <tr>
+    <td><span class="file-chip l1" style="font-size: 0.7rem;">L1</span></td>
+    <td class="mono">MEMORY.md</td>
+    <td class="bytes">3.0 KB</td>
+    <td class="bytes ok-text">2.2 KB</td>
+    <td>Remove safety dupe, secrets dupe → point to AGENTS.md and TOOLS.md</td>
+  </tr>
+  <tr>
+    <td><span class="file-chip l1" style="font-size: 0.7rem;">L1</span></td>
+    <td class="mono">IDENTITY.md</td>
+    <td class="bytes">92 B</td>
+    <td class="bytes danger-text">DELETE</td>
+    <td>Empty stub. No value.</td>
+  </tr>
+  <tr>
+    <td><span class="file-chip l1" style="font-size: 0.7rem;">L1</span></td>
+    <td class="mono">HEARTBEAT.md</td>
+    <td class="bytes">119 B</td>
+    <td class="bytes danger-text">DELETE</td>
+    <td>Already in system prompt. Redundant pointer.</td>
+  </tr>
+  <tr>
+    <td><span class="file-chip l2" style="font-size: 0.7rem;">L2</span></td>
+    <td class="mono">heartbeat-instructions.md</td>
+    <td class="bytes">10.2 KB</td>
+    <td class="bytes ok-text">~3 KB + JSON</td>
+    <td>Extract IDs into config JSON; slim prose; remove template repeats</td>
+  </tr>
+  <tr>
+    <td><span class="file-chip l2" style="font-size: 0.7rem;">L2</span></td>
+    <td class="mono">security-rules.md</td>
+    <td class="bytes">5.3 KB</td>
+    <td class="bytes">5.3 KB</td>
+    <td class="ok-text">Keep — only loaded on exec, well-structured</td>
+  </tr>
+  <tr>
+    <td><span class="file-chip l3" style="font-size: 0.7rem;">L3</span></td>
+    <td class="mono">topics/incidents.md</td>
+    <td class="bytes">18.1 KB</td>
+    <td class="bytes ok-text">~6 KB</td>
+    <td>Archive resolved incidents >30d. Keep lessons only.</td>
+  </tr>
+</tbody>
+</table>
+
+<div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; margin: 1.5rem 0;">
+  <h3 style="margin-top: 0;">Net Impact</h3>
+  <table style="margin: 0.5rem 0;">
+    <tr><td>Current Layer 1 boot load</td><td class="bytes">~18.6 KB (7 files)</td></tr>
+    <tr><td>Proposed Layer 1 boot load</td><td class="bytes ok-text">~14.8 KB (5 files)</td></tr>
+    <tr><td style="border-bottom: 2px solid var(--border);">Heartbeat per-tick context</td><td class="bytes ok-text" style="border-bottom: 2px solid var(--border);">~10 KB → ~3 KB</td></tr>
+    <tr><td><strong>Total savings per heartbeat session</strong></td><td class="bytes ok-text"><strong>~11 KB lighter</strong></td></tr>
+  </table>
+  <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">
+    The Layer 1 savings are modest (~4 KB) because your boot files are already reasonably lean. The big win is heartbeat — reducing 10 KB to 3 KB on a file that's read 20-30 times daily saves ~150-200 KB of daily context churn.
+  </p>
+</div>
+
+
+<h2>📎 Notes</h2>
+<ul style="font-size: 0.85rem; line-height: 1.8; padding-left: 1.5rem;">
+  <li><strong>SOUL.md is sacred.</strong> 6.1 KB is not cheap, but it's the personality core. Don't touch it.</li>
+  <li><strong>topics/ files are well-layered</strong> — they only enter context via memory_search, not boot. The concern is their size when they DO get pulled in.</li>
+  <li><strong>Skills are loaded one-at-a-time</strong> by design. The skill registry in L0 (~5 KB of descriptions) is the tax; actual SKILL.md only loads on match. The 38 KB visual-explainer is the outlier.</li>
+  <li><strong>Argus</strong> (set up today) is a separate agent, not a boot-loaded file. Its context is isolated — no impact on Zosia's boot weight.</li>
+  <li><strong>The system prompt (L0)</strong> is ~25 KB and managed by OpenClaw, not user-editable. The skill descriptions add ~5 KB to it (34 skills × ~150 bytes each).</li>
+</ul>
+
+<p class="subtitle" style="margin-top: 2rem; text-align: center;">Generated by Zosia · March 14, 2026</p>
+
+</body>
+</html>
