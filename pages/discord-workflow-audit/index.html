@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Discord Workflow Audit</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;700;800&family=Fragment+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+:root{--f:'Bricolage Grotesque',system-ui,sans-serif;--fm:'Fragment Mono','SF Mono',monospace;--bg:#faf8f5;--s:#fff;--s2:#f5f2ed;--b:rgba(0,0,0,.07);--bb:rgba(0,0,0,.14);--t:#1c1917;--td:#78716c;--a:#1e3a5f;--ad:rgba(30,58,95,.06);--gold:#d4a73a;--gd:rgba(212,167,58,.1);--green:#16a34a;--grd:rgba(22,163,74,.08);--red:#dc2626;--rd:rgba(220,38,38,.08);--amber:#d97706;--amd:rgba(217,119,6,.08);--teal:#0891b2;--td2:rgba(8,145,178,.08)}
+@media(prefers-color-scheme:dark){:root{--bg:#0f1118;--s:#181c26;--s2:#1e2230;--b:rgba(255,255,255,.06);--bb:rgba(255,255,255,.12);--t:#e8e6e3;--td:#8b8a87;--a:#6ba3d6;--ad:rgba(107,163,214,.1);--gold:#e8c05a;--gd:rgba(232,192,90,.12);--green:#4ade80;--grd:rgba(74,222,128,.1);--red:#f87171;--rd:rgba(248,113,113,.1);--amber:#fbbf24;--amd:rgba(251,191,36,.1);--teal:#22d3ee;--td2:rgba(34,211,238,.1)}}
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:var(--f);background:var(--bg);color:var(--t);line-height:1.55;background-image:radial-gradient(ellipse at 50% 0%,var(--ad),transparent 50%)}
+.w{max-width:1100px;margin:0 auto;padding:2.5rem 1.5rem 4rem}
+.hero{text-align:center;margin-bottom:2.5rem}.hero h1{font-size:2.2rem;font-weight:800;letter-spacing:-.03em;color:var(--a)}.hero p{font-family:var(--fm);font-size:.82rem;color:var(--td)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.8rem;margin-bottom:2.5rem}.kpi{background:var(--s);border:1px solid var(--b);border-radius:10px;padding:1rem;text-align:center}.kpi b{font-size:1.8rem;display:block;line-height:1}.kpi small{font-family:var(--fm);font-size:.7rem;color:var(--td);text-transform:uppercase;letter-spacing:.04em}
+h2{font-size:1.3rem;font-weight:700;color:var(--a);margin:2rem 0 .5rem;padding-left:12px;border-left:3px solid var(--gold)}
+.desc{font-size:.85rem;color:var(--td);margin-bottom:1rem}
+.tw{overflow-x:auto;border-radius:10px;border:1px solid var(--b);background:var(--s);margin-bottom:2rem}
+table{width:100%;border-collapse:collapse;font-size:.83rem}th{background:var(--s2);font-family:var(--fm);font-size:.7rem;text-transform:uppercase;letter-spacing:.04em;color:var(--td);padding:.65rem .7rem;text-align:left;border-bottom:1px solid var(--bb);white-space:nowrap}td{padding:.55rem .7rem;border-bottom:1px solid var(--b);vertical-align:top}tr:last-child td{border-bottom:none}tr:nth-child(even) td{background:var(--s2)}
+.bg{display:inline-block;font-family:var(--fm);font-size:.67rem;font-weight:600;padding:.12rem .45rem;border-radius:4px;white-space:nowrap}.ok{background:var(--grd);color:var(--green)}.dead{background:var(--rd);color:var(--red)}.warn{background:var(--amd);color:var(--amber)}.arch{background:var(--s2);color:var(--td)}.nu{background:var(--td2);color:var(--teal)}
+.tag{font-family:var(--fm);font-size:.65rem;padding:.1rem .3rem;border-radius:3px;background:var(--ad);color:var(--a)}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1rem;margin-bottom:2rem}
+.card{background:var(--s);border:1px solid var(--b);border-radius:10px;padding:1.1rem}.card h3{font-size:.95rem;font-weight:700;margin-bottom:.4rem}.card ul{padding-left:1.1rem;font-size:.85rem}.card li{margin-bottom:.25rem}
+.rcard{background:var(--s);border:1px solid var(--b);border-radius:10px;padding:1.1rem;border-left:3px solid var(--gold)}.rcard h3{font-size:.95rem;font-weight:700;margin-bottom:.3rem;color:var(--a)}.rcard p{font-size:.83rem;color:var(--td);line-height:1.5}.rcard .imp{font-family:var(--fm);font-size:.68rem;color:var(--gold);margin-top:.4rem;text-transform:uppercase}
+.pcard{background:var(--s);border:1px solid var(--b);border-radius:10px;padding:1.1rem;border-left:3px solid var(--red)}.pcard h3{font-size:.95rem;font-weight:700;margin-bottom:.3rem}.pcard ul{padding-left:1.1rem;font-size:.83rem}.pcard li{margin-bottom:.2rem}
+@media(max-width:600px){.hero h1{font-size:1.5rem}.kpis{grid-template-columns:repeat(3,1fr)}.cards{grid-template-columns:1fr}}
+</style>
+  <!-- Vercel Web Analytics -->
+  <script>
+    window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+  </script>
+  <script defer src="/_vercel/insights/script.js"></script>
+  <!-- Vercel Speed Insights -->
+  <script>
+    window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
+  </script>
+  <script defer src="/_vercel/speed-insights/script.js"></script>
+</head>
+<body>
+<div class="w">
+
+<div class="hero">
+<h1>Discord Workflow Audit</h1>
+<p>zosia &times; raymond &mdash; 18 Mar 2026</p>
+</div>
+
+<div class="kpis">
+<div class="kpi"><b style="color:var(--a)">34</b><small>Channels</small></div>
+<div class="kpi"><b style="color:var(--green)">14</b><small>Active</small></div>
+<div class="kpi"><b style="color:var(--red)">10</b><small>Dead/Stale</small></div>
+<div class="kpi"><b style="color:var(--gold)">16</b><small>Cron Jobs</small></div>
+<div class="kpi"><b style="color:var(--green)">13</b><small>Healthy</small></div>
+<div class="kpi"><b style="color:var(--amber)">2</b><small>Erroring</small></div>
+</div>
+
+<h2>Channel Inventory</h2>
+<p class="desc">Every channel rated by last meaningful activity</p>
+<div class="tw"><table>
+<thead><tr><th>Channel</th><th>Category</th><th>Status</th><th>Last Active</th><th>Purpose</th></tr></thead>
+<tbody>
+<tr><td>daily</td><td>Productivity</td><td><span class="bg ok">ACTIVE</span></td><td>Today</td><td>Main hub &mdash; every post auto-threads</td></tr>
+<tr><td>daily-news</td><td>Productivity</td><td><span class="bg ok">ACTIVE</span></td><td>Today</td><td>Argus daily brief 9:05 AM</td></tr>
+<tr><td>reddit</td><td>Productivity</td><td><span class="bg ok">ACTIVE</span></td><td>Today</td><td>Reddit GCC Monitor daily+weekly</td></tr>
+<tr><td>x-gcc-monitor</td><td>Productivity</td><td><span class="bg ok">ACTIVE</span></td><td>Today</td><td>X/Twitter GCC Monitor</td></tr>
+<tr><td>token-usage</td><td>DevOps</td><td><span class="bg ok">ACTIVE</span></td><td>Today</td><td>Daily token report 9:10 AM</td></tr>
+<tr><td>development</td><td>DevOps</td><td><span class="bg ok">ACTIVE</span></td><td>Today</td><td>Opik reviews + coding threads</td></tr>
+<tr><td>backups</td><td>DevOps</td><td><span class="bg ok">ACTIVE</span></td><td>Today</td><td>Daily backup + weekly archive</td></tr>
+<tr><td>security</td><td>DevOps</td><td><span class="bg ok">ACTIVE</span></td><td>Today</td><td>Nightly security review 3:30 AM</td></tr>
+<tr><td>health</td><td>Productivity</td><td><span class="bg ok">ACTIVE</span></td><td>Today</td><td>Apple Health daily/weekly/monthly</td></tr>
+<tr><td>heartbeat</td><td>DevOps</td><td><span class="bg ok">ACTIVE</span></td><td>Mar 17</td><td>System liveness checks</td></tr>
+<tr><td>meeting</td><td>Productivity</td><td><span class="bg ok">ACTIVE</span></td><td>Mar 14</td><td>Pre-meeting briefings every 30 min</td></tr>
+<tr><td>system</td><td>DevOps</td><td><span class="bg ok">ACTIVE</span></td><td>Mar 17</td><td>Gateway events &amp; notifications</td></tr>
+<tr><td>identity</td><td>DevOps</td><td><span class="bg ok">ACTIVE</span></td><td>Mar 15</td><td>Zosia domains &amp; identity</td></tr>
+<tr><td>zoe-admin</td><td>Productivity</td><td><span class="bg ok">ACTIVE</span></td><td>Mar 14</td><td>Zoe VPS admin</td></tr>
+<tr><td>finance</td><td>Productivity</td><td><span class="bg warn">STALE</span></td><td>Mar 14</td><td>Transaction reviews &mdash; no cron</td></tr>
+<tr><td>notion</td><td>Productivity</td><td><span class="bg warn">STALE</span></td><td>Mar 11</td><td>Notion sync &mdash; rarely used</td></tr>
+<tr><td>bookmark</td><td>DevOps</td><td><span class="bg warn">STALE</span></td><td>Mar 13</td><td>File drops &mdash; ad hoc only</td></tr>
+<tr><td>skills</td><td>DevOps</td><td><span class="bg warn">STALE</span></td><td>Mar 13</td><td>Skill dev threads</td></tr>
+<tr><td>agents</td><td>DevOps</td><td><span class="bg warn">STALE</span></td><td>Mar 14</td><td>Agent routing discussions</td></tr>
+<tr><td>linear</td><td>DevOps</td><td><span class="bg warn">STALE</span></td><td>Mar 11</td><td>Linear integration &mdash; broken</td></tr>
+<tr><td>crm</td><td>Productivity</td><td><span class="bg warn">STALE</span></td><td>Mar 11</td><td>Contact experiments</td></tr>
+<tr><td>zoe</td><td>Productivity</td><td><span class="bg warn">STALE</span></td><td>Mar 14</td><td>Zoe bot (Zosia blocked)</td></tr>
+<tr><td>email-calendar</td><td>Productivity</td><td><span class="bg dead">DEAD</span></td><td>Feb 3</td><td>One-time setup, never used again</td></tr>
+<tr><td>voice</td><td>Productivity</td><td><span class="bg dead">DEAD</span></td><td>Feb 3</td><td>1 message total</td></tr>
+<tr><td>notifications</td><td>Productivity</td><td><span class="bg dead">DEAD</span></td><td>Feb 23</td><td>One VPS alert then silence</td></tr>
+<tr><td>knowledge-base</td><td>Productivity</td><td><span class="bg dead">DEAD</span></td><td>Feb 24</td><td>Project explicitly killed</td></tr>
+<tr><td>wag-digital-governance</td><td>Productivity</td><td><span class="bg dead">DEAD</span></td><td>Never</td><td>Zero messages ever</td></tr>
+<tr><td>cron-jobs</td><td>DevOps</td><td><span class="bg dead">DEAD</span></td><td>Mar 11</td><td>Meta-discussion, replaced by runtime</td></tr>
+<tr><td colspan="5" style="color:var(--td);font-size:.78rem;font-style:italic">+ 10 Archived channels: feishu, slack, x-search, fix, github, todo, agent-files, whatsapp, data-center, iran-situation, moltbook</td></tr>
+</tbody>
+</table></div>
+
+<h2>Cron Pipeline Map</h2>
+<p class="desc">16 jobs total &mdash; which agent runs what, where it posts</p>
+<div class="tw"><table>
+<thead><tr><th>Job</th><th>Agent</th><th>Schedule</th><th>Target</th><th>Status</th><th>Runtime</th></tr></thead>
+<tbody>
+<tr><td>Daily Brief</td><td><span class="tag">argus</span></td><td>9:05 AM</td><td>#daily-news</td><td><span class="bg ok">OK</span></td><td>~7 min</td></tr>
+<tr><td>Token Report</td><td><span class="tag">argus</span></td><td>9:10 AM</td><td>#token-usage</td><td><span class="bg ok">OK</span></td><td>~2.5 min</td></tr>
+<tr><td>Opik Daily</td><td><span class="tag">argus</span></td><td>9:20 AM</td><td>#development</td><td><span class="bg dead">ERROR</span></td><td>msg failed</td></tr>
+<tr><td>Reddit Daily</td><td><span class="tag">argus</span></td><td>9:30 AM</td><td>#reddit</td><td><span class="bg ok">OK</span></td><td>~23 min</td></tr>
+<tr><td>X GCC Monitor</td><td><span class="tag">argus</span></td><td>9:45 AM</td><td>#x-gcc-monitor</td><td><span class="bg ok">OK</span></td><td>~1 min</td></tr>
+<tr><td>Reddit Weekly</td><td><span class="tag">argus</span></td><td>Sat 10 AM</td><td>#reddit</td><td><span class="bg ok">OK</span></td><td>~2 min</td></tr>
+<tr><td>Opik Weekly</td><td><span class="tag">argus</span></td><td>Sun 9:40 AM</td><td>#development</td><td><span class="bg ok">OK</span></td><td>~1 min</td></tr>
+<tr><td>Security Review</td><td><span class="tag">argus</span></td><td>3:30 AM</td><td>#security</td><td><span class="bg ok">OK</span></td><td>~10 min</td></tr>
+<tr><td>Daily Backup</td><td><span class="tag">argus</span></td><td>6:05 AM</td><td>#backups</td><td><span class="bg ok">OK</span></td><td>~1.5 min</td></tr>
+<tr><td>Weekly Archive</td><td><span class="tag">argus</span></td><td>Sun 6:20 AM</td><td>#backups</td><td><span class="bg ok">OK</span></td><td>~8 min</td></tr>
+<tr><td>Memory Distill</td><td><span class="tag">zosia</span></td><td>2:00 AM</td><td>#system</td><td><span class="bg ok">OK</span></td><td>~30 sec</td></tr>
+<tr><td>Heartbeat Reset</td><td><span class="tag">zosia</span></td><td>3:50 AM</td><td>&mdash;</td><td><span class="bg ok">OK</span></td><td>~7 sec</td></tr>
+<tr><td>Meeting Scanner</td><td><span class="tag">zosia</span></td><td>*/30 8-20h</td><td>#meeting</td><td><span class="bg ok">OK</span></td><td>scan only</td></tr>
+<tr><td>Health Daily</td><td><span class="tag">zosia</span></td><td>9:12 AM</td><td>#health</td><td><span class="bg dead">ERROR</span></td><td>msg failed</td></tr>
+<tr><td>Health Weekly</td><td><span class="tag">zosia</span></td><td>Sun 8:37 PM</td><td>#health</td><td><span class="bg ok">OK</span></td><td>~4.5 min</td></tr>
+<tr><td>Health Monthly</td><td><span class="tag">zosia</span></td><td>1st 8:43 PM</td><td>#health</td><td><span class="bg ok">OK</span></td><td>pending</td></tr>
+</tbody>
+</table></div>
+
+<h2>Problems Found</h2>
+<div class="cards">
+<div class="pcard">
+<h3>1. Channel sprawl</h3>
+<ul>
+<li>34 channels total, <strong>only 14 active</strong></li>
+<li>5 dead Productivity channels with 0-1 messages ever</li>
+<li>10 archived channels still visible in sidebar</li>
+<li>No clear &ldquo;for Raymond&rdquo; vs &ldquo;for the machine&rdquo; boundary</li>
+</ul>
+</div>
+<div class="pcard">
+<h3>2. No proactive channel</h3>
+<ul>
+<li>I can only react in #daily or post cron output to fixed channels</li>
+<li>No place for me to drop briefs, flags, research, or WIP unprompted</li>
+<li>Meeting briefings post to #meeting but you have to go find them</li>
+</ul>
+</div>
+<div class="pcard">
+<h3>3. Intelligence scattered</h3>
+<ul>
+<li>Daily brief &rarr; #daily-news, Reddit &rarr; #reddit, X &rarr; #x-gcc &mdash; 3 channels for related intel</li>
+<li>No unified &ldquo;morning dashboard&rdquo; view</li>
+<li>You have to check 3+ channels to get the full picture</li>
+</ul>
+</div>
+<div class="pcard">
+<h3>4. Stale experiments cluttering</h3>
+<ul>
+<li>#crm, #notion, #linear, #knowledge-base &mdash; experiments that didn&rsquo;t stick</li>
+<li>They add cognitive load when scanning the sidebar</li>
+<li>Some still have open threads implying they&rsquo;re active</li>
+</ul>
+</div>
+<div class="pcard">
+<h3>5. Two crons broken</h3>
+<ul>
+<li><strong>Apple Health Daily</strong> and <strong>Opik Daily</strong> both failing with &ldquo;message failed&rdquo;</li>
+<li>Likely session/channel binding issue from recent restarts</li>
+<li>Silently failing &mdash; no alert mechanism</li>
+</ul>
+</div>
+<div class="pcard">
+<h3>6. No cron failure alerting</h3>
+<ul>
+<li>When a cron errors, it just increments consecutiveErrors</li>
+<li>Nobody gets pinged &mdash; you find out days later (or never)</li>
+<li>Should auto-alert to #system or DM on consecutive failures</li>
+</ul>
+</div>
+</div>
+
+<h2>Proposed: Optimized Discord Layout</h2>
+<p class="desc">Consolidate from 34 channels to ~18, with clear purpose boundaries</p>
+
+<div class="cards" style="grid-template-columns:1fr">
+<div class="card" style="border-left:3px solid var(--teal)">
+<h3>Category 1: Command Center (for Raymond)</h3>
+<ul>
+<li><strong>#daily</strong> &mdash; Keep as-is. Main conversation hub with auto-threading. This is home.</li>
+<li><strong>#intel</strong> &mdash; <span class="bg nu">NEW</span> Merge daily-news + reddit + x-gcc into one intelligence feed. All monitors post here with distinct CV2 card styling. One channel to check instead of three.</li>
+<li><strong>#briefings</strong> &mdash; <span class="bg nu">NEW</span> Proactive Zosia output. Meeting prep, research drops, flagged items, WIP updates. Stuff I push to you without being asked.</li>
+<li><strong>#meeting</strong> &mdash; Keep. Pre-meeting briefings + post-meeting follow-ups.</li>
+<li><strong>#health</strong> &mdash; Keep. Daily triggers + weekly + monthly health coaching.</li>
+<li><strong>#finance</strong> &mdash; Keep but activate. Add monthly spending review cron.</li>
+</ul>
+</div>
+
+<div class="card" style="border-left:3px solid var(--gold)">
+<h3>Category 2: Agent Ops (for the system)</h3>
+<ul>
+<li><strong>#system</strong> &mdash; Keep. Gateway events, memory distill reports, cron failure alerts.</li>
+<li><strong>#security</strong> &mdash; Keep. Nightly security review.</li>
+<li><strong>#development</strong> &mdash; Keep. Opik reviews + coding agent threads.</li>
+<li><strong>#backups</strong> &mdash; Keep. Daily + weekly backup confirmations.</li>
+<li><strong>#heartbeat</strong> &mdash; Keep. Liveness checks.</li>
+<li><strong>#token-usage</strong> &mdash; Keep. Daily cost tracking.</li>
+<li><strong>#identity</strong> &mdash; Keep. Zosia domain/identity work.</li>
+</ul>
+</div>
+
+<div class="card" style="border-left:3px solid var(--amber)">
+<h3>Category 3: Archive (hide from sidebar)</h3>
+<ul>
+<li>Move all dead channels here: email-calendar, voice, notifications, knowledge-base, wag-digital-governance, cron-jobs, linear, crm, notion</li>
+<li>Keep existing archived channels as-is</li>
+<li>Collapse the category by default</li>
+</ul>
+</div>
+
+<div class="card" style="border-left:3px solid var(--green)">
+<h3>Category 4: Zoe (separate agent)</h3>
+<ul>
+<li><strong>#zoe</strong> + <strong>#zoe-admin</strong> &mdash; Keep as-is, own category</li>
+</ul>
+</div>
+</div>
+
+<h2>Recommended Actions</h2>
+<div class="cards">
+<div class="rcard">
+<h3>1. Create #intel channel</h3>
+<p>Merge daily-news, reddit, x-gcc-monitor into one unified intelligence feed. Update all 3 monitor crons to post here. Different CV2 card accent colors per source (orange=Reddit, blue=X, navy=Daily Brief). Archive the 3 old channels.</p>
+<div class="imp">Impact: 3 channels &rarr; 1 &bull; Morning check = 1 scroll</div>
+</div>
+<div class="rcard">
+<h3>2. Create #briefings channel</h3>
+<p>My proactive output channel. Meeting prep auto-forwards here. Research drops, flagged calendar conflicts, work summaries, anything I want to push to you without waiting for a question.</p>
+<div class="imp">Impact: Zosia goes from reactive &rarr; proactive</div>
+</div>
+<div class="rcard">
+<h3>3. Archive 9 dead channels</h3>
+<p>Move email-calendar, voice, notifications, knowledge-base, wag-digital-governance, cron-jobs, linear, crm, notion to Archive category. Cleaner sidebar instantly.</p>
+<div class="imp">Impact: 34 visible &rarr; ~20 &bull; Less noise</div>
+</div>
+<div class="rcard">
+<h3>4. Fix 2 broken crons</h3>
+<p>Apple Health Daily Trigger and Opik Daily Review both failing with &ldquo;message failed.&rdquo; Likely need session key refresh or channel binding fix. Quick fix.</p>
+<div class="imp">Impact: 2 silent failures &rarr; 0</div>
+</div>
+<div class="rcard">
+<h3>5. Add cron failure alerting</h3>
+<p>When any cron hits consecutiveErrors &ge; 2, auto-post alert to #system with job name, error, and last success time. Could be a lightweight watchdog cron that checks other crons.</p>
+<div class="imp">Impact: No more silent failures</div>
+</div>
+<div class="rcard">
+<h3>6. Morning digest trigger</h3>
+<p>Add a 9:00 AM cron that posts a one-line summary to #daily: &ldquo;Morning: 3 intel items in #intel, meeting at 2pm (briefing ready), health OK.&rdquo; One glanceable line instead of checking 5 channels.</p>
+<div class="imp">Impact: Single entry point to your day</div>
+</div>
+</div>
+
+<h2>Before &amp; After</h2>
+<div class="tw"><table>
+<thead><tr><th>Metric</th><th>Current</th><th>Proposed</th></tr></thead>
+<tbody>
+<tr><td>Visible channels</td><td>34</td><td>~18</td></tr>
+<tr><td>Intel channels to check</td><td>3 (daily-news, reddit, x-gcc)</td><td>1 (#intel)</td></tr>
+<tr><td>Proactive Zosia output</td><td>None</td><td>#briefings</td></tr>
+<tr><td>Dead channels in sidebar</td><td>10</td><td>0 (archived)</td></tr>
+<tr><td>Morning entry point</td><td>Check 5+ channels</td><td>1 digest line in #daily</td></tr>
+<tr><td>Cron failure alerting</td><td>None (silent)</td><td>Auto-alert in #system</td></tr>
+<tr><td>Broken crons</td><td>2 silently failing</td><td>0</td></tr>
+</tbody>
+</table></div>
+
+<p style="text-align:center;color:var(--td);font-family:var(--fm);font-size:.75rem;margin-top:2rem">Generated by Zosia &bull; 18 Mar 2026</p>
+
+</div>
+</body>
+</html>

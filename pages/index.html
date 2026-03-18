@@ -300,9 +300,9 @@
     </header>
 
     <div class="stats">
-      <span><span class="num">34</span> pages</span>
+      <span><span class="num">35</span> pages</span>
       <span><span class="num">6</span> categories</span>
-      <span>Last deployed <span class="num">Mar 16, 2026</span></span>
+      <span>Last deployed <span class="num">Mar 18, 2026</span></span>
     </div>
 
     <div class="search-wrap">
@@ -344,6 +344,16 @@
 
   <script>
     const pages = [
+      {
+            "slug": "discord-workflow-audit",
+            "title": "Discord Workflow Audit",
+            "desc": "zosia &times; raymond &mdash; 18 Mar 2026",
+            "cat": "openclaw",
+            "created": "2026-03-18",
+            "tags": [
+                  "analysis"
+            ]
+      },
       {
             "slug": "acp-mental-model",
             "title": "ACP + ACPX + OpenClaw — Mental Model for Raymond",
@@ -722,7 +732,7 @@
     }
 
     function daysAgo(d) {
-      const now = new Date("2026-03-15");
+      const now = new Date("2026-03-18");
       const then = new Date(d);
       const diff = Math.floor((now - then) / 86400000);
       if (diff === 0) return "today";
