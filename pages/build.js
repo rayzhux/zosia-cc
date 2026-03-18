@@ -3,21 +3,29 @@
  * Zosia Pages — Build Script
  * Scans all subdirectories for index.html, extracts metadata,
  * and injects a pages manifest into the main index.html.
+ *
+ * Features:
+ * - Git-based created/updated dates (with x-created/x-updated meta overrides)
+ * - OG/social meta tag injection
+ * - Sitemap.xml generation
+ * - Vercel analytics injection
  */
 
 const fs = require('fs');
 const path = require('path');
+const { execSync } = require('child_process');
 
 const ROOT = __dirname;
+const REPO_ROOT = path.resolve(ROOT, '..');
 const INDEX_PATH = path.join(ROOT, 'index.html');
+const SITEMAP_PATH = path.join(REPO_ROOT, 'sitemap.xml');
+const SITE_URL = 'https://zosia.cc';
 
 // Skip these directories
 const SKIP = new Set(['.vercel', 'node_modules', '.git']);
 
 // Category mapping: slug patterns → category
-// Pages can also use <meta name="x-category" content="..."> to override
 const CATEGORY_MAP = {
-  // Exact slug matches
   'skills-inventory': 'openclaw',
   'sandbox-security': 'openclaw',
   'memory-review': 'openclaw',
@@ -60,50 +68,61 @@ function guessCategory(slug) {
   for (const { keywords, cat } of KEYWORD_CATEGORIES) {
     if (keywords.some(kw => lower.includes(kw))) return cat;
   }
-  return 'openclaw'; // default fallback
+  return 'openclaw';
 }
 
 function extractMeta(html) {
   const title = html.match(/<title>([^<]+)<\/title>/i)?.[1]?.trim() || 'Untitled';
 
-  // Try <meta name="description">
   let desc = html.match(/<meta\s+name="description"\s+content="([^"]*)"/i)?.[1]?.trim();
-
-  // Try <meta name="x-description"> as fallback
   if (!desc) desc = html.match(/<meta\s+name="x-description"\s+content="([^"]*)"/i)?.[1]?.trim();
-
-  // Try first subtitle/tagline element
   if (!desc) desc = html.match(/<p[^>]*class="[^"]*subtitle[^"]*"[^>]*>([^<]+)<\/p>/i)?.[1]?.trim();
   if (!desc) desc = html.match(/<p[^>]*class="[^"]*tagline[^"]*"[^>]*>([^<]+)<\/p>/i)?.[1]?.trim();
-
-  // Fallback: first <p> that's longer than 20 chars
   if (!desc) {
     const paragraphs = html.match(/<p[^>]*>([^<]{20,})<\/p>/gi);
     if (paragraphs?.[0]) {
       desc = paragraphs[0].replace(/<[^>]+>/g, '').trim().slice(0, 200);
     }
   }
-
   if (!desc) desc = title;
 
-  // Category override via meta tag
   const catOverride = html.match(/<meta\s+name="x-category"\s+content="([^"]*)"/i)?.[1]?.trim();
-
-  // Tags via meta tag
   const tagsRaw = html.match(/<meta\s+name="x-tags"\s+content="([^"]*)"/i)?.[1]?.trim();
   const tags = tagsRaw ? tagsRaw.split(',').map(t => t.trim()).filter(Boolean) : [];
-
-  // Created date via meta tag
   const createdMeta = html.match(/<meta\s+name="x-created"\s+content="([^"]*)"/i)?.[1]?.trim();
+  const updatedMeta = html.match(/<meta\s+name="x-updated"\s+content="([^"]*)"/i)?.[1]?.trim();
 
-  return { title, desc, catOverride, tags, createdMeta };
+  return { title, desc, catOverride, tags, createdMeta, updatedMeta };
 }
 
-function getFileDate(filePath) {
-  const stat = fs.statSync(filePath);
-  // Use birthtime if available, otherwise mtime
-  const d = stat.birthtime || stat.mtime;
-  return d.toISOString().slice(0, 10);
+/**
+ * Get the date a file was first committed (git add date).
+ * Falls back to filesystem mtime if not in git.
+ */
+function getGitCreatedDate(filePath) {
+  try {
+    const result = execSync(
+      `git log --diff-filter=A --follow --format='%aI' -- "${filePath}" | tail -1`,
+      { cwd: REPO_ROOT, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }
+    ).trim();
+    if (result) return result.slice(0, 10);
+  } catch {}
+  return fs.statSync(filePath).mtime.toISOString().slice(0, 10);
+}
+
+/**
+ * Get the date a file was last modified in git.
+ * Falls back to filesystem mtime if not in git.
+ */
+function getGitUpdatedDate(filePath) {
+  try {
+    const result = execSync(
+      `git log -1 --format='%aI' -- "${filePath}"`,
+      { cwd: REPO_ROOT, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }
+    ).trim();
+    if (result) return result.slice(0, 10);
+  } catch {}
+  return fs.statSync(filePath).mtime.toISOString().slice(0, 10);
 }
 
 function guessTags(slug, title, cat) {
@@ -138,7 +157,8 @@ function discoverPages() {
 
     const cat = meta.catOverride || guessCategory(slug);
     const tags = meta.tags.length > 0 ? meta.tags : guessTags(slug, meta.title, cat);
-    const created = meta.createdMeta || getFileDate(pageIndex);
+    const created = meta.createdMeta || getGitCreatedDate(pageIndex);
+    const updated = meta.updatedMeta || getGitUpdatedDate(pageIndex);
 
     pages.push({
       slug,
@@ -146,6 +166,7 @@ function discoverPages() {
       desc: meta.desc,
       cat,
       created,
+      updated,
       tags
     });
   }
@@ -175,7 +196,9 @@ function discoverCategories(pages) {
 function injectIntoIndex(pages, categories) {
   let html = fs.readFileSync(INDEX_PATH, 'utf-8');
 
-  const today = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  // Find the most recent updated date across all pages
+  const latestUpdated = pages.reduce((max, p) => p.updated > max ? p.updated : max, pages[0]?.updated || '');
+  const lastUpdatedFormatted = new Date(latestUpdated + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   const catCount = Object.keys(categories).length;
 
   // Replace the pages array
@@ -201,9 +224,10 @@ function injectIntoIndex(pages, categories) {
     /<span><span class="num">\d+<\/span> categories<\/span>/,
     `<span><span class="num">${catCount}</span> categories</span>`
   );
+  // Replace "Last deployed" or "Last updated"
   html = html.replace(
-    /Last deployed <span class="num">[^<]+<\/span>/,
-    `Last deployed <span class="num">${today}</span>`
+    /Last (?:deployed|updated) <span class="num">[^<]+<\/span>/,
+    `Last updated <span class="num">${lastUpdatedFormatted}</span>`
   );
 
   // Update daysAgo reference date
@@ -229,7 +253,7 @@ function injectIntoIndex(pages, categories) {
   return pages.length;
 }
 
-// Analytics snippet for plain HTML sites (Vercel doesn't auto-inject for non-framework projects)
+// Analytics snippet for plain HTML sites
 const ANALYTICS_SNIPPET = `  <!-- Vercel Web Analytics -->
   <script>
     window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
@@ -244,7 +268,6 @@ const ANALYTICS_SNIPPET = `  <!-- Vercel Web Analytics -->
 
 function injectAnalytics() {
   let injected = 0;
-  // Inject into all page index.html files
   for (const entry of fs.readdirSync(ROOT, { withFileTypes: true })) {
     if (!entry.isDirectory() || SKIP.has(entry.name)) continue;
     const pageIndex = path.join(ROOT, entry.name, 'index.html');
@@ -257,7 +280,6 @@ function injectAnalytics() {
       injected++;
     }
   }
-  // Also inject into pages/index.html itself
   let indexHtml = fs.readFileSync(INDEX_PATH, 'utf-8');
   if (!indexHtml.includes('vercel/insights') && indexHtml.includes('</head>')) {
     indexHtml = indexHtml.replace('</head>', ANALYTICS_SNIPPET + '</head>');
@@ -267,11 +289,73 @@ function injectAnalytics() {
   return injected;
 }
 
+/**
+ * Inject OG/social meta tags into each page's <head>.
+ * Skips pages that already have og:title.
+ */
+function injectOGTags(pages) {
+  let injected = 0;
+  for (const page of pages) {
+    const pageIndex = path.join(ROOT, page.slug, 'index.html');
+    let html = fs.readFileSync(pageIndex, 'utf-8');
+    if (html.includes('og:title')) continue;
+
+    const ogTags = [
+      `  <meta property="og:title" content="${escapeAttr(page.title)}">`,
+      `  <meta property="og:description" content="${escapeAttr(page.desc.slice(0, 200))}">`,
+      `  <meta property="og:type" content="article">`,
+      `  <meta property="og:url" content="${SITE_URL}/pages/${page.slug}">`,
+      `  <meta name="twitter:card" content="summary">`,
+    ].join('\n') + '\n';
+
+    html = html.replace('</head>', ogTags + '</head>');
+    fs.writeFileSync(pageIndex, html, 'utf-8');
+    injected++;
+  }
+  return injected;
+}
+
+function escapeAttr(s) {
+  return s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+/**
+ * Generate sitemap.xml at repo root.
+ */
+function generateSitemap(pages) {
+  const today = new Date().toISOString().slice(0, 10);
+  const urls = [
+    { loc: `${SITE_URL}/`, lastmod: today, priority: '1.0' },
+    { loc: `${SITE_URL}/pages`, lastmod: today, priority: '0.8' },
+    ...pages.map(p => ({
+      loc: `${SITE_URL}/pages/${p.slug}`,
+      lastmod: p.updated || p.created,
+      priority: '0.6',
+    })),
+  ];
+
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${urls.map(u => `  <url>
+    <loc>${u.loc}</loc>
+    <lastmod>${u.lastmod}</lastmod>
+    <priority>${u.priority}</priority>
+  </url>`).join('\n')}
+</urlset>
+`;
+  fs.writeFileSync(SITEMAP_PATH, xml, 'utf-8');
+  return urls.length;
+}
+
 // Main
 const pages = discoverPages();
 const categories = discoverCategories(pages);
 const count = injectIntoIndex(pages, categories);
 const analyticsCount = injectAnalytics();
+const ogCount = injectOGTags(pages);
+const sitemapCount = generateSitemap(pages);
 console.log(`✅ Built index with ${count} pages across ${Object.keys(categories).length} categories`);
-if (analyticsCount > 0) console.log(`📊 Injected analytics into ${analyticsCount} files missing it`);
-pages.forEach(p => console.log(`   ${p.slug} → ${p.cat} (${p.created})`));
+if (analyticsCount > 0) console.log(`📊 Injected analytics into ${analyticsCount} files`);
+if (ogCount > 0) console.log(`🔗 Injected OG tags into ${ogCount} pages`);
+console.log(`🗺️  Sitemap generated with ${sitemapCount} URLs`);
+pages.forEach(p => console.log(`   ${p.slug} → ${p.cat} (created: ${p.created}, updated: ${p.updated})`));
