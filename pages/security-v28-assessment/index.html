@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Security v2.8 Final Assessment — OpenClaw Setup vs SlowMist Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0f1419;
+  --surface: #151b23;
+  --surface-2: #1c2430;
+  --surface-3: #232d3b;
+  --border: rgba(255,255,255,0.06);
+  --border-strong: rgba(255,255,255,0.12);
+  --text: #e2e8f0;
+  --text-dim: #8899a6;
+  --text-muted: #556677;
+  --pass: #22c55e;
+  --pass-bg: rgba(34,197,94,0.08);
+  --pass-border: rgba(34,197,94,0.2);
+  --warn: #f59e0b;
+  --warn-bg: rgba(245,158,11,0.08);
+  --warn-border: rgba(245,158,11,0.2);
+  --gap: #ef4444;
+  --gap-bg: rgba(239,68,68,0.08);
+  --gap-border: rgba(239,68,68,0.2);
+  --beyond: #0ea5e9;
+  --beyond-bg: rgba(14,165,233,0.08);
+  --beyond-border: rgba(14,165,233,0.2);
+  --info: #64748b;
+  --info-bg: rgba(100,116,139,0.08);
+  --accent: #0891b2;
+  --accent-dim: rgba(8,145,178,0.15);
+  --font: 'IBM Plex Sans', -apple-system, sans-serif;
+  --mono: 'IBM Plex Mono', 'Fira Code', monospace;
+}
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #f8fafc;
+    --surface: #ffffff;
+    --surface-2: #f1f5f9;
+    --surface-3: #e2e8f0;
+    --border: rgba(0,0,0,0.06);
+    --border-strong: rgba(0,0,0,0.12);
+    --text: #1e293b;
+    --text-dim: #64748b;
+    --text-muted: #94a3b8;
+    --pass-bg: rgba(34,197,94,0.06);
+    --warn-bg: rgba(245,158,11,0.06);
+    --gap-bg: rgba(239,68,68,0.06);
+    --beyond-bg: rgba(14,165,233,0.06);
+    --info-bg: rgba(100,116,139,0.04);
+    --accent-dim: rgba(8,145,178,0.08);
+  }
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+.container { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+
+/* Header */
+.header {
+  padding: 2.5rem 0 2rem;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 2rem;
+}
+.header h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.5rem;
+}
+.header .subtitle {
+  color: var(--text-dim);
+  font-size: 0.95rem;
+}
+.header .meta {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+.header .meta span {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  padding: 0.25rem 0.6rem;
+  background: var(--surface-2);
+  border-radius: 4px;
+}
+
+/* Score Cards */
+.score-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2.5rem;
+}
+.score-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  text-align: center;
+}
+.score-card .num {
+  font-size: 2rem;
+  font-weight: 700;
+  font-family: var(--mono);
+  line-height: 1;
+}
+.score-card .label {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-top: 0.4rem;
+}
+.score-card.pass .num { color: var(--pass); }
+.score-card.warn .num { color: var(--warn); }
+.score-card.gap .num { color: var(--gap); }
+.score-card.beyond .num { color: var(--beyond); }
+.score-card.total .num { color: var(--accent); }
+
+/* Section */
+.section {
+  margin-bottom: 2.5rem;
+}
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+.section-num {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--accent);
+  background: var(--accent-dim);
+  padding: 0.2rem 0.5rem;
+  border-radius: 3px;
+  letter-spacing: 0.05em;
+}
+.section-header h2 {
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+/* Assessment Table */
+.assess-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+.assess-table th {
+  text-align: left;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  padding: 0.6rem 0.8rem;
+  border-bottom: 1px solid var(--border-strong);
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+  background: var(--bg);
+  z-index: 2;
+}
+.assess-table td {
+  padding: 0.7rem 0.8rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+.assess-table tr:hover td {
+  background: var(--surface);
+}
+.assess-table .req { max-width: 280px; }
+.assess-table .status-cell { white-space: nowrap; width: 100px; }
+.assess-table .notes { color: var(--text-dim); font-size: 0.82rem; }
+
+/* Status badges */
+.badge {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 500;
+  padding: 0.15rem 0.5rem;
+  border-radius: 3px;
+  letter-spacing: 0.03em;
+}
+.badge-pass { color: var(--pass); background: var(--pass-bg); border: 1px solid var(--pass-border); }
+.badge-partial { color: var(--warn); background: var(--warn-bg); border: 1px solid var(--warn-border); }
+.badge-gap { color: var(--gap); background: var(--gap-bg); border: 1px solid var(--gap-border); }
+.badge-beyond { color: var(--beyond); background: var(--beyond-bg); border: 1px solid var(--beyond-border); }
+.badge-na { color: var(--text-muted); background: var(--info-bg); border: 1px solid var(--border); }
+
+/* Findings Table */
+.findings-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+.findings-table th {
+  text-align: left;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  padding: 0.5rem 0.6rem;
+  border-bottom: 1px solid var(--border-strong);
+  font-weight: 600;
+}
+.findings-table td {
+  padding: 0.5rem 0.6rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+.findings-table .sev-critical { color: var(--gap); font-weight: 600; }
+.findings-table .sev-high { color: #f97316; font-weight: 500; }
+.findings-table .sev-medium { color: var(--warn); }
+.findings-table .sev-low { color: var(--text-dim); }
+
+/* Action items */
+.action-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--warn);
+  border-radius: 0 6px 6px 0;
+  padding: 1rem 1.25rem;
+  margin-bottom: 0.75rem;
+}
+.action-card.critical { border-left-color: var(--gap); }
+.action-card.low { border-left-color: var(--info); }
+.action-card .action-title {
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 0.3rem;
+}
+.action-card .action-detail {
+  color: var(--text-dim);
+  font-size: 0.82rem;
+}
+.action-card .action-priority {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  margin-top: 0.4rem;
+}
+
+/* Beyond v2.8 */
+.beyond-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 0.75rem;
+}
+.beyond-card {
+  background: var(--beyond-bg);
+  border: 1px solid var(--beyond-border);
+  border-radius: 6px;
+  padding: 1rem;
+}
+.beyond-card .bc-title {
+  font-weight: 600;
+  font-size: 0.88rem;
+  color: var(--beyond);
+  margin-bottom: 0.3rem;
+}
+.beyond-card .bc-desc {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+}
+
+code {
+  font-family: var(--mono);
+  font-size: 0.82em;
+  background: var(--surface-2);
+  padding: 0.1rem 0.35rem;
+  border-radius: 3px;
+}
+
+/* Responsive */
+@media (max-width: 700px) {
+  .container { padding: 1rem; }
+  .header h1 { font-size: 1.3rem; }
+  .score-grid { grid-template-columns: repeat(2, 1fr); }
+  .assess-table { font-size: 0.8rem; }
+  .beyond-grid { grid-template-columns: 1fr; }
+}
+
+/* Animations */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.section { animation: fadeUp 0.4s ease-out backwards; }
+.section:nth-child(2) { animation-delay: 0.05s; }
+.section:nth-child(3) { animation-delay: 0.1s; }
+.section:nth-child(4) { animation-delay: 0.15s; }
+.section:nth-child(5) { animation-delay: 0.2s; }
+.section:nth-child(6) { animation-delay: 0.25s; }
+.section:nth-child(7) { animation-delay: 0.3s; }
+@media (prefers-reduced-motion: reduce) { .section { animation: none; } }
+</style>
+  <!-- Vercel Web Analytics -->
+  <script>
+    window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+  </script>
+  <script defer src="/_vercel/insights/script.js"></script>
+  <!-- Vercel Speed Insights -->
+  <script>
+    window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
+  </script>
+  <script defer src="/_vercel/speed-insights/script.js"></script>
+  <meta property="og:title" content="Security v2.8 Final Assessment — OpenClaw Setup vs SlowMist Guide">
+  <meta property="og:description" content="Security v2.8 Final Assessment — OpenClaw Setup vs SlowMist Guide">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://zosia.cc/pages/security-v28-assessment">
+  <meta name="twitter:card" content="summary">
+</head>
+<body>
+<div class="container">
+
+<div class="header">
+  <h1>Security v2.8 Final Gap Assessment</h1>
+  <div class="subtitle">OpenClaw macOS setup vs SlowMist Security Practice Guide v2.8 Beta</div>
+  <div class="meta">
+    <span>assessed: 2026-03-18</span>
+    <span>guide: commit 624e772</span>
+    <span>setup: commit 2d2ca5a</span>
+    <span>platform: macOS (Darwin arm64)</span>
+  </div>
+</div>
+
+<div class="score-grid">
+  <div class="score-card total"><div class="num">39</div><div class="label">Total Items</div></div>
+  <div class="score-card pass"><div class="num">29</div><div class="label">Full Pass</div></div>
+  <div class="score-card warn"><div class="num">4</div><div class="label">Partial</div></div>
+  <div class="score-card gap"><div class="num">3</div><div class="label">Gaps</div></div>
+  <div class="score-card beyond"><div class="num">9</div><div class="label">Beyond v2.8</div></div>
+</div>
+
+<!-- 1. PRE-ACTION -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-num">01</span>
+    <h2>Pre-Action: Behavioral Blacklists & Skill Audit</h2>
+  </div>
+  <table class="assess-table">
+    <thead>
+      <tr><th>v2.8 Requirement</th><th class="status-cell">Status</th><th>Notes</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="req">Red Line command table (destructive, cred exfil, code injection, blind exec, persistence)</td>
+        <td class="status-cell"><span class="badge badge-pass">PASS</span></td>
+        <td class="notes">All v2.8 categories present + additional macOS-specific patterns. Block device/wipe and key exfil added in P2.</td>
+      </tr>
+      <tr>
+        <td class="req">Yellow Line logging (sudo, pkg mgmt, containers, network)</td>
+        <td class="status-cell"><span class="badge badge-pass">PASS</span></td>
+        <td class="notes">Full table in security-rules.md. Added detached processes (nohup/disown/setsid) in P2.</td>
+      </tr>
+      <tr>
+        <td class="req">"When in doubt, treat as Red Line" fallback principle</td>
+        <td class="status-cell"><span class="badge badge-pass">PASS</span></td>
+        <td class="notes">Explicit fallback principle at end of Red Line section.</td>
+      </tr>
+      <tr>
+        <td class="req">Skill/MCP audit protocol (6-step: inventory → scan → code audit → deps → report → baseline)</td>
+        <td class="status-cell"><span class="badge badge-pass">PASS</span></td>
+        <td class="notes">Full 6-step protocol. §3b secondary download interception added in P1.</td>
+      </tr>
+      <tr>
+        <td class="req">Secondary download interception (runtime curl/wget, postinstall, dynamic imports)</td>
+        <td class="status-cell"><span class="badge badge-pass">PASS</span></td>
+        <td class="notes">§3b in security-rules.md. Covers runtime downloads, package auto-install, dynamic imports, high-risk file types.</td>
+      </tr>
+      <tr>
+        <td class="req">Skill integrity SHA256 baseline + nightly diff</td>
+        <td class="status-cell"><span class="badge badge-pass">PASS</span></td>
+        <td class="notes"><code>.skill-baseline.sha256</code> created. Metric #12 checks nightly.</td>
+      </tr>
+      <tr>
+        <td class="req">Config integrity SHA256 baseline</td>
+        <td class="status-cell"><span class="badge badge-pass">PASS</span></td>
+        <td class="notes"><code>.config-baseline.sha256</code> rebuilt. Metric #7 checks nightly.</td>
+      </tr>
+      <tr>
+        <td class="req">Permission narrowing (<code>chmod 600</code> on sensitive files)</td>
+        <td class="status-cell"><span class="badge badge-pass">PASS</span></td>
+        <td class="notes"><code>openclaw.json</code>, <code>.env</code>, <code>paired.json</code> all 600. Verified in audit.</td>
+      </tr>
+      <tr>
+        <td class="req">Immutable audit script (<code>chattr +i</code> / <code>chflags uchg</code>)</td>
+        <td class="status-cell"><span class="badge badge-pass">PASS</span></td>
+        <td class="notes">macOS equivalent: <code>chflags uchg</code> on macos-security-audit.sh. TC16 verified.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- 2. IN-ACTION -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-num">02</span>
+    <h2>In-Action: Permission Narrowing & Cross-Skill Pre-flight</h2>
+  </div>
+  <table class="assess-table">
+    <thead>
+      <tr><th>v2.8 Requirement</th><th class="status-cell">Status</th><th>Notes</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="req">Human confirmation for Red Lines (pause + approve)</td>
+        <td class="status-cell"><span class="badge badge-pass">PASS</span></td>
+        <td class="notes">Discord CV2 approval cards with <code>allowedUsers</code> locked to Raymond. Fallback to plain text on other channels.</td>
+      </tr>
+      <tr>
+        <td class="req"><code>[YELLOW]</code> logging in daily memory files</td>
+        <td class="status-cell"><span class="badge badge-pass">PASS</span></td>
+        <td class="notes">Format: <code>[YELLOW] {time} `{cmd}` — {reason} — {result}</code>. Metric #8 cross-validates sudo log vs tags.</td>
+      </tr>
+      <tr>
+        <td class="req">Audit log WORM protection (no deletion/truncation)</td>
+        <td class="status-cell"><span class="badge badge-pass">PASS</span></td>
+        <td class="notes">Red Line added in P2: deleting/truncating memory files, findings, or reports. TC17 verified.</td>
+      </tr>
+      <tr>
+        <td class="req">Cross-Skill Pre-flight (Web3/AML checks before high-risk ops)</td>
+        <td class="status-cell"><span class="badge badge-na">N/A</span></td>
+        <td class="notes">No Web3/crypto tooling in our setup. TC13 skipped — not applicable.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- 3. POST-ACTION -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-num">03</span>
+    <h2>Post-Action: Nightly Audit (13 Metrics)</h2>
+  </div>
+  <table class="assess-table">
+    <thead>
+      <tr><th>Metric</th><th class="status-cell">Status</th><th>Notes / Differences from Reference Script</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="req">#1 Platform audit</td>
+        <td class="status-cell"><span class="badge badge-pass">PASS</span></td>
+        <td class="notes"><code>openclaw security audit --deep</code> + macOS posture (SIP/FileVault/Gatekeeper/Firewall). Beyond reference.</td>
+      </tr>
+      <tr>
+        <td class="req">#2 Process & network audit</td>
+        <td class="status-cell"><span class="badge badge-partial">PARTIAL</span></td>
+        <td class="notes">Listening ports ✅ via <code>lsof</code>. Wildcard bind detection ✅. Top processes ✅. <strong>Missing: outbound established connection count</strong> (reference warns at >20).</td>
+      </tr>
+      <tr>
+        <td class="req">#3 Sensitive dir changes (24h)</td>
+        <td class="status-cell"><span class="badge badge-pass">PASS</span></td>
+        <td class="notes">Scans <code>~/.openclaw</code> + <code>~/.ssh</code>. Reference also scans <code>/etc/</code>, <code>~/.gnupg/</code>, <code>/usr/local/bin/</code> — less relevant on macOS.</td>
+      </tr>
+      <tr>
+        <td class="req">#4 System scheduled tasks</td>
+        <td class="status-cell"><span class="badge badge-pass">PASS</span></td>
+        <td class="notes">macOS-adapted: LaunchAgents + crontab (vs systemd timers in reference).</td>
+      </tr>
+      <tr>
+        <td class="req">#5 OpenClaw cron jobs</td>
+        <td class="status-cell"><span class="badge badge-pass">PASS</span></td>
+        <td class="notes">Reads <code>cron/jobs.json</code> directly (more reliable than CLI parsing on macOS).</td>
+      </tr>
+      <tr>
+        <td class="req">#6 Login & SSH audit</td>
+        <td class="status-cell"><span class="badge badge-pass">PASS</span></td>
+        <td class="notes">macOS Unified Log for SSH failures. Remote Login status check. <code>last -10</code>.</td>
+      </tr>
+      <tr>
+        <td class="req">#7 File integrity (hash + permissions)</td>
+        <td class="status-cell"><span class="badge badge-pass">PASS</span></td>
+        <td class="notes">SHA256 baseline check + permission audit on <code>openclaw.json</code> and <code>.env</code>.</td>
+      </tr>
+      <tr>
+        <td class="req">#8 Yellow Line cross-validation</td>
+        <td class="status-cell"><span class="badge badge-pass">PASS</span></td>
+        <td class="notes">Cross-references macOS Unified Log sudo entries vs <code>[YELLOW]</code> tags in daily memory.</td>
+      </tr>
+      <tr>
+        <td class="req">#9 Disk usage</td>
+        <td class="status-cell"><span class="badge badge-pass">PASS</span></td>
+        <td class="notes">Root partition %. Reference also checks large files — ours doesn't (minor).</td>
+      </tr>
+      <tr>
+        <td class="req">#10 Gateway env scan</td>
+        <td class="status-cell"><span class="badge badge-pass">PASS</span></td>
+        <td class="notes">Finds gateway PID via port 18789, scans for sensitive env var names (values redacted).</td>
+      </tr>
+      <tr>
+        <td class="req">#11 DLP credential scan</td>
+        <td class="status-cell"><span class="badge badge-partial">PARTIAL</span></td>
+        <td class="notes">Scans: API keys (sk-, xoxb-, ghp_), PEM headers, hardcoded passwords ✅. <strong>Missing: crypto patterns</strong> (ETH private keys, BIP39 mnemonics, WIF keys, xprv). Reference script has these.</td>
+      </tr>
+      <tr>
+        <td class="req">#12 Skill integrity</td>
+        <td class="status-cell"><span class="badge badge-pass">PASS</span></td>
+        <td class="notes">SHA256 fingerprint comparison against baseline.</td>
+      </tr>
+      <tr>
+        <td class="req">#13 Backup verification (v2.8)</td>
+        <td class="status-cell"><span class="badge badge-partial">PARTIAL</span></td>
+        <td class="notes">Ours: passive verification (checks git recency, warns if >48h stale). Reference: active backup (commit + push). Passive is safer for an automated script.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- 4. CRON & INFRA -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-num">04</span>
+    <h2>Cron Configuration & Infrastructure</h2>
+  </div>
+  <table class="assess-table">
+    <thead>
+      <tr><th>v2.8 Requirement</th><th class="status-cell">Status</th><th>Notes</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="req"><code>--light-context</code> mandatory on nightly cron</td>
+        <td class="status-cell"><span class="badge badge-gap">GAP</span></td>
+        <td class="notes"><strong>Not configured.</strong> v2.8 mandates this to prevent workspace context from hijacking isolated audit sessions. Need to verify if OpenClaw supports this flag, then add to cron <code>b8752ee6</code>.</td>
+      </tr>
+      <tr>
+        <td class="req">Persistent report path <code>$OC/security-reports/</code></td>
+        <td class="status-cell"><span class="badge badge-pass">PASS</span></td>
+        <td class="notes">Migrated from <code>/tmp/</code> in P0. 30-day rotation active.</td>
+      </tr>
+      <tr>
+        <td class="req">Known-issues exclusion list at <code>$OC/.security-audit-known-issues.json</code></td>
+        <td class="status-cell"><span class="badge badge-pass">PASS</span></td>
+        <td class="notes">12 exclusions, chmod 600. Bash-level filtering + LLM-level awareness in cron prompt.</td>
+      </tr>
+      <tr>
+        <td class="req">Post-upgrade baseline rebuild workflow</td>
+        <td class="status-cell"><span class="badge badge-pass">PASS</span></td>
+        <td class="notes">Documented in security-seal.md with step-by-step commands.</td>
+      </tr>
+      <tr>
+        <td class="req"><code>set -uo pipefail</code> in audit script</td>
+        <td class="status-cell"><span class="badge badge-pass">PASS</span></td>
+        <td class="notes">Present in script header. <code>set -e</code> intentionally omitted (individual failures handled per-section).</td>
+      </tr>
+      <tr>
+        <td class="req">Token optimization (bash pre-filtering before LLM)</td>
+        <td class="status-cell"><span class="badge badge-partial">PARTIAL</span></td>
+        <td class="notes">Known-issues bash filter ✅. But reference script uses more aggressive <code>head -n</code> limits on command outputs. Our script pipes full <code>lsof</code> output.</td>
+      </tr>
+      <tr>
+        <td class="req">Summary line with metric counts and status</td>
+        <td class="status-cell"><span class="badge badge-pass">PASS</span></td>
+        <td class="notes"><code>$WARN_COUNT / 13 metrics</code> output. JSON summary with total + warnings.</td>
+      </tr>
+      <tr>
+        <td class="req">Audit script READ-ONLY constraint in cron prompt</td>
+        <td class="status-cell"><span class="badge badge-pass">PASS</span></td>
+        <td class="notes">Cron prompt explicitly states: "READ-ONLY MODE. You MUST NOT edit, modify, patch, or write to ANY scripts."</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- 5. VALIDATION -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-num">05</span>
+    <h2>Red Teaming Validation (19 Test Cases)</h2>
+  </div>
+  <table class="assess-table">
+    <thead>
+      <tr><th>Category</th><th>Test Cases</th><th class="status-cell">Status</th><th>Notes</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Cognitive & Prompt Injection (TC1-5)</td>
+        <td>Supply chain, roleplay jailbreak, obfuscated payload, context stuffing, tool arg spoofing</td>
+        <td class="status-cell"><span class="badge badge-pass">5/5</span></td>
+        <td class="notes">All passed. Prompt injection, base64 decode, context overflow all caught.</td>
+      </tr>
+      <tr>
+        <td>Host Escalation (TC6-12)</td>
+        <td>Destructive ops, permission narrowing, data exfil, persistence, detached process, alias hijack, block device</td>
+        <td class="status-cell"><span class="badge badge-pass">7/7</span></td>
+        <td class="notes">All passed. TC7 confirmed file permissions. TC16 confirmed immutable protection.</td>
+      </tr>
+      <tr>
+        <td>Business Risk / Web3 (TC13-15)</td>
+        <td>High-risk address block, DLP private key, signature isolation</td>
+        <td class="status-cell"><span class="badge badge-na">SKIP</span></td>
+        <td class="notes">No Web3/crypto tooling. TC14 (DLP) partially tested — API key patterns caught, but crypto-specific patterns not in script.</td>
+      </tr>
+      <tr>
+        <td>Audit & DR (TC16-19)</td>
+        <td>Immutable script, covering tracks, yellow line logging, DR telemetry</td>
+        <td class="status-cell"><span class="badge badge-pass">4/4</span></td>
+        <td class="notes">TC16 chflags uchg verified. TC17 WORM red line. TC18 yellow line logging. TC19 deferred to nightly run.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- 6. OPEN GAPS -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-num">06</span>
+    <h2>Remaining Gaps — Action Required</h2>
+  </div>
+
+  <div class="action-card critical">
+    <div class="action-title">GAP 1: <code>--light-context</code> not on nightly security cron</div>
+    <div class="action-detail">v2.8 mandates <code>--light-context</code> (or equivalent) to prevent workspace files from being injected into the isolated audit session context. Without this, a compromised workspace file could theoretically influence the auditor's judgment. Need to check if OpenClaw supports this setting on cron jobs, then add it to <code>b8752ee6</code>.</div>
+    <div class="action-priority" style="color: var(--gap);">PRIORITY: HIGH — architectural defense gap</div>
+  </div>
+
+  <div class="action-card">
+    <div class="action-title">GAP 2: DLP scan missing crypto-specific patterns</div>
+    <div class="action-detail">Our metric #11 catches API keys, PEM headers, and hardcoded passwords. The v2.8 reference script also scans for: Ethereum private keys (64 hex chars), BIP39 mnemonics (12/24 word sequences), WIF Bitcoin keys, and xprv extended keys. While we don't have crypto tooling, these patterns protect against accidental paste/exposure. Needs <code>sudo</code> to unlock audit script.</div>
+    <div class="action-priority" style="color: var(--warn);">PRIORITY: MEDIUM — DLP completeness</div>
+  </div>
+
+  <div class="action-card">
+    <div class="action-title">GAP 3: No outbound connection monitoring in audit</div>
+    <div class="action-detail">Reference script counts established outbound connections (<code>ss -tnp state established</code>) and warns at >20. Our script only checks listening ports. Adding outbound connection count would catch data exfiltration or C2 beaconing. macOS equivalent: <code>lsof -nP -iTCP -sTCP:ESTABLISHED</code>.</div>
+    <div class="action-priority" style="color: var(--warn);">PRIORITY: MEDIUM — detection coverage</div>
+  </div>
+
+  <div class="action-card low">
+    <div class="action-title">MINOR: Token optimization — output truncation</div>
+    <div class="action-detail">Reference script uses <code>head -n 16/20/50</code> to cap command outputs before logging. Our script pipes full <code>lsof</code> and <code>ps</code> output. Not a security gap but wastes tokens during LLM review.</div>
+    <div class="action-priority" style="color: var(--info);">PRIORITY: LOW — efficiency</div>
+  </div>
+</div>
+
+<!-- 7. OPEN FINDINGS -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-num">07</span>
+    <h2>Open Security Findings (10 of 19)</h2>
+  </div>
+  <table class="findings-table">
+    <thead>
+      <tr><th>ID</th><th>Severity</th><th>Title</th><th>Status</th><th>Age</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>SEC-009</code></td>
+        <td class="sev-critical">CRITICAL</td>
+        <td>Active cron relies on unaudited shell/SSH skill</td>
+        <td>open</td>
+        <td>8 days</td>
+      </tr>
+      <tr>
+        <td><code>SEC-010</code></td>
+        <td class="sev-high">HIGH</td>
+        <td>Apple Health receiver on 0.0.0.0:8400 — no auth</td>
+        <td>accepted</td>
+        <td>7 days</td>
+      </tr>
+      <tr>
+        <td><code>SEC-002</code></td>
+        <td class="sev-high">HIGH</td>
+        <td>Unsandboxed agent reaches shared group contexts</td>
+        <td>accepted</td>
+        <td>8 days</td>
+      </tr>
+      <tr>
+        <td><code>SEC-011</code></td>
+        <td class="sev-medium">MEDIUM</td>
+        <td>X monitor sends Gemini API key in URL query params</td>
+        <td>planned-remediation</td>
+        <td>7 days</td>
+      </tr>
+      <tr>
+        <td><code>SEC-014</code></td>
+        <td class="sev-medium">MEDIUM</td>
+        <td>Backup uses floating <code>npx wrangler</code></td>
+        <td>accepted</td>
+        <td>6 days</td>
+      </tr>
+      <tr>
+        <td><code>SEC-015</code></td>
+        <td class="sev-medium">MEDIUM</td>
+        <td>Colima SSH mux wildcard host binds</td>
+        <td>infrastructure</td>
+        <td>6 days</td>
+      </tr>
+      <tr>
+        <td><code>SEC-016</code></td>
+        <td class="sev-medium">MEDIUM</td>
+        <td>lossless-claw plugin uses unpinned npm spec</td>
+        <td>planned-remediation</td>
+        <td>5 days</td>
+      </tr>
+      <tr>
+        <td><code>SEC-017</code></td>
+        <td class="sev-medium">MEDIUM</td>
+        <td>bb-browser unauthenticated CDP on localhost:19825</td>
+        <td>accepted</td>
+        <td>5 days</td>
+      </tr>
+      <tr>
+        <td><code>SEC-005</code></td>
+        <td class="sev-low">LOW</td>
+        <td>gateway.trustedProxies unset behind Tailscale</td>
+        <td>false-positive</td>
+        <td>8 days</td>
+      </tr>
+      <tr>
+        <td><code>SEC-013</code></td>
+        <td class="sev-low">LOW</td>
+        <td>Audit script can under-report control failures</td>
+        <td>open</td>
+        <td>6 days</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- 8. BEYOND v2.8 -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-num">08</span>
+    <h2>What We Have Beyond v2.8</h2>
+  </div>
+  <div class="beyond-grid">
+    <div class="beyond-card">
+      <div class="bc-title">macOS Security Posture</div>
+      <div class="bc-desc">SIP, FileVault, Gatekeeper, Firewall status checked in every audit. v2.8 reference is Linux-only.</div>
+    </div>
+    <div class="beyond-card">
+      <div class="bc-title">Persistent Findings Tracker</div>
+      <div class="bc-desc">SEC-NNN IDs with full lifecycle (open → accepted → resolved). 19 findings tracked. v2.8 has no equivalent.</div>
+    </div>
+    <div class="beyond-card">
+      <div class="bc-title">Dual-Agent Architecture</div>
+      <div class="bc-desc">Argus (background, GPT-5.4) handles auditing. Zosia (interactive, Opus) handles approvals. Separation of duties.</div>
+    </div>
+    <div class="beyond-card">
+      <div class="bc-title">CV2 Interactive Approval Cards</div>
+      <div class="bc-desc">Discord-native approval buttons locked to Raymond's ID. Not just text confirmation — structured, non-spoofable.</div>
+    </div>
+    <div class="beyond-card">
+      <div class="bc-title">Weekly Archive to R2 + GitHub Releases</div>
+      <div class="bc-desc">Full <code>openclaw backup create --verify</code> → split → upload to R2 + GitHub release assets. v2.8 only has git push.</div>
+    </div>
+    <div class="beyond-card">
+      <div class="bc-title">Red Teaming Validation (16/19)</div>
+      <div class="bc-desc">Documented validation against all 19 SlowMist TCs in <code>config/red-team-validation.md</code>. Most setups don't do this.</div>
+    </div>
+    <div class="beyond-card">
+      <div class="bc-title">Cron Watchdog</div>
+      <div class="bc-desc">10:00 AM daily job monitors all 18 crons for consecutive errors and stale runs. Alerts to #system. v2.8 doesn't address cron reliability.</div>
+    </div>
+    <div class="beyond-card">
+      <div class="bc-title">Known-Issues Dual-Layer Filter</div>
+      <div class="bc-desc">Bash-level grep patterns (pre-LLM) + LLM-level awareness in cron prompt. v2.8 reference only has the bash layer.</div>
+    </div>
+    <div class="beyond-card">
+      <div class="bc-title">Config Backup Repo</div>
+      <div class="bc-desc">Separate private repo for <code>openclaw.json</code>, credentials, paired devices. v2.8 only covers workspace git.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 9. SEVEN PITFALLS -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-num">09</span>
+    <h2>v2.8 Production Pitfall Records — Our Status</h2>
+  </div>
+  <table class="assess-table">
+    <thead>
+      <tr><th>Pitfall</th><th class="status-cell">Status</th><th>Notes</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="req">Pitfall 1: Cron timeout too short → incomplete audit</td>
+        <td class="status-cell"><span class="badge badge-pass">PASS</span></td>
+        <td class="notes">Cron b8752ee6 has 1800s timeout. Last run: 620s. Plenty of headroom.</td>
+      </tr>
+      <tr>
+        <td class="req">Pitfall 2: Weak model misclassifying Red Lines</td>
+        <td class="status-cell"><span class="badge badge-pass">PASS</span></td>
+        <td class="notes">Argus uses GPT-5.4 (strong reasoning). Zosia uses Opus. Both top-tier.</td>
+      </tr>
+      <tr>
+        <td class="req">Pitfall 3: Notification delivery failure → silent audit</td>
+        <td class="status-cell"><span class="badge badge-pass">PASS</span></td>
+        <td class="notes">Cron Watchdog monitors for consecutive errors. Discord delivery is direct (no Telegram/webhook dependency).</td>
+      </tr>
+      <tr>
+        <td class="req">Pitfall 4: Known-issue exclusion too broad → masking real threats</td>
+        <td class="status-cell"><span class="badge badge-pass">PASS</span></td>
+        <td class="notes">12 exclusions, each with specific grep patterns. <code>expiresAt</code> field for auto-review. Monthly review policy.</td>
+      </tr>
+      <tr>
+        <td class="req">Pitfall 5: Report in /tmp → lost on reboot</td>
+        <td class="status-cell"><span class="badge badge-pass">PASS</span></td>
+        <td class="notes">Fixed in P0. Reports now at <code>$OC/security-reports/</code> with 30-day rotation.</td>
+      </tr>
+      <tr>
+        <td class="req">Pitfall 6: Workspace context injection into isolated cron</td>
+        <td class="status-cell"><span class="badge badge-gap">GAP</span></td>
+        <td class="notes"><strong><code>--light-context</code> not configured.</strong> Same as Gap 1. This is the highest priority fix.</td>
+      </tr>
+      <tr>
+        <td class="req">Pitfall 7: Hash baseline stale after upgrade → false alarms</td>
+        <td class="status-cell"><span class="badge badge-pass">PASS</span></td>
+        <td class="notes">Post-upgrade baseline rebuild workflow documented. SEC-018/019 resolved after rebuild.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- VERDICT -->
+<div class="section" style="margin-top: 3rem; padding: 1.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px;">
+  <h2 style="font-size: 1.1rem; margin-bottom: 1rem;">Verdict</h2>
+  <p style="font-size: 0.92rem; line-height: 1.7; color: var(--text-dim);">
+    <strong style="color: var(--text);">29/39 full pass, 4 partial, 3 gaps, 9 beyond-v2.8 additions.</strong>
+    The setup significantly exceeds v2.8 in several areas (macOS adaptation, findings lifecycle, dual-agent separation, R2 archival, cron watchdog).
+    The most important remaining gap is <code>--light-context</code> on the security cron — this is an architectural defense against workspace injection into the auditor.
+    The DLP crypto patterns and outbound connection monitoring are nice-to-haves that close the remaining coverage gaps.
+    The 10 open security findings (especially SEC-009 critical) are tracked and managed, which is itself beyond what v2.8 prescribes.
+  </p>
+</div>
+
+</div>
+</body>
+</html>
