@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Great Unbundling — Vite, TanStack & the Post-Vercel Stack</title>
+  <meta name="x-category" content="research">
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;700;800&family=Fragment+Mono:wght@400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f7f5f0;
+      --bg-alt: #efede6;
+      --surface: #ffffff;
+      --surface2: #f0ede5;
+      --surface-elevated: rgba(0,0,0,0.03);
+      --border: rgba(0,0,0,0.08);
+      --border-strong: rgba(0,0,0,0.15);
+      --text: #1a1814;
+      --text-mid: #4a473d;
+      --text-dim: #8a8778;
+      --accent: #b85c2f;
+      --accent-bg: rgba(184,92,47,0.06);
+      --accent2: #2d6a4f;
+      --accent2-bg: rgba(45,106,79,0.06);
+      --accent3: #1e3a5f;
+      --accent3-bg: rgba(30,58,95,0.06);
+      --danger: #9e2a2b;
+      --danger-bg: rgba(158,42,43,0.06);
+      --warn: #b8860b;
+      --warn-bg: rgba(184,134,11,0.06);
+      --font-body: 'Bricolage Grotesque', system-ui, sans-serif;
+      --font-mono: 'Fragment Mono', 'SF Mono', monospace;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #141210;
+        --bg-alt: #1c1a16;
+        --surface: #201e19;
+        --surface2: #2a2822;
+        --surface-elevated: rgba(255,255,255,0.04);
+        --border: rgba(255,255,255,0.08);
+        --border-strong: rgba(255,255,255,0.15);
+        --text: #e8e4da;
+        --text-mid: #b0ab9e;
+        --text-dim: #706c60;
+        --accent: #e07a42;
+        --accent-bg: rgba(224,122,66,0.1);
+        --accent2: #52b788;
+        --accent2-bg: rgba(82,183,136,0.1);
+        --accent3: #6daed8;
+        --accent3-bg: rgba(109,174,216,0.1);
+        --danger: #e76f6f;
+        --danger-bg: rgba(231,111,111,0.1);
+        --warn: #daa520;
+        --warn-bg: rgba(218,165,32,0.1);
+      }
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 0 20px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .wrap {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 170px 1fr;
+      gap: 0 40px;
+    }
+
+    .main { min-width: 0; padding: 40px 0 80px; }
+
+    /* TOC */
+    .toc {
+      position: sticky;
+      top: 24px;
+      align-self: start;
+      padding: 14px 0;
+      grid-row: 1 / -1;
+      max-height: calc(100dvh - 48px);
+      overflow-y: auto;
+    }
+    .toc::-webkit-scrollbar { width: 3px; }
+    .toc::-webkit-scrollbar-thumb { background: var(--surface-elevated); border-radius: 2px; }
+    .toc-title {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--text-dim);
+      padding: 0 0 10px;
+      margin-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    .toc a {
+      display: block;
+      font-size: 11px;
+      color: var(--text-dim);
+      text-decoration: none;
+      padding: 4px 8px;
+      border-radius: 5px;
+      border-left: 2px solid transparent;
+      transition: all 0.15s;
+      line-height: 1.4;
+      margin-bottom: 1px;
+    }
+    .toc a:hover { color: var(--text); background: var(--surface2); }
+    .toc a.active { color: var(--text); border-left-color: var(--accent); }
+
+    @media (max-width: 1000px) {
+      .wrap { grid-template-columns: 1fr; padding-top: 0; }
+      body { padding-top: 0; }
+      .toc {
+        position: sticky; top: 0; z-index: 200;
+        max-height: none; display: flex; gap: 4px;
+        align-items: center; overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        background: var(--bg); border-bottom: 1px solid var(--border);
+        padding: 10px 0; margin: 0 -20px; padding-left: 20px; padding-right: 20px;
+        grid-row: auto;
+      }
+      .toc::-webkit-scrollbar { display: none; }
+      .toc-title { display: none; }
+      .toc a {
+        white-space: nowrap; flex-shrink: 0;
+        border-left: none; border-bottom: 2px solid transparent;
+        border-radius: 4px 4px 0 0; padding: 6px 10px; font-size: 10px;
+      }
+      .toc a.active { border-left: none; border-bottom-color: var(--accent); background: var(--surface); }
+      .main { padding-top: 20px; }
+      .sec-head { scroll-margin-top: 52px; }
+    }
+
+    /* Hero */
+    .hero {
+      margin-bottom: 48px;
+      padding: 48px 0 40px;
+      border-bottom: 2px solid var(--border);
+    }
+    .hero-label {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 12px;
+    }
+    .hero h1 {
+      font-size: clamp(28px, 5vw, 48px);
+      font-weight: 800;
+      line-height: 1.15;
+      margin-bottom: 16px;
+      letter-spacing: -0.02em;
+    }
+    .hero-sub {
+      font-size: 17px;
+      color: var(--text-mid);
+      max-width: 700px;
+      line-height: 1.65;
+    }
+
+    /* Section Headers */
+    .sec-head {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      padding: 32px 0 16px;
+      margin-top: 24px;
+      border-top: 1px solid var(--border);
+    }
+    .sec-head .num {
+      display: inline-block;
+      background: var(--accent);
+      color: var(--bg);
+      width: 20px; height: 20px;
+      border-radius: 4px;
+      text-align: center;
+      line-height: 20px;
+      font-size: 10px;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+
+    /* Cards */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 24px;
+      margin-bottom: 16px;
+    }
+    .card--hero {
+      border-color: var(--accent);
+      border-width: 2px;
+      background: var(--accent-bg);
+    }
+    .card--green { border-left: 3px solid var(--accent2); }
+    .card--blue { border-left: 3px solid var(--accent3); }
+    .card--warn { border-left: 3px solid var(--warn); background: var(--warn-bg); }
+    .card--danger { border-left: 3px solid var(--danger); background: var(--danger-bg); }
+
+    .card h3 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      letter-spacing: -0.01em;
+    }
+    .card h4 {
+      font-size: 14px;
+      font-weight: 700;
+      margin: 16px 0 6px;
+    }
+    .card p, .card li {
+      font-size: 14px;
+      color: var(--text-mid);
+      line-height: 1.65;
+    }
+    .card ul { padding-left: 18px; margin: 8px 0; }
+    .card li { margin-bottom: 4px; }
+    .card code {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      background: var(--surface-elevated);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    /* Grid layouts */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    @media (max-width: 768px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    }
+
+    /* Timeline */
+    .timeline {
+      position: relative;
+      padding-left: 32px;
+      margin: 16px 0;
+    }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 8px;
+      top: 4px;
+      bottom: 4px;
+      width: 2px;
+      background: var(--border-strong);
+      border-radius: 1px;
+    }
+    .timeline-item {
+      position: relative;
+      margin-bottom: 20px;
+    }
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -28px;
+      top: 6px;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: 2px solid var(--bg);
+    }
+    .timeline-item.old::before { background: var(--text-dim); }
+    .timeline-item.current::before { background: var(--accent2); box-shadow: 0 0 0 3px var(--accent2-bg); }
+    .timeline-item.future::before { background: var(--accent); box-shadow: 0 0 0 3px var(--accent-bg); }
+
+    .timeline-year {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-dim);
+      letter-spacing: 1px;
+    }
+    .timeline-label {
+      font-weight: 700;
+      font-size: 15px;
+      margin: 2px 0;
+    }
+    .timeline-desc {
+      font-size: 13px;
+      color: var(--text-mid);
+    }
+
+    /* Comparison table */
+    .cmp-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      margin: 16px 0;
+      overflow-x: auto;
+      display: block;
+    }
+    .cmp-table th, .cmp-table td {
+      padding: 10px 14px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    .cmp-table th {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      font-weight: 700;
+      position: sticky;
+      top: 0;
+      background: var(--surface);
+    }
+    .cmp-table td { color: var(--text-mid); }
+    .cmp-table tr:nth-child(even) td { background: var(--surface-elevated); }
+    .cmp-table .winner { color: var(--accent2); font-weight: 600; }
+    .cmp-table .loser { color: var(--text-dim); }
+
+    /* Badges */
+    .badge {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      vertical-align: middle;
+    }
+    .badge--old { background: var(--surface-elevated); color: var(--text-dim); }
+    .badge--new { background: var(--accent2-bg); color: var(--accent2); }
+    .badge--hot { background: var(--danger-bg); color: var(--danger); }
+    .badge--you { background: var(--accent-bg); color: var(--accent); }
+
+    /* Lead text */
+    .lead {
+      font-size: 17px;
+      color: var(--text-mid);
+      line-height: 1.7;
+      margin-bottom: 24px;
+      max-width: 720px;
+    }
+
+    /* Flow diagram (CSS) */
+    .flow {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      flex-wrap: wrap;
+      margin: 16px 0;
+      justify-content: center;
+    }
+    .flow-node {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 18px;
+      font-size: 13px;
+      font-weight: 600;
+      text-align: center;
+      min-width: 100px;
+    }
+    .flow-node small {
+      display: block;
+      font-size: 10px;
+      font-weight: 400;
+      color: var(--text-dim);
+      margin-top: 4px;
+      font-family: var(--font-mono);
+    }
+    .flow-arrow {
+      font-size: 18px;
+      color: var(--text-dim);
+      padding: 0 6px;
+      flex-shrink: 0;
+    }
+    .flow-node.highlight {
+      border-color: var(--accent);
+      background: var(--accent-bg);
+    }
+    @media (max-width: 600px) {
+      .flow { flex-direction: column; gap: 0; }
+      .flow-arrow { transform: rotate(90deg); padding: 4px 0; }
+    }
+
+    /* VS block */
+    .vs-block {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 16px;
+      align-items: start;
+      margin: 16px 0;
+    }
+    .vs-divider {
+      font-family: var(--font-mono);
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-dim);
+      padding-top: 40px;
+      text-align: center;
+    }
+    @media (max-width: 768px) {
+      .vs-block { grid-template-columns: 1fr; }
+      .vs-divider { padding: 8px 0; }
+    }
+
+    /* Callout */
+    .callout {
+      background: var(--accent-bg);
+      border-left: 3px solid var(--accent);
+      padding: 16px 20px;
+      border-radius: 0 8px 8px 0;
+      margin: 20px 0;
+      font-size: 14px;
+      color: var(--text-mid);
+      line-height: 1.65;
+    }
+    .callout strong { color: var(--text); }
+
+    /* Verdict */
+    .verdict {
+      background: var(--accent2-bg);
+      border: 2px solid var(--accent2);
+      border-radius: 12px;
+      padding: 28px;
+      margin: 24px 0;
+    }
+    .verdict h3 { color: var(--accent2); margin-bottom: 12px; }
+    .verdict p { color: var(--text-mid); font-size: 14px; line-height: 1.7; }
+
+    /* Animations */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .card, .hero, .sec-head, .callout, .verdict, .timeline-item {
+      animation: fadeUp 0.4s ease both;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .card, .hero, .sec-head, .callout, .verdict, .timeline-item { animation: none; }
+    }
+
+    .stack-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 6px;
+    }
+
+    /* Mobile typography */
+    @media (max-width: 600px) {
+      .card { padding: 18px; }
+      .card h3 { font-size: 16px; }
+      .hero { padding: 28px 0 24px; margin-bottom: 32px; }
+    }
+  </style>
+  <!-- Vercel Web Analytics -->
+  <script>
+    window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+  </script>
+  <script defer src="/_vercel/insights/script.js"></script>
+  <!-- Vercel Speed Insights -->
+  <script>
+    window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
+  </script>
+  <script defer src="/_vercel/speed-insights/script.js"></script>
+  <meta property="og:title" content="The Great Unbundling — Vite, TanStack &amp; the Post-Vercel Stack">
+  <meta property="og:description" content="The web dev ecosystem is fracturing away from monolithic meta-frameworks. Vite won the build layer. TanStack is winning routing. Void Cloud is gunning for the deploy layer. Here's what it all means fo">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://zosia.cc/pages/vite-tanstack-migration">
+  <meta name="twitter:card" content="summary">
+</head>
+<body>
+<div class="wrap">
+
+  <nav class="toc" id="toc">
+    <div class="toc-title">Contents</div>
+    <a href="#s1">1. What You Have</a>
+    <a href="#s2">2. The Players</a>
+    <a href="#s3">3. Old vs New</a>
+    <a href="#s4">4. Industry Shift</a>
+    <a href="#s5">5. The Benchmarks</a>
+    <a href="#s6">6. Void vs Vercel</a>
+    <a href="#s7">7. Migration Plan</a>
+    <a href="#s8">8. Verdict</a>
+  </nav>
+
+  <div class="main">
+    <div class="hero">
+      <div class="hero-label">Research Deep Dive — March 2026</div>
+      <h1>The Great Unbundling</h1>
+      <p class="hero-sub">The web dev ecosystem is fracturing away from monolithic meta-frameworks. Vite won the build layer. TanStack is winning routing. Void Cloud is gunning for the deploy layer. Here's what it all means for zosia.cc — and what the migration looks like.</p>
+    </div>
+
+    <!-- SECTION 1: WHAT YOU HAVE -->
+    <div id="s1" class="sec-head"><span class="num">1</span> What zosia.cc Uses Today</div>
+
+    <div class="card card--hero">
+      <h3>Current Stack: Pure Static HTML on Vercel</h3>
+      <p>zosia.cc is not a framework app. It's hand-crafted static HTML — 34 visual explainer pages, each a self-contained <code>.html</code> file. No React. No build step. No dependencies.</p>
+      <div class="flow" style="margin-top:16px">
+        <div class="flow-node">HTML files<small>Self-contained</small></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">build.js<small>Index generator</small></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">Git push<small>rayzhux/zosia-cc</small></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node highlight">Vercel<small>Auto-deploy CDN</small></div>
+      </div>
+      <ul style="margin-top:12px">
+        <li>Vercel Hobby plan (free tier)</li>
+        <li>GitHub integration — push to <code>main</code> triggers deploy</li>
+        <li><code>vercel.json</code> handles bot blocking, clean URLs, headers</li>
+        <li>No framework lock-in — just file serving</li>
+      </ul>
+    </div>
+
+    <div class="callout">
+      <strong>Key insight:</strong> Because zosia.cc has zero framework dependencies, migration is trivial. You're not escaping Next.js — you're just changing where static files get served from. The real question is what you <em>gain</em> by switching.
+    </div>
+
+    <!-- SECTION 2: THE PLAYERS -->
+    <div id="s2" class="sec-head"><span class="num">2</span> The Players — Who Are They?</div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="stack-label">Build Tool</div>
+        <h3>Vite</h3>
+        <p>Created by Evan You (Vue creator). The frontend build tool that replaced Webpack. Instant hot module reload, esbuild in dev, Rollup in prod. React, Vue, Svelte, Solid — everyone uses Vite now.</p>
+        <p style="margin-top:8px"><span class="badge badge--hot">De facto standard</span></p>
+      </div>
+      <div class="card">
+        <div class="stack-label">Testing</div>
+        <h3>Vitest</h3>
+        <p>Test runner built on Vite. Same config, same plugin pipeline, same transform layer. Replaced Jest for Vite projects. Native ESM, no config duplication, shares the dep resolution.</p>
+        <p style="margin-top:8px"><span class="badge badge--new">Vite-native</span></p>
+      </div>
+      <div class="card">
+        <div class="stack-label">Routing</div>
+        <h3>TanStack Router</h3>
+        <p>By Tanner Linsley (TanStack Query fame). Type-safe file-based routing for React. No magic — explicit loaders, search params as first-class, full TypeScript inference. The anti-Next.js router.</p>
+        <p style="margin-top:8px"><span class="badge badge--new">Rising fast</span></p>
+      </div>
+      <div class="card">
+        <div class="stack-label">Full-Stack Framework</div>
+        <h3>TanStack Start</h3>
+        <p>TanStack's full-stack framework. Vite under the hood, TanStack Router for routing, TanStack Query for data fetching. Server functions, SSR, explicit boundaries. The composable alternative to Next.js.</p>
+        <p style="margin-top:8px"><span class="badge badge--hot">The challenger</span></p>
+      </div>
+      <div class="card">
+        <div class="stack-label">Toolchain Company</div>
+        <h3>VoidZero</h3>
+        <p>Evan You's company. Building the unified JS toolchain in Rust: <strong>Rolldown</strong> (replaces esbuild + Rollup inside Vite), <strong>Oxc</strong> (replaces Babel, ESLint internals). Owns the entire compile pipeline.</p>
+        <p style="margin-top:8px"><span class="badge badge--new">$46M funded</span></p>
+      </div>
+      <div class="card">
+        <div class="stack-label">Deploy Platform</div>
+        <h3>Void Cloud</h3>
+        <p>VoidZero's Vercel competitor. <code>void deploy</code> — one command gets you DB, KV, storage, queues, cron, auth, AI inference. Built on Cloudflare's edge. Framework-agnostic. Just launched March 2026.</p>
+        <p style="margin-top:8px"><span class="badge badge--hot">Brand new</span></p>
+      </div>
+    </div>
+
+    <!-- SECTION 3: OLD VS NEW -->
+    <div id="s3" class="sec-head"><span class="num">3</span> Old Way vs New Way</div>
+
+    <p class="lead">The industry is moving from monolithic meta-frameworks (one vendor controls framework + platform + deploy) to composable primitives (mix and match best-in-class at each layer).</p>
+
+    <div class="vs-block">
+      <div class="card" style="border-top: 3px solid var(--text-dim);">
+        <div class="stack-label">The old way <span class="badge badge--old">2020–2024</span></div>
+        <h3>Monolithic Meta-Framework</h3>
+        <div class="timeline">
+          <div class="timeline-item old">
+            <div class="timeline-year">Build</div>
+            <div class="timeline-label">Webpack / Turbopack</div>
+            <div class="timeline-desc">Bundled with the framework, not your choice</div>
+          </div>
+          <div class="timeline-item old">
+            <div class="timeline-year">Routing</div>
+            <div class="timeline-label">Next.js App Router / Pages Router</div>
+            <div class="timeline-desc">Framework-specific, tightly coupled</div>
+          </div>
+          <div class="timeline-item old">
+            <div class="timeline-year">Data</div>
+            <div class="timeline-label">RSC + Server Actions</div>
+            <div class="timeline-desc">Implicit server/client boundaries</div>
+          </div>
+          <div class="timeline-item old">
+            <div class="timeline-year">Deploy</div>
+            <div class="timeline-label">Vercel</div>
+            <div class="timeline-desc">Works best on their platform. Elsewhere = degraded.</div>
+          </div>
+          <div class="timeline-item old">
+            <div class="timeline-year">Testing</div>
+            <div class="timeline-label">Jest</div>
+            <div class="timeline-desc">Separate config, separate transform pipeline</div>
+          </div>
+        </div>
+        <h4>The problem</h4>
+        <ul>
+          <li>Vendor lock-in at every layer</li>
+          <li>Cache directives you debug weekly</li>
+          <li>Dev server: 10-12s cold start</li>
+          <li>Memory leaks: 9-10GB dev processes</li>
+          <li>Each Next.js version = new mental model</li>
+        </ul>
+      </div>
+      <div class="vs-divider">vs</div>
+      <div class="card" style="border-top: 3px solid var(--accent2);">
+        <div class="stack-label">The new way <span class="badge badge--new">2025–2026</span></div>
+        <h3>Composable Primitives</h3>
+        <div class="timeline">
+          <div class="timeline-item future">
+            <div class="timeline-year">Build</div>
+            <div class="timeline-label">Vite (+ Rolldown)</div>
+            <div class="timeline-desc">Universal, framework-agnostic, Rust-fast</div>
+          </div>
+          <div class="timeline-item future">
+            <div class="timeline-year">Routing</div>
+            <div class="timeline-label">TanStack Router</div>
+            <div class="timeline-desc">Type-safe, explicit, portable between frameworks</div>
+          </div>
+          <div class="timeline-item future">
+            <div class="timeline-year">Data</div>
+            <div class="timeline-label">TanStack Query + Server Functions</div>
+            <div class="timeline-desc">Explicit boundaries, you control the cache</div>
+          </div>
+          <div class="timeline-item future">
+            <div class="timeline-year">Deploy</div>
+            <div class="timeline-label">Void Cloud / CF Pages / Any edge</div>
+            <div class="timeline-desc">Deploy anywhere — no platform coupling</div>
+          </div>
+          <div class="timeline-item future">
+            <div class="timeline-year">Testing</div>
+            <div class="timeline-label">Vitest</div>
+            <div class="timeline-desc">Same config as build. One pipeline.</div>
+          </div>
+        </div>
+        <h4>The payoff</h4>
+        <ul>
+          <li>Swap any layer without rewriting the app</li>
+          <li>Dev startup: 2-3s</li>
+          <li>HMR: ~335ms (vs ~836ms Next.js RSC)</li>
+          <li>7x faster CI builds</li>
+          <li>Standard Node memory behavior</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- SECTION 4: INDUSTRY SHIFT -->
+    <div id="s4" class="sec-head"><span class="num">4</span> Who's Already Moving?</div>
+
+    <p class="lead">This isn't theoretical. Major projects and companies are actively migrating. The TanStack + Vite stack is gaining adoption fast — even Anthropic's own developer templates use it.</p>
+
+    <div class="card card--green">
+      <h3>Anthropic / Claude</h3>
+      <p>Netlify's official Claude AI template is built with <strong>TanStack Router + Vite</strong> (migrated from Vinxi to Vite 7+). Their Claude chat starter uses TanStack Query + Zustand for state. It's the recommended way to build Claude-powered apps.</p>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <h3>SaaS Teams Migrating</h3>
+        <p>BeyondIT published detailed benchmarks after moving a production SaaS from Next.js 16 to TanStack Start. Results: <strong>5x faster dev startup</strong>, <strong>2.5x faster HMR</strong>, and resolved persistent memory leaks that caused OOMKilled pods.</p>
+      </div>
+      <div class="card">
+        <h3>Netlify Backing TanStack</h3>
+        <p>Netlify's official template library now features TanStack Start as a first-class starter. They're betting on the composable stack as the alternative to Vercel's Next.js lock-in.</p>
+      </div>
+      <div class="card">
+        <h3>Cloudflare Partnership</h3>
+        <p>Void Cloud is built entirely on Cloudflare's network. Workers, KV, R2, D1, Queues — Cloudflare provides the infrastructure, VoidZero provides the DX layer. Strategic alignment against AWS-backed Vercel.</p>
+      </div>
+      <div class="card">
+        <h3>Community Momentum</h3>
+        <p>"Goodbye Vercel?" articles trending on Medium (March 2026). Developer sentiment shifting from "Next.js is the default" to "do I actually need all this complexity?"</p>
+      </div>
+    </div>
+
+    <!-- SECTION 5: BENCHMARKS -->
+    <div id="s5" class="sec-head"><span class="num">5</span> The Benchmarks</div>
+
+    <div class="card">
+      <h3>Next.js 16 vs TanStack Start — Real Numbers</h3>
+      <p>From BeyondIT's production SaaS migration (March 2026):</p>
+      <table class="cmp-table">
+        <thead>
+          <tr><th>Metric</th><th>Next.js 16</th><th>TanStack Start</th><th>Delta</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Dev server cold start</td><td class="loser">10–12s</td><td class="winner">2–3s</td><td class="winner">5x faster</td></tr>
+          <tr><td>Root HMR (hot reload)</td><td class="loser">~836ms (RSC on)</td><td class="winner">~335ms</td><td class="winner">2.5x faster</td></tr>
+          <tr><td>Production build (CI)</td><td class="loser">Baseline</td><td class="winner">7x faster</td><td class="winner">7x</td></tr>
+          <tr><td>Dev memory usage</td><td class="loser">9–10GB (leaks documented)</td><td class="winner">Standard Node behavior</td><td class="winner">Stable</td></tr>
+          <tr><td>Vendor lock-in</td><td class="loser">High (Vercel-optimized)</td><td class="winner">Low (deploy anywhere)</td><td class="winner">Portable</td></tr>
+          <tr><td>ISR / Edge SSR</td><td class="winner">Mature, built-in</td><td class="loser">Manual / early</td><td>Next.js wins</td></tr>
+          <tr><td>Plugin ecosystem</td><td class="winner">Massive</td><td class="loser">Growing</td><td>Next.js wins</td></tr>
+          <tr><td>Cache complexity</td><td class="loser">Implicit, debugging-heavy</td><td class="winner">Explicit, you own it</td><td class="winner">Simpler</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout">
+      <strong>The trade-off is clear:</strong> Next.js wins on mature ecosystem and ISR. TanStack wins on performance, memory, DX, and portability. For interactive SaaS apps, TanStack is the better bet. For content-heavy sites with heavy ISR needs, Next.js still has an edge.
+    </div>
+
+    <!-- SECTION 6: VOID VS VERCEL -->
+    <div id="s6" class="sec-head"><span class="num">6</span> Void Cloud vs Vercel vs Cloudflare Pages</div>
+
+    <div class="card">
+      <h3>Platform Comparison</h3>
+      <table class="cmp-table">
+        <thead>
+          <tr><th>Feature</th><th>Vercel</th><th>Void Cloud</th><th>CF Pages</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Framework lock-in</td><td class="loser">Next.js-optimized</td><td class="winner">Any Vite-based</td><td class="winner">Any static/Workers</td></tr>
+          <tr><td>Edge network</td><td>AWS-backed</td><td class="winner">Cloudflare</td><td class="winner">Cloudflare</td></tr>
+          <tr><td>Built-in DB</td><td>Vercel KV/Postgres ($)</td><td class="winner">D1 + KV + R2 (included)</td><td>D1 + KV + R2</td></tr>
+          <tr><td>Auth</td><td>None built-in</td><td class="winner">Built-in</td><td>CF Access (Zero Trust)</td></tr>
+          <tr><td>Deploy command</td><td><code>git push</code> or <code>vercel deploy</code></td><td><code>void deploy</code></td><td><code>wrangler pages deploy</code></td></tr>
+          <tr><td>Free tier bandwidth</td><td>100GB</td><td>TBD (new)</td><td class="winner">Unlimited</td></tr>
+          <tr><td>Deploys/month (free)</td><td class="winner">Unlimited</td><td>TBD</td><td>500</td></tr>
+          <tr><td>AI inference</td><td>None</td><td class="winner">Built-in</td><td>Workers AI</td></tr>
+          <tr><td>Cron jobs</td><td>Vercel Cron</td><td class="winner">Built-in</td><td>Cron Triggers</td></tr>
+          <tr><td>Maturity</td><td class="winner">Production-proven</td><td class="loser">Brand new (Mar 2026)</td><td class="winner">Production-proven</td></tr>
+          <tr><td>Price (you)</td><td>Free (Hobby)</td><td>Free (expected)</td><td>Free (existing plan)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="grid-2">
+      <div class="card card--warn">
+        <h3>Void Cloud Risk</h3>
+        <p>Launched days ago. No production track record. The tech is sound (Cloudflare infra underneath), but the DX layer is brand new. Migration stories don't exist yet. <strong>Wait 3-6 months</strong> before betting production on it.</p>
+      </div>
+      <div class="card card--green">
+        <h3>Cloudflare Pages: The Safe Bet</h3>
+        <p>You already pay for Cloudflare. CF Pages serves static sites with unlimited bandwidth on the same edge network Void Cloud uses. Plus you get CF Access for auth (the exact UX we discussed — Google login for you, email OTP for friends).</p>
+      </div>
+    </div>
+
+    <!-- SECTION 7: MIGRATION PLAN -->
+    <div id="s7" class="sec-head"><span class="num">7</span> Migration Plan for zosia.cc</div>
+
+    <div class="card card--hero">
+      <h3>The Good News: This is a 30-Minute Migration</h3>
+      <p>zosia.cc is static HTML. No framework to escape. The migration is literally "point Cloudflare Pages at the same GitHub repo instead of Vercel." Here's the plan:</p>
+    </div>
+
+    <div class="grid-3">
+      <div class="card" style="border-top: 3px solid var(--accent2);">
+        <div class="stack-label">Phase 1 — Now</div>
+        <h3>Move to CF Pages</h3>
+        <ul>
+          <li>Connect <code>rayzhux/zosia-cc</code> to CF Pages</li>
+          <li>Point a subdomain (e.g., <code>pages.zosia.cc</code>) at it</li>
+          <li>Add CF Access for authentication</li>
+          <li>Update <code>share.sh</code> to use new URL</li>
+          <li>Keep Vercel running in parallel until verified</li>
+        </ul>
+        <p style="margin-top:8px"><span class="badge badge--new">30 min</span></p>
+      </div>
+      <div class="card" style="border-top: 3px solid var(--accent3);">
+        <div class="stack-label">Phase 2 — When Needed</div>
+        <h3>Add Interactivity</h3>
+        <ul>
+          <li>If zosia.cc needs dynamic features (search, filtering, live data)</li>
+          <li>Add Vite + TanStack Router for an SPA shell</li>
+          <li>Keep existing HTML pages as content</li>
+          <li>Use CF Workers for any API endpoints</li>
+          <li>This is optional — only if static isn't enough</li>
+        </ul>
+        <p style="margin-top:8px"><span class="badge badge--old">If needed</span></p>
+      </div>
+      <div class="card" style="border-top: 3px solid var(--accent);">
+        <div class="stack-label">Phase 3 — Future</div>
+        <h3>Evaluate Void Cloud</h3>
+        <ul>
+          <li>Watch Void Cloud mature (3-6 months)</li>
+          <li>If they nail the DX, migration from CF Pages → Void is trivial (same infra)</li>
+          <li><code>void deploy</code> would replace <code>wrangler pages deploy</code></li>
+          <li>Gets you built-in auth, DB, cron for free</li>
+          <li>Low-risk: same Cloudflare network underneath</li>
+        </ul>
+        <p style="margin-top:8px"><span class="badge badge--hot">Watch</span></p>
+      </div>
+    </div>
+
+    <div class="callout">
+      <strong>What about WAG (worldauto.group)?</strong> That's a separate question. If WAG uses Next.js with SSR/ISR features, keep it on Vercel — the migration cost isn't worth it. If it's mostly static, same story as zosia.cc: move to CF Pages. Check the actual stack first before deciding.
+    </div>
+
+    <!-- SECTION 8: VERDICT -->
+    <div id="s8" class="sec-head"><span class="num">8</span> The Verdict</div>
+
+    <div class="verdict">
+      <h3>Bottom Line</h3>
+      <p>The web dev world is unbundling. Vite won the build layer. TanStack is winning routing + data. Cloudflare is winning the edge. Vercel's moat (Next.js lock-in) is shrinking as every alternative gets better.</p>
+      <p style="margin-top:12px">For <strong>zosia.cc specifically</strong>: move to Cloudflare Pages now. It's free, you already pay for CF, you get auth (CF Access) that Vercel charges $20/mo for, and unlimited bandwidth. The migration takes 30 minutes because there's nothing framework-specific to rewrite.</p>
+      <p style="margin-top:12px">For <strong>new projects</strong>: Vite + TanStack Start on Cloudflare Workers is the stack to bet on in 2026. Keep Void Cloud on your radar — when it matures, it'll be the <code>vercel deploy</code> equivalent for the post-Vercel world.</p>
+      <p style="margin-top:12px">For <strong>existing Next.js apps</strong>: don't migrate unless you're hitting the pain points (memory leaks, cache debugging, slow dev server). The ecosystem advantage is still real.</p>
+    </div>
+
+    <div class="card" style="margin-top: 24px;">
+      <div class="stack-label">The Strategic Map</div>
+      <h3>Who Controls What</h3>
+      <div class="flow">
+        <div class="flow-node">Evan You<small>Vite, VoidZero, Void Cloud</small></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">Build + Deploy<small>Owns the pipeline</small></div>
+      </div>
+      <div class="flow" style="margin-top:12px">
+        <div class="flow-node">Guillermo Rauch<small>Next.js, Vercel</small></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">Framework + Deploy<small>Owns the platform</small></div>
+      </div>
+      <div class="flow" style="margin-top:12px">
+        <div class="flow-node">Tanner Linsley<small>TanStack Router/Query/Start</small></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">Routing + Data<small>Owns the primitives</small></div>
+      </div>
+      <div class="flow" style="margin-top:12px">
+        <div class="flow-node highlight">You<small>Raymond</small></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node highlight">Pick from each<small>No lock-in</small></div>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /wrap -->
+
+<script>
+(function() {
+  const toc = document.getElementById('toc');
+  const links = toc.querySelectorAll('a');
+  const sections = [];
+  links.forEach(link => {
+    const id = link.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    if (el) sections.push({ id, el, link });
+  });
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const match = sections.find(s => s.el === entry.target);
+        if (match) {
+          match.link.classList.add('active');
+          if (window.innerWidth <= 1000) {
+            match.link.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+          }
+        }
+      }
+    });
+  }, { rootMargin: '-10% 0px -80% 0px' });
+  sections.forEach(s => observer.observe(s.el));
+  links.forEach(link => {
+    link.addEventListener('click', e => {
+      e.preventDefault();
+      const id = link.getAttribute('href').slice(1);
+      const el = document.getElementById(id);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        history.replaceState(null, '', '#' + id);
+      }
+    });
+  });
+})();
+</script>
+</body>
+</html>
