@@ -300,9 +300,9 @@
     </header>
 
     <div class="stats">
-      <span><span class="num">39</span> pages</span>
+      <span><span class="num">40</span> pages</span>
       <span><span class="num">7</span> categories</span>
-      <span>Last updated <span class="num">Mar 19, 2026</span></span>
+      <span>Last updated <span class="num">Mar 20, 2026</span></span>
     </div>
 
     <div class="search-wrap">
@@ -312,8 +312,8 @@
 
     <div class="filters" id="filters">
       <button class="chip active" data-cat="all">All</button>
-      <button class="chip" data-cat="research">Research</button>
       <button class="chip" data-cat="openclaw">OpenClaw</button>
+      <button class="chip" data-cat="research">Research</button>
       <button class="chip" data-cat="architecture">Architecture</button>
       <button class="chip" data-cat="devops">CI/CD & DevOps</button>
       <button class="chip" data-cat="health">Health</button>
@@ -346,6 +346,17 @@
 
   <script>
     const pages = [
+      {
+            "slug": "domain-tools-research",
+            "title": "Domain Tools for AI Agents",
+            "desc": "Registrar APIs, MCP servers, CLI tools, and aggregator services — ranked by how well they work in automated, agent-driven workflows.",
+            "cat": "openclaw",
+            "created": "2026-03-20",
+            "updated": "2026-03-20",
+            "tags": [
+                  "research"
+            ]
+      },
       {
             "slug": "vite-tanstack-migration",
             "title": "The Great Unbundling — Vite, TanStack & the Post-Vercel Stack",
@@ -798,8 +809,8 @@
       }
 ];
     const catLabels = {
-      "research": "Research",
       "openclaw": "OpenClaw",
+      "research": "Research",
       "architecture": "Architecture",
       "devops": "CI/CD & DevOps",
       "health": "Health",
@@ -819,7 +830,7 @@
     }
 
     function daysAgo(d) {
-      const now = new Date("2026-03-19");
+      const now = new Date("2026-03-20");
       const then = new Date(d);
       const diff = Math.floor((now - then) / 86400000);
       if (diff === 0) return "today";

@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Domain Tools for AI Agents</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f8f6f3;
+      --surface: #ffffff;
+      --surface-alt: #f0ede8;
+      --border: rgba(0,0,0,0.08);
+      --border-strong: rgba(0,0,0,0.15);
+      --text: #1a1a1a;
+      --text-dim: #6b6560;
+      --text-muted: #9a9590;
+      --accent: #0369a1;
+      --accent-dim: #e0f2fe;
+      --accent2: #059669;
+      --accent2-dim: #d1fae5;
+      --accent3: #c2410c;
+      --accent3-dim: #fff0e8;
+      --amber: #d97706;
+      --amber-dim: #fffbeb;
+      --font-body: 'DM Sans', -apple-system, sans-serif;
+      --font-mono: 'Fira Code', 'SF Mono', monospace;
+      --radius: 10px;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #141210;
+        --surface: #1e1c19;
+        --surface-alt: #2a2723;
+        --border: rgba(255,255,255,0.08);
+        --border-strong: rgba(255,255,255,0.15);
+        --text: #e8e4df;
+        --text-dim: #a09a94;
+        --text-muted: #6b6560;
+        --accent: #38bdf8;
+        --accent-dim: #0c2d44;
+        --accent2: #34d399;
+        --accent2-dim: #0a2e1f;
+        --accent3: #fb923c;
+        --accent3-dim: #3b1a08;
+        --amber: #fbbf24;
+        --amber-dim: #3b2a08;
+        --shadow-sm: 0 1px 3px rgba(0,0,0,0.2);
+        --shadow-md: 0 4px 12px rgba(0,0,0,0.3);
+      }
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    .container {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 5rem;
+    }
+
+    /* ─── Hero ─── */
+    .hero {
+      padding-bottom: 2rem;
+      border-bottom: 2px solid var(--border-strong);
+      margin-bottom: 2.5rem;
+    }
+    .hero-eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      margin-bottom: 0.6rem;
+    }
+    .hero h1 {
+      font-size: 2.1rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.2;
+      margin-bottom: 0.6rem;
+    }
+    .hero .subtitle {
+      font-size: 1rem;
+      color: var(--text-dim);
+      max-width: 660px;
+    }
+
+    /* ─── Section scaffold ─── */
+    section { margin-bottom: 3rem; }
+    .section-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+    }
+    .section-label .dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+    h2 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.5rem;
+    }
+    .section-desc {
+      font-size: 0.9rem;
+      color: var(--text-dim);
+      max-width: 720px;
+      margin-bottom: 1.25rem;
+    }
+
+    /* ─── TLDR callout ─── */
+    .tldr {
+      background: var(--accent2-dim);
+      border: 1.5px solid var(--accent2);
+      border-radius: var(--radius);
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 2.5rem;
+    }
+    .tldr-title {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent2);
+      margin-bottom: 0.6rem;
+    }
+    .tldr ul { list-style: none; }
+    .tldr li {
+      padding: 0.22rem 0 0.22rem 1.2rem;
+      position: relative;
+      font-size: 0.9rem;
+    }
+    .tldr li::before {
+      content: '→';
+      position: absolute;
+      left: 0;
+      color: var(--accent2);
+      font-weight: 700;
+    }
+    .tldr strong { color: var(--text); }
+
+    /* ─── Card grid ─── */
+    .card-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+    @media (min-width: 640px) {
+      .card-grid { grid-template-columns: 1fr 1fr; }
+      .card-grid.three { grid-template-columns: 1fr 1fr 1fr; }
+    }
+    .ve-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.2rem;
+      box-shadow: var(--shadow-sm);
+      min-width: 0;
+    }
+    .ve-card.winner {
+      border-color: var(--accent2);
+      background: var(--accent2-dim);
+    }
+    .ve-card.hero-card {
+      border-color: var(--accent);
+      background: var(--accent-dim);
+    }
+    .ve-card.warm {
+      border-color: var(--accent3);
+      background: var(--accent3-dim);
+    }
+    .card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+    }
+    .card-header h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      line-height: 1.3;
+    }
+    .badge {
+      flex-shrink: 0;
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      font-weight: 600;
+      padding: 0.15rem 0.5rem;
+      border-radius: 100px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+    }
+    .badge.green { background: var(--accent2); color: #fff; }
+    .badge.blue { background: var(--accent); color: #fff; }
+    .badge.amber { background: var(--amber); color: #fff; }
+    .badge.free { background: var(--accent2-dim); color: var(--accent2); border: 1px solid var(--accent2); }
+    .card-body ul { list-style: none; }
+    .card-body li {
+      font-size: 0.84rem;
+      color: var(--text-dim);
+      padding: 0.18rem 0 0.18rem 0.9rem;
+      position: relative;
+    }
+    .card-body li::before {
+      content: '·';
+      position: absolute;
+      left: 0;
+      color: var(--text-muted);
+      font-weight: 700;
+    }
+    .card-body strong { color: var(--text); }
+    .card-body code {
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      background: var(--surface-alt);
+      padding: 0.1rem 0.3rem;
+      border-radius: 3px;
+    }
+
+    /* ─── Table ─── */
+    .table-wrap {
+      overflow-x: auto;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+      margin-top: 0.5rem;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.83rem;
+      background: var(--surface);
+    }
+    thead { position: sticky; top: 0; }
+    th {
+      background: var(--surface-alt);
+      font-weight: 600;
+      text-align: left;
+      padding: 0.7rem 1rem;
+      border-bottom: 2px solid var(--border-strong);
+      white-space: nowrap;
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-dim);
+    }
+    td {
+      padding: 0.6rem 1rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:nth-child(even) td { background: var(--surface-alt); }
+    tr:hover td { background: var(--accent-dim); }
+    td code {
+      font-family: var(--font-mono);
+      font-size: 0.73rem;
+      background: var(--surface-alt);
+      padding: 0.1rem 0.3rem;
+      border-radius: 3px;
+    }
+    .dot-green::before, .dot-blue::before, .dot-amber::before, .dot-red::before {
+      content: '';
+      display: inline-block;
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      margin-right: 0.35rem;
+      vertical-align: middle;
+    }
+    .dot-green::before { background: var(--accent2); }
+    .dot-blue::before { background: var(--accent); }
+    .dot-amber::before { background: var(--amber); }
+    .dot-red::before { background: var(--accent3); }
+
+    /* ─── Rec cards ─── */
+    .rec-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0.75rem;
+    }
+    @media (min-width: 640px) { .rec-grid { grid-template-columns: 1fr 1fr; } }
+    .rec-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1.2rem;
+      min-width: 0;
+    }
+    .rec-card .scenario {
+      font-size: 0.78rem;
+      font-weight: 600;
+      font-family: var(--font-mono);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-bottom: 0.4rem;
+    }
+    .rec-card p { font-size: 0.87rem; color: var(--text-dim); }
+    .rec-card strong { color: var(--text); }
+    .rec-card code {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      background: var(--surface-alt);
+      padding: 0.1rem 0.3rem;
+      border-radius: 3px;
+    }
+
+    /* ─── Details ─── */
+    details {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      margin-bottom: 0.75rem;
+    }
+    summary {
+      padding: 0.7rem 1rem;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.88rem;
+      user-select: none;
+    }
+    details[open] summary { border-bottom: 1px solid var(--border); }
+    details .inner {
+      padding: 1rem;
+      font-size: 0.84rem;
+      color: var(--text-dim);
+    }
+    details .inner code {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      background: var(--surface-alt);
+      padding: 0.1rem 0.3rem;
+      border-radius: 3px;
+    }
+    pre.code-block {
+      background: var(--surface-alt);
+      border-radius: 6px;
+      padding: 0.75rem 1rem;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      white-space: pre-wrap;
+      overflow-wrap: break-word;
+      margin: 0.5rem 0;
+      color: var(--text);
+    }
+
+    /* ─── Footer ─── */
+    .footer {
+      border-top: 1px solid var(--border);
+      padding-top: 1.5rem;
+      margin-top: 2.5rem;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    /* ─── Animations ─── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .anim {
+      opacity: 0;
+      animation: fadeUp 0.4s ease-out forwards;
+    }
+    .anim:nth-child(1) { animation-delay: 0.05s; }
+    .anim:nth-child(2) { animation-delay: 0.1s; }
+    .anim:nth-child(3) { animation-delay: 0.15s; }
+    .anim:nth-child(4) { animation-delay: 0.2s; }
+    .anim:nth-child(5) { animation-delay: 0.25s; }
+    .anim:nth-child(6) { animation-delay: 0.3s; }
+    .anim:nth-child(7) { animation-delay: 0.35s; }
+    @media (prefers-reduced-motion: reduce) {
+      .anim { animation: none; opacity: 1; }
+    }
+  </style>
+  <!-- Vercel Web Analytics -->
+  <script>
+    window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+  </script>
+  <script defer src="/_vercel/insights/script.js"></script>
+  <!-- Vercel Speed Insights -->
+  <script>
+    window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
+  </script>
+  <script defer src="/_vercel/speed-insights/script.js"></script>
+  <meta property="og:title" content="Domain Tools for AI Agents">
+  <meta property="og:description" content="Registrar APIs, MCP servers, CLI tools, and aggregator services — ranked by how well they work in automated, agent-driven workflows.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://zosia.cc/pages/domain-tools-research">
+  <meta name="twitter:card" content="summary">
+</head>
+<body>
+<div class="container">
+
+  <!-- Hero -->
+  <header class="hero anim">
+    <div class="hero-eyebrow">Deep Research · March 2026</div>
+    <h1>Domain Tools for AI Agents</h1>
+    <p class="subtitle">Registrar APIs, MCP servers, CLI tools, and aggregator services — ranked by how well they work in automated, agent-driven workflows.</p>
+  </header>
+
+  <!-- TL;DR -->
+  <div class="tldr anim">
+    <div class="tldr-title">TL;DR — My picks</div>
+    <ul>
+      <li><strong>Availability-only (zero setup):</strong> DomainDetails.com MCP — free, no API key, RDAP protocol, just point and shoot</li>
+      <li><strong>Availability + monitoring + MCP:</strong> DomScan — 1,500+ TLDs, 10K free credits/mo, MCP built-in</li>
+      <li><strong>Full register+manage (best API design):</strong> Cloudflare Registrar — at-cost pricing, clean REST, generous rate limits</li>
+      <li><strong>Full register+manage (widest TLDs):</strong> GoDaddy API — 500+ TLDs, solid sandbox, well-documented</li>
+      <li><strong>If already on Vercel:</strong> Vercel Domains API (Oct 2025) — search, price, buy, bulk, in one modern API</li>
+      <li><strong>Quick CLI triage:</strong> <code>dig +short domain.com</code> → NXDOMAIN means likely free; confirm with RDAP</li>
+    </ul>
+  </div>
+
+  <!-- ── Section 1: Registrar APIs ── -->
+  <section class="anim">
+    <div class="section-label" style="color: var(--accent)"><span class="dot"></span> Registrar APIs</div>
+    <h2>APIs That Can Actually Register Domains</h2>
+    <p class="section-desc">These handle the full lifecycle: availability check → purchase → renewal → management. Key agent-friendliness factors: clean auth (no IP whitelists), JSON responses, good sandbox, and no CAPTCHA gates.</p>
+
+    <div class="card-grid">
+      <div class="ve-card winner">
+        <div class="card-header">
+          <h3>Cloudflare Registrar</h3>
+          <span class="badge green">Best API</span>
+        </div>
+        <ul class="card-body">
+          <li><strong>Pricing:</strong> At wholesale cost — no markup, ever</li>
+          <li><strong>Auth:</strong> API token (scoped, easy to provision)</li>
+          <li><strong>Rate limits:</strong> 1,200 req / 5 min — very generous</li>
+          <li><strong>TLDs:</strong> ~300 (growing, no ccTLDs yet)</li>
+          <li><strong>Responses:</strong> Clean REST + JSON, OpenAPI spec</li>
+          <li><strong>Bonus:</strong> Integrated DNS, CDN, Workers, DNSSEC auto-on</li>
+          <li><strong>Gotcha:</strong> Must use CF nameservers; no intro discounts</li>
+          <li><strong>Agent verdict:</strong> Best overall if you're not TLD-constrained</li>
+        </ul>
+      </div>
+
+      <div class="ve-card hero-card">
+        <div class="card-header">
+          <h3>GoDaddy API</h3>
+          <span class="badge blue">Widest TLDs</span>
+        </div>
+        <ul class="card-body">
+          <li><strong>Pricing:</strong> Retail + markup (renewals expensive)</li>
+          <li><strong>Auth:</strong> API key + secret (OTE sandbox available)</li>
+          <li><strong>Rate limits:</strong> 60 req / min per endpoint</li>
+          <li><strong>TLDs:</strong> 500+ — widest in the market</li>
+          <li><strong>Sandbox:</strong> OTE environment at <code>api.ote-godaddy.com</code></li>
+          <li><strong>Bulk check:</strong> <code>GET /v1/domains/available?domain=...</code> (one at a time) or bulk endpoint</li>
+          <li><strong>Gotcha:</strong> Upselling, opaque renewal pricing, interface bugs</li>
+          <li><strong>Agent verdict:</strong> Good when you need obscure TLDs</li>
+        </ul>
+      </div>
+
+      <div class="ve-card">
+        <div class="card-header">
+          <h3>Namecheap API</h3>
+          <span class="badge amber">Medium friction</span>
+        </div>
+        <ul class="card-body">
+          <li><strong>Pricing:</strong> Competitive, but renewals creeping up</li>
+          <li><strong>Auth:</strong> API key + <strong>IP whitelist required</strong> — kills serverless agents</li>
+          <li><strong>Rate limits:</strong> 20 req / min (tight)</li>
+          <li><strong>Responses:</strong> XML-based (not JSON) — parse pain</li>
+          <li><strong>Sandbox:</strong> Free sandbox account</li>
+          <li><strong>Access:</strong> Need $50+ account balance for prod access</li>
+          <li><strong>SDKs:</strong> Official Go SDK on GitHub</li>
+          <li><strong>Agent verdict:</strong> IP whitelist is a blocker for most agent architectures</li>
+        </ul>
+      </div>
+
+      <div class="ve-card">
+        <div class="card-header">
+          <h3>Vercel Domains API</h3>
+          <span class="badge blue">New · Oct 2025</span>
+        </div>
+        <ul class="card-body">
+          <li><strong>Pricing:</strong> Transparent, competitive per-TLD</li>
+          <li><strong>Auth:</strong> Vercel API token</li>
+          <li><strong>Features:</strong> Search, price, buy (single + bulk), renew, transfer, auto-renewal toggle, nameserver management</li>
+          <li><strong>Availability:</strong> Single or bulk endpoint</li>
+          <li><strong>Gotcha:</strong> Tied to Vercel account; fewer TLDs than established registrars; very new</li>
+          <li><strong>Agent verdict:</strong> Excellent if already in Vercel ecosystem</li>
+        </ul>
+      </div>
+
+      <div class="ve-card">
+        <div class="card-header">
+          <h3>Name.com API</h3>
+          <span class="badge blue">Solid</span>
+        </div>
+        <ul class="card-body">
+          <li><strong>Auth:</strong> Username + API token (no IP whitelist)</li>
+          <li><strong>Rate limits:</strong> 20 req / sec</li>
+          <li><strong>Bulk check:</strong> Up to 50 domains per call</li>
+          <li><strong>Spec:</strong> OpenAPI 3.1, REST, JSON — clean</li>
+          <li><strong>SDK:</strong> Official Go client</li>
+          <li><strong>Dev sandbox:</strong> <code>api.dev.name.com</code></li>
+          <li><strong>Agent verdict:</strong> Underrated — good API, no whitelist headaches</li>
+        </ul>
+      </div>
+
+      <div class="ve-card">
+        <div class="card-header">
+          <h3>Gandi API v5</h3>
+          <span class="badge blue">Dev-loved</span>
+        </div>
+        <ul class="card-body">
+          <li><strong>Pricing:</strong> Fair, transparent</li>
+          <li><strong>Auth:</strong> Personal Access Token or API key</li>
+          <li><strong>TLDs:</strong> 750+</li>
+          <li><strong>API:</strong> REST v5, well-documented</li>
+          <li><strong>Gotcha:</strong> Acquired by team.blue — some community concern about future direction</li>
+          <li><strong>Agent verdict:</strong> Good, but acquisition uncertainty warrants caution for long-term builds</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Section 2: MCP Servers ── -->
+  <section class="anim">
+    <div class="section-label" style="color: var(--accent2)"><span class="dot"></span> MCP Servers</div>
+    <h2>MCP Servers for Domain Lookups</h2>
+    <p class="section-desc">These drop directly into Claude, Cursor, Windsurf, and any MCP-compatible client. The ecosystem is young but already has solid options for availability checks and WHOIS data.</p>
+
+    <div class="card-grid">
+      <div class="ve-card winner">
+        <div class="card-header">
+          <h3>DomainDetails.com RDAP MCP</h3>
+          <span class="badge free">Free · No key</span>
+        </div>
+        <ul class="card-body">
+          <li><strong>Transport:</strong> StreamableHTTP — <code>mcp.domaindetails.com/stream</code></li>
+          <li><strong>Auth:</strong> None — zero setup</li>
+          <li><strong>Protocol:</strong> RDAP with WHOIS fallback</li>
+          <li><strong>TLDs:</strong> 50+ with IANA bootstrap for others</li>
+          <li><strong>Returns:</strong> Registration status, registrar, expiry, availability</li>
+          <li><strong>Cost:</strong> 100% free, stated "no rate limits, no hidden costs"</li>
+          <li><strong>Gotcha:</strong> Lookup only — cannot register domains</li>
+        </ul>
+      </div>
+
+      <div class="ve-card hero-card">
+        <div class="card-header">
+          <h3>DomScan MCP</h3>
+          <span class="badge blue">Most features</span>
+        </div>
+        <ul class="card-body">
+          <li><strong>Features:</strong> Availability + valuation + DNS + brand monitoring</li>
+          <li><strong>TLDs:</strong> 1,500+ extensions</li>
+          <li><strong>Free tier:</strong> 10,000 credits/mo (no credit card required)</li>
+          <li><strong>Ranked #1</strong> in 2026 domain availability API comparisons</li>
+          <li><strong>Built for AI assistants</strong> — unique MCP integration</li>
+          <li><strong>Gotcha:</strong> Newer service; production reliability unverified at scale</li>
+        </ul>
+      </div>
+
+      <div class="ve-card">
+        <div class="card-header">
+          <h3>whois-mcp (OSS)</h3>
+          <span class="badge free">Free · OSS</span>
+        </div>
+        <ul class="card-body">
+          <li><strong>Install:</strong> <code>npx @bharathvaj/whois-mcp</code> — 52 ⭐</li>
+          <li><strong>Also:</strong> <code>npx @mcp-server/whois-mcp</code> (official MCP servers org)</li>
+          <li><strong>Tools:</strong> WHOIS lookup, availability check, registrar info, expiry dates</li>
+          <li><strong>Auth:</strong> None (uses public WHOIS registries)</li>
+          <li><strong>Gotcha:</strong> WHOIS rate limits vary per registry — can get throttled on bulk queries</li>
+        </ul>
+      </div>
+
+      <div class="ve-card">
+        <div class="card-header">
+          <h3>WhoisXML API MCP</h3>
+          <span class="badge amber">Enterprise</span>
+        </div>
+        <ul class="card-body">
+          <li><strong>APIs exposed:</strong> 18 via MCP — WHOIS, DNS, threat intel, IP geo</li>
+          <li><strong>Data depth:</strong> 25.5B+ WHOIS records, 116B+ DNS records, 15+ years</li>
+          <li><strong>Auth:</strong> API key (paid plans)</li>
+          <li><strong>Best for:</strong> Security/compliance use cases needing historical WHOIS</li>
+          <li><strong>Gotcha:</strong> Not cheap — pricing is enterprise-grade</li>
+        </ul>
+      </div>
+
+      <div class="ve-card">
+        <div class="card-header">
+          <h3>DomainCheckr MCP</h3>
+          <span class="badge free">Free · OSS · New</span>
+        </div>
+        <ul class="card-body">
+          <li><strong>Author:</strong> nach-dakwale (GitHub)</li>
+          <li><strong>Protocol:</strong> RDAP (modern, structured JSON — better than WHOIS)</li>
+          <li><strong>Features:</strong> Bulk checking, smart name suggestions</li>
+          <li><strong>Released:</strong> March 2026</li>
+          <li><strong>Gotcha:</strong> Brand new, 0 stars — treat as experimental</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Section 3: CLI Tools ── -->
+  <section class="anim">
+    <div class="section-label" style="color: var(--accent3)"><span class="dot"></span> CLI Tools</div>
+    <h2>CLI Tools for Shell-Based Agents</h2>
+    <p class="section-desc">Free, no auth, always available. Good for quick triage or when you don't want to burn API credits on bulk. None can register domains.</p>
+
+    <div class="card-grid three">
+      <div class="ve-card">
+        <h3 style="margin-bottom:0.5rem;font-size:0.95rem;"><code>whois</code></h3>
+        <ul class="card-body">
+          <li>Pre-installed macOS/Linux</li>
+          <li>Free, no auth needed</li>
+          <li>Text output — needs parsing</li>
+          <li>Registry rate limits apply</li>
+          <li>Use: <code>whois example.com</code></li>
+        </ul>
+      </div>
+      <div class="ve-card">
+        <h3 style="margin-bottom:0.5rem;font-size:0.95rem;"><code>rdap</code> CLI</h3>
+        <ul class="card-body">
+          <li>Modern WHOIS replacement</li>
+          <li>Returns structured JSON</li>
+          <li>Free, uses IANA bootstrap</li>
+          <li>Far easier to machine-parse</li>
+          <li>Use: <code>rdap example.com</code></li>
+        </ul>
+      </div>
+      <div class="ve-card">
+        <h3 style="margin-bottom:0.5rem;font-size:0.95rem;"><code>dig</code> / DNS check</h3>
+        <ul class="card-body">
+          <li>NXDOMAIN = likely available</li>
+          <li>Fast, no rate limits</li>
+          <li>Not authoritative for availability</li>
+          <li>Good cheap pre-filter before API calls</li>
+          <li>Use: <code>dig +short example.com A</code></li>
+        </ul>
+      </div>
+    </div>
+
+    <details style="margin-top:1rem;">
+      <summary>Shell snippet: availability pre-filter with dig</summary>
+      <div class="inner">
+        <p>Quick bash function to pre-check before hitting a paid API:</p>
+        <pre class="code-block">check_domain() {
+  local domain="$1"
+  if dig +short "$domain" A | grep -q '^[0-9]'; then
+    echo "TAKEN (has DNS records)"
+  else
+    rdap "$domain" 2>/dev/null | jq -r '.status[0]' || echo "LIKELY AVAILABLE (no DNS, confirm via RDAP)"
+  fi
+}</pre>
+      </div>
+    </details>
+  </section>
+
+  <!-- ── Comparison Table ── -->
+  <section class="anim">
+    <div class="section-label" style="color: var(--amber)"><span class="dot"></span> Comparison</div>
+    <h2>Head-to-Head</h2>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Tool / API</th>
+            <th>Type</th>
+            <th>Can Register?</th>
+            <th>Free Tier</th>
+            <th>Auth Friction</th>
+            <th>Agent Score</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Cloudflare Registrar</strong></td>
+            <td>Registrar API</td>
+            <td class="dot-green">Yes</td>
+            <td>At-cost pricing</td>
+            <td class="dot-green">API token</td>
+            <td class="dot-green">Excellent</td>
+          </tr>
+          <tr>
+            <td><strong>GoDaddy API</strong></td>
+            <td>Registrar API</td>
+            <td class="dot-green">Yes</td>
+            <td>OTE sandbox</td>
+            <td class="dot-green">Key + Secret</td>
+            <td class="dot-blue">Good</td>
+          </tr>
+          <tr>
+            <td><strong>Namecheap API</strong></td>
+            <td>Registrar API</td>
+            <td class="dot-green">Yes</td>
+            <td>Sandbox free</td>
+            <td class="dot-red">Key + IP whitelist</td>
+            <td class="dot-amber">Medium</td>
+          </tr>
+          <tr>
+            <td><strong>Vercel Domains</strong></td>
+            <td>Registrar API</td>
+            <td class="dot-green">Yes</td>
+            <td>With Vercel acct</td>
+            <td class="dot-green">Vercel token</td>
+            <td class="dot-blue">Good</td>
+          </tr>
+          <tr>
+            <td><strong>Name.com API</strong></td>
+            <td>Registrar API</td>
+            <td class="dot-green">Yes</td>
+            <td>Dev sandbox</td>
+            <td class="dot-green">Username + token</td>
+            <td class="dot-blue">Good</td>
+          </tr>
+          <tr>
+            <td><strong>Gandi API v5</strong></td>
+            <td>Registrar API</td>
+            <td class="dot-green">Yes</td>
+            <td>None</td>
+            <td class="dot-green">PAT / API key</td>
+            <td class="dot-blue">Good</td>
+          </tr>
+          <tr>
+            <td><strong>DomScan MCP</strong></td>
+            <td>Availability API + MCP</td>
+            <td class="dot-red">No</td>
+            <td>10K credits/mo</td>
+            <td class="dot-green">API key</td>
+            <td class="dot-green">Excellent</td>
+          </tr>
+          <tr>
+            <td><strong>DomainDetails MCP</strong></td>
+            <td>MCP (RDAP)</td>
+            <td class="dot-red">No</td>
+            <td>100% free</td>
+            <td class="dot-green">None</td>
+            <td class="dot-green">Excellent</td>
+          </tr>
+          <tr>
+            <td><strong>whois-mcp (OSS)</strong></td>
+            <td>MCP (WHOIS)</td>
+            <td class="dot-red">No</td>
+            <td>100% free</td>
+            <td class="dot-green">None</td>
+            <td class="dot-blue">Good</td>
+          </tr>
+          <tr>
+            <td><strong>WhoisXML API MCP</strong></td>
+            <td>MCP (WHOIS+DNS)</td>
+            <td class="dot-red">No</td>
+            <td>Limited</td>
+            <td class="dot-amber">API key (paid)</td>
+            <td class="dot-blue">Good</td>
+          </tr>
+          <tr>
+            <td><strong>whois CLI</strong></td>
+            <td>CLI</td>
+            <td class="dot-red">No</td>
+            <td>Free</td>
+            <td class="dot-green">None</td>
+            <td class="dot-amber">Medium</td>
+          </tr>
+          <tr>
+            <td><strong>rdap CLI</strong></td>
+            <td>CLI</td>
+            <td class="dot-red">No</td>
+            <td>Free</td>
+            <td class="dot-green">None</td>
+            <td class="dot-blue">Good</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ── Recommendations by scenario ── -->
+  <section class="anim">
+    <div class="section-label"><span class="dot"></span> Decision Guide</div>
+    <h2>What to Use When</h2>
+
+    <div class="rec-grid">
+      <div class="rec-card">
+        <div class="scenario">Quick availability check, zero setup</div>
+        <p><strong>DomainDetails MCP</strong> — point your MCP client at <code>mcp.domaindetails.com/stream</code>. No API key, no signup. Or drop in <code>npx @mcp-server/whois-mcp</code> for a local WHOIS tool.</p>
+      </div>
+      <div class="rec-card">
+        <div class="scenario">Bulk checks + monitoring</div>
+        <p><strong>DomScan</strong> — 1,500+ TLDs, 10K free credits/mo, MCP integration, adds valuation and brand monitoring on top of availability.</p>
+      </div>
+      <div class="rec-card">
+        <div class="scenario">Full register+manage, cost-sensitive</div>
+        <p><strong>Cloudflare Registrar API</strong> — at wholesale cost, clean REST, 1,200 req/5min, no IP whitelist headaches. Pair with CF DNS for a complete stack.</p>
+      </div>
+      <div class="rec-card">
+        <div class="scenario">Full register+manage, need exotic TLDs</div>
+        <p><strong>GoDaddy API</strong> — 500+ TLDs, sandbox at <code>api.ote-godaddy.com</code>, well-documented Swagger spec. Accept the markup and upsell noise.</p>
+      </div>
+      <div class="rec-card">
+        <div class="scenario">Building on Vercel already</div>
+        <p><strong>Vercel Domains API</strong> (launched Oct 2025) — search, price, buy bulk, renew, transfer all in one modern API. Same auth token as your existing Vercel setup.</p>
+      </div>
+      <div class="rec-card">
+        <div class="scenario">Security / WHOIS historical data</div>
+        <p><strong>WhoisXML API MCP</strong> — 25B+ WHOIS records, 116B+ DNS records, 15 years of history. Enterprise pricing but unmatched depth for threat intel workflows.</p>
+      </div>
+      <div class="rec-card">
+        <div class="scenario">Shell-based agent, no budget</div>
+        <p>Chain: <code>dig</code> for fast pre-filter → <code>rdap</code> for structured JSON confirmation → registrar API only for final purchase step. Zero cost for checks.</p>
+      </div>
+      <div class="rec-card">
+        <div class="scenario">Avoid at all costs</div>
+        <p><strong>Namecheap API</strong> for dynamic/serverless agents — IP whitelist requirement is architecturally incompatible. Fine for static server deployments but a blocker otherwise.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Notes ── -->
+  <section class="anim">
+    <div class="section-label"><span class="dot"></span> Notes</div>
+    <h2>Things Worth Knowing</h2>
+    <details>
+      <summary>WHOIS vs RDAP — which should agents use?</summary>
+      <div class="inner">
+        <p><strong>RDAP is the right answer for machines.</strong> WHOIS returns unstructured text that varies by registry and requires fragile parsing. RDAP (Registration Data Access Protocol) returns standardized JSON. ICANN mandated RDAP support for all gTLD registries. Use RDAP first, fall back to WHOIS for older ccTLDs that haven't migrated yet. The DomainDetails MCP and DomainCheckr MCP both use RDAP natively.</p>
+      </div>
+    </details>
+    <details>
+      <summary>GoDaddy's ANS — AI agent identity layer (Dec 2025)</summary>
+      <div class="inner">
+        <p>GoDaddy launched the <strong>Agent Name Service (ANS)</strong> marketplace in December 2025 — a naming + identity system for AI agents pairing human-readable names with cryptographically verifiable identities. Built on DNS infrastructure. Not directly related to domain availability checks, but if you're building agents that need verifiable identities, worth tracking.</p>
+      </div>
+    </details>
+    <details>
+      <summary>Rate limit strategy for availability checks</summary>
+      <div class="inner">
+        <p>For bulk domain availability sweeps, a sensible architecture:</p>
+        <pre class="code-block">1. Pre-filter with DNS (dig) — no rate limits, instant
+2. RDAP check confirmed candidates — free, structured
+3. Cache results (TTL: 5-15 min for availability, longer for taken domains)
+4. Registrar API for final purchase only — preserves budget/quota</pre>
+        <p>Namecheap's 20 req/min is the tightest. Cloudflare at 1,200 req/5min (~240/min) is the most comfortable for burst workloads.</p>
+      </div>
+    </details>
+  </section>
+
+  <footer class="footer">
+    domain-tools-research · Zosia deep research · March 2026 · sources: Exa, DomScan, PulseMCP, domaindetails.com, GoDaddy developer docs, Vercel changelog
+  </footer>
+
+</div>
+</body>
+</html>
