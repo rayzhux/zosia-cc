@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linux Mini PC 选购指南 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=Fragment+Mono&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --font-body: 'Noto Sans SC', system-ui, sans-serif;
+  --font-display: 'Bricolage Grotesque', 'Noto Sans SC', system-ui, sans-serif;
+  --font-mono: 'Fragment Mono', 'SF Mono', Consolas, monospace;
+  --bg: #f8f5f0;
+  --surface: #ffffff;
+  --surface2: #f2ede6;
+  --border: rgba(0,0,0,0.07);
+  --border-bright: rgba(0,0,0,0.13);
+  --text: #1a1714;
+  --text-dim: #7a7065;
+  --accent: #1a5c87;
+  --accent-dim: rgba(26,92,135,0.07);
+  --accent2: #b86b12;
+  --accent2-dim: rgba(184,107,18,0.08);
+  --green: #2a7a46;
+  --green-dim: rgba(42,122,70,0.08);
+  --red: #b03030;
+  --amber: #a07820;
+  --amber-dim: rgba(160,120,32,0.08);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #131110;
+    --surface: #1d1a17;
+    --surface2: #25211d;
+    --border: rgba(255,255,255,0.07);
+    --border-bright: rgba(255,255,255,0.12);
+    --text: #ede7df;
+    --text-dim: #9a9080;
+    --accent: #5ba3d4;
+    --accent-dim: rgba(91,163,212,0.10);
+    --accent2: #e0a040;
+    --accent2-dim: rgba(224,160,64,0.10);
+    --green: #5cc98a;
+    --green-dim: rgba(92,201,138,0.10);
+    --red: #e87070;
+    --amber: #e8c060;
+    --amber-dim: rgba(232,192,96,0.10);
+  }
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body);line-height:1.7;min-height:100vh}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse at 15% 0%,var(--accent-dim) 0%,transparent 50%),radial-gradient(ellipse at 85% 100%,var(--accent2-dim) 0%,transparent 40%);z-index:0}
+.wrap{max-width:1080px;margin:0 auto;padding:2.5rem 1.5rem 5rem;position:relative;z-index:1}
+
+.hero{border-bottom:1px solid var(--border);padding-bottom:2.5rem;margin-bottom:3rem}
+.hero-tag{font-family:var(--font-mono);font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);background:var(--accent-dim);padding:.25rem .7rem;border-radius:100px;display:inline-block;margin-bottom:1.25rem}
+.hero h1{font-family:var(--font-display);font-size:clamp(1.9rem,4.5vw,2.8rem);font-weight:800;letter-spacing:-.02em;line-height:1.2;margin-bottom:.6rem}
+.hero p{color:var(--text-dim);font-size:1rem;max-width:640px}
+
+.section{margin-bottom:3.5rem}
+.slabel{font-family:var(--font-mono);font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);display:flex;align-items:center;gap:.5rem;margin-bottom:.75rem}
+.slabel::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.section h2{font-family:var(--font-display);font-size:1.45rem;font-weight:700;margin-bottom:.5rem}
+.section .lead{color:var(--text-dim);font-size:.93rem;max-width:680px;margin-bottom:1.5rem}
+
+/* Tier Cards */
+.tier-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:1rem;margin-bottom:1.5rem}
+.tier-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.25rem 1.4rem;position:relative;overflow:hidden;transition:transform .18s,box-shadow .18s}
+.tier-card:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.07)}
+.tier-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:12px 12px 0 0}
+.t-budget::before{background:var(--green)}
+.t-mid::before{background:var(--accent)}
+.t-high::before{background:var(--accent2)}
+.t-pro::before{background:#7a3a8a}
+.tbadge{font-family:var(--font-mono);font-size:.63rem;text-transform:uppercase;letter-spacing:.07em;padding:.18rem .5rem;border-radius:4px;display:inline-block;margin-bottom:.5rem}
+.t-budget .tbadge{background:var(--green-dim);color:var(--green)}
+.t-mid .tbadge{background:var(--accent-dim);color:var(--accent)}
+.t-high .tbadge{background:var(--accent2-dim);color:var(--accent2)}
+.t-pro .tbadge{background:rgba(122,58,138,.08);color:#7a3a8a}
+@media(prefers-color-scheme:dark){.t-pro .tbadge{background:rgba(180,100,200,.1);color:#c480e0}}
+.tier-card h3{font-family:var(--font-display);font-size:1.05rem;font-weight:700;margin-bottom:.2rem}
+.tier-card .price{font-family:var(--font-mono);font-size:.8rem;color:var(--text-dim);margin-bottom:.7rem}
+.tier-card ul{list-style:none}
+.tier-card li{font-size:.85rem;color:var(--text-dim);padding:.18rem 0 .18rem 1rem;position:relative}
+.tier-card li::before{content:'→';position:absolute;left:0;font-family:var(--font-mono);font-size:.72rem;color:var(--accent);top:.3rem}
+
+/* Table */
+.table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:12px;background:var(--surface)}
+table{width:100%;border-collapse:collapse;font-size:.85rem}
+thead th{background:var(--surface2);font-family:var(--font-display);font-weight:600;text-align:left;padding:.65rem .9rem;border-bottom:2px solid var(--border-bright);white-space:nowrap;font-size:.75rem;text-transform:uppercase;letter-spacing:.04em;color:var(--text-dim)}
+td{padding:.65rem .9rem;border-bottom:1px solid var(--border);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:nth-child(even) td{background:var(--surface2)}
+tr:hover td{background:var(--accent-dim)}
+td:first-child{font-weight:600;color:var(--text);white-space:nowrap}
+.chip{display:inline-block;font-family:var(--font-mono);font-size:.67rem;padding:.13rem .4rem;border-radius:4px;white-space:nowrap}
+.cg{background:var(--green-dim);color:var(--green)}
+.cb{background:var(--accent-dim);color:var(--accent)}
+.co{background:var(--accent2-dim);color:var(--accent2)}
+.ca{background:var(--amber-dim);color:var(--amber)}
+.stars{color:var(--accent2);font-family:var(--font-mono);font-size:.8rem;letter-spacing:1px}
+.native{background:var(--green-dim);color:var(--green);font-family:var(--font-mono);font-size:.62rem;padding:.12rem .35rem;border-radius:3px;display:inline-block;margin-left:.3rem}
+
+/* Rec Cards */
+.rec-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:1.25rem}
+.rec-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.4rem}
+.rec-card .uc{font-family:var(--font-mono);font-size:.68rem;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);margin-bottom:.5rem}
+.rec-card h3{font-family:var(--font-display);font-size:1.1rem;font-weight:700;margin-bottom:.5rem}
+.rec-card p{font-size:.88rem;color:var(--text-dim);margin-bottom:.9rem;line-height:1.65}
+.pick{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.8rem 1rem;font-size:.83rem;line-height:1.7}
+.pick strong{color:var(--accent)}
+
+/* Callout */
+.callout{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent2);border-radius:0 8px 8px 0;padding:1rem 1.25rem;margin:1.25rem 0;font-size:.88rem;line-height:1.7}
+.callout strong{color:var(--accent2)}
+
+/* Details */
+details{background:var(--surface);border:1px solid var(--border);border-radius:8px;margin:.75rem 0}
+summary{padding:.9rem 1.1rem;cursor:pointer;font-weight:600;font-family:var(--font-display);font-size:.95rem;list-style:none;display:flex;align-items:center;gap:.5rem}
+summary::-webkit-details-marker{display:none}
+summary::before{content:'▶';font-size:.6rem;font-family:var(--font-mono);color:var(--accent);transition:transform .2s}
+details[open] summary::before{transform:rotate(90deg)}
+summary:hover{color:var(--accent)}
+details[open] summary{border-bottom:1px solid var(--border)}
+.di{padding:1rem 1.1rem;color:var(--text-dim);font-size:.88rem;line-height:1.8}
+.di ul{padding-left:1.2rem;list-style:disc}
+.di li{margin:.25rem 0}
+
+/* Footer */
+.footer{margin-top:4rem;padding-top:1.5rem;border-top:1px solid var(--border);text-align:center;font-size:.75rem;color:var(--text-dim);font-family:var(--font-mono)}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.a{opacity:0;animation:fadeUp .45s ease forwards;animation-delay:calc(var(--i,0)*.07s)}
+@media(prefers-reduced-motion:reduce){.a{opacity:1;animation:none}}
+@media(max-width:640px){
+  .wrap{padding:1.5rem 1rem 3rem}
+  .hero h1{font-size:1.65rem}
+  .tier-grid,.rec-grid{grid-template-columns:1fr}
+  td,th{padding:.5rem .6rem;font-size:.78rem}
+}
+</style>
+  <!-- Vercel Web Analytics -->
+  <script>
+    window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+  </script>
+  <script defer src="/_vercel/insights/script.js"></script>
+  <!-- Vercel Speed Insights -->
+  <script>
+    window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
+  </script>
+  <script defer src="/_vercel/speed-insights/script.js"></script>
+  <meta property="og:title" content="Linux Mini PC 选购指南 2026">
+  <meta property="og:description" content="Mac Mini 形态的本地 Linux 服务器推荐 — 从 $150 轻量容器主机到 $2000+ 桌面 AI 超算，全价位覆盖">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://zosia.cc/pages/linux-mini-pc-guide">
+  <meta name="twitter:card" content="summary">
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero a" style="--i:0">
+    <span class="hero-tag">Exa Deep Research · March 2026</span>
+    <h1>Linux Mini PC 选购指南</h1>
+    <p>Mac Mini 形态的本地 Linux 服务器推荐 — 从 $150 轻量容器主机到 $2000+ 桌面 AI 超算，全价位覆盖</p>
+  </header>
+
+  <!-- Price Tiers -->
+  <section class="section">
+    <div class="slabel">价位分层</div>
+    <h2>四个价位，四种玩法</h2>
+    <p class="lead">明确用途是关键：轻量 homelab、本地 AI 推理、Linux 开发机还是重度模型服务，硬件需求差异很大。</p>
+    <div class="tier-grid">
+      <div class="tier-card t-budget a" style="--i:1">
+        <span class="tbadge">入门 / Budget</span>
+        <h3>≤ $400</h3>
+        <div class="price">Docker · NAS · HomeAssistant</div>
+        <ul>
+          <li>GMKtec NucBox G3 (N100) ~$170</li>
+          <li>ZimaBoard 832 单板服务器 ~$170</li>
+          <li>GMKtec G10 (Ryzen 5 3500U) ~$200</li>
+          <li>翻新 Dell OptiPlex Micro ~$100–300</li>
+          <li>翻新 HP EliteDesk Mini ~$120–250</li>
+        </ul>
+      </div>
+      <div class="tier-card t-mid a" style="--i:2">
+        <span class="tbadge">中端 / Mid</span>
+        <h3>$400 – $900</h3>
+        <div class="price">多容器 · 轻量推理 · 开发机</div>
+        <ul>
+          <li>Minisforum UM870 (Ryzen 7 8745H) ~$550</li>
+          <li>GMKtec K12 (Ryzen 7 H255) ~$560–700</li>
+          <li>ASUS NUC 15 Pro 裸机 ~$350</li>
+          <li>System76 Meerkat ~$599</li>
+          <li>TUXEDO Nano Pro ~$600+</li>
+        </ul>
+      </div>
+      <div class="tier-card t-high a" style="--i:3">
+        <span class="tbadge">高端 / High</span>
+        <h3>$900 – $1,800</h3>
+        <div class="price">AI 推理 · 虚拟化 · 重度开发</div>
+        <ul>
+          <li>GEEKOM GT15 Max (Core Ultra 9) ~$949</li>
+          <li>GEEKOM A9 Max (Ryzen AI 9) ~$1,249</li>
+          <li>Beelink SER10 MAX (Ryzen AI 9) ~$1,259</li>
+          <li>ASUS NUC 16 Pro ~$1,098–1,600</li>
+          <li>ASUS ExpertCenter PN55 ~$600–1,000</li>
+        </ul>
+      </div>
+      <div class="tier-card t-pro a" style="--i:4">
+        <span class="tbadge">专业 / Pro AI</span>
+        <h3>$249 / $2,000+</h3>
+        <div class="price">大模型本地服务 · 研究级推理</div>
+        <ul>
+          <li>NVIDIA Jetson Orin Nano Super ~$249 ⚡</li>
+          <li>Minisforum MS-02 Ultra (独显) ~$2,000+</li>
+          <li>MSI Pro DP180 AI (RTX 系列)</li>
+          <li>MSI EdgeXpert (Grace Blackwell)</li>
+          <li>ASUS Ascent GX10 (1 PFLOP FP4)</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Comparison Table -->
+  <section class="section">
+    <div class="slabel">规格对比</div>
+    <h2>热门型号对比一览</h2>
+    <p class="lead">按性价比排序，重点标注 Linux 兼容性与 AI 推理能力。</p>
+    <div class="table-wrap a" style="--i:5">
+      <table>
+        <thead>
+          <tr>
+            <th>型号</th>
+            <th>处理器</th>
+            <th>GPU / AI 算力</th>
+            <th>内存上限</th>
+            <th>存储扩展</th>
+            <th>典型功耗</th>
+            <th>Linux 支持</th>
+            <th>参考价格</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>GMKtec NucBox G3</td>
+            <td>Intel N100/N150</td>
+            <td>UHD iGPU</td>
+            <td>16GB</td>
+            <td>1× M.2</td>
+            <td><span class="chip cg">10–35W</span></td>
+            <td><span class="stars">★★★★★</span></td>
+            <td>$170–350</td>
+          </tr>
+          <tr>
+            <td>ZimaBoard 832</td>
+            <td>Intel Celeron J3455</td>
+            <td>iGPU / NAS 向</td>
+            <td>8GB 焊死</td>
+            <td>2× SATA + PCIe</td>
+            <td><span class="chip cg">5–30W</span></td>
+            <td><span class="stars">★★★★★</span></td>
+            <td>$170–250</td>
+          </tr>
+          <tr>
+            <td>Minisforum UM870</td>
+            <td>Ryzen 7 8745H</td>
+            <td>Radeon 780M iGPU</td>
+            <td>96GB DDR5</td>
+            <td>2× M.2 NVMe</td>
+            <td><span class="chip cb">15–65W</span></td>
+            <td><span class="stars">★★★★★</span></td>
+            <td>$550–750</td>
+          </tr>
+          <tr>
+            <td>GMKtec K12</td>
+            <td>Ryzen 7 H255</td>
+            <td>Radeon 780M iGPU</td>
+            <td>64GB DDR5</td>
+            <td>3× M.2 + Oculink</td>
+            <td><span class="chip cb">25–80W</span></td>
+            <td><span class="stars">★★★★☆</span></td>
+            <td>$560–700</td>
+          </tr>
+          <tr>
+            <td>System76 Meerkat</td>
+            <td>Intel 13th/14th Gen</td>
+            <td>Iris Xe iGPU</td>
+            <td>96GB DDR5</td>
+            <td>2× M.2 NVMe</td>
+            <td><span class="chip cb">15–65W</span></td>
+            <td><span class="stars">★★★★★</span> <span class="native">原生 Linux</span></td>
+            <td>$599–1,048</td>
+          </tr>
+          <tr>
+            <td>TUXEDO Nano Pro</td>
+            <td>AMD Ryzen AI 7 350</td>
+            <td>Radeon iGPU + NPU</td>
+            <td>64GB DDR5</td>
+            <td>2× M.2 NVMe</td>
+            <td><span class="chip cb">15–65W</span></td>
+            <td><span class="stars">★★★★★</span> <span class="native">原生 Linux</span></td>
+            <td>~$600+</td>
+          </tr>
+          <tr>
+            <td>ASUS NUC 15 Pro</td>
+            <td>Intel Core Ultra</td>
+            <td>Arc iGPU + NPU</td>
+            <td>96GB DDR5</td>
+            <td>2× M.2 NVMe</td>
+            <td><span class="chip cb">20–65W</span></td>
+            <td><span class="stars">★★★★☆</span></td>
+            <td>$350 裸机起</td>
+          </tr>
+          <tr>
+            <td>ASUS ExpertCenter PN55</td>
+            <td>Ryzen AI 9 / 7</td>
+            <td>Radeon iGPU · ~55 TOPS NPU</td>
+            <td>96GB DDR5</td>
+            <td>2× M.2 NVMe</td>
+            <td><span class="chip co">25–80W</span></td>
+            <td><span class="stars">★★★★☆</span></td>
+            <td>$600–1,000</td>
+          </tr>
+          <tr>
+            <td>GEEKOM GT15 Max</td>
+            <td>Core Ultra 9 285H</td>
+            <td>Arc 140T · ~99 TOPS 平台</td>
+            <td>32GB DDR5</td>
+            <td>1× M.2 NVMe</td>
+            <td><span class="chip co">35–100W</span></td>
+            <td><span class="stars">★★★★☆</span></td>
+            <td>$949–1,399</td>
+          </tr>
+          <tr>
+            <td>GEEKOM A9 Max</td>
+            <td>Ryzen AI 9 HX 3700</td>
+            <td>Radeon 890M iGPU</td>
+            <td>64GB DDR5</td>
+            <td>2× M.2 NVMe</td>
+            <td><span class="chip co">30–100W</span></td>
+            <td><span class="stars">★★★★☆</span></td>
+            <td>$1,249–1,399</td>
+          </tr>
+          <tr>
+            <td>Beelink SER10 MAX</td>
+            <td>Ryzen AI 9 HX 470</td>
+            <td>Radeon iGPU + NPU</td>
+            <td>64GB DDR5</td>
+            <td>2× M.2 NVMe</td>
+            <td><span class="chip co">30–100W</span></td>
+            <td><span class="stars">★★★★☆</span></td>
+            <td>$1,259–1,559</td>
+          </tr>
+          <tr>
+            <td>ASUS NUC 16 Pro</td>
+            <td>Intel Core Ultra X7</td>
+            <td>~180 TOPS 平台 AI</td>
+            <td>96GB DDR5</td>
+            <td>2× M.2 NVMe</td>
+            <td><span class="chip co">35–100W</span></td>
+            <td><span class="stars">★★★★☆</span></td>
+            <td>$1,098–1,600</td>
+          </tr>
+          <tr>
+            <td>NVIDIA Jetson Orin Nano Super</td>
+            <td>ARM Cortex-A78AE (8核)</td>
+            <td>Ampere GPU · 67 INT8 TOPS</td>
+            <td>8GB LPDDR5 焊死</td>
+            <td>M.2 NVMe</td>
+            <td><span class="chip cg">7–25W</span></td>
+            <td><span class="stars">★★★★★</span> <span class="native">JetPack</span></td>
+            <td>~$249</td>
+          </tr>
+          <tr>
+            <td>Minisforum MS-02 Ultra</td>
+            <td>Intel Core Ultra (H)</td>
+            <td>支持独立 RTX 显卡</td>
+            <td>64GB DDR5</td>
+            <td>2× M.2 + 2× SATA</td>
+            <td><span class="chip ca">65–200W+</span></td>
+            <td><span class="stars">★★★☆☆</span></td>
+            <td>$2,000+</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Use Case Recommendations -->
+  <section class="section">
+    <div class="slabel">场景推荐</div>
+    <h2>按用途选机</h2>
+    <div class="rec-grid">
+      <div class="rec-card a" style="--i:6">
+        <div class="uc">🏠 轻量 Homelab / 自托管</div>
+        <h3>静音省电，24/7 在线</h3>
+        <p>Docker、HomeAssistant、Pi-hole、Nextcloud、Plex、小型 NAS。优先功耗低、静音、驱动稳定。</p>
+        <div class="pick">
+          <strong>首选：</strong>GMKtec NucBox G3 (N100) — 10–35W，近乎无声，$170 起<br>
+          <strong>升级：</strong>Minisforum UM870 — 双 NVMe，32GB+ 内存，跑更多容器<br>
+          <strong>NAS 向：</strong>ZimaBoard 832 — 内置 SATA，CasaOS 原生支持
+        </div>
+      </div>
+      <div class="rec-card a" style="--i:7">
+        <div class="uc">🤖 本地 AI 推理 (7B–13B)</div>
+        <h3>Ollama / llama.cpp 本地跑模型</h3>
+        <p>量化 LLM 推理、本地 embedding、RAG pipeline。需要强 iGPU 或 NPU，大内存（32GB+）。</p>
+        <div class="pick">
+          <strong>性价比首选：</strong>GEEKOM GT15 Max — Arc 140T + ~99 TOPS NPU，$949<br>
+          <strong>AMD 路线：</strong>ASUS PN55 — Ryzen AI NPU ~55 TOPS，$600–1,000<br>
+          <strong>边缘推理：</strong>Jetson Orin Nano Super — 67 TOPS，仅 $249，功耗 7–25W
+        </div>
+      </div>
+      <div class="rec-card a" style="--i:8">
+        <div class="uc">💻 Linux 开发机 / 工作站</div>
+        <h3>原生 Linux 支持，开箱即用</h3>
+        <p>日常编码、编译、SSH 跳板、虚拟机。重视 Linux 驱动完整性和厂商支持。</p>
+        <div class="pick">
+          <strong>最省心：</strong>System76 Meerkat — 预装 Pop!_OS，最高 96GB，$599 起<br>
+          <strong>欧洲选择：</strong>TUXEDO Nano Pro — 预装 TUXEDO OS，AMD Ryzen AI 7<br>
+          <strong>DIY 裸机：</strong>ASUS NUC 15 Pro — $350 起，自配内存和 SSD
+        </div>
+      </div>
+      <div class="rec-card a" style="--i:9">
+        <div class="uc">⚡ 重度推理 / 大模型本地服务</div>
+        <h3>CUDA + 大 VRAM，跑 30B+ 模型</h3>
+        <p>TensorRT、Triton Server、大模型推理、CV pipeline。必须独立 GPU，功耗和噪音会比较大。</p>
+        <div class="pick">
+          <strong>迷你工作站：</strong>Minisforum MS-02 Ultra — 支持独显 RTX 系列，$2,000+<br>
+          <strong>旗舰级：</strong>ASUS Ascent GX10 — Grace Blackwell，声称 1 PFLOP FP4<br>
+          <strong>注意：</strong>这档设备 idle 65W+，重载超 200W，噪音明显，需要散热空间
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Key Insights -->
+  <section class="section">
+    <div class="slabel">选购要点</div>
+    <h2>买之前需要知道的</h2>
+
+    <div class="callout a" style="--i:10">
+      <strong>Linux 兼容性黄金法则：</strong>AMD Ryzen + Radeon iGPU 是最省心的选择 — 开源驱动（amdgpu / Mesa）在 Ubuntu/Debian 上开箱即用。Intel Core Ultra + Arc 也不错，但偶尔需要更新 kernel 或固件。NPU 加速（Ryzen AI、Intel NPU）在 Linux 下大多需要额外 SDK/驱动，不是完全开箱即用。
+    </div>
+
+    <details class="a" style="--i:11">
+      <summary>💾 内存与存储扩展建议</summary>
+      <div class="di">
+        <ul>
+          <li><strong>内存：</strong>跑容器/VM 建议至少 32GB；本地 AI 推理（7B–13B 量化模型）建议 64GB。优先选 2× SO-DIMM 插槽的型号，避免焊死内存</li>
+          <li><strong>存储：</strong>双 M.2 NVMe 是理想配置 — 一块给系统/swap，一块给数据/模型权重。GMKtec K12 甚至有 3 个 M.2 插槽</li>
+          <li><strong>NAS 向：</strong>ZimaBoard / ZimaBlade 带 SATA 接口，适合 2.5"或 3.5" 机械盘扩展</li>
+          <li><strong>Oculink 接口：</strong>GMKtec K12 带 Oculink，可外接显卡坞（eGPU），是低价格接近独显性能的巧妙方案</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="a" style="--i:12">
+      <summary>🔊 功耗与噪音参考</summary>
+      <div class="di">
+        <ul>
+          <li><strong>超静音：</strong>N100/N150 系列 idle ~10W，近乎无声（~30dB），适合放卧室或桌面</li>
+          <li><strong>中端 Ryzen：</strong>Minisforum UM870 等 idle ~15W，满载 ~60W，风扇可感知但不扰人</li>
+          <li><strong>高性能 H 系列：</strong>GEEKOM GT15/A9 等 idle ~30W，满载 ~100W，噪音明显（~40–43dB）</li>
+          <li><strong>独显工作站：</strong>Minisforum MS-02 Ultra idle ~65W，满载可超 200W，噪音较大，需要通风</li>
+          <li><strong>无风扇方案：</strong>MeLE Quieter4C N150 — 完全无声，适合 24/7 轻量服务，但性能有限</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="a" style="--i:13">
+      <summary>🐧 Linux 发行版兼容性笔记</summary>
+      <div class="di">
+        <ul>
+          <li><strong>AMD Ryzen + Radeon iGPU：</strong>Ubuntu 22.04/24.04、Debian 12、Arch 均无需额外配置，主流开箱即用</li>
+          <li><strong>Intel Core Ultra + Arc GPU：</strong>需要 kernel 6.2+（Arc 显卡），部分 Wi-Fi 6E 固件需手动安装，整体稳定</li>
+          <li><strong>System76 Meerkat：</strong>厂商专属 firmware-manager、system76-driver、power 工具，Pop!_OS 体验最完整，Ubuntu 也支持</li>
+          <li><strong>TUXEDO Nano Pro：</strong>TUXEDO Control Center 提供风扇曲线、功耗模式管理，TUXEDO OS 基于 Ubuntu，也可装标准 Ubuntu</li>
+          <li><strong>Jetson Orin：</strong>NVIDIA JetPack SDK（基于 Ubuntu），专为 CUDA 推理优化，不适合通用 Linux server 用途</li>
+          <li><strong>NPU（Ryzen AI / Intel NPU）：</strong>大多需要厂商 SDK（ONNX Runtime EP、OpenVINO、ROCm），不是标准 Linux 开箱支持</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="a" style="--i:14">
+      <summary>🔬 AI 推理性能实际预期</summary>
+      <div class="di">
+        <ul>
+          <li><strong>TOPS 数字是厂商宣称值，参考意义有限。</strong>实际吞吐取决于模型大小、量化精度（FP32/FP16/INT8/INT4）、框架优化（llama.cpp、ONNX Runtime、TensorRT）和持续散热</li>
+          <li><strong>iGPU 推理：</strong>Radeon 780M/890M 或 Intel Arc iGPU 在 llama.cpp（Vulkan/ROCm backend）上跑 Q4 量化 7B 模型速度约 15–30 tokens/s，够用</li>
+          <li><strong>NPU 推理：</strong>目前 NPU 在 Linux 下支持最好的是 OpenVINO（Intel）和 AMD ROCm 的有限支持，对 llama.cpp 等通用框架的原生 NPU 加速仍在早期阶段</li>
+          <li><strong>内存带宽是瓶颈：</strong>LLM 推理是内存带宽密集型任务。iGPU 共享系统内存，DDR5 的带宽对速度影响显著 — 选 DDR5 配置优于 DDR4</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="a" style="--i:15">
+      <summary>🏘️ Homelab 社区热门选择</summary>
+      <div class="di">
+        <ul>
+          <li><strong>翻新 Dell OptiPlex Micro / HP EliteDesk Mini：</strong>Reddit homelab 社区最常推荐的廉价入口，$100–300，驱动成熟，企业 vPro 远程管理，缺点是型号老</li>
+          <li><strong>Minisforum UM 系列：</strong>UM690/UM870 是国内用户和 homelab 玩家最喜欢的 AMD mini PC，BIOS 解锁友好，双 NVMe，跑 Proxmox / TrueNAS 有大量教程</li>
+          <li><strong>Beelink SER 系列：</strong>Amazon 上评价很高，价格相对友好，社区用于 Docker 集群和轻量虚拟化</li>
+          <li><strong>ASRock DeskMini A300：</strong>支持桌面级 AM4 CPU（可上 Ryzen 9），扩展性强，但比较旧了，新购性价比不高</li>
+        </ul>
+      </div>
+    </details>
+  </section>
+
+  <!-- TL;DR -->
+  <section class="section">
+    <div class="slabel">我的推荐</div>
+    <h2>直接给答案</h2>
+    <div class="callout a" style="--i:16">
+      <strong>最常见需求（轻量服务 + 偶尔 AI 推理）：</strong><br>
+      <strong>Minisforum UM870</strong>（$550–750）— Ryzen 7 8745H + Radeon 780M，双 M.2，最高 96GB DDR5，Linux 兼容性好，社区资源最丰富。买 32GB 内存版本，自加一块 NVMe，基本上无脑选。
+    </div>
+    <div class="callout a" style="--i:17" style="border-left-color:var(--green)">
+      <strong>只想省钱但要稳（轻量 24/7 服务）：</strong><br>
+      <strong>GMKtec NucBox G3</strong>（$170–200）— N100 功耗极低，静音，Ubuntu 开箱即用。跑 Nginx、Nextcloud、Pi-hole 完全足够。
+    </div>
+    <div class="callout a" style="--i:18">
+      <strong>想要真·Linux 保障（开发工作站）：</strong><br>
+      <strong>System76 Meerkat</strong>（$599+）— 预装 Pop!_OS，厂商直接支持 Linux，不折腾，适合把它当主力开发机用。
+    </div>
+  </section>
+
+  <footer class="footer a" style="--i:19">
+    Deep Research by Exa Pro · Zosia · March 2026 · 286 页文献 · 109 次搜索
+  </footer>
+</div>
+</body>
+</html>
