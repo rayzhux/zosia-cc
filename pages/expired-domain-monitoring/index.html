@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Expired Domain Monitoring — Solutions Deep Dive</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #faf7f5;
+      --surface: #ffffff;
+      --surface-alt: #f3eeea;
+      --surface-rec: #f0ebe6;
+      --border: rgba(0,0,0,0.07);
+      --border-strong: rgba(0,0,0,0.14);
+      --text: #1c1917;
+      --text-dim: #78716c;
+      --text-muted: #a8a29e;
+      --terra: #c2410c;
+      --terra-dim: #fff5ef;
+      --sage: #15803d;
+      --sage-dim: #f0fdf4;
+      --slate: #1e3a5f;
+      --slate-dim: #eff6ff;
+      --amber: #b45309;
+      --amber-dim: #fffbeb;
+      --font-head: 'Instrument Serif', Georgia, serif;
+      --font-mono: 'JetBrains Mono', 'SF Mono', monospace;
+      --r: 8px;
+      --sh: 0 1px 4px rgba(0,0,0,0.05);
+      --sh-md: 0 3px 10px rgba(0,0,0,0.07);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #131210;
+        --surface: #1c1a17;
+        --surface-alt: #262320;
+        --surface-rec: #201e1b;
+        --border: rgba(255,255,255,0.07);
+        --border-strong: rgba(255,255,255,0.14);
+        --text: #e7e5e4;
+        --text-dim: #a8a29e;
+        --text-muted: #78716c;
+        --terra: #fb923c;
+        --terra-dim: #2a1708;
+        --sage: #4ade80;
+        --sage-dim: #0a1f10;
+        --slate: #93c5fd;
+        --slate-dim: #0b1a2e;
+        --amber: #fbbf24;
+        --amber-dim: #291d06;
+        --sh: 0 1px 4px rgba(0,0,0,0.2);
+        --sh-md: 0 3px 10px rgba(0,0,0,0.3);
+      }
+    }
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:var(--font-mono);background:var(--bg);color:var(--text);line-height:1.65;font-size:0.88rem}
+    .wrap{max-width:1060px;margin:0 auto;padding:2.5rem 1.5rem 5rem}
+
+    /* Hero */
+    .hero{padding-bottom:2.2rem;border-bottom:2px solid var(--border-strong);margin-bottom:2.5rem}
+    .hero-ey{font-size:0.68rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);margin-bottom:0.6rem}
+    .hero h1{font-family:var(--font-head);font-size:2.3rem;font-weight:400;line-height:1.15;letter-spacing:-0.02em;margin-bottom:0.6rem;font-style:italic}
+    .hero p{color:var(--text-dim);max-width:640px;font-size:0.85rem}
+
+    /* Section */
+    section{margin-bottom:3rem}
+    .sl{display:inline-flex;align-items:center;gap:0.4rem;font-size:0.65rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);margin-bottom:0.4rem}
+    .sl .d{width:5px;height:5px;border-radius:50%}
+    h2{font-family:var(--font-head);font-size:1.6rem;font-weight:400;letter-spacing:-0.01em;margin-bottom:0.4rem}
+    .sd{color:var(--text-dim);max-width:700px;margin-bottom:1.2rem;font-size:0.84rem}
+
+    /* Cards */
+    .cg{display:grid;grid-template-columns:1fr;gap:0.9rem}
+    @media(min-width:640px){.cg{grid-template-columns:1fr 1fr}.cg.three{grid-template-columns:1fr 1fr 1fr}}
+    .c{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:1.1rem 1.15rem;box-shadow:var(--sh);min-width:0}
+    .c.top{border-color:var(--sage);background:var(--sage-dim)}
+    .c.alt{border-color:var(--slate);background:var(--slate-dim)}
+    .c.warm{border-color:var(--terra);background:var(--terra-dim)}
+    .ch{display:flex;align-items:flex-start;justify-content:space-between;gap:0.5rem;margin-bottom:0.65rem}
+    .ch h3{font-size:0.92rem;font-weight:600;line-height:1.3}
+    .b{flex-shrink:0;font-size:0.58rem;font-weight:600;padding:0.12rem 0.45rem;border-radius:99px;text-transform:uppercase;letter-spacing:0.04em;white-space:nowrap}
+    .b.g{background:var(--sage);color:#fff}
+    .b.s{background:var(--slate);color:#fff}
+    .b.a{background:var(--amber);color:#fff}
+    .b.f{background:var(--sage-dim);color:var(--sage);border:1px solid var(--sage)}
+    .b.t{background:var(--terra);color:#fff}
+    .cb ul{list-style:none}
+    .cb li{font-size:0.82rem;color:var(--text-dim);padding:0.15rem 0 0.15rem 0.85rem;position:relative}
+    .cb li::before{content:'·';position:absolute;left:0;color:var(--text-muted);font-weight:700}
+    .cb strong{color:var(--text)}
+    .cb code{font-size:0.75rem;background:var(--surface-alt);padding:0.08rem 0.28rem;border-radius:3px}
+
+    /* TL;DR */
+    .tldr{background:var(--sage-dim);border:1.5px solid var(--sage);border-radius:var(--r);padding:1.2rem 1.4rem;margin-bottom:2.5rem}
+    .tldr-t{font-size:0.68rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--sage);margin-bottom:0.5rem;font-weight:600}
+    .tldr ul{list-style:none}
+    .tldr li{padding:0.2rem 0 0.2rem 1.1rem;position:relative;font-size:0.84rem}
+    .tldr li::before{content:'→';position:absolute;left:0;color:var(--sage);font-weight:700}
+    .tldr strong{color:var(--text)}
+
+    /* Table */
+    .tw{overflow-x:auto;border-radius:var(--r);border:1px solid var(--border);box-shadow:var(--sh);margin-top:0.4rem}
+    table{width:100%;border-collapse:collapse;background:var(--surface)}
+    thead{position:sticky;top:0}
+    th{background:var(--surface-alt);font-weight:600;text-align:left;padding:0.65rem 0.9rem;border-bottom:2px solid var(--border-strong);white-space:nowrap;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.04em;color:var(--text-dim)}
+    td{padding:0.55rem 0.9rem;border-bottom:1px solid var(--border);vertical-align:middle;font-size:0.82rem}
+    tr:last-child td{border-bottom:none}
+    tr:nth-child(even) td{background:var(--surface-alt)}
+    tr:hover td{background:var(--amber-dim)}
+    .dg::before,.db::before,.da::before,.dr::before{content:'';display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:0.35rem;vertical-align:middle}
+    .dg::before{background:var(--sage)}.db::before{background:var(--slate)}.da::before{background:var(--amber)}.dr::before{background:var(--terra)}
+
+    /* Callout */
+    .callout{border-left:3px solid var(--terra);background:var(--terra-dim);padding:0.9rem 1.1rem;border-radius:0 var(--r) var(--r) 0;margin-bottom:1.2rem;font-size:0.84rem;color:var(--text-dim)}
+    .callout strong{color:var(--text)}
+
+    /* Rec grid */
+    .rg{display:grid;grid-template-columns:1fr;gap:0.7rem}
+    @media(min-width:640px){.rg{grid-template-columns:1fr 1fr}}
+    .rc{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:0.9rem 1.1rem;min-width:0}
+    .rc .tag{font-size:0.68rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted);margin-bottom:0.35rem}
+    .rc p{font-size:0.84rem;color:var(--text-dim)}
+    .rc strong{color:var(--text)}
+
+    /* Details */
+    details{border:1px solid var(--border);border-radius:var(--r);background:var(--surface);margin-bottom:0.7rem}
+    summary{padding:0.65rem 0.9rem;cursor:pointer;font-weight:600;font-size:0.84rem;user-select:none}
+    details[open] summary{border-bottom:1px solid var(--border)}
+    details .inn{padding:0.9rem;font-size:0.82rem;color:var(--text-dim)}
+    details .inn code{font-size:0.75rem;background:var(--surface-alt);padding:0.08rem 0.25rem;border-radius:3px}
+    pre.cb{background:var(--surface-alt);border-radius:6px;padding:0.7rem 0.9rem;font-size:0.74rem;white-space:pre-wrap;overflow-wrap:break-word;margin:0.4rem 0;color:var(--text)}
+
+    .footer{border-top:1px solid var(--border);padding-top:1.3rem;margin-top:2.5rem;font-size:0.68rem;color:var(--text-muted)}
+
+    @keyframes fu{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    .an{opacity:0;animation:fu 0.4s ease-out forwards}
+    .an:nth-child(1){animation-delay:.04s}.an:nth-child(2){animation-delay:.08s}.an:nth-child(3){animation-delay:.12s}
+    .an:nth-child(4){animation-delay:.16s}.an:nth-child(5){animation-delay:.2s}.an:nth-child(6){animation-delay:.24s}
+    .an:nth-child(7){animation-delay:.28s}.an:nth-child(8){animation-delay:.32s}
+    @media(prefers-reduced-motion:reduce){.an{animation:none;opacity:1}}
+  </style>
+  <!-- Vercel Web Analytics -->
+  <script>
+    window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+  </script>
+  <script defer src="/_vercel/insights/script.js"></script>
+  <!-- Vercel Speed Insights -->
+  <script>
+    window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
+  </script>
+  <script defer src="/_vercel/speed-insights/script.js"></script>
+  <meta property="og:title" content="Expired Domain Monitoring — Solutions Deep Dive">
+  <meta property="og:description" content="Every approach to finding, filtering, and catching expired domains — from free data feeds to automated drop-catching services. Ranked by how well they work for personal domain hunting.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://zosia.cc/pages/expired-domain-monitoring">
+  <meta name="twitter:card" content="summary">
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero an">
+  <div class="hero-ey">Deep Research · March 2026</div>
+  <h1>Expired Domain Monitoring</h1>
+  <p>Every approach to finding, filtering, and catching expired domains — from free data feeds to automated drop-catching services. Ranked by how well they work for personal domain hunting.</p>
+</header>
+
+<div class="tldr an">
+  <div class="tldr-t">Bottom Line</div>
+  <ul>
+    <li><strong>Best free discovery:</strong> ExpiredDomains.net — largest database, powerful filters, free account. The standard.</li>
+    <li><strong>Best paid analysis:</strong> DomCop ($17/mo) — expired domains pre-scored with SEO metrics (DA, backlinks, spam score). Saves hours.</li>
+    <li><strong>Best drop-catching:</strong> DropCatch — has an API, reliable catching, auction model for contested names. GoDaddy Auctions for volume.</li>
+    <li><strong>Best automation-friendly:</strong> WhoisDS.com — free daily CSV lists of newly registered + recently expiring domains. Scriptable.</li>
+    <li><strong>Best "notify me when X expires":</strong> ExpireScout — track specific domains, get notified when they drop. Free.</li>
+    <li><strong>What I'd build for you:</strong> WhoisDS daily CSV → filter script → DomScan MCP for live availability → Discord post. Zero cost.</li>
+  </ul>
+</div>
+
+<!-- ── Tier 1: Discovery Platforms ── -->
+<section class="an">
+  <div class="sl" style="color:var(--sage)"><span class="d" style="background:var(--sage)"></span> Discovery Platforms</div>
+  <h2>Finding Expired Domains</h2>
+  <p class="sd">These tools aggregate expired/expiring domain data and let you search, filter, and analyze. They find domains — you still need a registrar or drop-catcher to actually acquire them.</p>
+
+  <div class="cg">
+    <div class="c top">
+      <div class="ch">
+        <h3>ExpiredDomains.net</h3>
+        <span class="b g">Best Free</span>
+      </div>
+      <ul class="cb">
+        <li><strong>What:</strong> Largest free database of expired, deleted, and expiring domains</li>
+        <li><strong>Filters:</strong> TLD, length, keywords, age, Majestic metrics, backlinks, archive.org history</li>
+        <li><strong>Lists:</strong> Deleted domains, pending delete, expired auctions, backorder lists</li>
+        <li><strong>Cost:</strong> Free (account required, email registration)</li>
+        <li><strong>Updates:</strong> Daily — data refreshes every 24h</li>
+        <li><strong>API:</strong> None — web UI only, scrape-resistant</li>
+        <li><strong>Automation:</strong> Hard. No API, CAPTCHA on signup, rate-limited browsing</li>
+        <li><strong>Verdict:</strong> Manual browsing gold mine, but not agent-friendly</li>
+      </ul>
+    </div>
+
+    <div class="c alt">
+      <div class="ch">
+        <h3>DomCop</h3>
+        <span class="b s">Best Paid</span>
+      </div>
+      <ul class="cb">
+        <li><strong>What:</strong> Pre-analyzed expired domain search with SEO metrics baked in</li>
+        <li><strong>Metrics:</strong> Moz DA/PA, Majestic TF/CF, SEMrush, Ahrefs, spam score</li>
+        <li><strong>Sources:</strong> Aggregates from GoDaddy, NameJet, DropCatch, Dynadot, SnapNames</li>
+        <li><strong>Lists:</strong> Pending delete, closeout, auctions — all in one place</li>
+        <li><strong>Cost:</strong> $17/mo (Starter) → $27/mo (Pro) → $37/mo (Enterprise)</li>
+        <li><strong>Alerts:</strong> Email alerts for matching criteria</li>
+        <li><strong>API:</strong> No public API — web UI + CSV export</li>
+        <li><strong>Verdict:</strong> Saves hours of manual metric checking. Worth $17/mo if you're doing this regularly</li>
+      </ul>
+    </div>
+
+    <div class="c">
+      <div class="ch">
+        <h3>SpamZilla</h3>
+        <span class="b a">Spam Filter</span>
+      </div>
+      <ul class="cb">
+        <li><strong>What:</strong> Expired domain finder specialized in detecting spam/PBN history</li>
+        <li><strong>Key feature:</strong> AI spam analysis — prevents buying domains with toxic backlink profiles</li>
+        <li><strong>Metrics:</strong> Majestic, Moz, archive.org, outbound link analysis</li>
+        <li><strong>Cost:</strong> $37/mo (Pro), 7-day free trial</li>
+        <li><strong>Bulk:</strong> Process thousands of domains, filter by quality</li>
+        <li><strong>Verdict:</strong> Niche but important — the spam filter is genuinely useful if you care about SEO quality</li>
+      </ul>
+    </div>
+
+    <div class="c">
+      <div class="ch">
+        <h3>Dropl.io</h3>
+        <span class="b s">All-in-one</span>
+      </div>
+      <ul class="cb">
+        <li><strong>What:</strong> Domain explorer + drop-catch manager + DropCatch API integration</li>
+        <li><strong>Features:</strong> Domain scoring, backlink analysis, auction tracking, auto-backorder</li>
+        <li><strong>Integrations:</strong> DropCatch API for placing backorders directly from dashboard</li>
+        <li><strong>Best for:</strong> Power users who want discovery + action in one tool</li>
+        <li><strong>Verdict:</strong> Interesting combo of analysis + execution</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ── Tier 2: Drop-Catching Services ── -->
+<section class="an">
+  <div class="sl" style="color:var(--terra)"><span class="d" style="background:var(--terra)"></span> Drop-Catching Services</div>
+  <h2>Actually Acquiring Expired Domains</h2>
+  <p class="sd">When a domain expires and passes through its grace/redemption periods, it "drops" back to the registry. These services race to register it the instant it becomes available. Popular domains go to auction.</p>
+
+  <div class="cg">
+    <div class="c warm">
+      <div class="ch">
+        <h3>DropCatch</h3>
+        <span class="b t">Best w/ API</span>
+      </div>
+      <ul class="cb">
+        <li><strong>How:</strong> Place backorders on domains before they drop. If caught, goes to auction if multiple bidders.</li>
+        <li><strong>API:</strong> Yes — REST API for creating backorders, managing bids, checking status</li>
+        <li><strong>Cost:</strong> Free to backorder. Minimum bid usually $59-69 at auction.</li>
+        <li><strong>Catch rate:</strong> One of the highest in the industry</li>
+        <li><strong>Automation:</strong> Good — API + Dropl.io integration for monitoring</li>
+        <li><strong>Verdict:</strong> Best option for automated catching workflows. API is the differentiator.</li>
+      </ul>
+    </div>
+
+    <div class="c">
+      <div class="ch">
+        <h3>GoDaddy Auctions</h3>
+        <span class="b a">Largest volume</span>
+      </div>
+      <ul class="cb">
+        <li><strong>How:</strong> Largest expired domain marketplace. Includes direct-transfer inventory + closeout auctions.</li>
+        <li><strong>Volume:</strong> Tens of thousands of domains daily — biggest pipeline</li>
+        <li><strong>Closeouts:</strong> Domains at $5-12 (no bidding war) — great value hunting</li>
+        <li><strong>Cost:</strong> Membership ~$5/yr. Auction minimums vary ($12+)</li>
+        <li><strong>API:</strong> GoDaddy has an API but auction integration is limited</li>
+        <li><strong>Verdict:</strong> Best for volume browsing and closeout bargains</li>
+      </ul>
+    </div>
+
+    <div class="c">
+      <div class="ch">
+        <h3>SnapNames / NameJet</h3>
+        <span class="b a">Premium drops</span>
+      </div>
+      <ul class="cb">
+        <li><strong>How:</strong> Backorder + auction model, similar to DropCatch</li>
+        <li><strong>Focus:</strong> NameJet specializes in premium/high-value expired names</li>
+        <li><strong>Merged:</strong> SnapNames and NameJet share inventory now</li>
+        <li><strong>Cost:</strong> Backorder fees vary; auction minimums from $69</li>
+        <li><strong>API:</strong> No public API</li>
+        <li><strong>Verdict:</strong> Good for premium names, but DropCatch's API makes it better for automation</li>
+      </ul>
+    </div>
+
+    <div class="c">
+      <div class="ch">
+        <h3>FreshDrop (Namecheap)</h3>
+        <span class="b s">Namecheap users</span>
+      </div>
+      <ul class="cb">
+        <li><strong>How:</strong> Namecheap's drop-catching service for backordering expiring domains</li>
+        <li><strong>Integration:</strong> Lands directly in your Namecheap account</li>
+        <li><strong>Verdict:</strong> Convenient if you're already on Namecheap, but smaller catching infrastructure than DropCatch or GoDaddy</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ── Tier 3: Data Feeds ── -->
+<section class="an">
+  <div class="sl" style="color:var(--slate)"><span class="d" style="background:var(--slate)"></span> Data Feeds &amp; Free Lists</div>
+  <h2>Raw Data Sources (Automation Gold)</h2>
+  <p class="sd">These are the feeds I'd wire into a daily cron for you. No UI — just data. Perfect for scripting custom filters.</p>
+
+  <div class="cg">
+    <div class="c alt">
+      <div class="ch">
+        <h3>WhoisDS.com</h3>
+        <span class="b f">Free · Daily</span>
+      </div>
+      <ul class="cb">
+        <li><strong>What:</strong> Free daily CSV lists of newly registered + recently expiring domains</li>
+        <li><strong>Format:</strong> CSV download, updated daily, domain-only (no WHOIS data in free tier)</li>
+        <li><strong>Covers:</strong> .com, .net, .org, .us, .biz, .mobi, .info, .pro, .asia + ccTLDs</li>
+        <li><strong>Free samples:</strong> Last 4 days of both new-reg and expiring lists, downloadable now</li>
+        <li><strong>Paid:</strong> Full WHOIS data, historical database (658M+ domains) — $9,999 for full DB</li>
+        <li><strong>Automation:</strong> Excellent — daily download URL is predictable, scriptable with <code>curl</code></li>
+        <li><strong>Verdict:</strong> Best free feed for a daily monitoring pipeline. The predictable URL pattern is key.</li>
+      </ul>
+    </div>
+
+    <div class="c">
+      <div class="ch">
+        <h3>ICANN CZDS (Zone Files)</h3>
+        <span class="b f">Free · Official</span>
+      </div>
+      <ul class="cb">
+        <li><strong>What:</strong> Official TLD zone file access from ICANN's Centralized Zone Data Service</li>
+        <li><strong>How:</strong> Apply for access per TLD, download daily zone files, diff to find adds/removes</li>
+        <li><strong>Covers:</strong> gTLDs (.com, .net, .org, .info, etc.) — requires per-TLD approval</li>
+        <li><strong>Cost:</strong> Free (requires ICANN account + terms acceptance)</li>
+        <li><strong>Automation:</strong> Excellent — API for downloads, diff with yesterday = new registrations + drops</li>
+        <li><strong>Gotcha:</strong> .com zone file is ~15GB/day. Heavy processing. Approval takes days.</li>
+        <li><strong>Verdict:</strong> The most authoritative source. Overkill for personal use but unbeatable for accuracy.</li>
+      </ul>
+    </div>
+
+    <div class="c">
+      <div class="ch">
+        <h3>ExpireScout</h3>
+        <span class="b f">Free · Targeted</span>
+      </div>
+      <ul class="cb">
+        <li><strong>What:</strong> Domain expiry notification service — watch specific domains</li>
+        <li><strong>How:</strong> Enter domains you want, get notified when they expire/drop</li>
+        <li><strong>Cost:</strong> 100% free</li>
+        <li><strong>Best for:</strong> Watching specific domains you have your eye on (competitor domains, dream .com's)</li>
+        <li><strong>Verdict:</strong> Not for discovery — for targeted domain stalking</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ── Comparison Table ── -->
+<section class="an">
+  <div class="sl" style="color:var(--amber)"><span class="d" style="background:var(--amber)"></span> Comparison</div>
+  <h2>Side by Side</h2>
+
+  <div class="tw">
+    <table>
+      <thead>
+        <tr>
+          <th>Tool</th>
+          <th>Type</th>
+          <th>Cost</th>
+          <th>API/Scriptable?</th>
+          <th>Daily Alerts?</th>
+          <th>Can Buy?</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>ExpiredDomains.net</strong></td>
+          <td>Discovery</td>
+          <td class="dg">Free</td>
+          <td class="dr">No (scrape-resistant)</td>
+          <td class="da">No (manual)</td>
+          <td class="dr">No</td>
+        </tr>
+        <tr>
+          <td><strong>DomCop</strong></td>
+          <td>Discovery + Analysis</td>
+          <td class="da">$17-37/mo</td>
+          <td class="da">CSV export only</td>
+          <td class="dg">Email alerts</td>
+          <td class="dr">No (links to auctions)</td>
+        </tr>
+        <tr>
+          <td><strong>SpamZilla</strong></td>
+          <td>Discovery + Spam Check</td>
+          <td class="da">$37/mo</td>
+          <td class="da">Bulk CSV</td>
+          <td class="dr">No</td>
+          <td class="dr">No</td>
+        </tr>
+        <tr>
+          <td><strong>Dropl.io</strong></td>
+          <td>Discovery + Manager</td>
+          <td class="da">Freemium</td>
+          <td class="db">DropCatch API integration</td>
+          <td class="dg">Yes</td>
+          <td class="dg">Via DropCatch</td>
+        </tr>
+        <tr>
+          <td><strong>DropCatch</strong></td>
+          <td>Drop-catcher</td>
+          <td class="dg">Free to backorder</td>
+          <td class="dg">REST API</td>
+          <td class="dg">Backorder alerts</td>
+          <td class="dg">Yes (auction)</td>
+        </tr>
+        <tr>
+          <td><strong>GoDaddy Auctions</strong></td>
+          <td>Drop-catcher + Marketplace</td>
+          <td class="dg">~$5/yr membership</td>
+          <td class="da">Limited API</td>
+          <td class="dg">Watchlist alerts</td>
+          <td class="dg">Yes (auction + closeout)</td>
+        </tr>
+        <tr>
+          <td><strong>SnapNames/NameJet</strong></td>
+          <td>Drop-catcher</td>
+          <td class="dg">Free to backorder</td>
+          <td class="dr">No API</td>
+          <td class="dg">Backorder alerts</td>
+          <td class="dg">Yes (auction)</td>
+        </tr>
+        <tr>
+          <td><strong>WhoisDS.com</strong></td>
+          <td>Data feed</td>
+          <td class="dg">Free (domain-only)</td>
+          <td class="dg">Daily CSV download</td>
+          <td class="dg">Build your own</td>
+          <td class="dr">No</td>
+        </tr>
+        <tr>
+          <td><strong>ICANN CZDS</strong></td>
+          <td>Zone files</td>
+          <td class="dg">Free</td>
+          <td class="dg">API for downloads</td>
+          <td class="dg">Build your own</td>
+          <td class="dr">No</td>
+        </tr>
+        <tr>
+          <td><strong>ExpireScout</strong></td>
+          <td>Notification</td>
+          <td class="dg">Free</td>
+          <td class="da">Web only</td>
+          <td class="dg">Per-domain alerts</td>
+          <td class="dr">No</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ── What I'd Build for You ── -->
+<section class="an">
+  <div class="sl" style="color:var(--sage)"><span class="d" style="background:var(--sage)"></span> The Pipeline</div>
+  <h2>What I'd Build for You</h2>
+
+  <div class="callout">
+    <strong>Zero-cost daily domain hunting pipeline</strong> — WhoisDS free feed → custom filter script → MCP availability confirmation → curated Discord post every morning. No subscriptions required.
+  </div>
+
+  <div class="rg">
+    <div class="rc">
+      <div class="tag">Step 1 · Data Ingest</div>
+      <p>Cron downloads WhoisDS daily expiring domains CSV. ~50K-100K domains per day across major TLDs. Predictable URL pattern: <code>whoisds.com/whois-database/newly-registered-domains/YYYY-MM-DD/nrd</code></p>
+    </div>
+    <div class="rc">
+      <div class="tag">Step 2 · Filter</div>
+      <p>Script filters by: TLD (.com, .ai, .dev, .io), length (≤12 chars), pattern (no hyphens, no numbers unless intentional), keyword match (optional — tech, AI, cloud, etc.)</p>
+    </div>
+    <div class="rc">
+      <div class="tag">Step 3 · Score</div>
+      <p>For shortlisted domains (~50-200/day after filtering): check with DomScan or RDAP for confirmed availability. Optional: Majestic/Moz API call for backlink/authority score on promising ones.</p>
+    </div>
+    <div class="rc">
+      <div class="tag">Step 4 · Deliver</div>
+      <p>Post top 10-20 to Discord daily. Format: domain name, TLD, length, any notable metrics. You browse, I can check Cloudflare pricing or register on command.</p>
+    </div>
+  </div>
+
+  <details style="margin-top:1rem">
+    <summary>Alternative: DomCop at $17/mo (less work, better data)</summary>
+    <div class="inn">
+      <p>If you'd rather pay $17/mo than run scripts, DomCop does steps 1-3 automatically with better SEO metrics (Moz DA, Majestic TF, spam score) already calculated. Set up email alerts for your criteria, then I can pull those into Discord. The tradeoff: no API means I'd scrape the alert emails rather than scripting against raw data.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>Alternative: DropCatch API (catch-on-drop automation)</summary>
+    <div class="inn">
+      <p>If you find a domain that's expiring (not yet dropped), I can place a backorder via DropCatch's REST API. When it drops, their infrastructure catches it. If contested, you bid at auction (min ~$59). This is the closest to "automated acquisition" without paying Park.io's $99/catch fee.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>Nuclear option: ICANN CZDS zone file diffing</summary>
+    <div class="inn">
+      <p>Download the .com zone file daily (~15GB), diff against yesterday's file, extract removed domains = freshly expired. Most accurate, most data, most compute. Worth it if you're doing this at scale — overkill for personal use. WhoisDS gives you 90% of this for free with zero infrastructure.</p>
+    </div>
+  </details>
+</section>
+
+<!-- ── Specific domain watch ── -->
+<section class="an">
+  <div class="sl"><span class="d" style="background:var(--amber)"></span> Targeted Watching</div>
+  <h2>Watching Specific Domains</h2>
+  <p class="sd">Different from discovery — this is for domains you already know you want.</p>
+
+  <div class="cg three">
+    <div class="c">
+      <h3 style="font-size:0.9rem;margin-bottom:0.5rem">ExpireScout</h3>
+      <ul class="cb">
+        <li>Free, enter any domain</li>
+        <li>Notifies when it expires</li>
+        <li>Simple and effective</li>
+      </ul>
+    </div>
+    <div class="c">
+      <h3 style="font-size:0.9rem;margin-bottom:0.5rem">WHOIS Monitoring Script</h3>
+      <ul class="cb">
+        <li>Cron checks WHOIS/RDAP daily</li>
+        <li>Watch expiry date field</li>
+        <li>Alert when <30 days out</li>
+      </ul>
+    </div>
+    <div class="c">
+      <h3 style="font-size:0.9rem;margin-bottom:0.5rem">DropCatch Backorder</h3>
+      <ul class="cb">
+        <li>Place backorder before it drops</li>
+        <li>System catches it automatically</li>
+        <li>API for programmatic orders</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  expired-domain-monitoring · Zosia deep research · March 2026 · sources: Exa, DomCop, ExpiredDomains.net, WhoisDS, DropCatch, GoDaddy Auctions, ICANN CZDS, Gitnux, Dropl.io
+</footer>
+
+</div>
+</body>
+</html>
