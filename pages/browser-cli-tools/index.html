@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Browser CLI Tools for AI Agents — Deep Comparison</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;700;800&family=Fragment+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --font-body: 'Bricolage Grotesque', system-ui, sans-serif;
+    --font-mono: 'Fragment Mono', 'SF Mono', Consolas, monospace;
+    --bg: #faf8f5;
+    --surface: #ffffff;
+    --surface2: #f3f0eb;
+    --surface-elevated: #ffffff;
+    --border: rgba(0,0,0,0.07);
+    --border-bright: rgba(0,0,0,0.14);
+    --text: #1a1815;
+    --text-dim: #7a756d;
+    --accent: #1e3a5f;
+    --accent-dim: rgba(30,58,95,0.06);
+    --gold: #d4a73a;
+    --gold-dim: rgba(212,167,58,0.08);
+    --green: #2d6a4f;
+    --green-dim: rgba(45,106,79,0.08);
+    --red: #9b2226;
+    --red-dim: rgba(155,34,38,0.08);
+    --orange: #bc6c25;
+    --orange-dim: rgba(188,108,37,0.08);
+    --teal: #0a6874;
+    --teal-dim: rgba(10,104,116,0.08);
+    --vercel: #1e3a5f;
+    --bb: #2d6a4f;
+    --bu: #9b2226;
+    --oc: #bc6c25;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #111210;
+      --surface: #1a1b19;
+      --surface2: #222320;
+      --surface-elevated: #2a2b28;
+      --border: rgba(255,255,255,0.06);
+      --border-bright: rgba(255,255,255,0.12);
+      --text: #e8e4dd;
+      --text-dim: #9a958d;
+      --accent: #7ba7d4;
+      --accent-dim: rgba(123,167,212,0.1);
+      --gold: #e8c45a;
+      --gold-dim: rgba(232,196,90,0.1);
+      --green: #52b788;
+      --green-dim: rgba(82,183,136,0.1);
+      --red: #e07a7d;
+      --red-dim: rgba(224,122,125,0.1);
+      --orange: #dda15e;
+      --orange-dim: rgba(221,161,94,0.1);
+      --teal: #3bbcc9;
+      --teal-dim: rgba(59,188,201,0.1);
+      --vercel: #7ba7d4;
+      --bb: #52b788;
+      --bu: #e07a7d;
+      --oc: #dda15e;
+    }
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: var(--font-body);
+    background: var(--bg);
+    background-image:
+      radial-gradient(ellipse at 20% 0%, var(--accent-dim) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 80%, var(--gold-dim) 0%, transparent 40%);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 3rem 1.5rem;
+  }
+  /* ============ HEADER ============ */
+  .hero {
+    text-align: center;
+    margin-bottom: 3.5rem;
+    padding-bottom: 2.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .hero__label {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--gold);
+    margin-bottom: 0.75rem;
+    display: block;
+  }
+  .hero h1 {
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 800;
+    line-height: 1.15;
+    margin-bottom: 0.75rem;
+    color: var(--text);
+  }
+  .hero p {
+    font-size: 1.1rem;
+    color: var(--text-dim);
+    max-width: 680px;
+    margin: 0 auto;
+  }
+  /* ============ TOOL CARDS ============ */
+  .profiles {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+  }
+  .profile-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.75rem;
+    position: relative;
+    overflow: hidden;
+    opacity: 0;
+    animation: fadeUp 0.5s ease forwards;
+    animation-delay: calc(var(--i) * 0.12s);
+  }
+  .profile-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: var(--card-color);
+  }
+  .profile-card h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+    color: var(--card-color);
+  }
+  .profile-card .tagline {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    margin-bottom: 1rem;
+    display: block;
+  }
+  .profile-card .meta {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+  }
+  .badge {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    padding: 0.2rem 0.55rem;
+    border-radius: 4px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    white-space: nowrap;
+  }
+  .badge--lang { border-color: var(--card-color); color: var(--card-color); }
+  .profile-card p { font-size: 0.92rem; color: var(--text); margin-bottom: 0.75rem; }
+  .profile-card ul {
+    list-style: none;
+    margin-bottom: 0.75rem;
+  }
+  .profile-card li {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    padding-left: 1.2rem;
+    position: relative;
+    color: var(--text);
+  }
+  .profile-card li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--card-color);
+    font-weight: 700;
+  }
+  .sw-label {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-top: 0.5rem;
+    margin-bottom: 0.3rem;
+    display: block;
+  }
+  .sw-label--s { color: var(--green); }
+  .sw-label--w { color: var(--red); }
+  /* ============ SECTION HEADERS ============ */
+  .section-header {
+    margin-bottom: 1.5rem;
+    margin-top: 3rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-header__num {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--gold);
+    letter-spacing: 0.08em;
+  }
+  .section-header h2 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin-top: 0.25rem;
+  }
+  /* ============ COMPARISON TABLE ============ */
+  .table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--surface);
+    margin-bottom: 2rem;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 800px;
+  }
+  thead {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+  }
+  th {
+    background: var(--surface-elevated);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 1rem 1.1rem;
+    text-align: left;
+    border-bottom: 2px solid var(--border-bright);
+    white-space: nowrap;
+    color: var(--text-dim);
+  }
+  th:first-child { border-radius: 10px 0 0 0; }
+  th:last-child { border-radius: 0 10px 0 0; }
+  td {
+    padding: 0.85rem 1.1rem;
+    font-size: 0.88rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    color: var(--text);
+  }
+  td:first-child {
+    font-weight: 600;
+    font-size: 0.82rem;
+    color: var(--text-dim);
+    min-width: 140px;
+  }
+  tr:nth-child(even) td { background: var(--surface2); }
+  tr:hover td { background: var(--accent-dim); }
+  tr:last-child td { border-bottom: none; }
+  td code {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    background: var(--surface2);
+    padding: 0.1rem 0.35rem;
+    border-radius: 3px;
+    border: 1px solid var(--border);
+  }
+  .col-vercel { color: var(--vercel); }
+  .col-bb { color: var(--bb); }
+  .col-bu { color: var(--bu); }
+  .col-oc { color: var(--oc); }
+  /* ============ ARCHITECTURE DIAGRAM ============ */
+  .arch-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 2.5rem;
+  }
+  .arch-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--card-color);
+    border-radius: 8px;
+    padding: 1.25rem;
+    opacity: 0;
+    animation: fadeUp 0.4s ease forwards;
+    animation-delay: calc(var(--i) * 0.1s);
+  }
+  .arch-card h4 {
+    font-size: 0.85rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--card-color);
+  }
+  .arch-card .flow {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    background: var(--surface2);
+    padding: 0.6rem;
+    border-radius: 5px;
+    line-height: 1.8;
+    overflow-wrap: break-word;
+  }
+  /* ============ VERDICT ============ */
+  .verdict {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem;
+    margin-top: 2rem;
+  }
+  .verdict h2 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+  }
+  .verdict-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1rem;
+  }
+  .verdict-item {
+    padding: 1rem;
+    border-radius: 8px;
+    background: var(--surface2);
+    border-left: 3px solid var(--card-color);
+  }
+  .verdict-item h4 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--card-color);
+    margin-bottom: 0.25rem;
+  }
+  .verdict-item .when {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--gold);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 0.4rem;
+    display: block;
+  }
+  .verdict-item p {
+    font-size: 0.85rem;
+    color: var(--text);
+  }
+  /* ============ OVERLAP CALLOUT ============ */
+  .overlap {
+    background: var(--teal-dim);
+    border: 1px solid var(--teal);
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin: 2rem 0;
+  }
+  .overlap h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--teal);
+    margin-bottom: 0.5rem;
+  }
+  .overlap p { font-size: 0.9rem; }
+  .overlap ul { list-style: none; margin-top: 0.5rem; }
+  .overlap li {
+    font-size: 0.85rem;
+    padding: 0.25rem 0 0.25rem 1.2rem;
+    position: relative;
+  }
+  .overlap li::before {
+    content: '⬥';
+    position: absolute;
+    left: 0;
+    color: var(--teal);
+  }
+  /* ============ FOOTER ============ */
+  .footer {
+    text-align: center;
+    padding: 2rem 0 1rem;
+    color: var(--text-dim);
+    font-size: 0.75rem;
+    font-family: var(--font-mono);
+    border-top: 1px solid var(--border);
+    margin-top: 3rem;
+  }
+  .footer a { color: var(--accent); text-decoration: none; }
+  .footer a:hover { text-decoration: underline; }
+  /* ============ ANIMATIONS ============ */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .profile-card, .arch-card { opacity: 1; animation: none; }
+  }
+  @media (max-width: 640px) {
+    .container { padding: 1.5rem 1rem; }
+    .hero h1 { font-size: 1.7rem; }
+    .profiles { grid-template-columns: 1fr; }
+  }
+</style>
+  <!-- Vercel Web Analytics -->
+  <script>
+    window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+  </script>
+  <script defer src="/_vercel/insights/script.js"></script>
+  <!-- Vercel Speed Insights -->
+  <script>
+    window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
+  </script>
+  <script defer src="/_vercel/speed-insights/script.js"></script>
+  <meta property="og:title" content="Browser CLI Tools for AI Agents — Deep Comparison">
+  <meta property="og:description" content="Four tools, four philosophies. How Vercel Agent Browser, BB Browser, Browser Use, and OpenCLI approach the problem of giving AI agents access to the web.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://zosia.cc/pages/browser-cli-tools">
+  <meta name="twitter:card" content="summary">
+</head>
+<body>
+<div class="container">
+
+  <header class="hero">
+    <span class="hero__label">Deep Research · March 2026</span>
+    <h1>Browser CLI Tools for AI Agents</h1>
+    <p>Four tools, four philosophies. How Vercel Agent Browser, BB Browser, Browser Use, and OpenCLI approach the problem of giving AI agents access to the web.</p>
+  </header>
+
+  <!-- ============ TOOL PROFILES ============ -->
+  <div class="profiles">
+
+    <div class="profile-card" style="--card-color: var(--vercel); --i: 0;">
+      <h3>Vercel Agent Browser</h3>
+      <span class="tagline">Token-efficient headless automation for AI agents</span>
+      <div class="meta">
+        <span class="badge badge--lang">Rust</span>
+        <span class="badge">CDP</span>
+        <span class="badge">CLI-first</span>
+        <span class="badge">Model-agnostic</span>
+      </div>
+      <p>Fast native binary that controls Chromium via CDP. The killer feature is its <strong>snapshot/ref model</strong> — pages become compact accessibility trees with stable refs (<code>@e1</code>, <code>@e2</code>), saving ~93% of context window vs raw DOM.</p>
+      <ul>
+        <li>50+ commands: nav, click, fill, screenshot, HAR, storage</li>
+        <li>Multi-session isolation for parallel agents</li>
+        <li>18× less memory than Node-based alternatives</li>
+        <li>Ships headless Chrome from Chrome for Testing</li>
+      </ul>
+      <span class="sw-label sw-label--s">Strengths</span>
+      <ul>
+        <li>Lowest token cost per action — ideal for long chains</li>
+        <li>Native Rust speed, tiny install footprint</li>
+        <li>Vercel ecosystem integration (Agent SDK, marketplace)</li>
+      </ul>
+      <span class="sw-label sw-label--w">Limitations</span>
+      <ul>
+        <li>Headless-only — no real login session reuse</li>
+        <li>No built-in LLM orchestration loop</li>
+        <li>CLI/skill interface only (no Python/JS SDK)</li>
+      </ul>
+    </div>
+
+    <div class="profile-card" style="--card-color: var(--bb); --i: 1;">
+      <h3>BB Browser</h3>
+      <span class="tagline">Your real browser is the API — zero bot detection</span>
+      <div class="meta">
+        <span class="badge badge--lang">TypeScript</span>
+        <span class="badge">chrome.debugger (CDP)</span>
+        <span class="badge">CLI + MCP</span>
+        <span class="badge">Extension-based</span>
+      </div>
+      <p>Flips the browser automation paradigm: instead of headless browsers, it attaches to <strong>your real Chrome</strong> via a Chrome extension + daemon. The website thinks it's you — because it <em>is</em> you. 103 commands across 36 platforms.</p>
+      <ul>
+        <li>Reuses all logged-in sessions (cookies, 2FA, OAuth)</li>
+        <li>Platform adapters: Twitter, Zhihu, Bilibili, Xueqiu, YouTube…</li>
+        <li>OpenClaw native integration (<code>--openclaw</code> flag)</li>
+        <li><code>--json</code> output + <code>--jq</code> inline filtering</li>
+      </ul>
+      <span class="sw-label sw-label--s">Strengths</span>
+      <ul>
+        <li>Invisible to anti-bot systems — acts as the real user</li>
+        <li>Community-driven adapter ecosystem (bb-sites)</li>
+        <li>MCP server mode for Claude Code / Codex integration</li>
+      </ul>
+      <span class="sw-label sw-label--w">Limitations</span>
+      <ul>
+        <li>Requires Chrome extension install + trust</li>
+        <li>Chrome-only, no headless mode</li>
+        <li>Newer project, smaller community (emerged ~2026)</li>
+      </ul>
+    </div>
+
+    <div class="profile-card" style="--card-color: var(--bu); --i: 2;">
+      <h3>Browser Use</h3>
+      <span class="tagline">The most mature agent-browser orchestration framework</span>
+      <div class="meta">
+        <span class="badge badge--lang">Python</span>
+        <span class="badge">Playwright</span>
+        <span class="badge">SDK + Cloud</span>
+        <span class="badge">Multi-model</span>
+      </div>
+      <p>Full-stack agent framework: give it a natural-language task, pick an LLM, and it drives a browser autonomously. The only tool here that <strong>embeds the agent loop</strong> — handles reasoning, action selection, error recovery, and multi-step chains internally.</p>
+      <ul>
+        <li>SDK + CLI + managed cloud (stealth browsers, proxies, CAPTCHA)</li>
+        <li>Supports 10+ LLM providers (OpenAI, Anthropic, Gemini, Ollama…)</li>
+        <li>Custom tools API for extending agent capabilities</li>
+        <li>Own optimized model (ChatBrowserUse, bu-30b-a3b-preview)</li>
+      </ul>
+      <span class="sw-label sw-label--s">Strengths</span>
+      <ul>
+        <li>Production-ready with cloud scaling and enterprise features</li>
+        <li>Largest community (~55k+ stars), most battle-tested</li>
+        <li>End-to-end: task → reasoning → browser → result</li>
+      </ul>
+      <span class="sw-label sw-label--w">Limitations</span>
+      <ul>
+        <li>Higher cost (LLM tokens + cloud fees + model tuning)</li>
+        <li>Python-first — JS/TS integration is secondary</li>
+        <li>Complexity: stealth, proxies, agent tuning for reliability</li>
+      </ul>
+    </div>
+
+    <div class="profile-card" style="--card-color: var(--oc); --i: 3;">
+      <h3>OpenCLI</h3>
+      <span class="tagline">Turn any website or Electron app into a CLI command</span>
+      <div class="meta">
+        <span class="badge badge--lang">TypeScript</span>
+        <span class="badge">Extension Bridge</span>
+        <span class="badge">CLI Hub</span>
+        <span class="badge">YAML adapters</span>
+      </div>
+      <p>Not a browser automation tool per se — it's a <strong>universal CLI hub</strong>. Drop a YAML adapter file and any website or Electron app becomes a CLI command. AI agents discover tools via <code>opencli list</code> and invoke them naturally.</p>
+      <ul>
+        <li>40+ sites + Electron apps (Cursor, ChatGPT, Notion, Discord…)</li>
+        <li>AI-powered: <code>explore</code>, <code>synthesize</code>, <code>cascade</code> to auto-create adapters</li>
+        <li>YAML declarative + TypeScript escape hatch for complex logic</li>
+        <li>External CLI hub passthrough (gh, docker, kubectl…)</li>
+      </ul>
+      <span class="sw-label sw-label--s">Strengths</span>
+      <ul>
+        <li>Fastest path from "I need data from X" to working CLI</li>
+        <li>Electron app support is unique — CLI-ify desktop apps</li>
+        <li>AI-assisted adapter generation near-zero effort</li>
+      </ul>
+      <span class="sw-label sw-label--w">Limitations</span>
+      <ul>
+        <li>Early stage, smaller community</li>
+        <li>Chrome-only (extension dependency)</li>
+        <li>Adapter quality varies — community-driven</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <!-- ============ ARCHITECTURE FLOWS ============ -->
+  <div class="section-header">
+    <span class="section-header__num">02</span>
+    <h2>How They Actually Work</h2>
+  </div>
+
+  <div class="arch-grid">
+    <div class="arch-card" style="--card-color: var(--vercel); --i: 0;">
+      <h4>Vercel Agent Browser</h4>
+      <div class="flow">
+        AI Agent (any LLM)<br>
+        &nbsp;&nbsp;↓ shell commands<br>
+        agent-browser CLI (Rust)<br>
+        &nbsp;&nbsp;↓ CDP protocol<br>
+        Headless Chromium<br>
+        &nbsp;&nbsp;↓ compact snapshot<br>
+        Accessibility tree + refs → Agent
+      </div>
+    </div>
+    <div class="arch-card" style="--card-color: var(--bb); --i: 1;">
+      <h4>BB Browser</h4>
+      <div class="flow">
+        AI Agent (any LLM)<br>
+        &nbsp;&nbsp;↓ CLI or MCP (stdio)<br>
+        bb-browser CLI → HTTP → Daemon<br>
+        &nbsp;&nbsp;↓ SSE<br>
+        Chrome Extension (Manifest V3)<br>
+        &nbsp;&nbsp;↓ chrome.debugger (CDP)<br>
+        Your Real Chrome (logged in)
+      </div>
+    </div>
+    <div class="arch-card" style="--card-color: var(--bu); --i: 2;">
+      <h4>Browser Use</h4>
+      <div class="flow">
+        Your task (natural language)<br>
+        &nbsp;&nbsp;↓<br>
+        Agent loop (LLM reasoning)<br>
+        &nbsp;&nbsp;↓ action decisions<br>
+        Playwright orchestration<br>
+        &nbsp;&nbsp;↓<br>
+        Local Chromium or Cloud browser<br>
+        &nbsp;&nbsp;↓ state → LLM → next action
+      </div>
+    </div>
+    <div class="arch-card" style="--card-color: var(--oc); --i: 3;">
+      <h4>OpenCLI</h4>
+      <div class="flow">
+        AI Agent: opencli &lt;site&gt; &lt;cmd&gt;<br>
+        &nbsp;&nbsp;↓ matched adapter<br>
+        YAML pipeline or TS injection<br>
+        &nbsp;&nbsp;↓ Browser Bridge<br>
+        Chrome Extension → eval/fetch<br>
+        &nbsp;&nbsp;↓ uses your cookies<br>
+        Structured JSON/CSV/MD output
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ COMPARISON TABLE ============ -->
+  <div class="section-header">
+    <span class="section-header__num">03</span>
+    <h2>Side-by-Side Comparison</h2>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Dimension</th>
+          <th class="col-vercel">Agent Browser</th>
+          <th class="col-bb">BB Browser</th>
+          <th class="col-bu">Browser Use</th>
+          <th class="col-oc">OpenCLI</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Primary Language</td>
+          <td>Rust</td>
+          <td>TypeScript</td>
+          <td>Python</td>
+          <td>TypeScript</td>
+        </tr>
+        <tr>
+          <td>Browser Control</td>
+          <td>CDP (native)</td>
+          <td><code>chrome.debugger</code> via extension</td>
+          <td>Playwright</td>
+          <td>Extension bridge (eval/fetch)</td>
+        </tr>
+        <tr>
+          <td>Browser Instance</td>
+          <td>Headless Chromium (isolated)</td>
+          <td>Your real Chrome (logged in)</td>
+          <td>Managed Chromium or Cloud</td>
+          <td>Your real Chrome (logged in)</td>
+        </tr>
+        <tr>
+          <td>Login State Reuse</td>
+          <td>No — must re-authenticate</td>
+          <td>Yes — full session reuse</td>
+          <td>Optional — profile support</td>
+          <td>Yes — full session reuse</td>
+        </tr>
+        <tr>
+          <td>Anti-Bot Resistance</td>
+          <td>Low — headless fingerprint</td>
+          <td>High — acts as real user</td>
+          <td>Medium-High — stealth + proxies (cloud)</td>
+          <td>High — acts as real user</td>
+        </tr>
+        <tr>
+          <td>LLM Integration</td>
+          <td>External (model-agnostic skill)</td>
+          <td>External (model-agnostic backend)</td>
+          <td>Built-in agent loop (10+ providers)</td>
+          <td>AI-assisted adapter gen (external LLM)</td>
+        </tr>
+        <tr>
+          <td>Interface Type</td>
+          <td>CLI / Agent Skill</td>
+          <td>CLI + MCP Server</td>
+          <td>Python SDK + CLI</td>
+          <td>CLI Hub (YAML + TS adapters)</td>
+        </tr>
+        <tr>
+          <td>Cloud Option</td>
+          <td>Via Vercel Agent infra</td>
+          <td>Local-first (remote via Tailscale)</td>
+          <td>Yes — managed cloud SaaS</td>
+          <td>Local-first</td>
+        </tr>
+        <tr>
+          <td>Pricing</td>
+          <td>Free OSS (Vercel cloud extras)</td>
+          <td>Free OSS (MIT)</td>
+          <td>Free OSS + paid cloud tiers</td>
+          <td>Free OSS (MIT)</td>
+        </tr>
+        <tr>
+          <td>Token Efficiency</td>
+          <td>Excellent (compact snapshots)</td>
+          <td>Good (JSON output)</td>
+          <td>Moderate (verbose page state)</td>
+          <td>Good (structured output)</td>
+        </tr>
+        <tr>
+          <td>Platform Coverage</td>
+          <td>Any website (generic)</td>
+          <td>36 platforms, 103 commands</td>
+          <td>Any website (generic)</td>
+          <td>40+ sites + Electron apps</td>
+        </tr>
+        <tr>
+          <td>Community Size</td>
+          <td>Growing (Vercel-backed)</td>
+          <td>Early stage</td>
+          <td>Large (~55k+ stars)</td>
+          <td>Early stage</td>
+        </tr>
+        <tr>
+          <td>Setup Complexity</td>
+          <td>Low — <code>npm i -g</code> + install</td>
+          <td>Medium — CLI + extension + daemon</td>
+          <td>Low-Medium — <code>uv add</code> + API key</td>
+          <td>Medium — CLI + extension + bridge</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ============ KEY INSIGHT ============ -->
+  <div class="overlap">
+    <h3>The Fundamental Split</h3>
+    <p>These tools solve two genuinely different problems that look similar on the surface:</p>
+    <ul>
+      <li><strong>Generic browser automation</strong> (Agent Browser, Browser Use) — control any website from scratch, handle arbitrary pages, reason about unknown UI</li>
+      <li><strong>Authenticated platform access</strong> (BB Browser, OpenCLI) — leverage your existing login sessions to access platforms as YOU, with pre-built commands for specific sites</li>
+    </ul>
+    <p style="margin-top: 0.75rem;">BB Browser and OpenCLI are closer cousins — both reuse Chrome sessions and target specific platforms with adapters. The difference: BB Browser is an <em>automation backend</em> (raw browser control + platform commands), while OpenCLI is a <em>CLI hub</em> (discover tools, synthesize adapters, unify interfaces across sites + desktop apps).</p>
+  </div>
+
+  <!-- ============ VERDICT ============ -->
+  <div class="verdict">
+    <h2>When to Use What</h2>
+    <div class="verdict-grid">
+
+      <div class="verdict-item" style="--card-color: var(--vercel);">
+        <h4>Vercel Agent Browser</h4>
+        <span class="when">Best for</span>
+        <p>Long multi-step agent chains where token cost matters. Testing/QA automation. Vercel ecosystem users. When you need deterministic, reproducible browser actions and don't need pre-existing login state.</p>
+      </div>
+
+      <div class="verdict-item" style="--card-color: var(--bb);">
+        <h4>BB Browser</h4>
+        <span class="when">Best for</span>
+        <p>Cross-platform research using your real accounts (Twitter + Zhihu + Reddit in one pipeline). Financial data from authenticated platforms (Xueqiu, Eastmoney). Any task where bot detection = game over.</p>
+      </div>
+
+      <div class="verdict-item" style="--card-color: var(--bu);">
+        <h4>Browser Use</h4>
+        <span class="when">Best for</span>
+        <p>Production-scale web automation where you want an end-to-end agent (not just a browser tool). Complex workflows needing LLM reasoning: job applications, data extraction, form filling. Teams that want a managed cloud option.</p>
+      </div>
+
+      <div class="verdict-item" style="--card-color: var(--oc);">
+        <h4>OpenCLI</h4>
+        <span class="when">Best for</span>
+        <p>Power users who want every website and desktop app accessible as CLI commands. AI agents that need to discover available tools dynamically. Electron app automation (Cursor, ChatGPT, Notion). Rapid adapter creation with AI synthesis.</p>
+      </div>
+
+    </div>
+  </div>
+
+  <footer class="footer">
+    Research compiled by Zosia · March 2026 · Sources: GitHub repos, Exa deep research, official docs<br>
+    <a href="https://github.com/vercel-labs/agent-browser">Agent Browser</a> ·
+    <a href="https://github.com/epiral/bb-browser">BB Browser</a> ·
+    <a href="https://github.com/browser-use/browser-use">Browser Use</a> ·
+    <a href="https://github.com/jackwener/opencli">OpenCLI</a>
+  </footer>
+
+</div>
+</body>
+</html>

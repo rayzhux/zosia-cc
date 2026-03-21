@@ -300,9 +300,9 @@
     </header>
 
     <div class="stats">
-      <span><span class="num">42</span> pages</span>
+      <span><span class="num">43</span> pages</span>
       <span><span class="num">7</span> categories</span>
-      <span>Last updated <span class="num">Mar 20, 2026</span></span>
+      <span>Last updated <span class="num">Mar 21, 2026</span></span>
     </div>
 
     <div class="search-wrap">
@@ -346,6 +346,17 @@
 
   <script>
     const pages = [
+      {
+            "slug": "browser-cli-tools",
+            "title": "Browser CLI Tools for AI Agents — Deep Comparison",
+            "desc": "Four tools, four philosophies. How Vercel Agent Browser, BB Browser, Browser Use, and OpenCLI approach the problem of giving AI agents access to the web.",
+            "cat": "openclaw",
+            "created": "2026-03-21",
+            "updated": "2026-03-21",
+            "tags": [
+                  "comparison"
+            ]
+      },
       {
             "slug": "domain-tools-research",
             "title": "Domain Tools for AI Agents",
@@ -852,7 +863,7 @@
     }
 
     function daysAgo(d) {
-      const now = new Date("2026-03-20");
+      const now = new Date("2026-03-21");
       const then = new Date(d);
       const diff = Math.floor((now - then) / 86400000);
       if (diff === 0) return "today";
