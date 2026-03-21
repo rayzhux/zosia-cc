@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Browser Automation Tools — Deep Comparison</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --font-body: 'DM Sans', system-ui, sans-serif;
+    --font-mono: 'Fira Code', 'SF Mono', Consolas, monospace;
+    --bg: #f8f7f4;
+    --surface: #ffffff;
+    --surface2: #f2f1ed;
+    --surface-elevated: #ffffff;
+    --border: rgba(0,0,0,0.07);
+    --border-bright: rgba(0,0,0,0.14);
+    --text: #1a1a1a;
+    --text-dim: #6b6b6b;
+    --accent: #0369a1;
+    --accent-dim: rgba(3,105,161,0.06);
+    --teal: #0891b2;
+    --teal-dim: rgba(8,145,178,0.08);
+    --green: #059669;
+    --green-dim: rgba(5,150,105,0.08);
+    --amber: #d97706;
+    --amber-dim: rgba(217,119,6,0.08);
+    --rose: #be123c;
+    --rose-dim: rgba(190,18,60,0.06);
+    --purple: #7e22ce;
+    --purple-dim: rgba(126,34,206,0.06);
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.06);
+    --shadow-lg: 0 8px 24px rgba(0,0,0,0.08);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #111110;
+      --surface: #1c1c1a;
+      --surface2: #252523;
+      --surface-elevated: #2a2a28;
+      --border: rgba(255,255,255,0.06);
+      --border-bright: rgba(255,255,255,0.12);
+      --text: #e8e6e3;
+      --text-dim: #8a8a8a;
+      --accent: #38bdf8;
+      --accent-dim: rgba(56,189,248,0.08);
+      --teal: #22d3ee;
+      --teal-dim: rgba(34,211,238,0.08);
+      --green: #34d399;
+      --green-dim: rgba(52,211,153,0.08);
+      --amber: #fbbf24;
+      --amber-dim: rgba(251,191,36,0.08);
+      --rose: #fb7185;
+      --rose-dim: rgba(251,113,133,0.06);
+      --purple: #a78bfa;
+      --purple-dim: rgba(167,139,250,0.06);
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.2);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.3);
+      --shadow-lg: 0 8px 24px rgba(0,0,0,0.4);
+    }
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--font-body);
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+    padding: 0;
+  }
+  .page { max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+
+  /* Hero */
+  .hero {
+    text-align: center;
+    padding: 3rem 1rem 2.5rem;
+    margin-bottom: 2.5rem;
+    position: relative;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 20%;
+    right: 20%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border-bright), transparent);
+  }
+  .hero h1 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    margin-bottom: 0.5rem;
+  }
+  .hero .subtitle {
+    font-size: 1.05rem;
+    color: var(--text-dim);
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  .hero .date {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    margin-top: 0.75rem;
+    letter-spacing: 0.05em;
+  }
+
+  /* Section labels */
+  .section-label {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .section-label .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  /* Product cards */
+  .products {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+    margin-bottom: 3rem;
+  }
+  @media (max-width: 768px) { .products { grid-template-columns: 1fr; } }
+  .product-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: var(--shadow-sm);
+    animation: fadeUp 0.5s ease both;
+    transition: box-shadow 0.2s ease;
+  }
+  .product-card:hover { box-shadow: var(--shadow-md); }
+  .product-card:nth-child(1) { animation-delay: 0.05s; }
+  .product-card:nth-child(2) { animation-delay: 0.1s; }
+  .product-card:nth-child(3) { animation-delay: 0.15s; }
+  .product-card:nth-child(4) { animation-delay: 0.2s; }
+
+  .product-card .card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+  .product-card h2 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  .product-card .tag {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    font-weight: 600;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+  .tag-rust { background: var(--amber-dim); color: var(--amber); }
+  .tag-python { background: var(--green-dim); color: var(--green); }
+  .tag-ts { background: var(--accent-dim); color: var(--accent); }
+  .tag-cli { background: var(--teal-dim); color: var(--teal); }
+
+  .product-card .meta {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    margin-bottom: 1rem;
+    line-height: 1.8;
+  }
+  .product-card .meta strong { color: var(--text); font-weight: 500; }
+  .product-card .desc {
+    font-size: 0.9rem;
+    color: var(--text);
+    line-height: 1.65;
+    margin-bottom: 1rem;
+  }
+  .product-card .arch-label {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-dim);
+    margin-bottom: 0.4rem;
+  }
+  .product-card .arch-desc {
+    font-size: 0.82rem;
+    color: var(--text-dim);
+    line-height: 1.55;
+    padding-left: 0.75rem;
+    border-left: 2px solid var(--border-bright);
+  }
+  .product-card .arch-desc code {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    background: var(--surface2);
+    padding: 0.1rem 0.35rem;
+    border-radius: 3px;
+  }
+
+  /* Comparison Table */
+  .table-section { margin-bottom: 3rem; }
+  .table-wrap {
+    overflow-x: auto;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--surface);
+    font-size: 0.82rem;
+  }
+  thead { position: sticky; top: 0; z-index: 2; }
+  th {
+    background: var(--surface2);
+    font-weight: 600;
+    text-align: left;
+    padding: 0.75rem 1rem;
+    border-bottom: 2px solid var(--border-bright);
+    white-space: nowrap;
+    font-size: 0.78rem;
+    letter-spacing: 0.02em;
+  }
+  th:first-child {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    min-width: 140px;
+  }
+  td {
+    padding: 0.65rem 1rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    line-height: 1.5;
+  }
+  td:first-child {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: var(--text-dim);
+    white-space: nowrap;
+  }
+  tr:nth-child(even) td { background: var(--surface2); }
+  tr:hover td { background: var(--accent-dim); }
+  td code {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    background: var(--surface2);
+    padding: 0.1rem 0.3rem;
+    border-radius: 3px;
+  }
+
+  /* Verdict */
+  .verdict-section { margin-bottom: 2rem; }
+  .verdict-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+  @media (max-width: 768px) { .verdict-grid { grid-template-columns: 1fr; } }
+  .verdict-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.25rem;
+    box-shadow: var(--shadow-sm);
+    animation: fadeUp 0.4s ease both;
+  }
+  .verdict-card:nth-child(1) { animation-delay: 0.1s; }
+  .verdict-card:nth-child(2) { animation-delay: 0.15s; }
+  .verdict-card:nth-child(3) { animation-delay: 0.2s; }
+  .verdict-card:nth-child(4) { animation-delay: 0.25s; }
+  .verdict-card h3 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .verdict-card .v-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #fff;
+    flex-shrink: 0;
+  }
+  .verdict-card p {
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    line-height: 1.6;
+  }
+  .verdict-card .best-for {
+    margin-top: 0.75rem;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  /* Bottom line */
+  .bottom-line {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-top: 2rem;
+    box-shadow: var(--shadow-sm);
+    animation: fadeUp 0.5s ease 0.3s both;
+  }
+  .bottom-line h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+  }
+  .bottom-line p {
+    font-size: 0.88rem;
+    line-height: 1.65;
+    color: var(--text);
+  }
+  .bottom-line p + p { margin-top: 0.5rem; }
+  .bottom-line strong { color: var(--accent); }
+
+  .badge-strong {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    font-weight: 600;
+    padding: 0.15rem 0.4rem;
+    border-radius: 3px;
+    vertical-align: middle;
+  }
+  .badge-green { background: var(--green-dim); color: var(--green); }
+  .badge-amber { background: var(--amber-dim); color: var(--amber); }
+  .badge-rose { background: var(--rose-dim); color: var(--rose); }
+  .badge-teal { background: var(--teal-dim); color: var(--teal); }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .product-card, .verdict-card, .bottom-line { animation: none; }
+  }
+</style>
+  <!-- Vercel Web Analytics -->
+  <script>
+    window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+  </script>
+  <script defer src="/_vercel/insights/script.js"></script>
+  <!-- Vercel Speed Insights -->
+  <script>
+    window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
+  </script>
+  <script defer src="/_vercel/speed-insights/script.js"></script>
+  <meta property="og:title" content="Browser Automation Tools — Deep Comparison">
+  <meta property="og:description" content="Agent Browser vs Browserbase/Stagehand vs Browser Use vs OpenCLI: architecture, trade-offs, and when to use what.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://zosia.cc/pages/browser-tools-comparison">
+  <meta name="twitter:card" content="summary">
+</head>
+<body>
+<div class="page">
+
+  <div class="hero">
+    <h1>AI Browser Automation — Four Tools Compared</h1>
+    <p class="subtitle">Agent Browser vs Browserbase/Stagehand vs Browser Use vs OpenCLI: architecture, trade-offs, and when to use what.</p>
+    <p class="date">Research — March 2026</p>
+  </div>
+
+  <!-- Product deep-dive cards -->
+  <div class="section-label"><span class="dot" style="background:var(--accent)"></span> The Four Tools</div>
+  <div class="products">
+
+    <!-- Agent Browser -->
+    <div class="product-card">
+      <div class="card-header">
+        <h2>Agent Browser <small style="font-weight:400;color:var(--text-dim);font-size:0.75rem;">(Vercel Labs)</small></h2>
+        <span class="tag tag-rust">Rust CLI</span>
+      </div>
+      <div class="meta">
+        <strong>23.9k</strong> GitHub stars · <strong>60</strong> releases · <strong>90+</strong> contributors<br>
+        License: Apache 2.0 · Language: 95% Rust<br>
+        Created: Jan 2026 · Latest: v0.21.4 (Mar 20, 2026)
+      </div>
+      <p class="desc">
+        A <em>CLI-first</em> browser automation tool built for AI coding agents (Claude Code, Codex, Cursor, etc). The core innovation is the <strong>"Snapshot + Refs" system</strong> — instead of dumping full accessibility trees or DOM, it generates compact element references (<code>@e1</code>, <code>@e2</code>) that save ~93% of context tokens vs. raw Playwright output.
+      </p>
+      <div class="arch-label">Architecture</div>
+      <div class="arch-desc">
+        <strong>Client-daemon model.</strong> Rust CLI binary parses commands and talks to a persistent background daemon. Daemon manages Chrome (from Chrome for Testing) via CDP. Sub-50ms boot. 108+ commands across 16 categories (navigate, click, fill, snapshot, screenshot, network, media, etc). No Node.js or Playwright dependency at runtime — pure Rust → CDP.
+      </div>
+    </div>
+
+    <!-- Browserbase / Stagehand -->
+    <div class="product-card">
+      <div class="card-header">
+        <h2>Browserbase / Stagehand</h2>
+        <span class="tag tag-ts">SDK · Multi-lang</span>
+      </div>
+      <div class="meta">
+        <strong>$300M</strong> valuation (Series B) · <strong>500k+</strong> weekly npm downloads<br>
+        License: MIT (Stagehand OSS) · Cloud: Browserbase<br>
+        Stagehand v3 (Oct 2025) · Multi-language SDKs (Jan 2026)
+      </div>
+      <p class="desc">
+        A <em>platform play</em>: <strong>Stagehand</strong> is the open-source SDK with three AI primitives — <code>act()</code>, <code>extract()</code>, <code>observe()</code> — plus an <code>agent()</code> mode for autonomous multi-step workflows. <strong>Browserbase</strong> is the paid cloud infra (managed browser fleet, stealth mode, session recording, proxies). Tightly integrated but Stagehand works locally too.
+      </p>
+      <div class="arch-label">Architecture</div>
+      <div class="arch-desc">
+        Stagehand v3 dropped the Playwright hard dependency — now talks directly to browsers via CDP. Supports Playwright, Puppeteer, or any CDP driver. Multi-language SDKs via Stainless (Python, Java, Ruby, Go, Rust, PHP, C#, Kotlin). The Stagehand API is a hosted intelligence layer that routes requests to the best model and handles caching/self-healing. 44% faster than v2 across all benchmarks.
+      </div>
+    </div>
+
+    <!-- Browser Use -->
+    <div class="product-card">
+      <div class="card-header">
+        <h2>Browser Use</h2>
+        <span class="tag tag-python">Python</span>
+      </div>
+      <div class="meta">
+        <strong>60k+</strong> GitHub stars · <strong>300+</strong> contributors · <strong>$17M+</strong> seed funding<br>
+        License: MIT · Language: 98.5% Python<br>
+        Created: Oct 2024 · Latest: v0.12.3 (Mar 20, 2026)
+      </div>
+      <p class="desc">
+        A <em>full autonomous agent framework</em>. You give it a task in natural language, and it plans, navigates, interacts, self-corrects, and delivers results. Uses Playwright under the hood but the LLM drives the entire loop — including multi-tab management, memory, and error recovery. Supports any LLM via LangChain (GPT-4, Claude, Gemini, Llama, DeepSeek, etc).
+      </p>
+      <div class="arch-label">Architecture</div>
+      <div class="arch-desc">
+        <strong>Agent loop pattern.</strong> User input → LLM planning → DOM extraction + vision analysis → action planning → Playwright execution → result evaluation → next action. Dual perception: reads HTML structure AND uses vision (screenshots) for context. Self-correcting with automatic error recovery. CLI available: <code>browser-use open</code>, <code>browser-use state</code>, <code>browser-use click 5</code>. Also has a Gradio Web UI.
+      </div>
+    </div>
+
+    <!-- OpenCLI -->
+    <div class="product-card">
+      <div class="card-header">
+        <h2>OpenCLI <small style="font-weight:400;color:var(--text-dim);font-size:0.75rem;">(jackwener)</small></h2>
+        <span class="tag tag-cli">TS · Chrome Extension</span>
+      </div>
+      <div class="meta">
+        License: MIT · Language: TypeScript<br>
+        Adapters: 40+ sites/apps (Twitter, Reddit, Bilibili, Notion, Cursor, etc)<br>
+        Also CLI-fies Electron apps (ChatGPT, Cursor, Discord, Grok)
+      </div>
+      <p class="desc">
+        A <em>completely different animal</em>. Not a browser automation framework — it's a <strong>universal CLI hub</strong> that turns any website or Electron app into a command-line interface. Reuses your actual Chrome login session via a Browser Bridge (Chrome Extension + micro-daemon). Think of it as "every website gets a CLI" rather than "AI controls a browser."
+      </p>
+      <div class="arch-label">Architecture</div>
+      <div class="arch-desc">
+        <strong>Extension + daemon bridge.</strong> Chrome Extension injects into your logged-in browser. Micro-daemon auto-starts, bridges CLI → extension → live page. YAML declarative adapters or TypeScript injections per site. <code>opencli twitter trending</code>, <code>opencli reddit hot</code>, <code>opencli bilibili search "query"</code>. AI agents discover tools via <code>opencli list</code> + AGENT.md integration. Also registers external CLIs (gh, docker, kubectl) as a unified hub.
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Comparison table -->
+  <div class="table-section">
+    <div class="section-label"><span class="dot" style="background:var(--teal)"></span> Head-to-Head Comparison</div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Dimension</th>
+            <th>Agent Browser</th>
+            <th>Browserbase / Stagehand</th>
+            <th>Browser Use</th>
+            <th>OpenCLI</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Core Concept</td>
+            <td>CLI for AI coding agents to control browsers</td>
+            <td>SDK + cloud platform for programmatic browser automation</td>
+            <td>Autonomous AI agent that drives a browser end-to-end</td>
+            <td>Universal CLI hub — turns sites/apps into CLIs</td>
+          </tr>
+          <tr>
+            <td>Primary Language</td>
+            <td>Rust (95%)</td>
+            <td>TypeScript + 10 language SDKs</td>
+            <td>Python (98.5%)</td>
+            <td>TypeScript</td>
+          </tr>
+          <tr>
+            <td>AI Integration</td>
+            <td>AI-<em>agnostic</em> — provides compact refs for any LLM to reason over</td>
+            <td>AI-<em>embedded</em> — <code>act()</code>/<code>extract()</code>/<code>observe()</code> call LLMs internally</td>
+            <td>AI-<em>native</em> — entire execution loop is LLM-driven</td>
+            <td>AI-<em>friendly</em> — designed for agents to discover & invoke, but no AI in the tool itself</td>
+          </tr>
+          <tr>
+            <td>Context Efficiency</td>
+            <td><span class="badge-strong badge-green">93% savings</span> vs Playwright MCP via ref system</td>
+            <td>Good — v3 context builder reduces token waste, caches elements</td>
+            <td>Moderate — sends DOM + screenshots; heavier token usage</td>
+            <td>Excellent — structured data output, no DOM/snapshot overhead</td>
+          </tr>
+          <tr>
+            <td>Browser Engine</td>
+            <td>Chrome for Testing (CDP), Safari (WebDriver), LightPanda</td>
+            <td>Any Chromium via CDP (Playwright, Puppeteer, or direct). Cloud: Browserbase fleet</td>
+            <td>Chromium via Playwright</td>
+            <td>Your actual Chrome (reuses logged-in sessions via extension)</td>
+          </tr>
+          <tr>
+            <td>Auth / Login</td>
+            <td>Manages own Chrome instance — no existing login reuse</td>
+            <td>Manages own sessions — no existing login reuse (cloud provides stealth cookies)</td>
+            <td>Can connect to existing Chrome profile via <code>--user-data-dir</code></td>
+            <td><span class="badge-strong badge-green">Reuses Chrome login</span> — zero credential handling</td>
+          </tr>
+          <tr>
+            <td>Deterministic vs Agentic</td>
+            <td>Deterministic commands — agent decides what to call</td>
+            <td>Hybrid — mix <code>page.goto()</code> with AI <code>act()</code> in same script</td>
+            <td>Fully agentic — LLM drives everything</td>
+            <td>Deterministic — fixed adapters per site, predictable output</td>
+          </tr>
+          <tr>
+            <td>Site Coverage</td>
+            <td>Any website (generic browser automation)</td>
+            <td>Any website (generic browser automation)</td>
+            <td>Any website (generic browser automation)</td>
+            <td>40+ pre-built adapters + custom YAML/TS adapters. Generic sites need adapter work</td>
+          </tr>
+          <tr>
+            <td>Electron App Support</td>
+            <td>No</td>
+            <td>No</td>
+            <td>No</td>
+            <td><span class="badge-strong badge-green">Yes</span> — CLI-fies Cursor, ChatGPT, Notion, Discord, Grok, etc</td>
+          </tr>
+          <tr>
+            <td>CLI Experience</td>
+            <td><span class="badge-strong badge-green">Primary interface</span> — 108+ commands, <code>--help</code> driven</td>
+            <td>SDK-first — used in code, not standalone CLI</td>
+            <td>Has CLI (<code>browser-use open</code>, <code>click</code>, <code>state</code>) + Python API</td>
+            <td><span class="badge-strong badge-green">Primary interface</span> — every adapter is a CLI subcommand</td>
+          </tr>
+          <tr>
+            <td>Cloud / Managed</td>
+            <td>Kernel Dashboard (API keys). Mostly local</td>
+            <td><span class="badge-strong badge-teal">Browserbase cloud</span> — managed fleet, stealth, proxies, recording. $0.01/min</td>
+            <td>Browser Use Cloud (launched 2025) or fully self-hosted</td>
+            <td>Local only — runs on your machine with your Chrome</td>
+          </tr>
+          <tr>
+            <td>Stealth / Anti-detect</td>
+            <td>None built-in</td>
+            <td><span class="badge-strong badge-green">Built-in</span> — Browserbase provides anti-detect, CAPTCHA solving, 195+ country proxies</td>
+            <td>Via integration (e.g., Bright Data Scraping Browser). Cloud version has stealth</td>
+            <td>Inherent — uses your real Chrome, so it <em>is</em> a real browser</td>
+          </tr>
+          <tr>
+            <td>Maturity</td>
+            <td>Young (Jan 2026) but fast-moving. 60 releases in 2 months</td>
+            <td>Most mature. Stagehand v3, Series B, powering Vercel/Perplexity/Clay</td>
+            <td>Mature. 120 releases, $17M funding, huge community</td>
+            <td>Smaller community, niche. Strong for CJK sites (Bilibili, Zhihu, Xiaohongshu)</td>
+          </tr>
+          <tr>
+            <td>Pricing</td>
+            <td>Free & open source (Apache 2.0)</td>
+            <td>Stagehand: free (MIT). Browserbase: $0.01/min, enterprise tiers</td>
+            <td>Free (MIT). Browser Use Cloud: paid tiers</td>
+            <td>Free (MIT). Local only</td>
+          </tr>
+          <tr>
+            <td>Agent Ecosystem</td>
+            <td>Works with 14+ AI assistants. Skills integration via <code>npx skills add</code></td>
+            <td>SDKs for 10 languages. MCP server. Vercel AI SDK integration</td>
+            <td>LangChain integration. Claude Code skill. Gradio Web UI</td>
+            <td>AGENT.md integration for Cursor/Claude Code. <code>opencli list</code> for discovery</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Verdicts -->
+  <div class="verdict-section">
+    <div class="section-label"><span class="dot" style="background:var(--green)"></span> When to Use What</div>
+    <div class="verdict-grid">
+
+      <div class="verdict-card">
+        <h3><span class="v-icon" style="background:var(--amber)">AB</span> Agent Browser</h3>
+        <p>Pick this when your AI coding agent (Claude Code, Codex, Cursor) needs to interact with web pages as part of a development workflow — testing, scraping, form-filling. The 93% context savings matter when your agent is already working with a full codebase in context. The Rust CLI is lightning-fast and the ref system is elegant.</p>
+        <p class="best-for">→ Best for: AI coding assistants doing web tasks mid-workflow</p>
+      </div>
+
+      <div class="verdict-card">
+        <h3><span class="v-icon" style="background:var(--accent)">BB</span> Browserbase / Stagehand</h3>
+        <p>Pick this for production-grade browser automation at scale — scraping pipelines, QA testing, competitive monitoring. The hybrid deterministic + AI approach gives you reliability where scripts work and AI resilience where they don't. Stealth browsers and proxies handle the anti-bot war. Most mature and well-funded option by far.</p>
+        <p class="best-for">→ Best for: Production scraping, enterprise QA, anything at scale with anti-detect needs</p>
+      </div>
+
+      <div class="verdict-card">
+        <h3><span class="v-icon" style="background:var(--green)">BU</span> Browser Use</h3>
+        <p>Pick this for fully autonomous workflows where you want to describe a task in English and let the AI figure out the entire execution — multi-step research, complex form workflows, tasks on unfamiliar UIs. The trade-off is higher token cost and less predictability, but the capability ceiling is highest. Great Python ecosystem integration.</p>
+        <p class="best-for">→ Best for: Autonomous multi-step tasks, research agents, Python-centric teams</p>
+      </div>
+
+      <div class="verdict-card">
+        <h3><span class="v-icon" style="background:var(--rose)">OC</span> OpenCLI</h3>
+        <p>Pick this if you need structured, reliable data from specific platforms using your existing logins — no headless browser dance, no credential management. It's the only tool here that CLI-fies Electron apps. Excellent for CJK platforms (Bilibili, Zhihu, Xiaohongshu, Weibo). Think of it as a curated API layer over sites that don't have APIs.</p>
+        <p class="best-for">→ Best for: Structured data from known sites, Electron app automation, CJK platforms</p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Bottom line -->
+  <div class="bottom-line">
+    <h3>The Bottom Line</h3>
+    <p>These tools solve fundamentally different problems despite all touching "AI + browsers." <strong>Agent Browser</strong> is a surgical tool for AI coding agents — fast, compact, context-efficient. <strong>Stagehand/Browserbase</strong> is the enterprise platform play — most polished, best anti-detect, works at scale. <strong>Browser Use</strong> is the most autonomous — highest capability ceiling but also highest token cost and least predictable. <strong>OpenCLI</strong> is the odd one out — not really browser automation but a brilliant hack to turn websites into structured APIs using your own login sessions.</p>
+    <p>For an OpenClaw-style setup where you already have browser tooling built in, the most complementary additions would be: Agent Browser for coding agents doing web tasks, and OpenCLI for structured data extraction from specific platforms (especially CJK ones). Stagehand/Browserbase is the move if you need production-grade scraping with stealth. Browser Use is interesting for fully autonomous research workflows but overlaps heavily with what your agents already do.</p>
+  </div>
+
+</div>
+</body>
+</html>
