@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zosia → Slack: Setup Guide & Landscape</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f8f7f4;
+      --surface: #ffffff;
+      --surface-alt: #f1efe9;
+      --border: rgba(0,0,0,0.08);
+      --border-accent: rgba(0,0,0,0.15);
+      --text: #1a1a1a;
+      --text-dim: #666;
+      --text-muted: #999;
+      --accent-teal: #0e7490;
+      --accent-teal-dim: #ecfeff;
+      --accent-amber: #b45309;
+      --accent-amber-dim: #fffbeb;
+      --accent-rose: #be123c;
+      --accent-rose-dim: #fff1f2;
+      --accent-emerald: #047857;
+      --accent-emerald-dim: #ecfdf5;
+      --accent-slate: #334155;
+      --accent-slate-dim: #f1f5f9;
+      --font-body: 'IBM Plex Sans', -apple-system, sans-serif;
+      --font-mono: 'IBM Plex Mono', 'Fira Code', monospace;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.06);
+      --shadow-lg: 0 8px 24px rgba(0,0,0,0.08);
+      --radius: 10px;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0f1117;
+        --surface: #1a1d27;
+        --surface-alt: #222632;
+        --border: rgba(255,255,255,0.06);
+        --border-accent: rgba(255,255,255,0.12);
+        --text: #e8e6e1;
+        --text-dim: #9ca3af;
+        --text-muted: #6b7280;
+        --accent-teal-dim: rgba(14,116,144,0.12);
+        --accent-amber-dim: rgba(180,83,9,0.12);
+        --accent-rose-dim: rgba(190,18,60,0.12);
+        --accent-emerald-dim: rgba(4,120,87,0.12);
+        --accent-slate-dim: rgba(51,65,85,0.2);
+        --shadow-sm: 0 1px 2px rgba(0,0,0,0.2);
+        --shadow-md: 0 4px 12px rgba(0,0,0,0.3);
+        --shadow-lg: 0 8px 24px rgba(0,0,0,0.4);
+      }
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+    .container { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+
+    /* Hero */
+    .hero {
+      text-align: center;
+      padding: 3rem 1rem 2.5rem;
+      margin-bottom: 2.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .hero h1 {
+      font-size: 2.2rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.5rem;
+    }
+    .hero .subtitle {
+      font-size: 1.1rem;
+      color: var(--text-dim);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .hero .date {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 0.75rem;
+    }
+
+    /* Section headers */
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin: 2.5rem 0 1.25rem;
+    }
+    .section-num {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 600;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      flex-shrink: 0;
+    }
+    .section-header h2 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    /* Cards */
+    .ve-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem 1.5rem;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 1rem;
+    }
+    .ve-card--hero {
+      box-shadow: var(--shadow-md);
+      border-color: var(--border-accent);
+    }
+    .ve-card h3 {
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+    .ve-card p, .ve-card li {
+      font-size: 0.92rem;
+      color: var(--text-dim);
+      line-height: 1.65;
+    }
+    .ve-card ul { padding-left: 1.25rem; }
+    .ve-card li { margin-bottom: 0.35rem; }
+
+    /* Tags */
+    .tag {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 500;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-right: 0.35rem;
+      margin-bottom: 0.25rem;
+    }
+    .tag--teal { background: var(--accent-teal-dim); color: var(--accent-teal); }
+    .tag--amber { background: var(--accent-amber-dim); color: var(--accent-amber); }
+    .tag--rose { background: var(--accent-rose-dim); color: var(--accent-rose); }
+    .tag--emerald { background: var(--accent-emerald-dim); color: var(--accent-emerald); }
+    .tag--slate { background: var(--accent-slate-dim); color: var(--accent-slate); }
+
+    /* Status indicators */
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .status--ok .status-dot { background: var(--accent-emerald); }
+    .status--warn .status-dot { background: var(--accent-amber); }
+    .status--err .status-dot { background: var(--accent-rose); }
+    .status--info .status-dot { background: var(--accent-teal); }
+
+    /* Grid layouts */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
+    @media (max-width: 768px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    }
+
+    /* Comparison table */
+    .compare-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+    }
+    .compare-table th {
+      text-align: left;
+      font-weight: 600;
+      padding: 0.75rem 1rem;
+      border-bottom: 2px solid var(--border-accent);
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-dim);
+    }
+    .compare-table td {
+      padding: 0.65rem 1rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+      color: var(--text-dim);
+    }
+    .compare-table tr:last-child td { border-bottom: none; }
+    .compare-table td:first-child { font-weight: 500; color: var(--text); min-width: 140px; }
+
+    /* Code inline */
+    code {
+      font-family: var(--font-mono);
+      font-size: 0.84em;
+      background: var(--surface-alt);
+      padding: 1px 5px;
+      border-radius: 3px;
+    }
+
+    /* Callout */
+    .callout {
+      border-left: 3px solid;
+      padding: 0.85rem 1.25rem;
+      border-radius: 0 var(--radius) var(--radius) 0;
+      margin: 1rem 0;
+      font-size: 0.9rem;
+    }
+    .callout--teal { border-color: var(--accent-teal); background: var(--accent-teal-dim); }
+    .callout--amber { border-color: var(--accent-amber); background: var(--accent-amber-dim); }
+    .callout--rose { border-color: var(--accent-rose); background: var(--accent-rose-dim); }
+    .callout--emerald { border-color: var(--accent-emerald); background: var(--accent-emerald-dim); }
+    .callout strong { display: block; margin-bottom: 0.25rem; }
+
+    /* Flow arrows */
+    .flow-arrow {
+      text-align: center;
+      padding: 0.5rem;
+      color: var(--text-muted);
+      font-size: 1.2rem;
+    }
+
+    /* Token display */
+    .token-display {
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      background: var(--surface-alt);
+      padding: 0.5rem 0.75rem;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      overflow-wrap: break-word;
+    }
+
+    /* Animations */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate { animation: fadeUp 0.4s ease-out forwards; opacity: 0; }
+    .animate:nth-child(1) { animation-delay: 0.05s; }
+    .animate:nth-child(2) { animation-delay: 0.1s; }
+    .animate:nth-child(3) { animation-delay: 0.15s; }
+    .animate:nth-child(4) { animation-delay: 0.2s; }
+    .animate:nth-child(5) { animation-delay: 0.25s; }
+    @media (prefers-reduced-motion: reduce) {
+      .animate { animation: none; opacity: 1; }
+    }
+
+    /* Details/summary */
+    details { margin: 0.75rem 0; }
+    details summary {
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 0.9rem;
+      color: var(--accent-teal);
+      padding: 0.25rem 0;
+    }
+    details[open] summary { margin-bottom: 0.5rem; }
+  </style>
+  <!-- Vercel Web Analytics -->
+  <script>
+    window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+  </script>
+  <script defer src="/_vercel/insights/script.js"></script>
+  <!-- Vercel Speed Insights -->
+  <script>
+    window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
+  </script>
+  <script defer src="/_vercel/speed-insights/script.js"></script>
+  <meta property="og:title" content="Zosia → Slack: Setup Guide &amp; Landscape">
+  <meta property="og:description" content="Setting up Zosia in Slack — the current landscape, what we have, and the plan forward">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://zosia.cc/pages/slack-setup-guide">
+  <meta name="twitter:card" content="summary">
+</head>
+<body>
+  <div class="container">
+
+    <div class="hero animate">
+      <h1>Zosia → Slack</h1>
+      <p class="subtitle">Setting up Zosia in Slack — the current landscape, what we have, and the plan forward</p>
+      <p class="date">Research completed March 26, 2026</p>
+    </div>
+
+    <!-- SECTION 1: EXISTING STATE -->
+    <div class="section-header animate">
+      <span class="section-num" style="background:var(--accent-amber-dim); color:var(--accent-amber);">01</span>
+      <h2>What We Already Have</h2>
+    </div>
+
+    <div class="ve-card ve-card--hero animate">
+      <h3>Current OpenClaw Slack Config</h3>
+      <p>Slack plugin is <strong>already enabled</strong> in your gateway config. Socket Mode is configured. But tokens are incomplete.</p>
+
+      <div style="margin-top:1rem">
+        <table class="compare-table">
+          <tr>
+            <td>Plugin</td>
+            <td><span class="status status--ok"><span class="status-dot"></span> Enabled</span> — <code>plugins.allow</code> includes "slack"</td>
+          </tr>
+          <tr>
+            <td>Mode</td>
+            <td><code>socket</code> — WebSocket, no public endpoint needed</td>
+          </tr>
+          <tr>
+            <td>Streaming</td>
+            <td><code>partial</code> + <code>nativeStreaming: true</code> — uses Slack's native <code>chat.startStream/appendStream/stopStream</code></td>
+          </tr>
+          <tr>
+            <td>Bot Token</td>
+            <td><span class="status status--err"><span class="status-dot"></span> Missing</span> — no <code>xoxb-</code> token configured</td>
+          </tr>
+          <tr>
+            <td>App Token</td>
+            <td><span class="status status--err"><span class="status-dot"></span> Missing</span> — no <code>xapp-</code> token for Socket Mode</td>
+          </tr>
+          <tr>
+            <td>User Token</td>
+            <td><span class="status status--warn"><span class="status-dot"></span> Found but wrong workspace</span></td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="callout callout--amber animate">
+      <strong>⚠ Token from Donna's era</strong>
+      The <code>SLACK_USER_TOKEN</code> in <code>.env</code> is a <code>xoxp-</code> user token. It's <strong>still valid</strong> but points to <strong>wagme.slack.com</strong> (World Automotive Group, team <code>T09S28SCH0W</code>), user <code>raymondzhu</code>. This is NOT raymondos.slack.com — it's your WAG workspace. No tokens exist for the raymondos workspace.
+    </div>
+
+    <div class="ve-card animate">
+      <h3>What's Missing to Go Live</h3>
+      <ul>
+        <li><strong>Bot Token</strong> (<code>xoxb-</code>) — the bot's identity in Slack. Needed for posting, reacting, reading.</li>
+        <li><strong>App-Level Token</strong> (<code>xapp-</code>) — needed for Socket Mode WebSocket connection.</li>
+        <li><strong>A Slack App</strong> — needs to be created (or existing one found) in <a href="https://api.slack.com/apps" style="color:var(--accent-teal)">api.slack.com/apps</a></li>
+      </ul>
+    </div>
+
+    <!-- SECTION 2: THE LANDSCAPE -->
+    <div class="section-header animate">
+      <span class="section-num" style="background:var(--accent-teal-dim); color:var(--accent-teal);">02</span>
+      <h2>Slack's AI Landscape (March 2026)</h2>
+    </div>
+
+    <div class="ve-card ve-card--hero animate">
+      <h3>Two Paths: Traditional Bot vs. Agent-First</h3>
+      <p>Slack now has two fundamentally different approaches. Here's the honest comparison:</p>
+
+      <table class="compare-table" style="margin-top:1rem">
+        <thead>
+          <tr>
+            <th style="width:160px">Dimension</th>
+            <th>Traditional Bot (Socket Mode)</th>
+            <th>Agent-First (Agents & AI Apps)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Setup</td>
+            <td>Moderate — bot token + app token, Socket Mode, done</td>
+            <td>Higher — enable Agents feature, wire assistant scopes, implement lifecycle APIs</td>
+          </tr>
+          <tr>
+            <td>UI</td>
+            <td>Bot appears as channel member. Messages in threads/channels.</td>
+            <td>Dedicated top-bar entry + split-view conversational UI. Feels native.</td>
+          </tr>
+          <tr>
+            <td>Streaming</td>
+            <td>Post → update loop (<code>chat.postMessage</code> → <code>chat.update</code>)</td>
+            <td>Native streaming via <code>assistant.*</code> methods + <code>chat.startStream/appendStream</code></td>
+          </tr>
+          <tr>
+            <td>Context</td>
+            <td>Only sees channels it's invited to. Manual context retrieval.</td>
+            <td>Real-time Search API + MCP for permission-aware RAG across workspace</td>
+          </tr>
+          <tr>
+            <td>Thread mgmt</td>
+            <td>Manual — you handle <code>thread_ts</code></td>
+            <td><code>assistant.threads.*</code> — loading states, suggested prompts, thread titles built-in</td>
+          </tr>
+          <tr>
+            <td>OpenClaw support</td>
+            <td><span class="tag tag--emerald">Ready now</span> Socket Mode plugin works out of the box</td>
+            <td><span class="tag tag--amber">Not yet</span> Would need OpenClaw plugin changes for assistant.* APIs</td>
+          </tr>
+          <tr>
+            <td>Best for</td>
+            <td>Personal assistant like Zosia — quick, works today</td>
+            <td>Enterprise AI products shipping to Slack Marketplace</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout callout--emerald animate">
+      <strong>My recommendation</strong>
+      Start with the <strong>traditional bot + Socket Mode</strong>. It's what OpenClaw's Slack plugin already supports, it works exactly like our Discord setup (read messages, respond in threads, react, stream), and you can be live in 10 minutes. The Agent-first stuff is cool but it's enterprise Agentforce territory — overkill for a personal assistant.
+    </div>
+
+    <!-- SECTION 3: New APIs -->
+    <div class="section-header animate">
+      <span class="section-num" style="background:var(--accent-emerald-dim); color:var(--accent-emerald);">03</span>
+      <h2>What's New in Slack (2025–2026)</h2>
+    </div>
+
+    <div class="grid-2 animate">
+      <div class="ve-card">
+        <h3><span class="tag tag--teal">Feb 2026</span> MCP Server</h3>
+        <p>Slack released an official Model Context Protocol server. Lets LLMs discover Slack tools, query workspace context with permission-aware access. JSON-RPC based. Think of it as "Slack as an MCP tool provider."</p>
+      </div>
+      <div class="ve-card">
+        <h3><span class="tag tag--teal">Feb 2026</span> Real-time Search API</h3>
+        <p>Query-based, permission-respecting search across Slack messages, files, channels. For RAG workflows. Requires <code>search:read.*</code> scopes. Better than bulk-exporting messages.</p>
+      </div>
+      <div class="ve-card">
+        <h3><span class="tag tag--amber">2025</span> Assistants API</h3>
+        <p>Beta assistant integration — but Slack is <strong>sunsetting it</strong> in favor of MCP + <code>assistant.*</code> methods. Don't build on this.</p>
+      </div>
+      <div class="ve-card">
+        <h3><span class="tag tag--teal">2025</span> Native Streaming</h3>
+        <p><code>chat.startStream</code> / <code>appendStream</code> / <code>stopStream</code> — real token-by-token streaming in Slack messages. OpenClaw already supports this (<code>nativeStreaming: true</code> in your config).</p>
+      </div>
+      <div class="ve-card">
+        <h3><span class="tag tag--slate">Retired</span> Workflow Steps from Apps</h3>
+        <p>Legacy "Steps from Apps" is dead (Sept 2024). Replaced by custom functions on Slack's Deno platform. Not relevant for our use case.</p>
+      </div>
+      <div class="ve-card">
+        <h3><span class="tag tag--teal">Ongoing</span> Agentforce / AI Agents</h3>
+        <p>Salesforce-powered agents in Slack (HR/IT/Service). Enterprise play. Third-party AI apps can integrate via assistant APIs. Not what we need for Zosia.</p>
+      </div>
+    </div>
+
+    <!-- SECTION 4: Setup Plan -->
+    <div class="section-header animate">
+      <span class="section-num" style="background:var(--accent-rose-dim); color:var(--accent-rose);">04</span>
+      <h2>Setup Plan</h2>
+    </div>
+
+    <div class="ve-card ve-card--hero animate">
+      <h3>Quick Start — 10 Minutes to Live</h3>
+      <p style="margin-bottom:1rem">Here's what we need to do, in order:</p>
+
+      <div style="display:flex;flex-direction:column;gap:0.5rem">
+        <div class="ve-card" style="background:var(--surface-alt);border-color:var(--border);margin:0">
+          <p><strong>Step 1.</strong> Go to <a href="https://api.slack.com/apps" style="color:var(--accent-teal)">api.slack.com/apps</a> → Create New App → From scratch</p>
+          <p>Name it "Zosia" (or whatever), install to <code>raymondos.slack.com</code></p>
+        </div>
+
+        <div class="flow-arrow">↓</div>
+
+        <div class="ve-card" style="background:var(--surface-alt);border-color:var(--border);margin:0">
+          <p><strong>Step 2.</strong> Enable Socket Mode (Settings → Socket Mode → Enable)</p>
+          <p>This generates an <strong>App-Level Token</strong> (<code>xapp-...</code>). Copy it.</p>
+        </div>
+
+        <div class="flow-arrow">↓</div>
+
+        <div class="ve-card" style="background:var(--surface-alt);border-color:var(--border);margin:0">
+          <p><strong>Step 3.</strong> Configure bot scopes (OAuth & Permissions):</p>
+          <p style="margin-top:0.35rem">
+            <span class="tag tag--teal">app_mentions:read</span>
+            <span class="tag tag--teal">channels:history</span>
+            <span class="tag tag--teal">channels:read</span>
+            <span class="tag tag--teal">chat:write</span>
+            <span class="tag tag--teal">groups:history</span>
+            <span class="tag tag--teal">groups:read</span>
+            <span class="tag tag--teal">im:history</span>
+            <span class="tag tag--teal">im:read</span>
+            <span class="tag tag--teal">im:write</span>
+            <span class="tag tag--teal">mpim:history</span>
+            <span class="tag tag--teal">reactions:read</span>
+            <span class="tag tag--teal">reactions:write</span>
+            <span class="tag tag--teal">users:read</span>
+          </p>
+        </div>
+
+        <div class="flow-arrow">↓</div>
+
+        <div class="ve-card" style="background:var(--surface-alt);border-color:var(--border);margin:0">
+          <p><strong>Step 4.</strong> Subscribe to events (Event Subscriptions → Subscribe to bot events):</p>
+          <p style="margin-top:0.35rem">
+            <span class="tag tag--amber">app_mention</span>
+            <span class="tag tag--amber">message.channels</span>
+            <span class="tag tag--amber">message.groups</span>
+            <span class="tag tag--amber">message.im</span>
+            <span class="tag tag--amber">message.mpim</span>
+            <span class="tag tag--amber">reaction_added</span>
+          </p>
+        </div>
+
+        <div class="flow-arrow">↓</div>
+
+        <div class="ve-card" style="background:var(--surface-alt);border-color:var(--border);margin:0">
+          <p><strong>Step 5.</strong> Install app to workspace → Copy the <strong>Bot Token</strong> (<code>xoxb-...</code>)</p>
+        </div>
+
+        <div class="flow-arrow">↓</div>
+
+        <div class="ve-card" style="background:var(--surface-alt);border-color:var(--border);margin:0">
+          <p><strong>Step 6.</strong> Add tokens to <code>~/.openclaw/.env</code>:</p>
+          <div class="token-display" style="margin-top:0.5rem">
+            SLACK_BOT_TOKEN=xoxb-your-bot-token<br>
+            SLACK_APP_TOKEN=xapp-your-app-token
+          </div>
+        </div>
+
+        <div class="flow-arrow">↓</div>
+
+        <div class="ve-card" style="background:var(--surface-alt);border-color:var(--border);margin:0">
+          <p><strong>Step 7.</strong> Update OpenClaw config — add bot/app tokens to <code>channels.slack</code>:</p>
+          <div class="token-display" style="margin-top:0.5rem">
+            botToken: "${SLACK_BOT_TOKEN}"<br>
+            appToken: "${SLACK_APP_TOKEN}"
+          </div>
+          <p style="margin-top:0.35rem">Then <code>gateway restart</code> — Zosia goes live in Slack.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 5: Token Inventory -->
+    <div class="section-header animate">
+      <span class="section-num" style="background:var(--accent-slate-dim); color:var(--accent-slate);">05</span>
+      <h2>Token Inventory</h2>
+    </div>
+
+    <div class="ve-card animate">
+      <h3>Existing Tokens</h3>
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Token</th>
+            <th>Type</th>
+            <th>Workspace</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>xoxp-988...</code></td>
+            <td>User Token</td>
+            <td><strong>wagme.slack.com</strong> (WAG)</td>
+            <td><span class="status status--ok"><span class="status-dot"></span> Valid</span></td>
+          </tr>
+          <tr>
+            <td colspan="4" style="color:var(--text-muted); font-style:italic">No tokens found for raymondos.slack.com. The Donna-era setup was likely for the WAG workspace, not raymondos.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <details style="margin-top:0.75rem">
+        <summary>Which workspace should we set up?</summary>
+        <div style="padding:0.5rem 0; font-size:0.9rem; color:var(--text-dim)">
+          <p><strong>Option A: raymondos.slack.com</strong> — your personal workspace. Good for testing. Needs a fresh app created from scratch.</p>
+          <p style="margin-top:0.5rem"><strong>Option B: wagme.slack.com</strong> — WAG workspace. Already have a valid user token. Could test there immediately but would need a new bot app for full integration.</p>
+          <p style="margin-top:0.5rem"><strong>Option C: Both</strong> — test on raymondos first, then deploy to WAG. OpenClaw can handle multiple Slack workspaces.</p>
+        </div>
+      </details>
+    </div>
+
+    <!-- SECTION 6: Parity with Discord -->
+    <div class="section-header animate">
+      <span class="section-num" style="background:var(--accent-teal-dim); color:var(--accent-teal);">06</span>
+      <h2>Discord ↔ Slack Feature Parity</h2>
+    </div>
+
+    <div class="ve-card animate">
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>Discord (Current)</th>
+            <th>Slack (Available)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Read & respond</td>
+            <td><span class="status status--ok"><span class="status-dot"></span></span></td>
+            <td><span class="status status--ok"><span class="status-dot"></span></span> via message events + <code>chat.postMessage</code></td>
+          </tr>
+          <tr>
+            <td>Threads</td>
+            <td><span class="status status--ok"><span class="status-dot"></span></span> auto-thread on #daily</td>
+            <td><span class="status status--ok"><span class="status-dot"></span></span> <code>thread_ts</code> support built into OpenClaw Slack plugin</td>
+          </tr>
+          <tr>
+            <td>Reactions</td>
+            <td><span class="status status--ok"><span class="status-dot"></span></span> ack 👍 + status</td>
+            <td><span class="status status--ok"><span class="status-dot"></span></span> <code>reactions.add</code> — same pattern</td>
+          </tr>
+          <tr>
+            <td>Streaming</td>
+            <td><span class="status status--ok"><span class="status-dot"></span></span> partial edit</td>
+            <td><span class="status status--ok"><span class="status-dot"></span></span> native streaming API — actually better than Discord</td>
+          </tr>
+          <tr>
+            <td>DM policy</td>
+            <td><span class="status status--ok"><span class="status-dot"></span></span> allowlist</td>
+            <td><span class="status status--ok"><span class="status-dot"></span></span> allowlist / pairing supported</td>
+          </tr>
+          <tr>
+            <td>Slash commands</td>
+            <td><span class="status status--ok"><span class="status-dot"></span></span> native commands</td>
+            <td><span class="status status--ok"><span class="status-dot"></span></span> <code>slashCommand</code> config available</td>
+          </tr>
+          <tr>
+            <td>Multi-channel</td>
+            <td><span class="status status--ok"><span class="status-dot"></span></span> per-channel config</td>
+            <td><span class="status status--ok"><span class="status-dot"></span></span> <code>channels.slack.channels</code> config block</td>
+          </tr>
+          <tr>
+            <td>CV2 components</td>
+            <td><span class="status status--ok"><span class="status-dot"></span></span> rich cards</td>
+            <td><span class="status status--warn"><span class="status-dot"></span> Block Kit</span> — Slack equivalent, different format</td>
+          </tr>
+          <tr>
+            <td>Multiple accounts</td>
+            <td><span class="status status--ok"><span class="status-dot"></span></span> Zosia + Argus</td>
+            <td><span class="status status--ok"><span class="status-dot"></span></span> <code>accounts</code> config supported</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout callout--teal animate">
+      <strong>Bottom line</strong>
+      Everything we do in Discord can be replicated in Slack. The OpenClaw Slack plugin is mature — Socket Mode, streaming, reactions, threads, slash commands all work. We just need the tokens. Tell me which workspace to target (raymondos, wagme, or both) and I'll either walk you through the Slack app creation or patch the config if you create it yourself.
+    </div>
+
+  </div>
+</body>
+</html>
