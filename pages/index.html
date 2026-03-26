@@ -300,9 +300,9 @@
     </header>
 
     <div class="stats">
-      <span><span class="num">44</span> pages</span>
+      <span><span class="num">45</span> pages</span>
       <span><span class="num">7</span> categories</span>
-      <span>Last updated <span class="num">Mar 21, 2026</span></span>
+      <span>Last updated <span class="num">Mar 26, 2026</span></span>
     </div>
 
     <div class="search-wrap">
@@ -346,6 +346,17 @@
 
   <script>
     const pages = [
+      {
+            "slug": "codex-oauth-guide",
+            "title": "Codex OAuth — Best Practices for Zosia & Zoe",
+            "desc": "A field guide to why your Codex tokens keep dying and how to stop it. Based on OpenAI's official docs, 50+ GitHub issues, X/Twitter community reports, and our own Mar 5 incident.",
+            "cat": "openclaw",
+            "created": "2026-03-26",
+            "updated": "2026-03-26",
+            "tags": [
+                  "guide"
+            ]
+      },
       {
             "slug": "browser-cli-tools",
             "title": "Browser CLI Tools for AI Agents — Deep Comparison",
@@ -874,7 +885,7 @@
     }
 
     function daysAgo(d) {
-      const now = new Date("2026-03-21");
+      const now = new Date("2026-03-26");
       const then = new Date(d);
       const diff = Math.floor((now - then) / 86400000);
       if (diff === 0) return "today";
