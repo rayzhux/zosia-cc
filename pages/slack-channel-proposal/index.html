@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Slack Channel Reorganization Proposal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f8f6f3;
+      --surface: #ffffff;
+      --surface-alt: #f0ede8;
+      --border: rgba(0,0,0,0.08);
+      --border-strong: rgba(0,0,0,0.15);
+      --text: #1a1a1a;
+      --text-dim: #6b6560;
+      --text-muted: #9e9590;
+      --accent-primary: #1e3a5f;
+      --accent-primary-dim: rgba(30,58,95,0.08);
+      --accent-gold: #d4a73a;
+      --accent-gold-dim: rgba(212,167,58,0.12);
+      --accent-green: #2d6a4f;
+      --accent-green-dim: rgba(45,106,79,0.08);
+      --accent-rose: #9e2a2b;
+      --accent-rose-dim: rgba(158,42,43,0.08);
+      --accent-amber: #b8860b;
+      --accent-amber-dim: rgba(184,134,11,0.1);
+      --accent-teal: #0f766e;
+      --accent-teal-dim: rgba(15,118,110,0.08);
+      --font-display: 'Instrument Serif', Georgia, serif;
+      --font-body: 'DM Sans', -apple-system, sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+      --radius: 8px;
+      --radius-lg: 12px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #141210;
+        --surface: #1e1c19;
+        --surface-alt: #262420;
+        --border: rgba(255,255,255,0.06);
+        --border-strong: rgba(255,255,255,0.12);
+        --text: #e8e4de;
+        --text-dim: #9e9590;
+        --text-muted: #6b6560;
+        --accent-primary: #7ba3d4;
+        --accent-primary-dim: rgba(123,163,212,0.1);
+        --accent-gold: #e8c466;
+        --accent-gold-dim: rgba(232,196,102,0.1);
+        --accent-green: #52b788;
+        --accent-green-dim: rgba(82,183,136,0.08);
+        --accent-rose: #e07070;
+        --accent-rose-dim: rgba(224,112,112,0.08);
+        --accent-amber: #dba03a;
+        --accent-amber-dim: rgba(219,160,58,0.1);
+        --accent-teal: #4ecdc4;
+        --accent-teal-dim: rgba(78,205,196,0.08);
+        --surface: #1e1c19;
+      }
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 0;
+    }
+
+    .hero {
+      padding: 4rem 2rem 3rem;
+      text-align: center;
+      background: linear-gradient(180deg, var(--accent-primary-dim) 0%, var(--bg) 100%);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .hero h1 {
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 400;
+      color: var(--text);
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.02em;
+    }
+
+    .hero .subtitle {
+      font-size: 1.05rem;
+      color: var(--text-dim);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .hero .date {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 4rem;
+    }
+
+    .section {
+      margin-bottom: 3rem;
+      opacity: 0;
+      transform: translateY(16px);
+      animation: fadeUp 0.5s ease forwards;
+    }
+
+    .section:nth-child(1) { animation-delay: 0.1s; }
+    .section:nth-child(2) { animation-delay: 0.2s; }
+    .section:nth-child(3) { animation-delay: 0.3s; }
+    .section:nth-child(4) { animation-delay: 0.4s; }
+    .section:nth-child(5) { animation-delay: 0.5s; }
+    .section:nth-child(6) { animation-delay: 0.6s; }
+
+    @keyframes fadeUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .section-label {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--accent-primary);
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .section-label::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent-primary);
+    }
+
+    .section h2 {
+      font-family: var(--font-display);
+      font-size: 1.6rem;
+      font-weight: 400;
+      margin-bottom: 1rem;
+      letter-spacing: -0.01em;
+    }
+
+    .section p, .section li {
+      color: var(--text-dim);
+      font-size: 0.92rem;
+      line-height: 1.7;
+    }
+
+    .section p { margin-bottom: 0.75rem; }
+
+    /* Comparison: Discord vs Slack current state */
+    .comparison {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-top: 1rem;
+    }
+
+    @media (max-width: 640px) {
+      .comparison { grid-template-columns: 1fr; }
+    }
+
+    .comparison-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem;
+      position: relative;
+    }
+
+    .comparison-panel h3 {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .comparison-panel .badge {
+      font-size: 0.65rem;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+
+    .badge-good {
+      background: var(--accent-green-dim);
+      color: var(--accent-green);
+    }
+
+    .badge-needs-work {
+      background: var(--accent-amber-dim);
+      color: var(--accent-amber);
+    }
+
+    .category-block {
+      margin-bottom: 0.75rem;
+    }
+
+    .category-name {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: var(--accent-primary);
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    .channel-list {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .channel-list li {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--text-dim);
+      background: var(--surface-alt);
+      padding: 2px 8px;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+    }
+
+    /* Proposed structure */
+    .proposed-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      position: relative;
+    }
+
+    .proposed-section::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      border-radius: 3px 0 0 3px;
+    }
+
+    .proposed-section.section-command::before { background: var(--accent-primary); }
+    .proposed-section.section-engineering::before { background: var(--accent-teal); }
+    .proposed-section.section-ops::before { background: var(--accent-amber); }
+    .proposed-section.section-bots::before { background: var(--accent-rose); }
+
+    .proposed-section h3 {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .section-tag {
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+
+    .tag-command { background: var(--accent-primary-dim); color: var(--accent-primary); }
+    .tag-engineering { background: var(--accent-teal-dim); color: var(--accent-teal); }
+    .tag-ops { background: var(--accent-amber-dim); color: var(--accent-amber); }
+    .tag-bots { background: var(--accent-rose-dim); color: var(--accent-rose); }
+
+    .proposed-section .desc {
+      color: var(--text-dim);
+      font-size: 0.85rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .channel-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 0.75rem;
+    }
+
+    .channel-card {
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.75rem;
+    }
+
+    .channel-card .name {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 0.25rem;
+    }
+
+    .channel-card .purpose {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .channel-card .status {
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      margin-top: 0.35rem;
+      display: inline-block;
+      padding: 1px 6px;
+      border-radius: 3px;
+    }
+
+    .status-exists { background: var(--accent-green-dim); color: var(--accent-green); }
+    .status-new { background: var(--accent-gold-dim); color: var(--accent-gold); }
+    .status-rename { background: var(--accent-primary-dim); color: var(--accent-primary); }
+    .status-archive { background: var(--accent-rose-dim); color: var(--accent-rose); }
+
+    /* Best practices */
+    .practice-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .practice-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem;
+    }
+
+    .practice-card h4 {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent-primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .practice-card p {
+      font-size: 0.82rem;
+      color: var(--text-dim);
+      line-height: 1.6;
+    }
+
+    .practice-card code {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      background: var(--surface-alt);
+      padding: 1px 5px;
+      border-radius: 3px;
+      border: 1px solid var(--border);
+    }
+
+    /* Bot coexistence table */
+    .bot-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+      font-size: 0.82rem;
+    }
+
+    .bot-table thead {
+      position: sticky;
+      top: 0;
+    }
+
+    .bot-table th {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      text-align: left;
+      padding: 0.6rem 0.75rem;
+      background: var(--surface-alt);
+      border-bottom: 1px solid var(--border-strong);
+    }
+
+    .bot-table td {
+      padding: 0.6rem 0.75rem;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-dim);
+      vertical-align: top;
+    }
+
+    .bot-table tr:hover td {
+      background: var(--accent-primary-dim);
+    }
+
+    .bot-table .bot-name {
+      font-family: var(--font-mono);
+      font-weight: 600;
+      color: var(--text);
+      font-size: 0.8rem;
+    }
+
+    /* Callout */
+    .callout {
+      background: var(--accent-gold-dim);
+      border-left: 3px solid var(--accent-gold);
+      border-radius: 0 var(--radius) var(--radius) 0;
+      padding: 1rem 1.25rem;
+      margin: 1rem 0;
+    }
+
+    .callout p {
+      color: var(--text);
+      font-size: 0.85rem;
+    }
+
+    .callout strong {
+      color: var(--accent-gold);
+    }
+
+    /* Flow arrow */
+    .flow-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .flow-num {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--accent-primary);
+      background: var(--accent-primary-dim);
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .flow-content {
+      flex: 1;
+    }
+
+    .flow-content strong {
+      font-size: 0.85rem;
+      color: var(--text);
+    }
+
+    .flow-content p {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      margin-top: 0.15rem;
+    }
+
+    /* Migration diff */
+    .migration-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+      font-size: 0.8rem;
+    }
+
+    .migration-table th {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      text-align: left;
+      padding: 0.5rem 0.75rem;
+      background: var(--surface-alt);
+      border-bottom: 1px solid var(--border-strong);
+    }
+
+    .migration-table td {
+      padding: 0.5rem 0.75rem;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-dim);
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+    }
+
+    .migration-table .action-keep { color: var(--accent-green); }
+    .migration-table .action-rename { color: var(--accent-primary); }
+    .migration-table .action-new { color: var(--accent-gold); }
+    .migration-table .action-archive { color: var(--accent-rose); }
+
+    @media (prefers-reduced-motion: reduce) {
+      .section { opacity: 1; transform: none; animation: none; }
+    }
+  </style>
+  <!-- Vercel Web Analytics -->
+  <script>
+    window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+  </script>
+  <script defer src="/_vercel/insights/script.js"></script>
+  <!-- Vercel Speed Insights -->
+  <script>
+    window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
+  </script>
+  <script defer src="/_vercel/speed-insights/script.js"></script>
+  <meta property="og:title" content="Slack Channel Reorganization Proposal">
+  <meta property="og:description" content="Learning from Discord's structure, adapted for multi-bot Slack with Linear, Devon, and third-party integrations">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://zosia.cc/pages/slack-channel-proposal">
+  <meta name="twitter:card" content="summary">
+</head>
+<body>
+
+<div class="hero">
+  <h1>Slack Channel Reorganization</h1>
+  <p class="subtitle">Learning from Discord's structure, adapted for multi-bot Slack with Linear, Devon, and third-party integrations</p>
+  <p class="date">Proposed March 27, 2026 — Raymond OS Workspace</p>
+</div>
+
+<div class="container">
+
+  <!-- Section 1: Current State Comparison -->
+  <div class="section">
+    <div class="section-label">Current State</div>
+    <h2>What We Have Today</h2>
+    <p>Discord is well-organized with 4 categories and clear channel purposes. Slack is flat — 9 active channels with no grouping, no naming convention, and no separation between human conversation and bot output.</p>
+
+    <div class="comparison">
+      <div class="comparison-panel">
+        <h3>Discord <span class="badge badge-good">Structured</span></h3>
+        <div class="category-block">
+          <div class="category-name">📋 Command Center</div>
+          <ul class="channel-list">
+            <li>daily</li><li>briefings</li><li>intel</li><li>meeting</li><li>health</li><li>finance</li>
+          </ul>
+        </div>
+        <div class="category-block">
+          <div class="category-name">🤖 Agent DevOps</div>
+          <ul class="channel-list">
+            <li>system</li><li>identity</li><li>security</li><li>development</li><li>token-usage</li><li>backups</li><li>heartbeat</li>
+          </ul>
+        </div>
+        <div class="category-block">
+          <div class="category-name">🥷 Zoe</div>
+          <ul class="channel-list"><li>zoe-admin</li><li>zoe</li></ul>
+        </div>
+        <div class="category-block">
+          <div class="category-name">📦 Archived</div>
+          <ul class="channel-list">
+            <li>daily-news</li><li>reddit</li><li>x-monitor</li><li>skills</li><li>notion</li><li>cron-jobs</li><li>+5 more</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="comparison-panel">
+        <h3>Slack <span class="badge badge-needs-work">Flat</span></h3>
+        <div class="category-block">
+          <div class="category-name">All channels (no sections)</div>
+          <ul class="channel-list">
+            <li>#daily</li><li>#system</li><li>#development</li><li>#alerts</li><li>#daily-news</li><li>#heartbeat</li><li>#token-usage</li><li>#backups</li><li>#bookmarks</li><li>#webhook</li>
+          </ul>
+        </div>
+        <div class="category-block" style="margin-top: 0.75rem;">
+          <div class="category-name" style="color: var(--accent-rose);">Problems</div>
+          <ul style="list-style: none; font-size: 0.78rem; color: var(--text-dim);">
+            <li style="background:none; border:none; padding: 2px 0;">→ No prefix convention</li>
+            <li style="background:none; border:none; padding: 2px 0;">→ Bot output mixed with human chat</li>
+            <li style="background:none; border:none; padding: 2px 0;">→ No room for Linear/Devon bots</li>
+            <li style="background:none; border:none; padding: 2px 0;">→ No mute-friendly structure</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 2: Research Findings -->
+  <div class="section">
+    <div class="section-label">Research</div>
+    <h2>Best Practices for Multi-Bot Slack</h2>
+    <p>Synthesized from Slack's official AI app guidelines, channel organization research, and real-world patterns from teams running Linear + coding agents simultaneously.</p>
+
+    <div class="practice-grid">
+      <div class="practice-card">
+        <h4>Prefix-Based Naming</h4>
+        <p>Use consistent prefixes so channels are discoverable and auto-sort in the sidebar. The industry standard: <code>team-</code>, <code>proj-</code>, <code>sys-</code>, <code>bot-</code>, <code>feed-</code>. Keep to under 10 prefixes total.</p>
+      </div>
+      <div class="practice-card">
+        <h4>Bot Isolation</h4>
+        <p>Give bots their own channels. Never let automated output flood human conversation channels. Create <code>bot-</code> or <code>feed-</code> prefixed channels for each integration's output. Humans subscribe to the ones they want.</p>
+      </div>
+      <div class="practice-card">
+        <h4>@mention-Only in Human Channels</h4>
+        <p>When multiple bots exist in a workspace, each bot should only respond when <code>@mentioned</code> in shared channels. This prevents the "every bot answers everything" problem. Slack's official AI app docs recommend this pattern.</p>
+      </div>
+      <div class="practice-card">
+        <h4>Sidebar Sections</h4>
+        <p>Slack doesn't have Discord-style categories, but every user can create <strong>sidebar sections</strong> (drag channels into custom groups). Design your channel names so they naturally group: all <code>sys-</code> channels together, all <code>bot-</code> together.</p>
+      </div>
+      <div class="practice-card">
+        <h4>Tiered Notifications</h4>
+        <p>Structure channels by urgency tier: <strong>Critical</strong> (all activity), <strong>Updates</strong> (mentions only), <strong>Digest</strong> (muted, check when needed). This maps directly to Slack's per-channel notification settings.</p>
+      </div>
+      <div class="practice-card">
+        <h4>Thread-First Culture</h4>
+        <p>All substantive discussion happens in threads. Top-level messages are announcements or triggers only. This keeps channels scannable and prevents cross-talk between humans and bots.</p>
+      </div>
+    </div>
+
+    <div class="callout">
+      <p><strong>Key insight from Linear teams:</strong> Linear's Slack bot can get noisy fast — every issue update, comment, and status change generates a notification. Best practice is to route Linear notifications to a dedicated <code>#feed-linear</code> channel, then use Linear's built-in filtering to only send high-priority items. Same pattern applies to Devon — coding sessions generate lots of output that belongs in <code>#bot-devon</code>, not in <code>#development</code>.</p>
+    </div>
+  </div>
+
+  <!-- Section 3: Multi-Bot Coexistence -->
+  <div class="section">
+    <div class="section-label">Bot Strategy</div>
+    <h2>Multi-Bot Coexistence Rules</h2>
+    <p>With Zosia, Linear, Devon, and future third-party bots, you need clear ownership per channel. Here's how each bot should behave:</p>
+
+    <div style="overflow-x: auto;">
+      <table class="bot-table">
+        <thead>
+          <tr>
+            <th>Bot</th>
+            <th>Primary Channel</th>
+            <th>Response Mode</th>
+            <th>Behavior in Other Channels</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="bot-name">Zosia</span></td>
+            <td>#daily, #development</td>
+            <td>Active — responds to all messages in her primary channels</td>
+            <td>@mention only in <code>#eng-*</code> channels. Silent in <code>#bot-*</code> and <code>#feed-*</code> channels.</td>
+          </tr>
+          <tr>
+            <td><span class="bot-name">Linear Bot</span></td>
+            <td>#feed-linear</td>
+            <td>Feed-only — posts issue updates, never responds to messages</td>
+            <td>Slash command (<code>/linear</code>) available everywhere. Notifications only in its feed channel.</td>
+          </tr>
+          <tr>
+            <td><span class="bot-name">Devon</span></td>
+            <td>#bot-devon</td>
+            <td>Active in its channel — accepts coding tasks, posts results</td>
+            <td>@mention or slash command in <code>#eng-*</code> channels. Zosia stays quiet when Devon is handling a task.</td>
+          </tr>
+          <tr>
+            <td><span class="bot-name">Future Bots</span></td>
+            <td>#bot-[name] or #feed-[name]</td>
+            <td>Feed bots → feed channel. Interactive bots → bot channel.</td>
+            <td>@mention only outside their home channel. Never auto-respond.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout">
+      <p><strong>Zosia's behavior change:</strong> I'll configure per-channel system prompts so I know when to step back. In <code>#bot-devon</code>, I only respond if @mentioned. In <code>#eng-coding</code>, if Devon is handling something, I stay quiet unless you @zosia me directly. No more "every bot answers every message."</p>
+    </div>
+  </div>
+
+  <!-- Section 4: Proposed Structure -->
+  <div class="section">
+    <div class="section-label">Proposal</div>
+    <h2>Proposed Channel Structure</h2>
+    <p>Four logical groups matching Slack sidebar sections. Channels use consistent prefixes for discoverability. Every channel has a clear owner and purpose.</p>
+
+    <!-- Command Center -->
+    <div class="proposed-section section-command">
+      <h3>Command Center <span class="section-tag tag-command">Human-First</span></h3>
+      <p class="desc">Your primary interaction channels. High-signal, low-noise. Zosia is active here.</p>
+      <div class="channel-grid">
+        <div class="channel-card">
+          <div class="name">#daily</div>
+          <div class="purpose">Main hub — tasks, questions, quick discussions with Zosia. Thread-first.</div>
+          <div class="status status-exists">Keep</div>
+        </div>
+        <div class="channel-card">
+          <div class="name">#briefings</div>
+          <div class="purpose">Proactive output from Zosia — meeting prep, research, flags. Push notifications.</div>
+          <div class="status status-new">New</div>
+        </div>
+        <div class="channel-card">
+          <div class="name">#development</div>
+          <div class="purpose">Architecture discussions, code reviews, technical decisions. Zosia + Devon coexist (@mention).</div>
+          <div class="status status-exists">Keep</div>
+        </div>
+        <div class="channel-card">
+          <div class="name">#alerts</div>
+          <div class="purpose">Critical notifications only — outages, security, payment failures. Never mute this.</div>
+          <div class="status status-exists">Keep</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Engineering / Bots -->
+    <div class="proposed-section section-engineering">
+      <h3>Engineering <span class="section-tag tag-engineering">Bot-Friendly</span></h3>
+      <p class="desc">Channels where bots are primary actors. Devon handles coding tasks, Linear tracks issues. Zosia responds only when @mentioned.</p>
+      <div class="channel-grid">
+        <div class="channel-card">
+          <div class="name">#bot-devon</div>
+          <div class="purpose">Devon's home — kick off coding tasks, review results, iterate. Devon is primary responder.</div>
+          <div class="status status-new">New</div>
+        </div>
+        <div class="channel-card">
+          <div class="name">#feed-linear</div>
+          <div class="purpose">Linear issue updates, status changes, assignments. Read-only feed. Use /linear for actions.</div>
+          <div class="status status-new">New</div>
+        </div>
+        <div class="channel-card">
+          <div class="name">#feed-github</div>
+          <div class="purpose">PR merges, CI results, deploy notifications. Mutable — check when needed.</div>
+          <div class="status status-new">New</div>
+        </div>
+        <div class="channel-card">
+          <div class="name">#webhook</div>
+          <div class="purpose">Catch-all for webhook integrations that don't have their own feed channel yet.</div>
+          <div class="status status-exists">Keep</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ops / System -->
+    <div class="proposed-section section-ops">
+      <h3>Ops &amp; System <span class="section-tag tag-ops">Automated</span></h3>
+      <p class="desc">Machine-generated output. Mute all of these by default — check on-demand or when alerted. Maps to Discord's Agent DevOps category.</p>
+      <div class="channel-grid">
+        <div class="channel-card">
+          <div class="name">#sys-system</div>
+          <div class="purpose">Gateway events, memory distillation, cron watchdog. The machine's nerve center.</div>
+          <div class="status status-rename">Rename from #system</div>
+        </div>
+        <div class="channel-card">
+          <div class="name">#sys-heartbeat</div>
+          <div class="purpose">Liveness checks every 30min. Silence = problem.</div>
+          <div class="status status-rename">Rename from #heartbeat</div>
+        </div>
+        <div class="channel-card">
+          <div class="name">#sys-backups</div>
+          <div class="purpose">Daily backup confirmations + weekly archive status.</div>
+          <div class="status status-rename">Rename from #backups</div>
+        </div>
+        <div class="channel-card">
+          <div class="name">#sys-token-usage</div>
+          <div class="purpose">Daily token/cost reports across all models.</div>
+          <div class="status status-rename">Rename from #token-usage</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Archive candidates -->
+    <div class="proposed-section section-bots">
+      <h3>Archive / Remove <span class="section-tag tag-bots">Cleanup</span></h3>
+      <p class="desc">Channels to archive or absorb into the new structure.</p>
+      <div class="channel-grid">
+        <div class="channel-card">
+          <div class="name">#daily-news</div>
+          <div class="purpose">Absorbed into #briefings (Zosia's proactive output). Archive.</div>
+          <div class="status status-archive">Archive</div>
+        </div>
+        <div class="channel-card">
+          <div class="name">#bookmarks</div>
+          <div class="purpose">Low activity, bot not even a member. Archive or use Slack bookmarks feature instead.</div>
+          <div class="status status-archive">Archive</div>
+        </div>
+        <div class="channel-card">
+          <div class="name">#test-zosia-delete-me</div>
+          <div class="purpose">Already archived. Delete if possible.</div>
+          <div class="status status-archive">Delete</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 5: Migration plan -->
+  <div class="section">
+    <div class="section-label">Migration</div>
+    <h2>Migration Diff</h2>
+    <p>Exact changes from current state to proposed. All renames preserve channel history.</p>
+
+    <div style="overflow-x: auto;">
+      <table class="migration-table">
+        <thead>
+          <tr><th>Current</th><th>Action</th><th>New Name</th><th>Notes</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>#daily</td><td class="action-keep">Keep</td><td>#daily</td><td>Add per-channel system prompt</td></tr>
+          <tr><td>#development</td><td class="action-keep">Keep</td><td>#development</td><td>Add Devon coexistence rules</td></tr>
+          <tr><td>#alerts</td><td class="action-keep">Keep</td><td>#alerts</td><td>Critical only — no bot noise</td></tr>
+          <tr><td>#webhook</td><td class="action-keep">Keep</td><td>#webhook</td><td>Catch-all stays as-is</td></tr>
+          <tr><td>#system</td><td class="action-rename">Rename</td><td>#sys-system</td><td>Prefix for sidebar grouping</td></tr>
+          <tr><td>#heartbeat</td><td class="action-rename">Rename</td><td>#sys-heartbeat</td><td>Prefix for sidebar grouping</td></tr>
+          <tr><td>#backups</td><td class="action-rename">Rename</td><td>#sys-backups</td><td>Prefix for sidebar grouping</td></tr>
+          <tr><td>#token-usage</td><td class="action-rename">Rename</td><td>#sys-token-usage</td><td>Prefix for sidebar grouping</td></tr>
+          <tr><td>#daily-news</td><td class="action-archive">Archive</td><td>—</td><td>Absorbed into #briefings</td></tr>
+          <tr><td>#bookmarks</td><td class="action-archive">Archive</td><td>—</td><td>Use Slack bookmarks feature instead</td></tr>
+          <tr><td>—</td><td class="action-new">Create</td><td>#briefings</td><td>Zosia proactive output channel</td></tr>
+          <tr><td>—</td><td class="action-new">Create</td><td>#bot-devon</td><td>Devon coding agent home</td></tr>
+          <tr><td>—</td><td class="action-new">Create</td><td>#feed-linear</td><td>Linear issue feed</td></tr>
+          <tr><td>—</td><td class="action-new">Create</td><td>#feed-github</td><td>GitHub/CI notifications</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Section 6: Sidebar Sections -->
+  <div class="section">
+    <div class="section-label">Setup</div>
+    <h2>Recommended Sidebar Sections</h2>
+    <p>After creating/renaming channels, organize your Slack sidebar into these sections. This is the closest equivalent to Discord categories:</p>
+
+    <div class="flow-step">
+      <div class="flow-num">1</div>
+      <div class="flow-content">
+        <strong>⭐ Command Center</strong>
+        <p>#daily, #briefings, #development, #alerts</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">2</div>
+      <div class="flow-content">
+        <strong>🤖 Engineering</strong>
+        <p>#bot-devon, #feed-linear, #feed-github, #webhook</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">3</div>
+      <div class="flow-content">
+        <strong>⚙️ System</strong>
+        <p>#sys-system, #sys-heartbeat, #sys-backups, #sys-token-usage — all muted by default</p>
+      </div>
+    </div>
+
+    <div class="callout" style="margin-top: 1.5rem;">
+      <p><strong>Scaling rule:</strong> When you add a new third-party bot, decide upfront: is it a <strong>feed</strong> (one-way notifications → <code>#feed-[name]</code>) or an <strong>interactive bot</strong> (accepts commands → <code>#bot-[name]</code>)? This convention scales to any number of integrations without restructuring.</p>
+    </div>
+
+    <p style="margin-top: 1rem;">On the OpenClaw config side, I'll update per-channel system prompts for each new channel and set <code>requireMention: true</code> for Zosia in all <code>#bot-*</code> and <code>#feed-*</code> channels so I don't step on other bots' toes.</p>
+  </div>
+
+</div>
+
+</body>
+</html>

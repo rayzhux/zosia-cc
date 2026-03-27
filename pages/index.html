@@ -300,9 +300,9 @@
     </header>
 
     <div class="stats">
-      <span><span class="num">46</span> pages</span>
+      <span><span class="num">47</span> pages</span>
       <span><span class="num">7</span> categories</span>
-      <span>Last updated <span class="num">Mar 26, 2026</span></span>
+      <span>Last updated <span class="num">Mar 27, 2026</span></span>
     </div>
 
     <div class="search-wrap">
@@ -346,6 +346,17 @@
 
   <script>
     const pages = [
+      {
+            "slug": "slack-channel-proposal",
+            "title": "Slack Channel Reorganization Proposal",
+            "desc": "Learning from Discord's structure, adapted for multi-bot Slack with Linear, Devon, and third-party integrations",
+            "cat": "openclaw",
+            "created": "2026-03-27",
+            "updated": "2026-03-27",
+            "tags": [
+                  "openclaw"
+            ]
+      },
       {
             "slug": "codex-oauth-guide",
             "title": "Codex OAuth — Best Practices for Zosia & Zoe",
@@ -896,7 +907,7 @@
     }
 
     function daysAgo(d) {
-      const now = new Date("2026-03-26");
+      const now = new Date("2026-03-27");
       const then = new Date(d);
       const diff = Math.floor((now - then) / 86400000);
       if (diff === 0) return "today";
