@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LiblibAI (哩布哩布AI) — Competitive Intelligence Report</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --font-display: 'Instrument Serif', Georgia, serif;
+  --font-body: 'DM Sans', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+
+  --bg: #faf8f5;
+  --surface: #ffffff;
+  --surface2: #f5f0eb;
+  --surface-elevated: #fffcf9;
+  --border: rgba(0,0,0,0.07);
+  --border-bright: rgba(0,0,0,0.14);
+  --text: #1c1917;
+  --text-dim: #78716c;
+  --accent: #c2410c;
+  --accent-dim: rgba(194,65,12,0.07);
+  --green: #16a34a;
+  --green-dim: rgba(22,163,74,0.08);
+  --red: #dc2626;
+  --red-dim: rgba(220,38,38,0.08);
+  --amber: #d97706;
+  --amber-dim: rgba(217,119,6,0.08);
+  --blue: #0369a1;
+  --blue-dim: rgba(3,105,161,0.08);
+  --sage: #65a30d;
+  --sage-dim: rgba(101,163,13,0.08);
+  --navy: #1e3a5f;
+  --gold: #d4a73a;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #141110;
+    --surface: #1e1a17;
+    --surface2: #2a2420;
+    --surface-elevated: #302922;
+    --border: rgba(255,255,255,0.06);
+    --border-bright: rgba(255,255,255,0.12);
+    --text: #f5ebe0;
+    --text-dim: #a89e94;
+    --accent: #fb923c;
+    --accent-dim: rgba(251,146,60,0.12);
+    --green: #4ade80;
+    --green-dim: rgba(74,222,128,0.1);
+    --red: #f87171;
+    --red-dim: rgba(248,113,113,0.1);
+    --amber: #fbbf24;
+    --amber-dim: rgba(251,191,36,0.1);
+    --blue: #38bdf8;
+    --blue-dim: rgba(56,189,248,0.1);
+    --sage: #a3e635;
+    --sage-dim: rgba(163,230,53,0.1);
+    --navy: #93c5fd;
+    --gold: #fbbf24;
+  }
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  background-image:
+    radial-gradient(ellipse at 20% 0%, var(--accent-dim) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 100%, var(--sage-dim) 0%, transparent 40%);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 4rem;
+}
+
+/* ===== HEADER ===== */
+.hero {
+  text-align: center;
+  padding: 3rem 0 2.5rem;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 2.5rem;
+}
+
+.hero-label {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 0.75rem;
+  font-weight: 500;
+}
+
+.hero h1 {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  font-weight: 400;
+  line-height: 1.15;
+  margin-bottom: 0.5rem;
+}
+
+.hero h1 em {
+  font-style: italic;
+  color: var(--accent);
+}
+
+.hero-sub {
+  font-size: 1.05rem;
+  color: var(--text-dim);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* ===== KPI CARDS ===== */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2.5rem;
+}
+
+.kpi {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.25rem 1.25rem 1rem;
+  animation: fadeUp 0.5s ease both;
+}
+
+.kpi:nth-child(1) { animation-delay: 0.05s; }
+.kpi:nth-child(2) { animation-delay: 0.1s; }
+.kpi:nth-child(3) { animation-delay: 0.15s; }
+.kpi:nth-child(4) { animation-delay: 0.2s; }
+.kpi:nth-child(5) { animation-delay: 0.25s; }
+.kpi:nth-child(6) { animation-delay: 0.3s; }
+
+.kpi-label {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 0.35rem;
+}
+
+.kpi-value {
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  line-height: 1.2;
+  color: var(--text);
+}
+
+.kpi-note {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  margin-top: 0.2rem;
+}
+
+/* ===== SECTIONS ===== */
+.section {
+  margin-bottom: 2.5rem;
+  animation: fadeUp 0.5s ease both;
+}
+
+.section-label {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.section-label::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex-shrink: 0;
+}
+
+.section h2 {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  font-weight: 400;
+  margin-bottom: 1rem;
+}
+
+/* ===== CARDS ===== */
+.ve-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.ve-card--hero {
+  background: var(--surface-elevated);
+  border-color: var(--border-bright);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.04);
+}
+
+.ve-card h3 {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.ve-card p, .ve-card li {
+  font-size: 0.92rem;
+  color: var(--text);
+  line-height: 1.65;
+}
+
+.ve-card ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.ve-card li {
+  position: relative;
+  padding-left: 1.1rem;
+  margin-bottom: 0.35rem;
+}
+
+.ve-card li::before {
+  content: '›';
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+/* ===== TWO COLUMN ===== */
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+@media (max-width: 700px) {
+  .two-col { grid-template-columns: 1fr; }
+}
+
+/* ===== TABLE ===== */
+.table-wrap {
+  overflow-x: auto;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+thead th {
+  position: sticky;
+  top: 0;
+  background: var(--surface2);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  text-align: left;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border-bright);
+  font-weight: 500;
+}
+
+td {
+  padding: 0.7rem 1rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+tr:nth-child(even) td { background: var(--surface2); }
+tr:last-child td { border-bottom: none; }
+
+td code {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  background: var(--accent-dim);
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+}
+
+/* ===== BADGES ===== */
+.badge {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  padding: 0.15em 0.55em;
+  border-radius: 6px;
+}
+
+.badge--green { background: var(--green-dim); color: var(--green); }
+.badge--red { background: var(--red-dim); color: var(--red); }
+.badge--amber { background: var(--amber-dim); color: var(--amber); }
+.badge--blue { background: var(--blue-dim); color: var(--blue); }
+
+/* ===== SCORE BAR ===== */
+.score-bar-wrap {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.score-bar {
+  flex: 1;
+  height: 10px;
+  background: var(--surface2);
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.score-bar-fill {
+  height: 100%;
+  border-radius: 5px;
+  background: linear-gradient(90deg, var(--accent), var(--amber));
+  transition: width 1.2s ease;
+}
+
+.score-label {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  min-width: 3.5rem;
+  text-align: right;
+}
+
+/* ===== TIMELINE ===== */
+.timeline {
+  position: relative;
+  padding-left: 2rem;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 0.45rem;
+  top: 0.3rem;
+  bottom: 0.3rem;
+  width: 2px;
+  background: var(--border-bright);
+}
+
+.tl-item {
+  position: relative;
+  margin-bottom: 1.25rem;
+  animation: fadeUp 0.4s ease both;
+}
+
+.tl-item::before {
+  content: '';
+  position: absolute;
+  left: -1.55rem;
+  top: 0.45rem;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--bg);
+}
+
+.tl-date {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--accent);
+  letter-spacing: 0.04em;
+  font-weight: 500;
+}
+
+.tl-text {
+  font-size: 0.9rem;
+  color: var(--text);
+  margin-top: 0.15rem;
+}
+
+.tl-detail {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+}
+
+/* ===== VERDICT ===== */
+.verdict {
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-bright);
+  border-left: 4px solid var(--accent);
+  border-radius: 12px;
+  padding: 1.5rem 1.75rem;
+  margin-top: 2rem;
+}
+
+.verdict h3 {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  margin-bottom: 0.75rem;
+}
+
+.verdict p {
+  font-size: 0.95rem;
+  line-height: 1.7;
+  margin-bottom: 0.5rem;
+}
+
+/* ===== DETAILS ===== */
+details {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin-bottom: 1rem;
+}
+
+details summary {
+  padding: 1rem 1.25rem;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.92rem;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+details summary::before {
+  content: '▸';
+  font-size: 0.8rem;
+  color: var(--accent);
+  transition: transform 0.2s;
+}
+
+details[open] summary::before { transform: rotate(90deg); }
+
+details .inner {
+  padding: 0 1.25rem 1.25rem;
+  font-size: 0.9rem;
+  line-height: 1.65;
+}
+
+/* ===== FOOTER ===== */
+.footer {
+  text-align: center;
+  padding-top: 2rem;
+  border-top: 1px solid var(--border);
+  margin-top: 2rem;
+  color: var(--text-dim);
+  font-size: 0.78rem;
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+</style>
+  <!-- Vercel Web Analytics -->
+  <script>
+    window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+  </script>
+  <script defer src="/_vercel/insights/script.js"></script>
+  <!-- Vercel Speed Insights -->
+  <script>
+    window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
+  </script>
+  <script defer src="/_vercel/speed-insights/script.js"></script>
+  <meta property="og:title" content="LiblibAI (哩布哩布AI) — Competitive Intelligence Report">
+  <meta property="og:description" content="China's largest AI image generation platform &amp;amp; creator community — from Stable Diffusion hub to $130M-funded multimodal content ecosystem">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://zosia.cc/pages/liblibai-competitive-analysis">
+  <meta name="twitter:card" content="summary">
+</head>
+<body>
+<div class="container">
+
+<!-- HERO -->
+<header class="hero">
+  <div class="hero-label">Competitive Intelligence Report · April 2026</div>
+  <h1>LiblibAI <em>(哩布哩布AI)</em></h1>
+  <p class="hero-sub">China's largest AI image generation platform &amp; creator community — from Stable Diffusion hub to $130M-funded multimodal content ecosystem</p>
+</header>
+
+<!-- KPIs -->
+<div class="kpi-grid">
+  <div class="kpi">
+    <div class="kpi-label">Total Funding</div>
+    <div class="kpi-value">$130M+</div>
+    <div class="kpi-note">Series B (Oct 2025) — largest AI app round in China that year</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Creators</div>
+    <div class="kpi-value">25M+</div>
+    <div class="kpi-note">1 in 3 Chinese designers has used the platform</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Images Generated</div>
+    <div class="kpi-value">500M+</div>
+    <div class="kpi-note">Daily generation: millions of images</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Community Models</div>
+    <div class="kpi-value">50K+</div>
+    <div class="kpi-note">500K+ user-trained LoRAs &amp; workflows</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Monthly Visits</div>
+    <div class="kpi-value">~2.4M</div>
+    <div class="kpi-note">Global visits exceeded 100M total (Alibaba Cloud infra)</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Founded</div>
+    <div class="kpi-value">2023</div>
+    <div class="kpi-note">4 funding rounds in ~18 months</div>
+  </div>
+</div>
+
+<!-- COMPANY PROFILE -->
+<section class="section" style="animation-delay:0.1s">
+  <div class="section-label">Company Profile</div>
+  <h2>From ByteDance to AI Creator Economy</h2>
+  <div class="ve-card ve-card--hero">
+    <ul>
+      <li><strong>Entity:</strong> 北京奇点星宇科技有限公司 (Beijing Singularity Starfield Technology Co.)</li>
+      <li><strong>Founder &amp; CEO:</strong> Chen Mian (陈冕) — born 1992, product manager background. Former head of Jianying/CapCut global commercialization at ByteDance. One of the youngest "4-1" senior managers in ByteDance history. Left in May 2023 to found LiblibAI.</li>
+      <li><strong>Team:</strong> ~100 people. Core team from ByteDance, Meituan, Tencent, Baidu, Alibaba. Heavy product &amp; community DNA, not pure research lab.</li>
+      <li><strong>HQ:</strong> Beijing, China</li>
+      <li><strong>International:</strong> Launched <strong>Lovart</strong> (海外独立运营) — "world's first design Agent," 100K+ signups in 5 days. Chinese version: 星流Agent.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- FUNDING TIMELINE -->
+<section class="section" style="animation-delay:0.15s">
+  <div class="section-label">Funding History</div>
+  <h2>From ¥4,000 in the Bank to $130M Series B</h2>
+  <div class="ve-card">
+    <div class="timeline">
+      <div class="tl-item" style="animation-delay:0.2s">
+        <div class="tl-date">Sep 2023 — Seed</div>
+        <div class="tl-text">$3.5M at $15M valuation</div>
+        <div class="tl-detail">Led by Source Code Capital, Gaorong Capital, GSR (金沙江) Ventures</div>
+      </div>
+      <div class="tl-item" style="animation-delay:0.25s">
+        <div class="tl-date">Jul 2024 — Series A-1</div>
+        <div class="tl-text">Hundreds of millions of RMB (multiple rounds consolidated)</div>
+        <div class="tl-detail">Led by Mingshi Investment, Source Code Capital, Gaorong Capital, GSR. Record for domestic AI image track.</div>
+      </div>
+      <div class="tl-item" style="animation-delay:0.3s">
+        <div class="tl-date">Feb 2025 — Series A-2</div>
+        <div class="tl-text">Hundreds of millions of RMB</div>
+        <div class="tl-detail">Led by INCE Capital (渶策资本) &amp; Shunwei Capital (顺为资本). Future Capital increased stake.</div>
+      </div>
+      <div class="tl-item" style="animation-delay:0.35s">
+        <div class="tl-date">Oct 2025 — Series B</div>
+        <div class="tl-text"><strong>$130M</strong> — largest single AI application round in China, 2025</div>
+        <div class="tl-detail">Led by Sequoia China, CMC Capital + strategic investor. All existing investors increased. Yuanshi Capital as exclusive financial advisor.</div>
+      </div>
+    </div>
+    <p style="font-size:0.85rem;color:var(--text-dim);margin-top:0.75rem"><strong>Near-death moment:</strong> In early 2024, after being delisted for incomplete大模型备案 (LLM filing) and burning $3M+ in subsidies, the company had only ¥4,000 left in the bank. Chen Mian rejected multiple acquisition offers, met 3-4 investor groups daily, and pulled through. "I'm not founding a company for the sake of it — I'm founding to win."</p>
+  </div>
+</section>
+
+<!-- PRODUCT & BUSINESS MODEL -->
+<section class="section" style="animation-delay:0.2s">
+  <div class="section-label">Product &amp; Business Model</div>
+  <h2>AI Creation Studio + Creator Ecosystem</h2>
+  <div class="two-col">
+    <div class="ve-card">
+      <h3>Core Product</h3>
+      <ul>
+        <li><strong>AI Canvas:</strong> Text-to-image, image-to-image, inpainting, style transfer</li>
+        <li><strong>Model Hub:</strong> 50K+ models (SD, Flux, custom) — users train &amp; share LoRAs</li>
+        <li><strong>Video (2.0):</strong> Multi-model video generation, pro-level VFX templates, end-to-end creative workflow</li>
+        <li><strong>Workflow Builder:</strong> ComfyUI-style node editor with 392+ node templates for e-commerce, portrait, etc.</li>
+        <li><strong>3D &amp; LoRA Training:</strong> One-click custom model training for personal styles</li>
+      </ul>
+    </div>
+    <div class="ve-card">
+      <h3>Revenue Model</h3>
+      <ul>
+        <li><strong>Freemium SaaS:</strong> Free tier (200 credits ≈ 300 images). Basic VIP: 15K credits/mo. Pro VIP: 35K credits/mo</li>
+        <li><strong>Creator Revenue Share:</strong> Model authors set pricing, platform takes cut. Top creators earn ¥20K+/month</li>
+        <li><strong>B2B Enterprise:</strong> Custom AI image solutions — clients include Tmall Campus, Luckin Coffee, Tsinghua University, Kingsoft Office, Gbitgame</li>
+        <li><strong>API Access:</strong> Professional-grade image generation API for developers</li>
+        <li>15% paid conversion rate among registered users</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- TECHNOLOGY -->
+<section class="section" style="animation-delay:0.25s">
+  <div class="section-label">Technology Stack</div>
+  <h2>Platform Play, Not a Model Lab</h2>
+  <div class="ve-card">
+    <ul>
+      <li><strong>Architecture:</strong> "Open-source model ecosystem + modular tool pipeline." Aggregates global open &amp; closed-source models (Stable Diffusion, Flux, Seedream, Qwen-Image, etc.) rather than training a single foundation model</li>
+      <li><strong>Infrastructure:</strong> Built on Alibaba Cloud's full AI stack. Distributed inference, model compression &amp; acceleration</li>
+      <li><strong>Proprietary tech:</strong> Intelligent prompt optimization, model fine-tuning pipeline, one-click LoRA training. Multiple AI patents filed</li>
+      <li><strong>V2.0 (Oct 2025):</strong> Upgraded from "tool aggregator" to "AI Professional Creation Studio" — video generation, multi-model support, VFX templates</li>
+      <li><strong>Next focus:</strong> Video ecosystem &amp; VFX, especially cinema-grade generation capabilities</li>
+    </ul>
+  </div>
+</section>
+
+<!-- COMPETITIVE MOAT -->
+<section class="section" style="animation-delay:0.3s">
+  <div class="section-label">Competitive Moat</div>
+  <h2>Strengths &amp; Vulnerabilities</h2>
+  <div class="two-col">
+    <div class="ve-card" style="border-left:3px solid var(--green)">
+      <h3 style="color:var(--green)">Moat — What's Working</h3>
+      <ul>
+        <li><strong>Network effects:</strong> 25M creators ↔ model ecosystem flywheel. Users come for content, contribute content, attract more users</li>
+        <li><strong>Brand lock-in:</strong> "国内SD第一站" — first platform Chinese designers turn to. 1 in 3 designers has used it</li>
+        <li><strong>Creator economics:</strong> Revenue-sharing + incentive programs (¥10M+ cumulative payouts) keep model authors loyal</li>
+        <li><strong>Workflow stickiness:</strong> Professional workflows (ComfyUI, WebUI) deeply integrated into creative pipelines</li>
+        <li><strong>Speed of execution:</strong> 4 funding rounds in 18 months. Near-death → unicorn trajectory</li>
+        <li><strong>International beachhead:</strong> Lovart Agent went viral (100K signups in 5 days, Elon Musk noticed)</li>
+      </ul>
+    </div>
+    <div class="ve-card" style="border-left:3px solid var(--red)">
+      <h3 style="color:var(--red)">Risks — What Could Break</h3>
+      <ul>
+        <li><strong>Thin technical moat:</strong> No proprietary foundation model. Dependent on open-source (SD, Flux) and third-party models. If upstream changes licensing, platform is exposed</li>
+        <li><strong>Giant encroachment:</strong> ByteDance, Alibaba, Tencent all building AIGC products. They have traffic, compute, and distribution advantages</li>
+        <li><strong>Multimodal convergence:</strong> Users want text + image + video in one tool. Pure image platforms risk being subsumed by all-in-one suites</li>
+        <li><strong>GPU access &amp; geopolitics:</strong> China's compute constraints under export controls could throttle scaling</li>
+        <li><strong>Regulatory risk:</strong> AI content compliance, copyright, deepfake regulations still evolving in China</li>
+        <li><strong>Community fragility:</strong> Network effects work both ways — if top creators migrate to a better-funded platform, the flywheel reverses</li>
+        <li><strong>Monetization pressure:</strong> 15% paid conversion is good, but the market is "booming on thin margins" (Stella L.)</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- COMPETITOR LANDSCAPE -->
+<section class="section" style="animation-delay:0.35s">
+  <div class="section-label">Competitive Landscape</div>
+  <h2>How LiblibAI Stacks Up</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Platform</th>
+          <th>HQ</th>
+          <th>Funding</th>
+          <th>Focus</th>
+          <th>Differentiator</th>
+          <th>Threat Level</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>LiblibAI</strong></td>
+          <td>Beijing</td>
+          <td>$130M (Series B)</td>
+          <td>AI image + video creation community</td>
+          <td>Largest Chinese creator ecosystem, 25M users</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><strong>Civitai</strong></td>
+          <td>US</td>
+          <td>Unfunded (community)</td>
+          <td>SD model sharing hub</td>
+          <td>Global SD community #1, NSFW-permissive</td>
+          <td><span class="badge badge--amber">Medium</span></td>
+        </tr>
+        <tr>
+          <td><strong>Tensor.Art</strong></td>
+          <td>China (global)</td>
+          <td>Undisclosed</td>
+          <td>AI art generation + models</td>
+          <td>Free tier, international audience</td>
+          <td><span class="badge badge--amber">Medium</span></td>
+        </tr>
+        <tr>
+          <td><strong>Recraft</strong></td>
+          <td>San Francisco</td>
+          <td>$42M (Series B)</td>
+          <td>AI-powered design tools</td>
+          <td>Design-focused, vector + raster</td>
+          <td><span class="badge badge--green">Low</span></td>
+        </tr>
+        <tr>
+          <td><strong>Midjourney</strong></td>
+          <td>San Francisco</td>
+          <td>Self-funded (profitable)</td>
+          <td>Premium AI image generation</td>
+          <td>Quality leader, brand recognition</td>
+          <td><span class="badge badge--red">High</span> (indirect)</td>
+        </tr>
+        <tr>
+          <td><strong>Stability AI</strong></td>
+          <td>London</td>
+          <td>$260M+</td>
+          <td>Open-source image models (SD)</td>
+          <td>Model provider — LiblibAI depends on it</td>
+          <td><span class="badge badge--red">High</span> (upstream)</td>
+        </tr>
+        <tr>
+          <td><strong>Runware</strong></td>
+          <td>London</td>
+          <td>$66M (Series A)</td>
+          <td>AI art generation API</td>
+          <td>API-first, infrastructure play</td>
+          <td><span class="badge badge--green">Low</span></td>
+        </tr>
+        <tr>
+          <td><strong>ByteDance (Jimeng/即梦)</strong></td>
+          <td>Beijing</td>
+          <td>Internal</td>
+          <td>AI image &amp; video generation</td>
+          <td>Massive traffic from Douyin/TikTok ecosystem</td>
+          <td><span class="badge badge--red">High</span></td>
+        </tr>
+        <tr>
+          <td><strong>Alibaba (Tongyi Wanxiang)</strong></td>
+          <td>Hangzhou</td>
+          <td>Internal</td>
+          <td>AI image generation + API</td>
+          <td>Cloud integration, enterprise distribution</td>
+          <td><span class="badge badge--red">High</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- MARKET CONTEXT -->
+<section class="section" style="animation-delay:0.4s">
+  <div class="section-label">Market Context</div>
+  <h2>China's AIGC Image Market</h2>
+  <div class="ve-card">
+    <ul>
+      <li><strong>Market size 2024:</strong> ~¥20B (~$2.8B), projected 30%+ CAGR over next 5 years</li>
+      <li><strong>China AI users (mid-2025):</strong> 515M — doubled in 6 months. 90%+ use domestic models</li>
+      <li><strong>Investment signal:</strong> Capital shifting from foundation models → application layer. LiblibAI's $130M is the clearest example</li>
+      <li><strong>Trend:</strong> Multimodal convergence (image → video → 3D → audio). Standalone image platforms must expand or be absorbed</li>
+      <li><strong>Key verticals:</strong> E-commerce (product shots), gaming (concept art), advertising, film/TV storyboarding, education</li>
+    </ul>
+  </div>
+</section>
+
+<!-- SWOT SUMMARY -->
+<section class="section" style="animation-delay:0.45s">
+  <div class="section-label">Assessment</div>
+  <h2>Overall Competitiveness Score</h2>
+  <div class="ve-card ve-card--hero">
+    <div class="score-bar-wrap">
+      <div class="score-bar">
+        <div class="score-bar-fill" style="width:70%"></div>
+      </div>
+      <div class="score-label">7/10</div>
+    </div>
+    <div class="two-col" style="margin-top:1rem">
+      <div>
+        <h3 style="margin-bottom:0.5rem">Bull Case</h3>
+        <p style="font-size:0.88rem">LiblibAI has done something rare in China's AI scene: built genuine community network effects before the big platforms could. Their creator flywheel — with real revenue sharing and 25M users — is the kind of moat that takes years to replicate. If they successfully pivot to video (where users pay more), they could become the "YouTube of AI-generated content" in China. The Lovart international expansion shows they can play globally. Sequoia China + CMC Capital backing gives them 18-24 months of runway to cement the lead.</p>
+      </div>
+      <div>
+        <h3 style="margin-bottom:0.5rem">Bear Case</h3>
+        <p style="font-size:0.88rem">No proprietary model means the technical moat is essentially zero — they're a UX and community layer on top of open-source infrastructure that anyone can access. ByteDance already has Jimeng with orders of magnitude more distribution. When multimodal suites (text + image + video + code) become the default, a pure visual-creation platform looks like a feature, not a product. The ¥4,000-in-the-bank near-death experience shows how fragile the economics remain. "Platform play on thin margins" is a dangerous game against giants with infinite compute budgets.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- VERDICT -->
+<div class="verdict">
+  <h3>Bottom Line</h3>
+  <p><strong>LiblibAI is the real deal as a platform play</strong> — but it's a platform play, not a technology play. The competitive moat is community lock-in (25M creators, model revenue sharing, workflow stickiness), not proprietary tech. That's both their greatest strength and their deepest vulnerability.</p>
+  <p>The <strong>founder profile is strong</strong> — Chen Mian's ByteDance product instincts show in the platform's design, and surviving the near-death experience with ¥4K in the bank while refusing acquisition offers signals serious conviction.</p>
+  <p><strong>Key question to watch:</strong> Can they successfully pivot to video (higher ARPU, more defensible) before ByteDance/Alibaba absorb the image generation use case into their all-in-one suites? The next 12 months will determine if LiblibAI becomes a durable category leader or a feature inside someone else's ecosystem.</p>
+</div>
+
+<!-- SOURCES -->
+<details style="margin-top:1.5rem">
+  <summary>Sources (12)</summary>
+  <div class="inner">
+    <ul style="list-style:none;padding:0">
+      <li style="padding-left:0;margin-bottom:0.3rem">• Tracxn — LiblibAI Company Profile (Mar 2026)</li>
+      <li style="padding-left:0;margin-bottom:0.3rem">• 36氪 (36Kr) — "刚刚，一个92年的男生融了9.26亿" (Oct 2025)</li>
+      <li style="padding-left:0;margin-bottom:0.3rem">• 量子位 (QbitAI) — "$130M LiblibAI拿下AI应用赛道年度最大融资" (Oct 2025)</li>
+      <li style="padding-left:0;margin-bottom:0.3rem">• 投中网 — "2025最大AI应用融资诞生" (Oct 2025)</li>
+      <li style="padding-left:0;margin-bottom:0.3rem">• 21世纪商业评论 (21CBR) — "90后字节高管，自立门户募资9亿" (Oct 2025)</li>
+      <li style="padding-left:0;margin-bottom:0.3rem">• 亿邦动力 (Ebrun) — "LiblibAI完成1.3亿美元B轮融资" (Oct 2025)</li>
+      <li style="padding-left:0;margin-bottom:0.3rem">• 证券时报 (Securities Times) — "国内AI应用赛道最大单笔融资问世" (Oct 2025)</li>
+      <li style="padding-left:0;margin-bottom:0.3rem">• 腾讯新闻 (QQ News) — "LiblibAI斩获1.3亿元巨额融资的背后" (Oct 2025)</li>
+      <li style="padding-left:0;margin-bottom:0.3rem">• 铅笔道 (PencilNews) — Founder profile and team details (Oct 2025)</li>
+      <li style="padding-left:0;margin-bottom:0.3rem">• Pandaily — "$130 Million! LiblibAI Secures China's Largest AI Application Funding Round" (Oct 2025)</li>
+      <li style="padding-left:0;margin-bottom:0.3rem">• Crunchbase — LiblibAI Company Profile</li>
+      <li style="padding-left:0;margin-bottom:0.3rem">• Exa Company Research — competitor analysis data (Mar 2026)</li>
+    </ul>
+  </div>
+</details>
+
+<div class="footer">
+  Research compiled by Zosia · April 2026 · Sources: 12 Chinese &amp; English publications
+</div>
+
+</div>
+</body>
+</html>
