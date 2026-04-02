@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Agent Tools Comparison — last30days vs bb-browser vs twitter-cli vs opencli</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;700;800&family=Fragment+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --font-body: 'Bricolage Grotesque', system-ui, sans-serif;
+    --font-mono: 'Fragment Mono', 'SF Mono', Consolas, monospace;
+    --bg: #faf8f5;
+    --surface: #ffffff;
+    --surface2: #f5f0eb;
+    --surface-elevated: #fffcfa;
+    --border: rgba(0,0,0,0.07);
+    --border-bright: rgba(0,0,0,0.14);
+    --text: #1a1612;
+    --text-dim: #8a7e72;
+    --accent: #c2410c;
+    --accent-dim: rgba(194,65,12,0.07);
+    --teal: #0891b2;
+    --teal-dim: rgba(8,145,178,0.07);
+    --green: #16a34a;
+    --green-dim: rgba(22,163,74,0.08);
+    --amber: #d97706;
+    --amber-dim: rgba(217,119,6,0.07);
+    --purple: #7e22ce;
+    --purple-dim: rgba(126,34,206,0.07);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #141210;
+      --surface: #1e1b18;
+      --surface2: #282420;
+      --surface-elevated: #302b26;
+      --border: rgba(255,255,255,0.06);
+      --border-bright: rgba(255,255,255,0.12);
+      --text: #f0ebe4;
+      --text-dim: #a89e92;
+      --accent: #fb923c;
+      --accent-dim: rgba(251,146,60,0.12);
+      --teal: #22d3ee;
+      --teal-dim: rgba(34,211,238,0.1);
+      --green: #4ade80;
+      --green-dim: rgba(74,222,128,0.1);
+      --amber: #fbbf24;
+      --amber-dim: rgba(251,191,36,0.1);
+      --purple: #c084fc;
+      --purple-dim: rgba(192,132,252,0.1);
+    }
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: var(--bg);
+    background-image:
+      radial-gradient(ellipse at 20% 0%, var(--accent-dim) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 100%, var(--teal-dim) 0%, transparent 40%);
+    color: var(--text);
+    font-family: var(--font-body);
+    line-height: 1.6;
+    padding: 2rem 1rem 4rem;
+    min-height: 100vh;
+  }
+  .container { max-width: 1200px; margin: 0 auto; }
+
+  /* Hero */
+  .hero {
+    text-align: center;
+    padding: 3rem 1rem 2rem;
+    animation: fadeUp 0.6s ease-out both;
+  }
+  .hero h1 {
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    margin-bottom: 0.5rem;
+  }
+  .hero .subtitle {
+    font-size: 1.1rem;
+    color: var(--text-dim);
+    max-width: 640px;
+    margin: 0 auto;
+  }
+  .hero .date {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    margin-top: 0.75rem;
+    letter-spacing: 0.04em;
+  }
+
+  /* KPI Strip */
+  .kpi-strip {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin: 2rem 0 2.5rem;
+  }
+  .kpi {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem 1rem;
+    text-align: center;
+    animation: fadeScale 0.5s ease-out both;
+  }
+  .kpi:nth-child(1) { animation-delay: 0.1s; }
+  .kpi:nth-child(2) { animation-delay: 0.2s; }
+  .kpi:nth-child(3) { animation-delay: 0.3s; }
+  .kpi:nth-child(4) { animation-delay: 0.4s; }
+  .kpi .name {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.35rem;
+  }
+  .kpi .value {
+    font-size: 1.8rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+  .kpi .label {
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    margin-top: 0.2rem;
+  }
+  .kpi.accent .value { color: var(--accent); }
+  .kpi.teal .value { color: var(--teal); }
+  .kpi.green .value { color: var(--green); }
+  .kpi.purple .value { color: var(--purple); }
+
+  /* Section */
+  .section {
+    margin: 2.5rem 0;
+    animation: fadeUp 0.5s ease-out both;
+  }
+  .section-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-dim);
+  }
+  .section-label .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .section h2 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    letter-spacing: -0.01em;
+  }
+
+  /* Cards */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.5rem;
+    position: relative;
+    overflow: hidden;
+    animation: fadeUp 0.5s ease-out both;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+  .card.accent::before { background: var(--accent); }
+  .card.teal::before { background: var(--teal); }
+  .card.green::before { background: var(--green); }
+  .card.purple::before { background: var(--purple); }
+
+  .card .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.75rem;
+  }
+  .card h3 {
+    font-size: 1.2rem;
+    font-weight: 700;
+  }
+  .card .stars {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 20px;
+    background: var(--surface2);
+    white-space: nowrap;
+  }
+  .card .tagline {
+    color: var(--text-dim);
+    font-size: 0.92rem;
+    margin-bottom: 0.75rem;
+    line-height: 1.5;
+  }
+  .card .meta-row {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    margin-bottom: 0.75rem;
+  }
+  .card .features {
+    list-style: none;
+    margin: 0; padding: 0;
+  }
+  .card .features li {
+    position: relative;
+    padding-left: 1.2rem;
+    margin-bottom: 0.4rem;
+    font-size: 0.88rem;
+    line-height: 1.5;
+  }
+  .card .features li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--text-dim);
+    font-weight: 600;
+  }
+
+  /* Table */
+  .table-wrap {
+    overflow-x: auto;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+  }
+  thead {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+  }
+  th {
+    background: var(--surface2);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 0.85rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-bright);
+    color: var(--text-dim);
+    white-space: nowrap;
+  }
+  td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    line-height: 1.5;
+  }
+  tr:nth-child(even) td { background: var(--surface2); }
+  tr:hover td { background: var(--accent-dim); }
+  td code {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    background: var(--surface2);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+  }
+
+  /* Badge */
+  .badge {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 20px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+  .badge.high { background: var(--green-dim); color: var(--green); }
+  .badge.mid { background: var(--amber-dim); color: var(--amber); }
+  .badge.low { background: var(--accent-dim); color: var(--accent); }
+  .badge.unique { background: var(--purple-dim); color: var(--purple); }
+  .badge.teal-b { background: var(--teal-dim); color: var(--teal); }
+
+  /* Verdict */
+  .verdict {
+    background: var(--surface-elevated);
+    border: 1px solid var(--border-bright);
+    border-radius: 14px;
+    padding: 2rem;
+    margin-top: 2rem;
+    animation: fadeUp 0.6s ease-out both;
+    animation-delay: 0.3s;
+  }
+  .verdict h2 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+  }
+  .verdict p {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    margin-bottom: 0.75rem;
+  }
+  .verdict strong { color: var(--accent); }
+  .verdict .pick {
+    display: grid;
+    grid-template-columns: repeat(2,1fr);
+    gap: 1rem;
+    margin-top: 1.25rem;
+  }
+  .verdict .pick-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem;
+  }
+  .verdict .pick-item h4 {
+    font-size: 0.85rem;
+    font-weight: 700;
+    margin-bottom: 0.35rem;
+  }
+  .verdict .pick-item p {
+    font-size: 0.82rem;
+    color: var(--text-dim);
+    margin: 0;
+  }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    margin-top: 3rem;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--text-dim);
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .kpi-strip { grid-template-columns: repeat(2, 1fr); }
+    .card-grid { grid-template-columns: 1fr; }
+    .verdict .pick { grid-template-columns: 1fr; }
+  }
+
+  /* Animations */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeScale {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; }
+  }
+</style>
+  <!-- Vercel Web Analytics -->
+  <script>
+    window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+  </script>
+  <script defer src="/_vercel/insights/script.js"></script>
+  <!-- Vercel Speed Insights -->
+  <script>
+    window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
+  </script>
+  <script defer src="/_vercel/speed-insights/script.js"></script>
+  <meta property="og:title" content="AI Agent Tools Comparison — last30days vs bb-browser vs twitter-cli vs opencli">
+  <meta property="og:description" content="Four open-source projects vying to be the internet access layer for AI agents. Deep comparison of architecture, capabilities, and fit.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://zosia.cc/pages/github-tools-comparison">
+  <meta name="twitter:card" content="summary">
+</head>
+<body>
+<div class="container">
+
+  <!-- Hero -->
+  <div class="hero">
+    <h1>AI Agent Tool Showdown</h1>
+    <p class="subtitle">Four open-source projects vying to be the internet access layer for AI agents. Deep comparison of architecture, capabilities, and fit.</p>
+    <p class="date">April 2, 2026 · Data from GitHub</p>
+  </div>
+
+  <!-- KPI Strip -->
+  <div class="kpi-strip">
+    <div class="kpi accent">
+      <div class="name">last30days</div>
+      <div class="value">17.4K</div>
+      <div class="label">★ · Research Skill</div>
+    </div>
+    <div class="kpi purple">
+      <div class="name">opencli</div>
+      <div class="value">10.8K</div>
+      <div class="label">★ · Universal CLI Hub</div>
+    </div>
+    <div class="kpi teal">
+      <div class="name">bb-browser</div>
+      <div class="value">3.5K</div>
+      <div class="label">★ · Browser-as-API</div>
+    </div>
+    <div class="kpi green">
+      <div class="name">twitter-cli</div>
+      <div class="value">2.1K</div>
+      <div class="label">★ · X/Twitter CLI</div>
+    </div>
+  </div>
+
+  <!-- What They Are -->
+  <div class="section" style="animation-delay:0.2s">
+    <div class="section-label"><span class="dot" style="background:var(--accent)"></span> Identity</div>
+    <h2>What Each Tool Actually Does</h2>
+    <div class="card-grid">
+      <div class="card accent" style="animation-delay:0.1s">
+        <div class="card-header">
+          <h3>last30days-skill</h3>
+          <span class="stars">★ 17.4K</span>
+        </div>
+        <p class="tagline">AI agent skill that researches any topic across 10+ sources from the past 30 days. Outputs a grounded narrative with citations.</p>
+        <div class="meta-row">
+          <span>Python</span><span>MIT</span><span>1.4K forks</span><span>v2.9.5</span><span>by mvanhorn</span>
+        </div>
+        <ul class="features">
+          <li>Multi-source: Reddit, X, YouTube transcripts, HN, Polymarket, Bluesky, TikTok, Instagram, Truth Social, web search</li>
+          <li>Composite scoring: engagement velocity, text similarity, cross-platform convergence, temporal decay</li>
+          <li>Comparative mode: "X vs Y" auto-runs 3 parallel research passes</li>
+          <li>Watchlist + SQLite accumulation for scheduled monitoring</li>
+          <li>Works in Claude Code, OpenClaw, Codex CLI, Gemini CLI</li>
+        </ul>
+      </div>
+      <div class="card purple" style="animation-delay:0.2s">
+        <div class="card-header">
+          <h3>opencli</h3>
+          <span class="stars">★ 10.8K</span>
+        </div>
+        <p class="tagline">Universal CLI hub that turns any website, Electron app, or local binary into a standardized command-line interface for AI agents.</p>
+        <div class="meta-row">
+          <span>TypeScript</span><span>Apache-2.0</span><span>923 forks</span><span>by jackwener</span>
+        </div>
+        <ul class="features">
+          <li>66+ site adapters: Bilibili, Zhihu, Xiaohongshu, Twitter, Reddit, YouTube, Spotify, etc.</li>
+          <li>Electron app control: Cursor, Codex, Antigravity, ChatGPT, Notion, Discord via CDP</li>
+          <li>External CLI hub: auto-discovers gh, docker, obsidian, vercel — auto-installs missing tools</li>
+          <li>Anti-detection: patches webdriver, stubs chrome, fakes plugin lists, CDP frame stripping</li>
+          <li>Dual engine: YAML declarative pipelines + TypeScript browser runtime injections</li>
+        </ul>
+      </div>
+      <div class="card teal" style="animation-delay:0.3s">
+        <div class="card-header">
+          <h3>bb-browser</h3>
+          <span class="stars">★ 3.5K</span>
+        </div>
+        <p class="tagline">Your browser is the API. CLI + MCP server for AI agents to control Chrome with your existing login state.</p>
+        <div class="meta-row">
+          <span>TypeScript</span><span>MIT</span><span>357 forks</span><span>by epiral</span>
+        </div>
+        <ul class="features">
+          <li>103 commands across 36 platforms via community-driven bb-sites adapters</li>
+          <li>Reuses your real Chrome session — invisible to anti-bot because it <em>is</em> you</li>
+          <li>MCP server mode for direct integration with Claude Code, Cursor, etc.</li>
+          <li>OpenClaw integration: <code>--openclaw</code> flag uses built-in browser</li>
+          <li>Architecture: CLI → HTTP daemon → CDP WebSocket → real browser</li>
+        </ul>
+      </div>
+      <div class="card green" style="animation-delay:0.4s">
+        <div class="card-header">
+          <h3>twitter-cli</h3>
+          <span class="stars">★ 2.1K</span>
+        </div>
+        <p class="tagline">Terminal-first CLI for Twitter/X: read timelines, bookmarks, search, post, like, retweet — no API keys required.</p>
+        <div class="meta-row">
+          <span>Python</span><span>Apache-2.0</span><span>192 forks</span><span>by jackwener (public-clis)</span>
+        </div>
+        <ul class="features">
+          <li>Full read+write: feed, bookmarks, search, post (with images), like, RT, quote, delete, follow</li>
+          <li>Browser cookie auth with full cookie forwarding — no Twitter API key needed</li>
+          <li>TLS fingerprint impersonation via curl_cffi + dynamic Chrome version matching</li>
+          <li>Structured output: JSON, YAML, CSV — designed for AI agent pipelines</li>
+          <li>Engagement scoring filter: configurable weights for likes, RTs, replies, bookmarks</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Comparison Table -->
+  <div class="section" style="animation-delay:0.3s">
+    <div class="section-label"><span class="dot" style="background:var(--teal)"></span> Head-to-Head</div>
+    <h2>Feature Comparison Matrix</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Dimension</th>
+            <th>last30days</th>
+            <th>opencli</th>
+            <th>bb-browser</th>
+            <th>twitter-cli</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Category</strong></td>
+            <td><span class="badge unique">Research Skill</span></td>
+            <td><span class="badge unique">Universal CLI</span></td>
+            <td><span class="badge unique">Browser Bridge</span></td>
+            <td><span class="badge unique">Platform CLI</span></td>
+          </tr>
+          <tr>
+            <td><strong>Platform Coverage</strong></td>
+            <td>10 sources (Reddit, X, YT, HN, Polymarket, Bluesky, TikTok, IG, Truth Social, Web)</td>
+            <td>66+ adapters (36+ sites + Electron apps + external CLIs)</td>
+            <td>103 commands / 36 platforms</td>
+            <td>Twitter/X only (deep)</td>
+          </tr>
+          <tr>
+            <td><strong>Auth Method</strong></td>
+            <td>Mixed: public JSON, browser cookies, API keys</td>
+            <td>Chrome session reuse + CDP</td>
+            <td>Chrome session reuse + CDP</td>
+            <td>Browser cookies + env vars</td>
+          </tr>
+          <tr>
+            <td><strong>Write Capability</strong></td>
+            <td><span class="badge low">None</span> Read-only research</td>
+            <td><span class="badge high">Full</span> Post, download, interact</td>
+            <td><span class="badge mid">Partial</span> Click, fill, evaluate</td>
+            <td><span class="badge high">Full</span> Post, like, RT, follow, delete</td>
+          </tr>
+          <tr>
+            <td><strong>AI Agent Integration</strong></td>
+            <td>Claude Code, OpenClaw, Codex, Gemini CLI</td>
+            <td>AGENT.md discovery, any agent via CLI</td>
+            <td>MCP server, OpenClaw plugin, any CLI agent</td>
+            <td>Structured output (JSON/YAML/CSV)</td>
+          </tr>
+          <tr>
+            <td><strong>Intelligence Layer</strong></td>
+            <td><span class="badge high">Deep</span> Multi-signal scoring, convergence detection, query expansion</td>
+            <td><span class="badge mid">Light</span> Deterministic adapters, zero LLM cost</td>
+            <td><span class="badge mid">Light</span> Deterministic commands, zero LLM cost</td>
+            <td><span class="badge mid">Light</span> Configurable engagement scoring</td>
+          </tr>
+          <tr>
+            <td><strong>Unique Strength</strong></td>
+            <td>Cross-platform synthesis — finds what matters across all sources</td>
+            <td>Universal hub: web + desktop + CLIs in one tool</td>
+            <td>Invisible to anti-bot — uses your real session</td>
+            <td>Deepest X/Twitter coverage: articles, lists, DMs</td>
+          </tr>
+          <tr>
+            <td><strong>Anti-Detection</strong></td>
+            <td>Browser cookies, timing jitter</td>
+            <td>Webdriver patching, CDP stripping, plugin faking</td>
+            <td>Uses real browser — nothing to detect</td>
+            <td>TLS impersonation, full cookie forwarding, timing jitter</td>
+          </tr>
+          <tr>
+            <td><strong>Speed</strong></td>
+            <td><span class="badge low">2-8 min</span> per research run</td>
+            <td><span class="badge high">&lt;1s</span> per command</td>
+            <td><span class="badge high">&lt;1s</span> per command</td>
+            <td><span class="badge high">&lt;2s</span> per command</td>
+          </tr>
+          <tr>
+            <td><strong>Chinese Platform Support</strong></td>
+            <td><span class="badge low">None</span></td>
+            <td><span class="badge high">Extensive</span> Bilibili, Zhihu, Xiaohongshu, Weibo, Tieba, Douban, 36kr, Xueqiu, Boss</td>
+            <td><span class="badge high">Extensive</span> Zhihu, Bilibili, Weibo, Xiaohongshu, Xueqiu, Eastmoney, Baidu</td>
+            <td><span class="badge low">None</span></td>
+          </tr>
+          <tr>
+            <td><strong>Age / Maturity</strong></td>
+            <td>~14 months (Jan 2025)</td>
+            <td>~3 weeks (Mar 14, 2026)</td>
+            <td>~2 months (Jan 31, 2026)</td>
+            <td>~1 month (Mar 5, 2026)</td>
+          </tr>
+          <tr>
+            <td><strong>Open Issues</strong></td>
+            <td>64</td>
+            <td>106</td>
+            <td>46</td>
+            <td>13</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Architecture Comparison -->
+  <div class="section" style="animation-delay:0.4s">
+    <div class="section-label"><span class="dot" style="background:var(--green)"></span> Architecture</div>
+    <h2>How They Work Under the Hood</h2>
+    <div class="card-grid">
+      <div class="card accent" style="animation-delay:0.15s">
+        <h3 style="margin-bottom:0.75rem">last30days — Research Pipeline</h3>
+        <ul class="features">
+          <li><strong>Query expansion:</strong> Two-pass with tag-based domain bridging</li>
+          <li><strong>Parallel fetch:</strong> Up to 10 sources simultaneously via Python async</li>
+          <li><strong>Scoring engine:</strong> Bidirectional text similarity + engagement velocity + source authority + cross-platform convergence (trigram-token Jaccard)</li>
+          <li><strong>Dedup:</strong> Fuzzy matching across platforms to merge identical stories</li>
+          <li><strong>Synthesis:</strong> LLM writes grounded narrative from scored, ranked results</li>
+          <li><strong>Persistence:</strong> SQLite for watchlist accumulation across runs</li>
+        </ul>
+      </div>
+      <div class="card purple" style="animation-delay:0.25s">
+        <h3 style="margin-bottom:0.75rem">opencli — Dual Engine</h3>
+        <ul class="features">
+          <li><strong>YAML pipeline:</strong> Declarative adapters for simple data extraction (no code)</li>
+          <li><strong>TS runtime:</strong> Browser injection for complex auth (bearer, CSRF, webpack)</li>
+          <li><strong>Chrome Extension:</strong> Bridge daemon connects CLI to real browser via CDP</li>
+          <li><strong>Electron control:</strong> CDP + AppleScript for desktop apps (Cursor, ChatGPT, etc.)</li>
+          <li><strong>CLI Hub:</strong> Registry + auto-install for external tools (gh, docker, vercel)</li>
+          <li><strong>Zero LLM cost:</strong> Deterministic adapters — 10K runs cost nothing</li>
+        </ul>
+      </div>
+      <div class="card teal" style="animation-delay:0.35s">
+        <h3 style="margin-bottom:0.75rem">bb-browser — Browser-as-API</h3>
+        <ul class="features">
+          <li><strong>Core insight:</strong> Instead of scraping, run JS inside the user's real browser tab</li>
+          <li><strong>Adapter tiers:</strong> Cookie fetch (1 min) → Bearer+CSRF (3 min) → Webpack injection (10 min)</li>
+          <li><strong>Architecture:</strong> CLI → HTTP → Daemon → CDP WebSocket → Chrome</li>
+          <li><strong>MCP mode:</strong> Direct stdio integration for Claude Code, Cursor</li>
+          <li><strong>Tab-level:</strong> Per-tab event cache (network, console, errors) for debugging</li>
+          <li><strong>Community adapters:</strong> One JS file per command in bb-sites repo</li>
+        </ul>
+      </div>
+      <div class="card green" style="animation-delay:0.45s">
+        <h3 style="margin-bottom:0.75rem">twitter-cli — Deep Platform Access</h3>
+        <ul class="features">
+          <li><strong>GraphQL reverse-engineering:</strong> Uses Twitter's internal API endpoints directly</li>
+          <li><strong>curl_cffi:</strong> TLS fingerprint impersonation matching Chrome version</li>
+          <li><strong>Full cookie forwarding:</strong> All browser cookies, not just auth_token + ct0</li>
+          <li><strong>x-client-transaction-id:</strong> Generated header for request legitimacy</li>
+          <li><strong>Self-healing:</strong> Live queryId fallback when GraphQL endpoints rotate</li>
+          <li><strong>Rate limit aware:</strong> Configurable delays, exponential backoff, proxy support</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Relationship Map -->
+  <div class="section" style="animation-delay:0.5s">
+    <div class="section-label"><span class="dot" style="background:var(--amber)"></span> Overlap &amp; Complementarity</div>
+    <h2>How They Relate to Each Other</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Relationship</th>
+            <th>Nature</th>
+            <th>Details</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>opencli ↔ bb-browser</strong></td>
+            <td><span class="badge mid">Direct Competitors</span></td>
+            <td>Both turn websites into CLI commands via Chrome session reuse. opencli is broader (adds Electron + CLI hub), bb-browser is more focused (purer browser bridge, MCP native). Same author ecosystem (jackwener ↔ epiral).</td>
+          </tr>
+          <tr>
+            <td><strong>twitter-cli ↔ opencli</strong></td>
+            <td><span class="badge teal-b">Subset / Ecosystem</span></td>
+            <td>twitter-cli by same author (jackwener) — likely the Twitter adapter extracted as standalone. opencli includes its own Twitter adapter. twitter-cli goes much deeper on X: articles, lists, image posts, scoring.</td>
+          </tr>
+          <tr>
+            <td><strong>twitter-cli ↔ bb-browser</strong></td>
+            <td><span class="badge teal-b">Overlap on X</span></td>
+            <td>Both access Twitter via session reuse. twitter-cli has richer X-specific features (post, like, RT, articles). bb-browser's twitter adapter covers search/feed basics.</td>
+          </tr>
+          <tr>
+            <td><strong>last30days ↔ all others</strong></td>
+            <td><span class="badge high">Complementary</span></td>
+            <td>Different layer entirely. last30days is a <em>consumer</em> of data — it could use any of the other three as data sources. It adds intelligence (scoring, convergence, synthesis) on top of raw access.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Verdict -->
+  <div class="verdict">
+    <h2>Bottom Line — What Should You Care About?</h2>
+    <p>These four tools operate at three different layers of the stack:</p>
+    <p><strong>Layer 1 — Platform-specific access</strong> (twitter-cli): Deep, rich, write-capable access to one platform. Best-in-class for X/Twitter. The jackwener ecosystem also has xiaohongshu-cli, bilibili-cli, discord-cli, tg-cli.</p>
+    <p><strong>Layer 2 — Universal access</strong> (opencli, bb-browser): Turn the entire web into a CLI. opencli is more ambitious (websites + Electron + CLI hub) but younger (3 weeks old, 10.8K stars already — explosive growth). bb-browser is more mature and philosophically elegant (your browser IS the API).</p>
+    <p><strong>Layer 3 — Intelligence</strong> (last30days): Doesn't just fetch data — it thinks about it. Cross-platform convergence detection, scoring, narrative synthesis. The research agent, not the data pipe.</p>
+    <div class="pick">
+      <div class="pick-item">
+        <h4>🏆 Most Relevant for You</h4>
+        <p><strong>last30days</strong> — natural fit for your monitoring crons (Reddit GCC, X GCC). Could replace or augment your current Exa-based research pipelines with richer multi-source synthesis.</p>
+      </div>
+      <div class="pick-item">
+        <h4>🔥 Most Disruptive</h4>
+        <p><strong>opencli</strong> — 10.8K stars in 3 weeks signals PMF. The "CLI hub for everything" vision plus Electron control is genuinely novel. Chinese platform coverage is excellent for your team.</p>
+      </div>
+      <div class="pick-item">
+        <h4>🧠 Most Elegant</h4>
+        <p><strong>bb-browser</strong> — the "your browser IS the API" insight is profound. MCP integration makes it plug-and-play. Less ambitious but more focused and reliable.</p>
+      </div>
+      <div class="pick-item">
+        <h4>⚡ Most Specialized</h4>
+        <p><strong>twitter-cli</strong> — if you need deep X/Twitter access (post, search, articles, engagement scoring), this is the sharpest tool. Same author as opencli — likely gets absorbed into it over time.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    Generated by Zosia · April 2, 2026 · Data from GitHub API + README analysis
+  </div>
+
+</div>
+</body>
+</html>
