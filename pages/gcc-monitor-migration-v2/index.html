@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GCC Monitor → last30days: Full Migration Plan v2</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f8f6f3;
+      --surface: #ffffff;
+      --surface-alt: #f0ede8;
+      --border: rgba(0,0,0,0.08);
+      --border-strong: rgba(0,0,0,0.15);
+      --text: #1a1a1a;
+      --text-dim: #6b6560;
+      --text-muted: #9b9590;
+      --accent-teal: #0891b2;
+      --accent-teal-dim: rgba(8,145,178,0.08);
+      --accent-teal-mid: rgba(8,145,178,0.15);
+      --accent-amber: #d97706;
+      --accent-amber-dim: rgba(217,119,6,0.08);
+      --accent-rose: #be123c;
+      --accent-rose-dim: rgba(190,18,60,0.08);
+      --accent-emerald: #059669;
+      --accent-emerald-dim: rgba(5,150,105,0.08);
+      --accent-slate: #475569;
+      --font-body: 'IBM Plex Sans', -apple-system, sans-serif;
+      --font-mono: 'IBM Plex Mono', 'Fira Code', monospace;
+      --radius: 8px;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+      --shadow-lg: 0 8px 24px rgba(0,0,0,0.1);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #141210;
+        --surface: #1e1c19;
+        --surface-alt: #262420;
+        --border: rgba(255,255,255,0.06);
+        --border-strong: rgba(255,255,255,0.12);
+        --text: #e8e4df;
+        --text-dim: #9b9590;
+        --text-muted: #6b6560;
+        --accent-teal: #22d3ee;
+        --accent-teal-dim: rgba(34,211,238,0.08);
+        --accent-teal-mid: rgba(34,211,238,0.12);
+        --accent-amber: #fbbf24;
+        --accent-amber-dim: rgba(251,191,36,0.08);
+        --accent-rose: #fb7185;
+        --accent-rose-dim: rgba(251,113,133,0.08);
+        --accent-emerald: #34d399;
+        --accent-emerald-dim: rgba(52,211,153,0.08);
+        --accent-slate: #94a3b8;
+        --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
+        --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+        --shadow-lg: 0 8px 24px rgba(0,0,0,0.5);
+      }
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    .page {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 48px 24px 80px;
+    }
+
+    /* Hero */
+    .hero {
+      text-align: center;
+      padding: 48px 0 40px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 48px;
+    }
+    .hero-label {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--accent-teal);
+      margin-bottom: 12px;
+    }
+    .hero h1 {
+      font-size: 32px;
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 12px;
+    }
+    .hero p {
+      font-size: 16px;
+      color: var(--text-dim);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* Section label */
+    .section-label {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-label .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent-teal);
+    }
+
+    h2 {
+      font-size: 22px;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+
+    .section {
+      margin-bottom: 48px;
+    }
+
+    /* Strategy badge */
+    .strategy-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      background: var(--accent-teal-dim);
+      color: var(--accent-teal);
+      border: 1px solid var(--accent-teal-mid);
+      margin-bottom: 24px;
+    }
+
+    /* Cards */
+    .ve-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      box-shadow: var(--shadow-sm);
+    }
+    .ve-card--hero {
+      box-shadow: var(--shadow-md);
+      border-color: var(--border-strong);
+    }
+
+    /* Before/After comparison */
+    .compare-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    @media (max-width: 640px) {
+      .compare-grid { grid-template-columns: 1fr; }
+    }
+    .compare-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+    }
+    .compare-card h3 {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .compare-card h3 .badge {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: 500;
+    }
+    .badge-old {
+      background: var(--accent-rose-dim);
+      color: var(--accent-rose);
+    }
+    .badge-new {
+      background: var(--accent-emerald-dim);
+      color: var(--accent-emerald);
+    }
+    .compare-card ul {
+      list-style: none;
+      font-size: 13px;
+      color: var(--text-dim);
+    }
+    .compare-card ul li {
+      padding: 4px 0;
+      padding-left: 16px;
+      position: relative;
+    }
+    .compare-card ul li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 11px;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--text-muted);
+    }
+
+    /* KPI row */
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+    @media (max-width: 640px) {
+      .kpi-row { grid-template-columns: repeat(2, 1fr); }
+    }
+    .kpi {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      text-align: center;
+    }
+    .kpi-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--accent-teal);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    .kpi-label {
+      font-size: 11px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .kpi-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* Modification cards */
+    .mod-grid {
+      display: grid;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .mod-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      border-left: 3px solid var(--accent-teal);
+    }
+    .mod-card.mod-critical {
+      border-left-color: var(--accent-amber);
+    }
+    .mod-card.mod-nice {
+      border-left-color: var(--accent-slate);
+    }
+    .mod-card h3 {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .mod-card .mod-file {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--accent-teal);
+      margin-bottom: 8px;
+    }
+    .mod-card p, .mod-card ul {
+      font-size: 13px;
+      color: var(--text-dim);
+      line-height: 1.5;
+    }
+    .mod-card ul {
+      list-style: none;
+      margin-top: 8px;
+    }
+    .mod-card ul li {
+      padding: 3px 0;
+      padding-left: 16px;
+      position: relative;
+    }
+    .mod-card ul li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 10px;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--text-muted);
+    }
+    .mod-tag {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: 500;
+    }
+    .mod-tag-critical {
+      background: var(--accent-amber-dim);
+      color: var(--accent-amber);
+    }
+    .mod-tag-standard {
+      background: var(--accent-teal-dim);
+      color: var(--accent-teal);
+    }
+    .mod-tag-nice {
+      background: var(--surface-alt);
+      color: var(--text-muted);
+    }
+
+    /* Code block */
+    .code-block {
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      margin: 12px 0;
+    }
+    .code-header {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-muted);
+      padding: 8px 16px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+    .code-block pre {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      line-height: 1.6;
+      padding: 16px;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      color: var(--text);
+    }
+
+    /* Phase timeline */
+    .timeline {
+      position: relative;
+      padding-left: 32px;
+    }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 8px;
+      top: 4px;
+      bottom: 4px;
+      width: 2px;
+      background: var(--border-strong);
+    }
+    .timeline-item {
+      position: relative;
+      padding-bottom: 28px;
+    }
+    .timeline-item:last-child {
+      padding-bottom: 0;
+    }
+    .timeline-dot {
+      position: absolute;
+      left: -28px;
+      top: 4px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--accent-teal);
+      border: 3px solid var(--bg);
+    }
+    .timeline-dot.dot-amber { background: var(--accent-amber); }
+    .timeline-dot.dot-emerald { background: var(--accent-emerald); }
+    .timeline-item h3 {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .timeline-item .timeline-meta {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+    .timeline-item p {
+      font-size: 13px;
+      color: var(--text-dim);
+    }
+
+    /* Subreddit grid */
+    .sub-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 8px;
+      margin: 12px 0;
+    }
+    .sub-chip {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      padding: 6px 12px;
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text-dim);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .sub-chip .sub-tier {
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
+    /* Source table */
+    .source-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      margin: 12px 0;
+    }
+    .source-table thead th {
+      text-align: left;
+      font-weight: 600;
+      padding: 10px 12px;
+      border-bottom: 2px solid var(--border-strong);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+    }
+    .source-table tbody td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-dim);
+      vertical-align: top;
+    }
+    .source-table tbody tr:hover {
+      background: var(--accent-teal-dim);
+    }
+    .status-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 6px;
+    }
+    .status-new { background: var(--accent-emerald); }
+    .status-preserved { background: var(--accent-teal); }
+    .status-enhanced { background: var(--accent-amber); }
+
+    /* Decision cards */
+    .decision-grid {
+      display: grid;
+      gap: 12px;
+    }
+    .decision-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      display: grid;
+      grid-template-columns: 28px 1fr;
+      gap: 12px;
+      align-items: start;
+    }
+    .decision-num {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--accent-teal-dim);
+      color: var(--accent-teal);
+      font-size: 13px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .decision-card h3 {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .decision-card p {
+      font-size: 13px;
+      color: var(--text-dim);
+    }
+    .decision-rec {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--accent-emerald);
+      margin-top: 4px;
+    }
+
+    /* Callout */
+    .callout {
+      background: var(--accent-teal-dim);
+      border: 1px solid var(--accent-teal-mid);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      font-size: 13px;
+      color: var(--text-dim);
+      margin: 16px 0;
+    }
+    .callout strong {
+      color: var(--text);
+    }
+
+    /* Footer */
+    .footer {
+      margin-top: 64px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      font-size: 12px;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    /* Fade-in animations */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(12px);
+      animation: fadeUp 0.5s ease forwards;
+    }
+    @keyframes fadeUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .fade-in:nth-child(1) { animation-delay: 0.05s; }
+    .fade-in:nth-child(2) { animation-delay: 0.1s; }
+    .fade-in:nth-child(3) { animation-delay: 0.15s; }
+    .fade-in:nth-child(4) { animation-delay: 0.2s; }
+    .fade-in:nth-child(5) { animation-delay: 0.25s; }
+    .fade-in:nth-child(6) { animation-delay: 0.3s; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .fade-in { opacity: 1; transform: none; animation: none; }
+    }
+  </style>
+  <!-- Vercel Web Analytics -->
+  <script>
+    window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+  </script>
+  <script defer src="/_vercel/insights/script.js"></script>
+  <!-- Vercel Speed Insights -->
+  <script>
+    window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
+  </script>
+  <script defer src="/_vercel/speed-insights/script.js"></script>
+  <meta property="og:title" content="GCC Monitor → last30days: Full Migration Plan v2">
+  <meta property="og:description" content="Full migration with surgical code modifications to preserve subreddit targeting, Arabic coverage, and account tracking. Zero custom monitors to maintain.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://zosia.cc/pages/gcc-monitor-migration-v2">
+  <meta name="twitter:card" content="summary">
+</head>
+<body>
+  <div class="page">
+
+    <!-- Hero -->
+    <div class="hero fade-in">
+      <div class="hero-label">Migration Plan v2</div>
+      <h1>GCC Monitors → last30days</h1>
+      <p>Full migration with surgical code modifications to preserve subreddit targeting, Arabic coverage, and account tracking. Zero custom monitors to maintain.</p>
+    </div>
+
+    <!-- Strategy -->
+    <section class="section fade-in">
+      <div class="section-label"><span class="dot"></span>Strategy</div>
+      <h2>Fork + Patch, Not Wrapper</h2>
+      <div class="strategy-badge">Full migration — retire both custom monitors</div>
+      <p style="font-size: 14px; color: var(--text-dim); margin-bottom: 20px;">
+        We fork <code style="font-family: var(--font-mono); font-size: 13px; background: var(--surface-alt); padding: 2px 6px; border-radius: 4px;">mvanhorn/last30days-skill</code> and make <strong>3 targeted modifications</strong> to the Python engine. Everything else — scoring, dedup, rendering, watchlist, SQLite storage — stays stock. We can pull upstream updates and just re-apply our patches. Total code changes: ~120 lines across 3 files.
+      </p>
+
+      <div class="compare-grid">
+        <div class="compare-card">
+          <h3>What We Retire <span class="badge badge-old">2,600 lines</span></h3>
+          <ul>
+            <li>reddit-gcc-monitor skill (1,400 LOC)</li>
+            <li>x-gcc-monitor skill (1,200 LOC)</li>
+            <li>2 cron jobs (Reddit daily + X 2x/day)</li>
+            <li>2 SQLite databases</li>
+            <li>Custom dedup, scoring, tier logic</li>
+            <li>Manual subreddit/query/account maintenance</li>
+          </ul>
+        </div>
+        <div class="compare-card">
+          <h3>What We Get <span class="badge badge-new">last30days v2.9.6</span></h3>
+          <ul>
+            <li>10+ sources (Reddit, X, YouTube, HN, TikTok, IG, Polymarket, Bluesky, web)</li>
+            <li>Composite scoring with cross-source convergence</li>
+            <li>Auto subreddit discovery + our forced list</li>
+            <li>Watchlist with budget guards and scheduling</li>
+            <li>X handle resolution (finds viral tweets keyword search misses)</li>
+            <li>Upstream maintenance by active open-source community</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Impact numbers -->
+    <section class="section fade-in">
+      <div class="section-label"><span class="dot"></span>Impact</div>
+      <div class="kpi-row">
+        <div class="kpi">
+          <div class="kpi-value">~70%</div>
+          <div class="kpi-label">Cost Reduction</div>
+          <div class="kpi-sub">$91 → ~$25/mo</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-value">10+</div>
+          <div class="kpi-label">Signal Sources</div>
+          <div class="kpi-sub">up from 2</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-value">~120</div>
+          <div class="kpi-label">Lines Changed</div>
+          <div class="kpi-sub">in forked repo</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-value">0</div>
+          <div class="kpi-label">Custom Code</div>
+          <div class="kpi-sub">to maintain</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- The 3 Code Modifications -->
+    <section class="section fade-in">
+      <div class="section-label"><span class="dot"></span>Code Modifications</div>
+      <h2>Three Surgical Changes</h2>
+      <p style="font-size: 14px; color: var(--text-dim); margin-bottom: 20px;">All modifications read from a single <code style="font-family: var(--font-mono); font-size: 13px; background: var(--surface-alt); padding: 2px 6px; border-radius: 4px;">~/.config/last30days/gcc_config.json</code> file. The Python changes just check for this config and inject our domain knowledge into the existing pipeline.</p>
+
+      <div class="mod-grid">
+        <!-- Mod 1: Forced Subreddits -->
+        <div class="mod-card mod-critical">
+          <h3>Mod 1: Forced Subreddit List <span class="mod-tag mod-tag-critical">CRITICAL</span></h3>
+          <div class="mod-file">scripts/lib/reddit.py → search_and_enrich()</div>
+          <p>Currently: global search → auto-discover subreddits → drill into top 3-5 discovered subs.<br>
+          <strong>Change:</strong> If <code>gcc_config.json</code> has a <code>forced_subreddits</code> array, merge those into the discovered list so they're always searched — even if they don't appear in global results.</p>
+          <ul>
+            <li><strong>How:</strong> After <code>discover_subreddits()</code> returns, union with our forced list. Dedupe. Cap at <code>depth_config.subreddit_searches + len(forced)</code></li>
+            <li><strong>~35 lines</strong> — load config, merge lists, adjust loop bounds</li>
+            <li>Auto-discovery still runs — it finds subs we haven't added yet. Our forced list ensures the 29 we know are always included</li>
+            <li>Both ScrapeCreators path and public JSON path get the same forced-sub injection</li>
+          </ul>
+          <div class="code-block">
+            <div class="code-header">gcc_config.json (subreddit section)</div>
+            <pre>{
+  "forced_subreddits": [
+    "dubai", "UAE", "saudiarabia", "abudhabi",
+    "qatar", "kuwait", "bahrain", "oman",
+    "Riyadh", "Jeddah", "DubaiCentral",
+    "AskMiddleEast", "arabs", "sharjah", "ajman",
+    "DubaiPetrolHeads", "WhatCarShouldIBuyGULF",
+    "chinesecarsuae", "dubairealestate", "saudicars",
+    "SaudiProfessionals", "DubaiJobs",
+    "UAEcreditcards", "uaelaw", "SmallBusinessUAE",
+    "emirates", "ExpatFinance",
+    "expats", "digitalnomad"
+  ],
+  "global_subreddit_filter_keywords": [
+    "dubai", "uae", "abu dhabi", "saudi", "gcc",
+    "qatar", "kuwait", "bahrain", "oman", "riyadh"
+  ]
+}</pre>
+          </div>
+          <div class="callout">
+            <strong>Upstream-safe:</strong> The forced_subreddits logic is additive. If the config file doesn't exist, the code falls through to stock behavior. Easy to rebase on upstream updates.
+          </div>
+        </div>
+
+        <!-- Mod 2: Arabic Queries -->
+        <div class="mod-card mod-critical">
+          <h3>Mod 2: Arabic Query Expansion <span class="mod-tag mod-tag-critical">CRITICAL</span></h3>
+          <div class="mod-file">scripts/lib/reddit.py → expand_reddit_queries() + scripts/last30days.py → _search_x()</div>
+          <p>Currently: topic string is expanded into English variants only. Arabic queries are not generated.<br>
+          <strong>Change:</strong> If <code>gcc_config.json</code> has <code>arabic_queries</code>, append them to the query expansion for both Reddit and X searches.</p>
+          <ul>
+            <li><strong>Reddit:</strong> Append Arabic queries to <code>expand_reddit_queries()</code> output. ~15 lines</li>
+            <li><strong>X/Twitter:</strong> Run Arabic queries as parallel X search passes alongside the English ones. ~25 lines in main orchestrator</li>
+            <li>Arabic queries use the same scoring/dedup pipeline — no separate path needed</li>
+            <li>The watchlist <code>--queries</code> flag also supports custom queries per topic, but the config approach is cleaner for always-on GCC monitoring</li>
+          </ul>
+          <div class="code-block">
+            <div class="code-header">gcc_config.json (Arabic queries section)</div>
+            <pre>{
+  "arabic_queries": {
+    "reddit": [
+      "دبي استثمار تقنية أعمال",
+      "السعودية رؤية استثمار تمويل",
+      "سيارات كهربائية الإمارات"
+    ],
+    "x": [
+      "(دبي OR الإمارات OR أبوظبي) (استثمار OR تقنية OR ريادة) min_faves:15 lang:ar",
+      "(السعودية OR الرياض) (رؤية OR استثمار OR تقنية) min_faves:15 lang:ar",
+      "(قطر OR الكويت OR البحرين) (تكنولوجيا OR ابتكار) min_faves:10 lang:ar",
+      "(سيارات OR تأمين OR عقارات) (دبي OR السعودية) min_faves:10 lang:ar"
+    ]
+  }
+}</pre>
+          </div>
+        </div>
+
+        <!-- Mod 3: Account Tracking -->
+        <div class="mod-card">
+          <h3>Mod 3: X Account Tracking <span class="mod-tag mod-tag-standard">STANDARD</span></h3>
+          <div class="mod-file">scripts/last30days.py → _search_x() orchestrator</div>
+          <p>Currently: X search is topic-based only. No way to monitor specific accounts.<br>
+          <strong>Change:</strong> If <code>gcc_config.json</code> has <code>tracked_x_accounts</code>, generate <code>from:handle</code> queries and merge results into the X pipeline.</p>
+          <ul>
+            <li><strong>How:</strong> Batch accounts into groups of 5-8 using <code>from:h1 OR from:h2 OR from:h3</code> syntax. Run as parallel X search passes</li>
+            <li>~45 lines — query generation + parallel execution + merge into existing X results</li>
+            <li>Already has handle resolution for auto-discovered handles — this just adds a forced initial list</li>
+            <li>Account categories preserved from current config (government, media, ecosystem, etc.)</li>
+          </ul>
+          <div class="code-block">
+            <div class="code-header">gcc_config.json (accounts section)</div>
+            <pre>{
+  "tracked_x_accounts": {
+    "government": ["DXBMediaOffice", "DIFC", "MISA", "SaudiCMA",
+                    "DubaiDET", "tadawul", "QatarEnergy"],
+    "media": ["gulf_news", "AlArabiya_Eng", "middleeast",
+              "TheNationalNews", "ArabianBusiness"],
+    "ecosystem": ["Hub71AD", "Flat6Labs", "GitexGlobal"],
+    "automotive": ["LucidMotors", "NIOGlobal", "ChinaAutoReview"],
+    "real_estate": ["panicsellingxyz", "FroemelAndy"]
+  },
+  "account_batch_size": 6
+}</pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Source Comparison -->
+    <section class="section fade-in">
+      <div class="section-label"><span class="dot"></span>Source Coverage</div>
+      <h2>Before vs After</h2>
+      <table class="source-table">
+        <thead>
+          <tr>
+            <th>Source</th>
+            <th>Status</th>
+            <th>Before (Custom)</th>
+            <th>After (last30days + mods)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Reddit (English)</strong></td>
+            <td><span class="status-dot status-enhanced"></span>Enhanced</td>
+            <td>29 subreddits, Tier 1/2 scoring</td>
+            <td>29 forced subs + auto-discovery, composite scoring, top comments via ScrapeCreators</td>
+          </tr>
+          <tr>
+            <td><strong>Reddit (Arabic)</strong></td>
+            <td><span class="status-dot status-preserved"></span>Preserved</td>
+            <td>Arabic queries on ar-tagged subs</td>
+            <td>Arabic query expansion from gcc_config, same subs</td>
+          </tr>
+          <tr>
+            <td><strong>X/Twitter (English)</strong></td>
+            <td><span class="status-dot status-enhanced"></span>Enhanced</td>
+            <td>20 queries + 54 tracked accounts</td>
+            <td>Topic queries + forced account list + handle resolution + Bird CLI free search</td>
+          </tr>
+          <tr>
+            <td><strong>X/Twitter (Arabic)</strong></td>
+            <td><span class="status-dot status-preserved"></span>Preserved</td>
+            <td>8 Arabic queries with min_faves</td>
+            <td>Arabic queries from gcc_config, same engagement filters</td>
+          </tr>
+          <tr>
+            <td><strong>YouTube</strong></td>
+            <td><span class="status-dot status-new"></span>New</td>
+            <td>—</td>
+            <td>Search + transcript analysis via yt-dlp</td>
+          </tr>
+          <tr>
+            <td><strong>Hacker News</strong></td>
+            <td><span class="status-dot status-new"></span>New</td>
+            <td>—</td>
+            <td>Free, always-on, Algolia search</td>
+          </tr>
+          <tr>
+            <td><strong>TikTok</strong></td>
+            <td><span class="status-dot status-new"></span>New</td>
+            <td>—</td>
+            <td>Via ScrapeCreators (same key as Reddit comments)</td>
+          </tr>
+          <tr>
+            <td><strong>Instagram</strong></td>
+            <td><span class="status-dot status-new"></span>New</td>
+            <td>—</td>
+            <td>Via ScrapeCreators</td>
+          </tr>
+          <tr>
+            <td><strong>Polymarket</strong></td>
+            <td><span class="status-dot status-new"></span>New</td>
+            <td>—</td>
+            <td>Free, GCC-relevant prediction markets</td>
+          </tr>
+          <tr>
+            <td><strong>Bluesky</strong></td>
+            <td><span class="status-dot status-new"></span>New</td>
+            <td>—</td>
+            <td>Free app password, AT Protocol search</td>
+          </tr>
+          <tr>
+            <td><strong>Web Search</strong></td>
+            <td><span class="status-dot status-new"></span>New</td>
+            <td>—</td>
+            <td>Via Exa (we already have the key)</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Subreddit Preservation -->
+    <section class="section fade-in">
+      <div class="section-label"><span class="dot"></span>Subreddit Coverage Detail</div>
+      <h2>All 29 Subreddits Preserved</h2>
+      <p style="font-size: 14px; color: var(--text-dim); margin-bottom: 16px;">Every subreddit from our current tiered system gets injected via <code style="font-family: var(--font-mono); font-size: 13px; background: var(--surface-alt); padding: 2px 6px; border-radius: 4px;">forced_subreddits</code>. The tier concept goes away — last30days' composite scoring replaces it. But the coverage is identical.</p>
+      <div class="sub-grid">
+        <div class="sub-chip">r/dubai <span class="sub-tier">T1</span></div>
+        <div class="sub-chip">r/UAE <span class="sub-tier">T1</span></div>
+        <div class="sub-chip">r/saudiarabia <span class="sub-tier">T1</span></div>
+        <div class="sub-chip">r/abudhabi <span class="sub-tier">T1</span></div>
+        <div class="sub-chip">r/qatar <span class="sub-tier">T1</span></div>
+        <div class="sub-chip">r/kuwait <span class="sub-tier">T1</span></div>
+        <div class="sub-chip">r/bahrain <span class="sub-tier">T1</span></div>
+        <div class="sub-chip">r/oman <span class="sub-tier">T1</span></div>
+        <div class="sub-chip">r/Riyadh <span class="sub-tier">T2</span></div>
+        <div class="sub-chip">r/Jeddah <span class="sub-tier">T2</span></div>
+        <div class="sub-chip">r/DubaiCentral <span class="sub-tier">T2</span></div>
+        <div class="sub-chip">r/AskMiddleEast <span class="sub-tier">T2</span></div>
+        <div class="sub-chip">r/arabs <span class="sub-tier">T2</span></div>
+        <div class="sub-chip">r/sharjah <span class="sub-tier">T2</span></div>
+        <div class="sub-chip">r/ajman <span class="sub-tier">T2</span></div>
+        <div class="sub-chip">r/DubaiPetrolHeads <span class="sub-tier">T3</span></div>
+        <div class="sub-chip">r/WhatCarShouldIBuyGULF <span class="sub-tier">T3</span></div>
+        <div class="sub-chip">r/chinesecarsuae <span class="sub-tier">T3</span></div>
+        <div class="sub-chip">r/dubairealestate <span class="sub-tier">T3</span></div>
+        <div class="sub-chip">r/saudicars <span class="sub-tier">T3</span></div>
+        <div class="sub-chip">r/SaudiProfessionals <span class="sub-tier">T4</span></div>
+        <div class="sub-chip">r/DubaiJobs <span class="sub-tier">T4</span></div>
+        <div class="sub-chip">r/UAEcreditcards <span class="sub-tier">T4</span></div>
+        <div class="sub-chip">r/uaelaw <span class="sub-tier">T4</span></div>
+        <div class="sub-chip">r/SmallBusinessUAE <span class="sub-tier">T4</span></div>
+        <div class="sub-chip">r/emirates <span class="sub-tier">T4</span></div>
+        <div class="sub-chip">r/ExpatFinance <span class="sub-tier">T4</span></div>
+        <div class="sub-chip">r/expats <span class="sub-tier">T5</span></div>
+        <div class="sub-chip">r/digitalnomad <span class="sub-tier">T5</span></div>
+      </div>
+      <div class="callout">
+        <strong>Bonus:</strong> last30days' auto-discovery will find additional GCC-relevant subreddits we haven't curated. The <code>global_subreddit_filter_keywords</code> config ensures discovered subs are GCC-relevant before drilling in.
+      </div>
+    </section>
+
+    <!-- Implementation Timeline -->
+    <section class="section fade-in">
+      <div class="section-label"><span class="dot"></span>Implementation</div>
+      <h2>Rollout Plan</h2>
+
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <h3>Phase 1: Fork & Patch</h3>
+          <div class="timeline-meta">Day 1 — ~2 hours</div>
+          <p>Fork <code>mvanhorn/last30days-skill</code> to our GitHub. Apply the 3 modifications (~120 lines). Write <code>gcc_config.json</code> with our 29 subreddits, Arabic queries, and 54 tracked accounts. Run <code>--diagnose</code> to verify all sources.</p>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-dot dot-amber"></div>
+          <h3>Phase 2: API Keys & Setup</h3>
+          <div class="timeline-meta">Day 1 — 30 mins</div>
+          <p>Sign up for ScrapeCreators (100 free calls, no CC). Configure <code>~/.config/last30days/.env</code> with: <code>SCRAPECREATORS_API_KEY</code>, <code>EXA_API_KEY</code> (already have), X cookies (auto-extracted by setup wizard). Install yt-dlp for YouTube.</p>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-dot dot-amber"></div>
+          <h3>Phase 3: Parallel Run</h3>
+          <div class="timeline-meta">Days 2–4 — validation</div>
+          <p>Run last30days watchlist alongside existing monitors for 3 days. Compare output quality, coverage gaps, Arabic content, account tracking. Tune scoring weights if needed.</p>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-dot dot-emerald"></div>
+          <h3>Phase 4: Cutover</h3>
+          <div class="timeline-meta">Day 5 — 1 hour</div>
+          <p>Disable old cron jobs. Set up last30days watchlist topics with schedules. Archive old SQLite databases. Update Daily Brief to read from last30days' research.db. Remove old skills from <code>~/.openclaw/skills/</code>.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Watchlist Setup -->
+    <section class="section fade-in">
+      <div class="section-label"><span class="dot"></span>Watchlist Configuration</div>
+      <h2>Cron Integration</h2>
+      <p style="font-size: 14px; color: var(--text-dim); margin-bottom: 16px;">
+        The last30days watchlist stores schedules as metadata. We use OpenClaw cron to trigger <code>watchlist.py run-all</code>. One cron job replaces two.
+      </p>
+
+      <div class="code-block">
+        <div class="code-header">Watchlist topics (replaces 2 cron jobs)</div>
+        <pre># GCC Business & Investment (daily, replaces Reddit + X monitors)
+watchlist.py add "GCC business investment startup" --schedule "0 6 * * *" \
+  --queries "Dubai startup investment,Saudi Vision 2030 tech,GCC fintech AI venture"
+
+# GCC Real Estate (daily)
+watchlist.py add "Dubai Saudi real estate property" --schedule "0 6 * * *" \
+  --queries "Dubai real estate off-plan,Riyadh property market,Abu Dhabi real estate"
+
+# GCC Automotive & EV (every 2 days)
+watchlist.py add "GCC automotive EV electric vehicle" --schedule "0 6 */2 * *" \
+  --queries "electric vehicle Dubai Saudi,Chinese cars UAE,automotive market GCC"
+
+# GCC Pain Points & Opportunities (weekly)
+watchlist.py add "GCC business frustration opportunity" --weekly \
+  --queries "Dubai overpriced scam,UAE worst service,Saudi no alternative monopoly"
+
+# Daily budget guard: $5/day (vs current $3/day for both monitors)
+watchlist.py config budget 5.00</pre>
+      </div>
+    </section>
+
+    <!-- Decisions -->
+    <section class="section fade-in">
+      <div class="section-label"><span class="dot"></span>Decisions Needed</div>
+      <h2>Two Things from You</h2>
+
+      <div class="decision-grid">
+        <div class="decision-card">
+          <div class="decision-num">1</div>
+          <div>
+            <h3>Sign up for ScrapeCreators</h3>
+            <p>Go to <strong>scrapecreators.com</strong> and grab an API key. 100 free calls, no credit card. This unlocks Reddit comments (the highest-value content), TikTok, and Instagram. I'll configure everything else.</p>
+            <div class="decision-rec">→ Takes 2 minutes. Paste me the key when you have it.</div>
+          </div>
+        </div>
+        <div class="decision-card">
+          <div class="decision-num">2</div>
+          <div>
+            <h3>Archive or purge old databases?</h3>
+            <p>The current Reddit and X monitors have SQLite databases with historical findings. We can archive them to R2 backup, or just delete them since last30days starts fresh with its own research.db.</p>
+            <div class="decision-rec">→ I recommend archive to R2, then delete local copies.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout" style="margin-top: 20px;">
+        <strong>Everything else I'll handle:</strong> Fork the repo, apply the 3 patches, write gcc_config.json, set up the watchlist cron, wire into Daily Brief, and run parallel validation. You just need to give me the ScrapeCreators key and the archive decision.
+      </div>
+    </section>
+
+    <div class="footer">
+      GCC Monitor Migration Plan v2 · Full migration with code modifications · April 2026
+    </div>
+
+  </div>
+</body>
+</html>
