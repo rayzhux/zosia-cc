@@ -300,9 +300,9 @@
     </header>
 
     <div class="stats">
-      <span><span class="num">49</span> pages</span>
+      <span><span class="num">50</span> pages</span>
       <span><span class="num">7</span> categories</span>
-      <span>Last updated <span class="num">Apr 2, 2026</span></span>
+      <span>Last updated <span class="num">Apr 3, 2026</span></span>
     </div>
 
     <div class="search-wrap">
@@ -346,6 +346,17 @@
 
   <script>
     const pages = [
+      {
+            "slug": "slack-audit-2026-04-03",
+            "title": "Slack × OpenClaw Deep Healthcheck — 2026-04-03",
+            "desc": "Deep audit of config, routing, and stability — April 3, 2026",
+            "cat": "openclaw",
+            "created": "2026-04-03",
+            "updated": "2026-04-03",
+            "tags": [
+                  "analysis"
+            ]
+      },
       {
             "slug": "github-tools-comparison",
             "title": "AI Agent Tools Comparison — last30days vs bb-browser vs twitter-cli vs opencli",
@@ -929,7 +940,7 @@
     }
 
     function daysAgo(d) {
-      const now = new Date("2026-04-02");
+      const now = new Date("2026-04-03");
       const then = new Date(d);
       const diff = Math.floor((now - then) / 86400000);
       if (diff === 0) return "today";

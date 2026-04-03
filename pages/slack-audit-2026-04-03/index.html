@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Slack × OpenClaw Deep Healthcheck — 2026-04-03</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --font-body: 'Outfit', system-ui, sans-serif;
+  --font-serif: 'Instrument Serif', Georgia, serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+  --bg: #faf8f5;
+  --surface: #ffffff;
+  --surface2: #f5f0eb;
+  --surface-elevated: #fff;
+  --border: rgba(0,0,0,0.07);
+  --border-bright: rgba(0,0,0,0.14);
+  --text: #1c1917;
+  --text-dim: #78716c;
+  --accent: #b45309;
+  --accent-dim: rgba(180,83,9,0.06);
+  --red: #dc2626;
+  --red-dim: rgba(220,38,38,0.08);
+  --orange: #d97706;
+  --orange-dim: rgba(217,119,6,0.08);
+  --green: #16a34a;
+  --green-dim: rgba(22,163,74,0.08);
+  --blue: #2563eb;
+  --blue-dim: rgba(37,99,235,0.08);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #141210;
+    --surface: #1e1c19;
+    --surface2: #28251f;
+    --surface-elevated: #2e2a23;
+    --border: rgba(255,255,255,0.06);
+    --border-bright: rgba(255,255,255,0.12);
+    --text: #f5f0eb;
+    --text-dim: #a39888;
+    --accent: #f59e0b;
+    --accent-dim: rgba(245,158,11,0.12);
+    --red: #f87171;
+    --red-dim: rgba(248,113,113,0.1);
+    --orange: #fbbf24;
+    --orange-dim: rgba(251,191,36,0.1);
+    --green: #4ade80;
+    --green-dim: rgba(74,222,128,0.1);
+    --blue: #60a5fa;
+    --blue-dim: rgba(96,165,250,0.1);
+  }
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: var(--bg);
+  background-image:
+    radial-gradient(ellipse at 20% 0%, var(--accent-dim) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 100%, var(--green-dim) 0%, transparent 40%);
+  color: var(--text);
+  font-family: var(--font-body);
+  line-height: 1.6;
+  min-height: 100vh;
+  padding: 2rem 1rem;
+}
+.container { max-width: 960px; margin: 0 auto; }
+h1 {
+  font-family: var(--font-serif);
+  font-size: 2.4rem;
+  font-weight: 400;
+  margin-bottom: 0.25rem;
+}
+.subtitle {
+  color: var(--text-dim);
+  font-size: 0.95rem;
+  margin-bottom: 2rem;
+}
+/* KPI cards */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2.5rem;
+}
+.kpi {
+  background: var(--surface-elevated);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  text-align: center;
+}
+.kpi .num {
+  font-family: var(--font-mono);
+  font-size: 2rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+.kpi .label {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 0.25rem;
+}
+.kpi.red .num { color: var(--red); }
+.kpi.orange .num { color: var(--orange); }
+.kpi.green .num { color: var(--green); }
+.kpi.blue .num { color: var(--blue); }
+
+/* Section */
+section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.75rem 2rem;
+  margin-bottom: 1.5rem;
+  animation: fadeIn 0.4s ease both;
+}
+section:nth-child(2) { animation-delay: 0.05s; }
+section:nth-child(3) { animation-delay: 0.1s; }
+section:nth-child(4) { animation-delay: 0.15s; }
+@keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
+
+h2 {
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+  font-weight: 400;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 1.25rem 0 0.5rem;
+  color: var(--accent);
+}
+
+/* Table */
+.table-wrap { overflow-x: auto; margin: 0.75rem 0; }
+table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+th {
+  background: var(--surface2);
+  font-weight: 600;
+  text-align: left;
+  padding: 0.6rem 0.75rem;
+  border-bottom: 2px solid var(--border-bright);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-dim);
+  position: sticky; top: 0;
+}
+td {
+  padding: 0.55rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+tr:hover td { background: var(--accent-dim); }
+
+/* Badges */
+.badge {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.badge.critical { background: var(--red-dim); color: var(--red); }
+.badge.warning { background: var(--orange-dim); color: var(--orange); }
+.badge.ok { background: var(--green-dim); color: var(--green); }
+.badge.info { background: var(--blue-dim); color: var(--blue); }
+
+/* Finding card */
+.finding {
+  background: var(--surface2);
+  border-left: 3px solid var(--orange);
+  border-radius: 0 8px 8px 0;
+  padding: 1rem 1.25rem;
+  margin: 0.75rem 0;
+}
+.finding.critical { border-left-color: var(--red); }
+.finding.ok { border-left-color: var(--green); }
+.finding.info { border-left-color: var(--blue); }
+.finding p { margin: 0.4rem 0 0; font-size: 0.9rem; }
+.finding .title {
+  font-weight: 600;
+  font-size: 0.95rem;
+  display: flex; align-items: center; gap: 0.4rem;
+}
+code {
+  font-family: var(--font-mono);
+  font-size: 0.82em;
+  background: var(--surface2);
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+}
+.fix {
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+  padding: 0.6rem 0.8rem;
+  background: var(--green-dim);
+  border-radius: 6px;
+  color: var(--green);
+  font-weight: 500;
+}
+@media (prefers-color-scheme: dark) {
+  .fix { color: var(--green); }
+}
+ul { margin: 0.5rem 0 0.5rem 1.25rem; font-size: 0.9rem; }
+li { margin-bottom: 0.3rem; }
+.summary-block {
+  background: var(--accent-dim);
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  padding: 1.25rem 1.5rem;
+  margin-top: 1.5rem;
+}
+.summary-block h3 { color: var(--text); margin-top: 0; }
+</style>
+  <!-- Vercel Web Analytics -->
+  <script>
+    window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+  </script>
+  <script defer src="/_vercel/insights/script.js"></script>
+  <!-- Vercel Speed Insights -->
+  <script>
+    window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
+  </script>
+  <script defer src="/_vercel/speed-insights/script.js"></script>
+  <meta property="og:title" content="Slack × OpenClaw Deep Healthcheck — 2026-04-03">
+  <meta property="og:description" content="Deep audit of config, routing, and stability — April 3, 2026">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://zosia.cc/pages/slack-audit-2026-04-03">
+  <meta name="twitter:card" content="summary">
+</head>
+<body>
+<div class="container">
+
+<h1>🔧 Slack × OpenClaw Healthcheck</h1>
+<p class="subtitle">Deep audit of config, routing, and stability — April 3, 2026</p>
+
+<div class="kpi-row">
+  <div class="kpi red">
+    <div class="num">4</div>
+    <div class="label">Critical Issues</div>
+  </div>
+  <div class="kpi orange">
+    <div class="num">5</div>
+    <div class="label">Warnings</div>
+  </div>
+  <div class="kpi green">
+    <div class="num">20</div>
+    <div class="label">Channels Configured</div>
+  </div>
+  <div class="kpi blue">
+    <div class="num">2</div>
+    <div class="label">Bot Accounts</div>
+  </div>
+</div>
+
+<!-- ======== SECTION 1: Critical Issues ======== -->
+<section>
+<h2>🔴 Critical Issues</h2>
+
+<div class="finding critical">
+  <div class="title">1. #sys-security has <code>requireMention: false</code> but system prompt says "Only respond when @mentioned"</div>
+  <p>This channel (the one you're asking from) has <code>requireMention: false</code>, so I receive <strong>every message</strong>. But the system prompt tells me to only respond when @mentioned. This creates a conflict — I see the message, process it, but the system prompt tells me to stay quiet. Result: I consume tokens silently doing nothing, or respond inconsistently.</p>
+  <p><strong>Same problem in:</strong> <code>#sys-heartbeat</code>, <code>#sys-token-usage</code>, <code>#sys-backups</code>, <code>#health</code>, <code>#daily-news</code> — all have <code>requireMention: false</code> but their system prompts say "only respond when @mentioned."</p>
+  <div class="fix">✅ Fix: Set <code>requireMention: true</code> on all automated/output-only channels. Reserve <code>requireMention: false</code> only for channels where you want me to respond to every message.</div>
+</div>
+
+<div class="finding critical">
+  <div class="title">2. #sys-fixes is missing <code>requireMention</code> entirely</div>
+  <p>Channel <code>C0AQCJKR37G</code> (#sys-fixes) has no <code>requireMention</code> set. It inherits from the wildcard <code>*</code> rule which is <code>requireMention: true</code>. So you'd need to @mention me there to get a response, even though it's meant to be a primary responder channel for troubleshooting.</p>
+  <div class="fix">✅ Fix: Add <code>requireMention: false</code> to the #sys-fixes channel config.</div>
+</div>
+
+<div class="finding critical">
+  <div class="title">3. <code>replyToMode: "first"</code> forces all channel replies into threads</div>
+  <p>With <code>replyToModeByChatType.channel: "first"</code>, every response I send in a channel goes as a threaded reply to the first message. This means:</p>
+  <ul>
+    <li>Top-level messages from me in channels are <strong>impossible</strong> — everything becomes a thread reply</li>
+    <li>Cron output (daily brief, security reviews, health reports) that should appear as top-level posts gets buried in threads</li>
+    <li>If two conversations happen in the same session, the second reply threads under the first message — <strong>wrong thread</strong></li>
+  </ul>
+  <p>This is likely the "messages went to wrong channels" issue you're seeing — it's actually messages going to wrong <strong>threads</strong>.</p>
+  <div class="fix">✅ Fix: Consider <code>replyToModeByChatType.channel: "off"</code> for channels (lets cron posts be top-level), or keep <code>"first"</code> only for interactive channels like #daily and #sys-fixes.</div>
+</div>
+
+<div class="finding critical">
+  <div class="title">4. <code>requireMention: false</code> on ~14 channels creates massive token waste</div>
+  <p>Every message in 14 channels triggers a full agent session. Most of these are bot output channels (heartbeat, backups, token usage, security) where I shouldn't respond unless asked. Each silent processing round costs tokens and can delay interactive responses due to concurrency limits.</p>
+  <div class="fix">✅ Fix: Flip to <code>requireMention: true</code> on all output-only channels. Only keep <code>false</code> on #daily, #intel, #sys-fixes, #development, #alerts.</div>
+</div>
+</section>
+
+<!-- ======== SECTION 2: Warnings ======== -->
+<section>
+<h2>🟡 Warnings</h2>
+
+<div class="finding">
+  <div class="title">5. DM <code>replyToMode: "off"</code> — explicit reply tags don't work in Slack DMs</div>
+  <p>Unlike Telegram where <code>"off"</code> still honors explicit <code>[[reply_to_*]]</code> tags, Slack's <code>"off"</code> disables <strong>all</strong> reply threading — including explicit tags. This means DM conversations can't use threaded context.</p>
+  <div class="fix">✅ Fix: If you want DM threading, change to <code>"first"</code>. If flat DMs are intended, this is fine as-is.</div>
+</div>
+
+<div class="finding">
+  <div class="title">6. <code>thread.inheritParent: true</code> may cause context bleeding</div>
+  <p>Currently set to <code>true</code>, which means thread sessions inherit the parent channel session's context. Combined with the <code>replyToMode: "first"</code> threading, this can create confused context when multiple threads are active.</p>
+  <div class="fix">✅ Fix: Set <code>thread.inheritParent: false</code> (the documented default) unless you specifically want thread context inheritance.</div>
+</div>
+
+<div class="finding">
+  <div class="title">7. No <code>channels.slack.accounts.default.channels</code> override — routing uses top-level only</div>
+  <p>Channel routing config lives at <code>channels.slack.channels</code> but the <code>default</code> account doesn't have its own channel overrides. This works fine for now but means both Zosia and Argus use the same channel routing (Argus uses its own account-level <code>requireMention: true</code> wildcard to stay quiet).</p>
+  <div class="fix">ℹ️ Not broken, just something to know. Current Argus isolation via account-level <code>requireMention: true</code> works.</div>
+</div>
+
+<div class="finding">
+  <div class="title">8. <code>userTokenReadOnly: false</code> at top level but <code>true</code> at account level</div>
+  <p>Top-level config has <code>userTokenReadOnly: false</code>, but both <code>accounts.default</code> and <code>accounts.argus</code> have <code>userTokenReadOnly: true</code>. Account-level should win, but this discrepancy could cause confusion during troubleshooting.</p>
+  <div class="fix">✅ Fix: Align top-level to <code>true</code> to match account configs, or remove the top-level key.</div>
+</div>
+
+<div class="finding">
+  <div class="title">9. WhatsApp is disconnected (separate issue, not Slack)</div>
+  <p>Channel probe shows WhatsApp returning 401 Unauthorized / Connection Failure since April 3. This is unrelated to Slack but worth flagging.</p>
+  <div class="fix">✅ Fix: Re-link WhatsApp — likely needs QR code re-scan.</div>
+</div>
+</section>
+
+<!-- ======== SECTION 3: Channel Matrix ======== -->
+<section>
+<h2>📋 Channel Configuration Matrix</h2>
+<p style="font-size:0.85rem;color:var(--text-dim);margin-bottom:0.75rem;">Cross-referencing <code>requireMention</code> setting vs. system prompt intent</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+  <th>Channel</th>
+  <th>requireMention</th>
+  <th>System Prompt Intent</th>
+  <th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>#daily</code></td>
+  <td><code>false</code></td>
+  <td>Primary responder</td>
+  <td><span class="badge ok">OK</span></td>
+</tr>
+<tr>
+  <td><code>#development</code></td>
+  <td><code>false</code></td>
+  <td>Primary responder (coexist w/ Devon)</td>
+  <td><span class="badge ok">OK</span></td>
+</tr>
+<tr>
+  <td><code>#alerts</code></td>
+  <td><code>false</code></td>
+  <td>Acknowledge + assess severity</td>
+  <td><span class="badge ok">OK</span></td>
+</tr>
+<tr>
+  <td><code>#intel</code></td>
+  <td><code>false</code></td>
+  <td>Primary responder + Argus</td>
+  <td><span class="badge ok">OK</span></td>
+</tr>
+<tr>
+  <td><code>#sys-fixes</code></td>
+  <td><code>NOT SET</code> → inherits <code>true</code></td>
+  <td>Primary responder</td>
+  <td><span class="badge critical">MISMATCH</span></td>
+</tr>
+<tr>
+  <td><code>#briefings</code></td>
+  <td><code>false</code></td>
+  <td>Output channel (I initiate)</td>
+  <td><span class="badge warning">REVIEW</span></td>
+</tr>
+<tr>
+  <td><code>#sys-system</code></td>
+  <td><code>false</code></td>
+  <td>"Only respond when @mentioned"</td>
+  <td><span class="badge critical">MISMATCH</span></td>
+</tr>
+<tr>
+  <td><code>#daily-news</code></td>
+  <td><code>false</code></td>
+  <td>"Be brief but insightful" (active)</td>
+  <td><span class="badge warning">REVIEW</span></td>
+</tr>
+<tr>
+  <td><code>#sys-heartbeat</code></td>
+  <td><code>false</code></td>
+  <td>"Post health cards only"</td>
+  <td><span class="badge warning">REVIEW</span></td>
+</tr>
+<tr>
+  <td><code>#sys-token-usage</code></td>
+  <td><code>false</code></td>
+  <td>"Only respond when @mentioned"</td>
+  <td><span class="badge critical">MISMATCH</span></td>
+</tr>
+<tr>
+  <td><code>#sys-backups</code></td>
+  <td><code>false</code></td>
+  <td>"Only respond when @mentioned"</td>
+  <td><span class="badge critical">MISMATCH</span></td>
+</tr>
+<tr>
+  <td><code>#sys-security</code></td>
+  <td><code>false</code></td>
+  <td>"Only respond when @mentioned"</td>
+  <td><span class="badge critical">MISMATCH</span></td>
+</tr>
+<tr>
+  <td><code>#health</code></td>
+  <td><code>false</code></td>
+  <td>"Only respond when @mentioned"</td>
+  <td><span class="badge critical">MISMATCH</span></td>
+</tr>
+<tr>
+  <td><code>#finance</code></td>
+  <td><code>true</code></td>
+  <td>"Only respond when @mentioned"</td>
+  <td><span class="badge ok">OK</span></td>
+</tr>
+<tr>
+  <td><code>#bot-devon</code></td>
+  <td><code>true</code></td>
+  <td>"Only respond when @mentioned"</td>
+  <td><span class="badge ok">OK</span></td>
+</tr>
+<tr>
+  <td><code>#feed-linear</code></td>
+  <td><code>true</code></td>
+  <td>"Only respond if @mentioned"</td>
+  <td><span class="badge ok">OK</span></td>
+</tr>
+<tr>
+  <td><code>#feed-github</code></td>
+  <td><code>true</code></td>
+  <td>"Only respond if @mentioned"</td>
+  <td><span class="badge ok">OK</span></td>
+</tr>
+<tr>
+  <td><code>#webhook</code></td>
+  <td><code>true</code></td>
+  <td>"Only respond when @mentioned"</td>
+  <td><span class="badge ok">OK</span></td>
+</tr>
+<tr>
+  <td><code>* (wildcard)</code></td>
+  <td><code>true</code></td>
+  <td>"Only respond when @mentioned"</td>
+  <td><span class="badge ok">OK</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<!-- ======== SECTION 4: Recommended Config ======== -->
+<section>
+<h2>🛠️ Recommended Config Changes</h2>
+<p style="font-size:0.9rem;margin-bottom:1rem;">In priority order. I can apply all of these with your approval.</p>
+
+<h3>Priority 1 — Fix requireMention mismatches (7 channels)</h3>
+<p style="font-size:0.9rem;">Set <code>requireMention: true</code> on all "respond when @mentioned" channels:</p>
+<ul>
+  <li><code>#sys-system</code> (C0ADBGC6DD3)</li>
+  <li><code>#sys-heartbeat</code> (C0ADETKF79Q) — note: heartbeat cron sends <em>to</em> this channel via message tool, not by responding to messages in it</li>
+  <li><code>#sys-token-usage</code> (C0ADCSEFGNA)</li>
+  <li><code>#sys-backups</code> (C0ACZFGTTT9)</li>
+  <li><code>#sys-security</code> (C0AQNRL54HG)</li>
+  <li><code>#health</code> (C0AQSDQJFHA)</li>
+  <li><code>#daily-news</code> (C0ADJG66CN8) — unless you want me commenting on every news post</li>
+</ul>
+
+<h3>Priority 2 — Fix #sys-fixes missing requireMention</h3>
+<p style="font-size:0.9rem;">Add <code>requireMention: false</code> to <code>C0AQCJKR37G</code> so I actually respond there without needing @mention.</p>
+
+<h3>Priority 3 — Review replyToMode for channels</h3>
+<p style="font-size:0.9rem;">Options:</p>
+<ul>
+  <li><strong>Option A:</strong> <code>replyToModeByChatType.channel: "off"</code> — all channel replies are top-level. Clean for cron output. You can still use manual <code>[[reply_to_*]]</code> tags... wait, no, Slack <code>"off"</code> kills those too.</li>
+  <li><strong>Option B (recommended):</strong> Keep <code>"first"</code> but be aware that cross-thread confusion is inherent to this mode when sessions span multiple conversations. The alternative is per-channel replyToMode if OpenClaw supports it (currently it doesn't — it's global).</li>
+</ul>
+
+<h3>Priority 4 — Align top-level userTokenReadOnly</h3>
+<p style="font-size:0.9rem;">Set top-level <code>userTokenReadOnly: true</code> to match account-level configs.</p>
+
+<h3>Priority 5 — Set thread.inheritParent: false</h3>
+<p style="font-size:0.9rem;">Prevents context bleeding between parent channel and thread sessions.</p>
+</section>
+
+<!-- ======== SECTION 5: What's Working ======== -->
+<section>
+<h2>✅ What's Working Well</h2>
+<ul>
+  <li><strong>Socket Mode:</strong> Both Zosia and Argus accounts connected, last activity 1m ago</li>
+  <li><strong>Security:</strong> <code>groupPolicy: "allowlist"</code>, <code>dmPolicy: "allowlist"</code>, <code>allowFrom</code> locked to Raymond's user ID</li>
+  <li><strong>Streaming:</strong> Native Slack streaming enabled (<code>nativeStreaming: true</code>)</li>
+  <li><strong>Interactive replies:</strong> Enabled — buttons and selects work</li>
+  <li><strong>Argus isolation:</strong> Separate account, <code>requireMention: true</code> on all channels — clean separation</li>
+  <li><strong>Typing indicator:</strong> <code>writing_hand</code> reaction configured</li>
+  <li><strong>Ack reaction:</strong> <code>+1</code> configured</li>
+  <li><strong>Slash command:</strong> <code>/z</code> registered and working</li>
+  <li><strong>Channel allowlist:</strong> All 20 channels explicitly configured with IDs (not names)</li>
+</ul>
+</section>
+
+<div class="summary-block">
+  <h3>🎯 TL;DR — Why Slack Feels Off</h3>
+  <p style="font-size:0.9rem;margin-top:0.5rem;">The root cause is a <strong>mismatch between <code>requireMention</code> config and system prompt instructions</strong>. 7 output-only channels have <code>requireMention: false</code>, meaning I process every message (wasting tokens) but then the system prompt tells me to stay quiet. Meanwhile, #sys-fixes — an interactive channel — is missing <code>requireMention: false</code>, so I'm silent when you actually want me to respond.</p>
+  <p style="font-size:0.9rem;margin-top:0.4rem;">The <code>replyToMode: "first"</code> threading may also be causing "wrong channel" confusion when replies thread under unexpected messages.</p>
+  <p style="font-size:0.9rem;margin-top:0.5rem;font-weight:600;">Want me to apply the Priority 1 + 2 fixes now?</p>
+</div>
+
+</div>
+</body>
+</html>
