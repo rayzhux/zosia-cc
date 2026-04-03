@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenClaw Session Lifecycle — Config Guide</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f8f7f5;
+      --surface: #ffffff;
+      --surface-alt: #f0eee9;
+      --border: rgba(0,0,0,0.08);
+      --border-strong: rgba(0,0,0,0.15);
+      --text: #1a1a1a;
+      --text-dim: #6b6560;
+      --text-muted: #9a9590;
+      --accent-1: #0369a1;
+      --accent-1-dim: rgba(3,105,161,0.08);
+      --accent-2: #059669;
+      --accent-2-dim: rgba(5,150,105,0.08);
+      --accent-3: #d97706;
+      --accent-3-dim: rgba(217,119,6,0.08);
+      --accent-4: #be123c;
+      --accent-4-dim: rgba(190,18,60,0.08);
+      --accent-5: #7c3f00;
+      --accent-5-dim: rgba(124,63,0,0.08);
+      --code-bg: #f5f3ef;
+      --font-body: 'IBM Plex Sans', -apple-system, sans-serif;
+      --font-mono: 'IBM Plex Mono', 'SF Mono', monospace;
+      --radius: 8px;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #141210;
+        --surface: #1e1c19;
+        --surface-alt: #282520;
+        --border: rgba(255,255,255,0.06);
+        --border-strong: rgba(255,255,255,0.12);
+        --text: #e8e4df;
+        --text-dim: #9a9590;
+        --text-muted: #6b6560;
+        --accent-1: #38bdf8;
+        --accent-1-dim: rgba(56,189,248,0.1);
+        --accent-2: #34d399;
+        --accent-2-dim: rgba(52,211,153,0.1);
+        --accent-3: #fbbf24;
+        --accent-3-dim: rgba(251,191,36,0.1);
+        --accent-4: #fb7185;
+        --accent-4-dim: rgba(251,113,133,0.1);
+        --accent-5: #d4a373;
+        --accent-5-dim: rgba(212,163,115,0.1);
+        --code-bg: #252320;
+        --shadow-sm: 0 1px 3px rgba(0,0,0,0.2);
+        --shadow-md: 0 4px 12px rgba(0,0,0,0.3);
+      }
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+    .container { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+    
+    /* Hero */
+    .hero {
+      padding: 2.5rem 2rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 2rem;
+      box-shadow: var(--shadow-md);
+      animation: fadeUp 0.5s ease;
+    }
+    .hero h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.5rem;
+    }
+    .hero p { color: var(--text-dim); font-size: 0.95rem; }
+    
+    /* Section label */
+    .section-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-dim);
+      margin-bottom: 0.75rem;
+    }
+    .section-label .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+    
+    /* Cards */
+    .ve-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      box-shadow: var(--shadow-sm);
+      min-width: 0;
+    }
+    .ve-card--hero {
+      box-shadow: var(--shadow-md);
+      border-left: 3px solid var(--accent-1);
+    }
+    .ve-card--recessed {
+      background: var(--surface-alt);
+      box-shadow: none;
+    }
+    .ve-card h3 {
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .ve-card p { color: var(--text-dim); font-size: 0.9rem; margin-bottom: 0.75rem; }
+    .ve-card p:last-child { margin-bottom: 0; }
+    
+    /* Badge */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      font-weight: 500;
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      letter-spacing: 0.02em;
+    }
+    .badge--current { background: var(--accent-1-dim); color: var(--accent-1); }
+    .badge--recommended { background: var(--accent-2-dim); color: var(--accent-2); }
+    .badge--warning { background: var(--accent-3-dim); color: var(--accent-3); }
+    .badge--critical { background: var(--accent-4-dim); color: var(--accent-4); }
+    .badge--neutral { background: var(--surface-alt); color: var(--text-dim); }
+    
+    /* Table */
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 1rem;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+    th {
+      text-align: left;
+      font-weight: 600;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-dim);
+      padding: 0.75rem 1rem;
+      background: var(--surface-alt);
+      border-bottom: 1px solid var(--border-strong);
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+    td {
+      padding: 0.65rem 1rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:nth-child(even) td { background: var(--surface-alt); }
+    tr:hover td { background: var(--accent-1-dim); }
+    
+    code {
+      font-family: var(--font-mono);
+      font-size: 0.82em;
+      background: var(--code-bg);
+      padding: 0.15em 0.4em;
+      border-radius: 3px;
+      color: var(--accent-1);
+    }
+    
+    /* Code block */
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1.25rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      margin-bottom: 1rem;
+      color: var(--text);
+    }
+    
+    /* Status indicator */
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.82rem;
+    }
+    .status::before {
+      content: '';
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+    }
+    .status--good::before { background: var(--accent-2); }
+    .status--warn::before { background: var(--accent-3); }
+    .status--bad::before { background: var(--accent-4); }
+    .status--neutral::before { background: var(--text-muted); }
+    
+    /* Section spacing */
+    .section { margin-bottom: 2.5rem; animation: fadeUp 0.5s ease both; }
+    .section:nth-child(2) { animation-delay: 0.05s; }
+    .section:nth-child(3) { animation-delay: 0.1s; }
+    .section:nth-child(4) { animation-delay: 0.15s; }
+    .section:nth-child(5) { animation-delay: 0.2s; }
+    .section:nth-child(6) { animation-delay: 0.25s; }
+    .section:nth-child(7) { animation-delay: 0.3s; }
+    
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    @media (max-width: 640px) { .grid-2 { grid-template-columns: 1fr; } }
+    
+    h2 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      letter-spacing: -0.01em;
+    }
+    
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 2.5rem 0;
+    }
+    
+    .callout {
+      background: var(--accent-2-dim);
+      border: 1px solid rgba(5,150,105,0.2);
+      border-radius: var(--radius);
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1rem;
+    }
+    .callout--warn {
+      background: var(--accent-3-dim);
+      border-color: rgba(217,119,6,0.2);
+    }
+    .callout h4 {
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 0.35rem;
+    }
+    .callout p { font-size: 0.85rem; color: var(--text-dim); }
+    
+    .config-key {
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      color: var(--accent-5);
+      font-weight: 500;
+    }
+    
+    .comparison {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 0.75rem;
+      align-items: start;
+      margin-bottom: 1rem;
+    }
+    .comparison .arrow {
+      padding-top: 1.5rem;
+      color: var(--accent-2);
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+    @media (max-width: 640px) {
+      .comparison { grid-template-columns: 1fr; }
+      .comparison .arrow { display: none; }
+    }
+    
+    ul { padding-left: 1.25rem; margin-bottom: 0.75rem; }
+    li { font-size: 0.9rem; color: var(--text-dim); margin-bottom: 0.3rem; }
+    li code { font-size: 0.78rem; }
+    
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .section, .hero { animation: none; }
+    }
+  </style>
+  <!-- Vercel Web Analytics -->
+  <script>
+    window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+  </script>
+  <script defer src="/_vercel/insights/script.js"></script>
+  <!-- Vercel Speed Insights -->
+  <script>
+    window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
+  </script>
+  <script defer src="/_vercel/speed-insights/script.js"></script>
+  <meta property="og:title" content="OpenClaw Session Lifecycle — Config Guide">
+  <meta property="og:description" content="Complete config reference + recommended setup for Raymond's single-user, multi-channel deployment (Slack, Discord, WhatsApp, Telegram). Running LCM context engine with Opus.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://zosia.cc/pages/session-lifecycle-guide">
+  <meta name="twitter:card" content="summary">
+</head>
+<body>
+  <div class="container">
+    
+    <div class="hero">
+      <h1>OpenClaw Session Lifecycle</h1>
+      <p>Complete config reference + recommended setup for Raymond's single-user, multi-channel deployment (Slack, Discord, WhatsApp, Telegram). Running LCM context engine with Opus.</p>
+    </div>
+
+    <!-- SECTION 1: Current State -->
+    <div class="section">
+      <div class="section-label"><span class="dot" style="background: var(--accent-1)"></span>Current Configuration</div>
+      <h2>What You Have Now</h2>
+      
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Setting</th>
+              <th>Current Value</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>session.reset.mode</code></td>
+              <td><code>idle</code></td>
+              <td><span class="status status--good">Good</span></td>
+            </tr>
+            <tr>
+              <td><code>session.reset.idleMinutes</code></td>
+              <td><code>10080</code> (7 days)</td>
+              <td><span class="status status--warn">Too long for groups</span></td>
+            </tr>
+            <tr>
+              <td><code>session.dmScope</code></td>
+              <td><code>per-channel-peer</code></td>
+              <td><span class="status status--good">Correct</span></td>
+            </tr>
+            <tr>
+              <td><code>session.threadBindings.idleHours</code></td>
+              <td><code>168</code> (7 days)</td>
+              <td><span class="status status--warn">Threads stale for too long</span></td>
+            </tr>
+            <tr>
+              <td><code>session.threadBindings.maxAgeHours</code></td>
+              <td><code>0</code> (disabled)</td>
+              <td><span class="status status--warn">No safety net</span></td>
+            </tr>
+            <tr>
+              <td><code>session.resetByType</code></td>
+              <td><span class="badge badge--neutral">NOT SET</span></td>
+              <td><span class="status status--warn">One-size-fits-all</span></td>
+            </tr>
+            <tr>
+              <td><code>session.maintenance</code></td>
+              <td><span class="badge badge--neutral">NOT SET</span></td>
+              <td><span class="status status--bad">Sessions accumulate forever</span></td>
+            </tr>
+            <tr>
+              <td><code>session.scope</code></td>
+              <td><code>per-sender</code> (default)</td>
+              <td><span class="status status--good">Correct</span></td>
+            </tr>
+            <tr>
+              <td><code>compaction.mode</code></td>
+              <td><code>safeguard</code></td>
+              <td><span class="status status--good">Good</span></td>
+            </tr>
+            <tr>
+              <td><code>contextPruning</code></td>
+              <td><code>cache-ttl</code> / <code>3h</code></td>
+              <td><span class="status status--good">Good</span></td>
+            </tr>
+            <tr>
+              <td><code>contextEngine</code></td>
+              <td><code>lossless-claw</code> (LCM)</td>
+              <td><span class="status status--good">Best available</span></td>
+            </tr>
+            <tr>
+              <td><code>parentForkMaxTokens</code></td>
+              <td><code>100000</code> (default)</td>
+              <td><span class="status status--good">Good</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- SECTION 2: The Knobs -->
+    <div class="section">
+      <div class="section-label"><span class="dot" style="background: var(--accent-5)"></span>Reference</div>
+      <h2>Every Session Knob, Explained</h2>
+      
+      <div class="ve-card">
+        <h3>1. Session Reset <span class="badge badge--current">session.reset</span></h3>
+        <p>Controls when a session gets wiped and starts fresh. Two modes, can combine both (first to fire wins).</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Mode</th><th>How It Works</th><th>Best For</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><code>daily</code></td>
+                <td>Resets at <code>atHour</code> local time (default 4 AM). Next message after that hour starts a new session.</td>
+                <td>Predictable "fresh start" each day. Good for cron-heavy setups or shared bots.</td>
+              </tr>
+              <tr>
+                <td><code>idle</code></td>
+                <td>Resets after <code>idleMinutes</code> of no activity. Timer resets on every message.</td>
+                <td>Conversations that span days but shouldn't live forever. Your current setup.</td>
+              </tr>
+              <tr>
+                <td>Both</td>
+                <td>Set both <code>mode</code> fields + <code>atHour</code> + <code>idleMinutes</code>. Whichever expires first wins.</td>
+                <td>Belt-and-suspenders: idle catches long gaps, daily catches never-ending sessions.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
+      <div class="ve-card">
+        <h3>2. Reset By Type <span class="badge badge--recommended">session.resetByType</span></h3>
+        <p>Per-context-type overrides for the reset policy. Types: <code>direct</code> (DMs), <code>group</code> (group chats), <code>thread</code> (Discord/Slack threads). Each can have its own <code>mode</code>, <code>atHour</code>, and <code>idleMinutes</code>.</p>
+        <p><strong>Why it matters:</strong> DMs with you are long-running chief-of-staff conversations — they deserve long idle windows. A Telegram group or Slack thread is task-scoped and shouldn't hold stale context for a week.</p>
+      </div>
+      
+      <div class="ve-card">
+        <h3>3. DM Scope <span class="badge badge--current">session.dmScope</span></h3>
+        <p>How DMs are bucketed into sessions.</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Value</th><th>Isolation</th><th>When to Use</th></tr></thead>
+            <tbody>
+              <tr><td><code>main</code></td><td>All DMs share one session</td><td>Solo user, wants continuity across all channels</td></tr>
+              <tr><td><code>per-peer</code></td><td>By sender ID (cross-channel)</td><td>Multi-user, same person across channels shares context</td></tr>
+              <tr><td><code>per-channel-peer</code></td><td>By channel + sender</td><td>Multi-user or multi-channel privacy. <strong>Your current, correct choice.</strong></td></tr>
+              <tr><td><code>per-account-channel-peer</code></td><td>By account + channel + sender</td><td>Multi-account setups (multiple bot accounts per channel)</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
+      <div class="ve-card">
+        <h3>4. Thread Bindings <span class="badge badge--current">session.threadBindings</span></h3>
+        <p>Controls bound thread sessions (Discord/Slack threads that maintain their own session).</p>
+        <ul>
+          <li><code>enabled</code> — master switch for thread-bound sessions</li>
+          <li><code>idleHours</code> — auto-unfocus (drop binding) after N hours of inactivity. <code>0</code> = never auto-unfocus.</li>
+          <li><code>maxAgeHours</code> — hard cap regardless of activity. <code>0</code> = no max age.</li>
+        </ul>
+        <p>Discord can override these via <code>channels.discord.threadBindings</code>. Your Discord config already has <code>spawnAcpSessions: true</code>.</p>
+      </div>
+      
+      <div class="ve-card">
+        <h3>5. Session Maintenance <span class="badge badge--critical">session.maintenance</span></h3>
+        <p>Automatic cleanup of the session store and transcript files. <strong>You don't have this set — sessions accumulate indefinitely.</strong></p>
+        <ul>
+          <li><code>mode</code> — <code>"warn"</code> (log only) or <code>"enforce"</code> (actually delete)</li>
+          <li><code>pruneAfter</code> — age cutoff for stale entries (default <code>30d</code>)</li>
+          <li><code>maxEntries</code> — cap on <code>sessions.json</code> entries (default <code>500</code>)</li>
+          <li><code>rotateBytes</code> — rotate <code>sessions.json</code> when it exceeds this size (default <code>10mb</code>)</li>
+          <li><code>resetArchiveRetention</code> — how long to keep <code>*.reset.*</code> transcript archives. Defaults to <code>pruneAfter</code>; <code>false</code> disables.</li>
+          <li><code>maxDiskBytes</code> — optional hard budget for the sessions directory</li>
+          <li><code>highWaterBytes</code> — target after cleanup (default 80% of <code>maxDiskBytes</code>)</li>
+        </ul>
+      </div>
+      
+      <div class="ve-card">
+        <h3>6. Parent Fork Guard <span class="badge badge--neutral">session.parentForkMaxTokens</span></h3>
+        <p>When a new thread inherits from a parent session, skip the fork if the parent has more than N tokens. Starts a fresh thread session instead. Default: <code>100000</code>. Set <code>0</code> to always allow forking.</p>
+        <p>Prevents massive parent transcripts from being duplicated into every thread spawn.</p>
+      </div>
+      
+      <div class="ve-card">
+        <h3>7. Context Pipeline <span class="badge badge--neutral">Compaction + Pruning + LCM</span></h3>
+        <p>Three complementary systems that manage what the model sees:</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>System</th><th>What It Does</th><th>Persistent?</th><th>Your Setting</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><strong>Pruning</strong></td>
+                <td>Trims old tool results (exec output, file reads) from in-memory context</td>
+                <td>No — per-request only</td>
+                <td><code>cache-ttl / 3h</code></td>
+              </tr>
+              <tr>
+                <td><strong>Compaction</strong></td>
+                <td>Summarizes older conversation into a compact entry in the transcript</td>
+                <td>Yes — saved to transcript</td>
+                <td><code>safeguard</code></td>
+              </tr>
+              <tr>
+                <td><strong>LCM</strong></td>
+                <td>DAG-based context engine — nothing truly lost. Agent can search/expand old context via <code>lcm_grep</code>/<code>lcm_expand</code></td>
+                <td>Yes — owns compaction</td>
+                <td><code>lossless-claw</code> ✓</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>LCM owns compaction when active, meaning it replaces the legacy summarizer with its DAG approach. The pruning and compaction settings still matter as fallback/guard behaviors.</p>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- SECTION 3: Recommendation -->
+    <div class="section">
+      <div class="section-label"><span class="dot" style="background: var(--accent-2)"></span>Recommendation</div>
+      <h2>Suggested Configuration</h2>
+      
+      <div class="callout">
+        <h4>Philosophy</h4>
+        <p>DMs with you are long-running — keep the generous 7-day idle. Groups and threads are task-scoped — shorter expiry prevents stale context. Enable maintenance so disk doesn't grow unbounded. LCM means long sessions aren't a problem for context quality — but they <em>are</em> a problem for disk and session store bloat.</p>
+      </div>
+      
+      <div class="comparison">
+        <div class="ve-card ve-card--recessed">
+          <h3 style="color: var(--accent-4);">Current</h3>
+          <pre>{
+  "session": {
+    "dmScope": "per-channel-peer",
+    "reset": {
+      "mode": "idle",
+      "idleMinutes": 10080
+    },
+    "threadBindings": {
+      "enabled": true,
+      "idleHours": 168,
+      "maxAgeHours": 0
+    }
+  }
+}</pre>
+        </div>
+        <div class="arrow">→</div>
+        <div class="ve-card ve-card--hero">
+          <h3 style="color: var(--accent-2);">Recommended</h3>
+          <pre>{
+  "session": {
+    "dmScope": "per-channel-peer",
+    "reset": {
+      "mode": "idle",
+      "idleMinutes": 10080
+    },
+    "resetByType": {
+      "direct": {
+        "mode": "idle",
+        "idleMinutes": 10080
+      },
+      "group": {
+        "mode": "idle",
+        "idleMinutes": 1440
+      },
+      "thread": {
+        "mode": "idle",
+        "idleMinutes": 2880
+      }
+    },
+    "threadBindings": {
+      "enabled": true,
+      "idleHours": 72,
+      "maxAgeHours": 336
+    },
+    "maintenance": {
+      "mode": "enforce",
+      "pruneAfter": "30d",
+      "maxEntries": 500,
+      "rotateBytes": "10mb",
+      "resetArchiveRetention": "14d",
+      "maxDiskBytes": "500mb"
+    }
+  }
+}</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 4: Change-by-change breakdown -->
+    <div class="section">
+      <div class="section-label"><span class="dot" style="background: var(--accent-3)"></span>Changes</div>
+      <h2>What Changes and Why</h2>
+      
+      <div class="ve-card ve-card--hero" style="border-left-color: var(--accent-2);">
+        <h3><span class="badge badge--recommended">NEW</span> resetByType — differentiated expiry</h3>
+        <p><strong>DMs → 7 days idle.</strong> Your main interaction. You pick up conversations after weekends, travel days. LCM handles the context — long sessions are fine.</p>
+        <p><strong>Groups → 24 hours idle.</strong> Telegram group, any shared chat. Task-scoped conversations that shouldn't carry a week of stale context. 24h is generous enough for a multi-day group discussion but clears out dead ones.</p>
+        <p><strong>Threads → 48 hours idle.</strong> Discord/Slack threads are task-specific. 48h lets you pick up a thread the next day, but doesn't keep a week-old debug thread alive in memory.</p>
+      </div>
+      
+      <div class="ve-card ve-card--hero" style="border-left-color: var(--accent-3);">
+        <h3><span class="badge badge--warning">CHANGED</span> threadBindings — tighter but with safety net</h3>
+        <p><strong>idleHours: 168 → 72.</strong> Three days of inactivity before auto-unfocus. A thread you haven't touched in 3 days is almost certainly done. If you need it again, the LCM DAG still has all the history — you just start a fresh binding.</p>
+        <p><strong>maxAgeHours: 0 → 336 (14 days).</strong> Hard cap. Even if a thread stays active, the binding resets after 2 weeks. This prevents unbounded transcript growth in long-running threads. LCM's searchable history means you lose nothing — the binding just starts fresh.</p>
+      </div>
+      
+      <div class="ve-card ve-card--hero" style="border-left-color: var(--accent-4);">
+        <h3><span class="badge badge--critical">NEW</span> maintenance — stop infinite accumulation</h3>
+        <p><strong>This is the most important change.</strong> Without maintenance, every session ever created lives in <code>sessions.json</code> and its transcript files stay on disk forever. Over months, this grows into hundreds of MBs of stale transcripts.</p>
+        <ul>
+          <li><code>enforce</code> mode — actually cleans up (not just warnings)</li>
+          <li><code>pruneAfter: 30d</code> — stale session entries older than 30 days get removed</li>
+          <li><code>maxEntries: 500</code> — hard cap on session store entries</li>
+          <li><code>resetArchiveRetention: 14d</code> — archived transcripts (from <code>/new</code> resets) kept 14 days</li>
+          <li><code>maxDiskBytes: 500mb</code> — hard budget for the sessions directory</li>
+        </ul>
+      </div>
+      
+      <div class="ve-card">
+        <h3><span class="badge badge--neutral">KEPT</span> Everything else — already optimal</h3>
+        <ul>
+          <li><code>dmScope: per-channel-peer</code> — correct for your multi-channel setup</li>
+          <li><code>reset.mode: idle</code> with <code>10080</code> — stays as the global default (overridden per-type above)</li>
+          <li><code>contextPruning: cache-ttl / 3h</code> — good for Anthropic caching costs</li>
+          <li><code>compaction.mode: safeguard</code> — appropriate guard for LCM</li>
+          <li><code>contextEngine: lossless-claw</code> — the whole point of the LCM investment</li>
+          <li><code>parentForkMaxTokens: 100000</code> — sensible guard</li>
+          <li>Slack <code>thread.historyScope: thread</code> — correct thread isolation</li>
+          <li>Discord <code>spawnAcpSessions: true</code> — needed for ACP thread spawning</li>
+        </ul>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- SECTION 5: How they interact -->
+    <div class="section">
+      <div class="section-label"><span class="dot" style="background: var(--accent-1)"></span>Interactions</div>
+      <h2>How These Systems Layer</h2>
+      
+      <div class="ve-card">
+        <p style="font-size: 0.9rem; line-height: 1.8; color: var(--text);">
+          <strong>Message arrives</strong> → routed to session by <code>scope</code>/<code>dmScope</code><br>
+          → <strong>Session alive?</strong> Check <code>reset</code> (and <code>resetByType</code> if set) — idle timer or daily boundary<br>
+          → <strong>If expired:</strong> New session ID, old transcript archived (if <code>resetArchiveRetention</code>)<br>
+          → <strong>If thread:</strong> Check <code>threadBindings.idleHours</code> and <code>maxAgeHours</code><br>
+          → <strong>Building context:</strong> LCM assembles from DAG. Pruning trims old tool results.<br>
+          → <strong>Context too big?</strong> LCM compacts (DAG summary). <code>safeguard</code> mode as fallback.<br>
+          → <strong>Background:</strong> <code>maintenance</code> periodically prunes stale session entries + transcripts from disk.
+        </p>
+      </div>
+      
+      <div class="callout--warn callout">
+        <h4>Key Nuance: LCM changes the calculus</h4>
+        <p>Without LCM, shorter sessions = better context quality (less stale info in window). <em>With</em> LCM, session length barely matters for context quality — the DAG handles it. But it <strong>still matters for disk usage and session store hygiene</strong>. That's why maintenance mode is critical even with LCM.</p>
+      </div>
+    </div>
+    
+  </div>
+</body>
+</html>
