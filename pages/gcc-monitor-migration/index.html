@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GCC Monitor Migration Plan — last30days Replacement</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;700;800&family=Fragment+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --font-body: 'Bricolage Grotesque', system-ui, sans-serif;
+    --font-mono: 'Fragment Mono', 'SF Mono', Consolas, monospace;
+    --bg: #faf8f5; --surface: #ffffff; --surface2: #f5f0eb; --surface-elevated: #fffcfa;
+    --border: rgba(0,0,0,0.07); --border-bright: rgba(0,0,0,0.14);
+    --text: #1a1612; --text-dim: #8a7e72;
+    --accent: #c2410c; --accent-dim: rgba(194,65,12,0.07);
+    --teal: #0891b2; --teal-dim: rgba(8,145,178,0.07);
+    --green: #16a34a; --green-dim: rgba(22,163,74,0.08);
+    --amber: #d97706; --amber-dim: rgba(217,119,6,0.07);
+    --purple: #7e22ce; --purple-dim: rgba(126,34,206,0.07);
+    --red: #dc2626; --red-dim: rgba(220,38,38,0.07);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #141210; --surface: #1e1b18; --surface2: #282420; --surface-elevated: #302b26;
+      --border: rgba(255,255,255,0.06); --border-bright: rgba(255,255,255,0.12);
+      --text: #f0ebe4; --text-dim: #a89e92;
+      --accent: #fb923c; --accent-dim: rgba(251,146,60,0.12);
+      --teal: #22d3ee; --teal-dim: rgba(34,211,238,0.1);
+      --green: #4ade80; --green-dim: rgba(74,222,128,0.1);
+      --amber: #fbbf24; --amber-dim: rgba(251,191,36,0.1);
+      --purple: #c084fc; --purple-dim: rgba(192,132,252,0.1);
+      --red: #f87171; --red-dim: rgba(248,113,113,0.1);
+    }
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: var(--bg);
+    background-image:
+      radial-gradient(ellipse at 15% 0%, var(--accent-dim) 0%, transparent 50%),
+      radial-gradient(ellipse at 85% 100%, var(--teal-dim) 0%, transparent 40%);
+    color: var(--text); font-family: var(--font-body);
+    line-height: 1.6; padding: 2rem 1rem 4rem; min-height: 100vh;
+  }
+  .container { max-width: 1200px; margin: 0 auto; }
+
+  .hero { text-align: center; padding: 3rem 1rem 2rem; animation: fadeUp 0.6s ease-out both; }
+  .hero h1 { font-size: clamp(2rem, 5vw, 3rem); font-weight: 800; letter-spacing: -0.02em; line-height: 1.15; margin-bottom: 0.5rem; }
+  .hero .subtitle { font-size: 1.05rem; color: var(--text-dim); max-width: 660px; margin: 0 auto; }
+  .hero .date { font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-dim); margin-top: 0.75rem; letter-spacing: 0.04em; }
+
+  .section { margin: 2.5rem 0; animation: fadeUp 0.5s ease-out both; }
+  .section-label { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem; font-family: var(--font-mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-dim); }
+  .section-label .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .section h2 { font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem; letter-spacing: -0.01em; }
+
+  .card-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.25rem; }
+  .card-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem; position: relative; overflow: hidden; animation: fadeUp 0.5s ease-out both; }
+  .card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+  .card.accent::before { background: var(--accent); }
+  .card.teal::before { background: var(--teal); }
+  .card.green::before { background: var(--green); }
+  .card.purple::before { background: var(--purple); }
+  .card.amber::before { background: var(--amber); }
+  .card.red::before { background: var(--red); }
+  .card h3 { font-size: 1.15rem; font-weight: 700; margin-bottom: 0.6rem; }
+  .card p, .card li { font-size: 0.9rem; line-height: 1.55; }
+  .card .features { list-style: none; margin: 0; padding: 0; }
+  .card .features li { position: relative; padding-left: 1.2rem; margin-bottom: 0.35rem; }
+  .card .features li::before { content: '→'; position: absolute; left: 0; color: var(--text-dim); font-weight: 600; }
+  .card .tagline { color: var(--text-dim); font-size: 0.88rem; margin-bottom: 0.6rem; }
+
+  .table-wrap { overflow-x: auto; border-radius: 14px; border: 1px solid var(--border); background: var(--surface); }
+  table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+  th { background: var(--surface2); font-family: var(--font-mono); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; padding: 0.85rem 1rem; text-align: left; border-bottom: 1px solid var(--border-bright); color: var(--text-dim); white-space: nowrap; }
+  td { padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; line-height: 1.5; }
+  tr:nth-child(even) td { background: var(--surface2); }
+  td code { font-family: var(--font-mono); font-size: 0.78rem; background: var(--surface2); padding: 0.15rem 0.4rem; border-radius: 4px; }
+
+  .badge { display: inline-block; font-family: var(--font-mono); font-size: 0.68rem; padding: 0.15rem 0.5rem; border-radius: 20px; font-weight: 600; letter-spacing: 0.02em; }
+  .badge.green { background: var(--green-dim); color: var(--green); }
+  .badge.amber { background: var(--amber-dim); color: var(--amber); }
+  .badge.red { background: var(--red-dim); color: var(--red); }
+  .badge.teal { background: var(--teal-dim); color: var(--teal); }
+  .badge.purple { background: var(--purple-dim); color: var(--purple); }
+  .badge.accent { background: var(--accent-dim); color: var(--accent); }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 1.5rem 0; flex-wrap: wrap; }
+  .flow-step { flex: 1; min-width: 180px; background: var(--surface); border: 1px solid var(--border); padding: 1rem; text-align: center; position: relative; }
+  .flow-step:first-child { border-radius: 14px 0 0 14px; }
+  .flow-step:last-child { border-radius: 0 14px 14px 0; }
+  .flow-step .step-num { font-family: var(--font-mono); font-size: 0.68rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.3rem; }
+  .flow-step h4 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.25rem; }
+  .flow-step p { font-size: 0.78rem; color: var(--text-dim); }
+  .flow-arrow { display: flex; align-items: center; font-size: 1.5rem; color: var(--text-dim); padding: 0 0.3rem; }
+
+  .verdict { background: var(--surface-elevated); border: 1px solid var(--border-bright); border-radius: 14px; padding: 2rem; margin-top: 2rem; animation: fadeUp 0.6s ease-out both; }
+  .verdict h2 { font-size: 1.4rem; font-weight: 700; margin-bottom: 1rem; }
+  .verdict p { font-size: 0.92rem; line-height: 1.7; margin-bottom: 0.75rem; }
+  .verdict strong { color: var(--accent); }
+
+  .timeline { position: relative; padding-left: 2rem; margin: 1rem 0; }
+  .timeline::before { content: ''; position: absolute; left: 8px; top: 0; bottom: 0; width: 2px; background: var(--border-bright); }
+  .timeline-item { position: relative; margin-bottom: 1.5rem; animation: fadeUp 0.4s ease-out both; }
+  .timeline-item::before { content: ''; position: absolute; left: -1.65rem; top: 6px; width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--accent); background: var(--bg); }
+  .timeline-item.done::before { background: var(--green); border-color: var(--green); }
+  .timeline-item h4 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.2rem; }
+  .timeline-item .when { font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-dim); margin-bottom: 0.25rem; }
+  .timeline-item p { font-size: 0.85rem; color: var(--text-dim); line-height: 1.5; }
+
+  .kpi-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin: 2rem 0 2.5rem; }
+  .kpi { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem 1rem; text-align: center; animation: fadeScale 0.5s ease-out both; }
+  .kpi .name { font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.35rem; }
+  .kpi .value { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.02em; }
+  .kpi .label { font-size: 0.75rem; color: var(--text-dim); margin-top: 0.2rem; }
+  .kpi.accent .value { color: var(--accent); }
+  .kpi.teal .value { color: var(--teal); }
+  .kpi.green .value { color: var(--green); }
+  .kpi.purple .value { color: var(--purple); }
+
+  .footer { text-align: center; margin-top: 3rem; font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-dim); }
+
+  @media (max-width: 768px) {
+    .card-grid, .card-grid-3 { grid-template-columns: 1fr; }
+    .kpi-strip { grid-template-columns: repeat(2, 1fr); }
+    .flow { flex-direction: column; }
+    .flow-arrow { transform: rotate(90deg); justify-content: center; padding: 0.3rem 0; }
+    .flow-step:first-child, .flow-step:last-child { border-radius: 14px; }
+  }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeScale { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; } }
+</style>
+  <!-- Vercel Web Analytics -->
+  <script>
+    window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+  </script>
+  <script defer src="/_vercel/insights/script.js"></script>
+  <!-- Vercel Speed Insights -->
+  <script>
+    window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
+  </script>
+  <script defer src="/_vercel/speed-insights/script.js"></script>
+  <meta property="og:title" content="GCC Monitor Migration Plan — last30days Replacement">
+  <meta property="og:description" content="Replacing two custom monitoring skills (Reddit GCC Monitor + X GCC Monitor) with last30days — a multi-source research engine with built-in watchlist and delta intelligence.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://zosia.cc/pages/gcc-monitor-migration">
+  <meta name="twitter:card" content="summary">
+</head>
+<body>
+<div class="container">
+
+  <div class="hero">
+    <h1>GCC Monitor Migration Plan</h1>
+    <p class="subtitle">Replacing two custom monitoring skills (Reddit GCC Monitor + X GCC Monitor) with last30days — a multi-source research engine with built-in watchlist and delta intelligence.</p>
+    <p class="date">April 3, 2026 · Prepared by Zosia</p>
+  </div>
+
+  <!-- Current State KPIs -->
+  <div class="kpi-strip">
+    <div class="kpi accent">
+      <div class="name">Current Monthly Cost</div>
+      <div class="value">~$91</div>
+      <div class="label">Reddit $60 + X $31</div>
+    </div>
+    <div class="kpi teal">
+      <div class="name">Custom Code</div>
+      <div class="value">~2,600</div>
+      <div class="label">lines across 2 skills</div>
+    </div>
+    <div class="kpi purple">
+      <div class="name">Sources Today</div>
+      <div class="value">2</div>
+      <div class="label">Reddit + X only</div>
+    </div>
+    <div class="kpi green">
+      <div class="name">After Migration</div>
+      <div class="value">10+</div>
+      <div class="label">Reddit, X, YT, HN, TikTok…</div>
+    </div>
+  </div>
+
+  <!-- What We Have Today -->
+  <div class="section">
+    <div class="section-label"><span class="dot" style="background:var(--accent)"></span> Current State</div>
+    <h2>Our Two Custom GCC Monitors</h2>
+    <div class="card-grid">
+      <div class="card accent">
+        <h3>🔴 Reddit GCC Monitor v2</h3>
+        <p class="tagline">Cron: Daily 9:30 AM Dubai · Agent: Argus (GPT-5.4) · Cost: ~$60/mo</p>
+        <ul class="features">
+          <li>29 subreddits across 5 tiers (UAE, Saudi, Qatar, Kuwait, Bahrain, Oman)</li>
+          <li>Pipeline: Reddit JSON → SQLite → Gemini Flash classify → Codex synthesize</li>
+          <li>Theme engine: tracks NEW → BUILDING → RECURRING → FADING + SPIKEs</li>
+          <li>10 Python scripts, ~1,576 lines of custom code</li>
+          <li>Known issues: Reddit 403/429 rate limits, 30-min timeout cascades, comment fetch retries</li>
+          <li>Weekly companion cron for aggregated signals</li>
+        </ul>
+      </div>
+      <div class="card teal">
+        <h3>🐦 X GCC Monitor v2.1</h3>
+        <p class="tagline">Cron: Daily 9:45 AM Dubai · Agent: Argus (GPT-5.4) · Cost: ~$31/mo</p>
+        <ul class="features">
+          <li>26 search queries (EN + AR) + 40+ tracked accounts + GCC city trends</li>
+          <li>Pipeline: TwitterAPI.io → Gemini Flash classify → Codex synthesize</li>
+          <li>3 engines: keyword search + account tracking + trending topics</li>
+          <li>Signal dedup via reported_signals.json (last 3 days)</li>
+          <li>Known issues: Tier-1 budget exhaustion at 900 tweets, 55-min timeout cap</li>
+          <li>Cost: $23 TwitterAPI.io + $4 Gemini + $4 Codex</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- What last30days Offers -->
+  <div class="section">
+    <div class="section-label"><span class="dot" style="background:var(--green)"></span> The Replacement</div>
+    <h2>What last30days Brings to the Table</h2>
+    <div class="card-grid">
+      <div class="card green">
+        <h3>✅ What We Gain</h3>
+        <ul class="features">
+          <li><strong>10+ sources in one tool:</strong> Reddit (with comments via ScrapeCreators), X/Twitter, YouTube transcripts, HN, TikTok, Instagram, Polymarket, Bluesky, Truth Social, web search</li>
+          <li><strong>Built-in watchlist:</strong> SQLite persistence, <code>watchlist.py add/remove/run-all</code>, budget guards ($5/day default)</li>
+          <li><strong>Delta intelligence:</strong> "What's new since last run" — engagement spikes, new voices, gone-quiet detection</li>
+          <li><strong>Cross-platform scoring:</strong> Engagement velocity × text similarity × source convergence</li>
+          <li><strong>Comparison mode:</strong> "X vs Y" auto-runs 3 parallel research passes</li>
+          <li><strong>Zero maintenance:</strong> Community-maintained (17.4K stars), regular updates</li>
+          <li><strong>YouTube + video insights:</strong> Transcripts from yt-dlp add a dimension we completely lack today</li>
+        </ul>
+      </div>
+      <div class="card red">
+        <h3>⚠️ What We Lose</h3>
+        <ul class="features">
+          <li><strong>GCC-specific theme engine:</strong> Our custom BUILDING → RECURRING → FADING lifecycle tracking</li>
+          <li><strong>29-subreddit precision:</strong> last30days searches by topic, not by specific subreddit list — we lose granular sub-by-sub coverage</li>
+          <li><strong>Arabic-language queries:</strong> Our X monitor has 8 Arabic queries + Arabic engagement filters — last30days is English-first</li>
+          <li><strong>40+ tracked GCC accounts:</strong> Specific account monitoring (DXBMediaOffice, DIFC, MISA etc.) won't directly translate</li>
+          <li><strong>Historical SQLite continuity:</strong> reddit_gcc.db has months of classified posts; migration means fresh start</li>
+          <li><strong>Cron-native operation:</strong> last30days is designed for interactive use; watchlist/cron integration exists but is less battle-tested than our Argus pipeline</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Side by Side -->
+  <div class="section">
+    <div class="section-label"><span class="dot" style="background:var(--teal)"></span> Comparison</div>
+    <h2>Head-to-Head: Current vs. Proposed</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Dimension</th>
+            <th>Current (Reddit + X monitors)</th>
+            <th>last30days</th>
+            <th>Delta</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Sources</strong></td>
+            <td>Reddit (29 subs) + X (26 queries + 40 accounts + trends)</td>
+            <td>Reddit + X + YouTube + HN + TikTok + IG + Polymarket + Bluesky + web</td>
+            <td><span class="badge green">++</span> 5× more sources</td>
+          </tr>
+          <tr>
+            <td><strong>Reddit Depth</strong></td>
+            <td>29 specific GCC subs, comments for high-engagement, theme engine</td>
+            <td>Topic-based search, comments via ScrapeCreators, no sub-level control</td>
+            <td><span class="badge red">−</span> Less GCC precision</td>
+          </tr>
+          <tr>
+            <td><strong>X/Twitter Depth</strong></td>
+            <td>26 queries (EN+AR), 40+ tracked accounts, city trends, signal dedup</td>
+            <td>Topic search via cookies or API, no account tracking, no Arabic queries</td>
+            <td><span class="badge red">−</span> Less GCC precision</td>
+          </tr>
+          <tr>
+            <td><strong>Arabic Coverage</strong></td>
+            <td>8 Arabic X queries + Arabic Reddit classification</td>
+            <td>English-first, no native Arabic support</td>
+            <td><span class="badge red">−</span> Gap</td>
+          </tr>
+          <tr>
+            <td><strong>Intelligence Layer</strong></td>
+            <td>Gemini Flash classify → Codex synthesize, theme lifecycle</td>
+            <td>Cross-platform scoring, convergence detection, delta briefings</td>
+            <td><span class="badge amber">~</span> Different, not worse</td>
+          </tr>
+          <tr>
+            <td><strong>Monthly Cost</strong></td>
+            <td>~$91 (Reddit $60 + X $31)</td>
+            <td>~$15-25 (ScrapeCreators ~$10 + X cookies free + LLM synthesis)</td>
+            <td><span class="badge green">++</span> ~70% cheaper</td>
+          </tr>
+          <tr>
+            <td><strong>Maintenance</strong></td>
+            <td>High — 2,600 lines custom code, Reddit 403 bugs, timeout tuning</td>
+            <td>Low — community-maintained, pip install</td>
+            <td><span class="badge green">++</span> Much less</td>
+          </tr>
+          <tr>
+            <td><strong>Cron Readiness</strong></td>
+            <td>Battle-tested daily crons via Argus</td>
+            <td>watchlist.py run-all exists but designed for interactive sessions</td>
+            <td><span class="badge amber">~</span> Needs adapter</td>
+          </tr>
+          <tr>
+            <td><strong>Video/Audio</strong></td>
+            <td>None</td>
+            <td>YouTube transcripts, TikTok videos</td>
+            <td><span class="badge green">++</span> New dimension</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Recommended Approach -->
+  <div class="section">
+    <div class="section-label"><span class="dot" style="background:var(--purple)"></span> Recommendation</div>
+    <h2>Proposed Migration Strategy: Hybrid Approach</h2>
+    <p style="font-size:0.95rem; color:var(--text-dim); margin-bottom:1.5rem; max-width:800px;">
+      A straight replacement loses too much GCC-specific depth. Instead, I recommend a <strong>hybrid approach</strong>: use last30days as the multi-source research engine, but wrap it in a thin GCC-aware orchestrator that preserves our domain knowledge.
+    </p>
+    <div class="card-grid-3">
+      <div class="card purple">
+        <h3>🧠 Option A: Full Replace</h3>
+        <p class="tagline">Kill both monitors, use last30days watchlist with GCC topics.</p>
+        <ul class="features">
+          <li>Fastest to implement (1-2 hours)</li>
+          <li>Lose Arabic queries, account tracking, subreddit precision</li>
+          <li>~70% cost reduction</li>
+          <li>Risk: GCC-specific signals get diluted by global noise</li>
+        </ul>
+        <p style="margin-top:0.75rem"><span class="badge amber">Medium Risk</span></p>
+      </div>
+      <div class="card green">
+        <h3>🎯 Option B: Hybrid (Recommended)</h3>
+        <p class="tagline">last30days as engine + thin GCC wrapper for domain focus.</p>
+        <ul class="features">
+          <li>Install last30days as OpenClaw skill</li>
+          <li>Write a GCC wrapper script (~200 lines) that runs targeted searches</li>
+          <li>Preserve our 6 GCC query categories + Arabic queries via custom search terms</li>
+          <li>Add YouTube + HN + TikTok as bonus sources (free uplift)</li>
+          <li>Keep Argus cron delivery to #intel</li>
+          <li>Cost: ~$20-30/mo (ScrapeCreators + minimal LLM)</li>
+        </ul>
+        <p style="margin-top:0.75rem"><span class="badge green">Best Balance</span></p>
+      </div>
+      <div class="card teal">
+        <h3>🔬 Option C: Parallel Run</h3>
+        <p class="tagline">Run last30days alongside existing monitors for 2 weeks, compare.</p>
+        <ul class="features">
+          <li>Zero risk — existing monitors keep running</li>
+          <li>Compare signal quality side-by-side</li>
+          <li>Higher cost during parallel period (~$116/mo)</li>
+          <li>Best data-driven decision after 2-week eval</li>
+        </ul>
+        <p style="margin-top:0.75rem"><span class="badge teal">Lowest Risk</span></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Implementation Plan for Option B -->
+  <div class="section">
+    <div class="section-label"><span class="dot" style="background:var(--green)"></span> Implementation</div>
+    <h2>Option B — Hybrid Migration Plan</h2>
+
+    <div class="flow">
+      <div class="flow-step" style="background: var(--green-dim);">
+        <div class="step-num">Phase 1</div>
+        <h4>Install & Configure</h4>
+        <p>Install skill, set up API keys, validate sources</p>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step" style="background: var(--teal-dim);">
+        <div class="step-num">Phase 2</div>
+        <h4>Build GCC Wrapper</h4>
+        <p>Query mapping, Arabic support, delivery adapter</p>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step" style="background: var(--purple-dim);">
+        <div class="step-num">Phase 3</div>
+        <h4>Parallel Validation</h4>
+        <p>Run alongside old monitors for 3-5 days</p>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step" style="background: var(--accent-dim);">
+        <div class="step-num">Phase 4</div>
+        <h4>Cutover</h4>
+        <p>Disable old crons, archive old skills</p>
+      </div>
+    </div>
+
+    <div class="timeline" style="margin-top:2rem">
+      <div class="timeline-item">
+        <div class="when">Phase 1 — Day 1 (2-3 hours)</div>
+        <h4>Install & Configure last30days</h4>
+        <p>
+          • Install via ClawHub: <code>clawhub install last30days</code><br>
+          • Configure <code>~/.config/last30days/.env</code> with: X cookies (FROM_BROWSER=auto), SCRAPECREATORS_API_KEY (need to sign up — 100 free calls), yt-dlp already installed<br>
+          • We already have: EXA_API_KEY, OPENAI_API_KEY, BRAVE_API_KEY<br>
+          • Run test: <code>python3 last30days.py "Dubai startup investment" --emit=json</code><br>
+          • Validate all 10+ sources fire correctly
+        </p>
+      </div>
+      <div class="timeline-item">
+        <div class="when">Phase 2 — Day 1-2 (3-4 hours)</div>
+        <h4>Build GCC Monitoring Wrapper</h4>
+        <p>
+          • Create <code>skills/gcc-monitor/</code> — thin orchestrator around last30days<br>
+          • Map our 6 query categories to last30days search terms:<br>
+          &nbsp;&nbsp;→ high_signal_en: "Dubai UAE startup tech business investment"<br>
+          &nbsp;&nbsp;→ high_signal_ar: "دبي الإمارات استثمار تقنية ريادة"<br>
+          &nbsp;&nbsp;→ industry_verticals: "electric vehicle real estate automotive GCC"<br>
+          &nbsp;&nbsp;→ pain_points: "Dubai overpriced scam worst service complaint"<br>
+          &nbsp;&nbsp;→ macro_signals: "UAE regulation IPO golden visa corporate tax"<br>
+          &nbsp;&nbsp;→ discovery: broad high-engagement GCC content<br>
+          • Use watchlist.py to register 6 GCC topics with custom search queries<br>
+          • Build Discord CV2 delivery adapter (format last30days JSON → #intel card)<br>
+          • Add Arabic query pass using <code>--search reddit,x</code> flag
+        </p>
+      </div>
+      <div class="timeline-item">
+        <div class="when">Phase 3 — Day 3-7 (passive)</div>
+        <h4>Parallel Validation</h4>
+        <p>
+          • Run new GCC monitor cron at 10:00 AM (30 min after existing monitors)<br>
+          • Compare signal coverage: are we catching the same stories?<br>
+          • Check: are YouTube/HN/TikTok sources adding real value for GCC?<br>
+          • Validate cost: track ScrapeCreators usage (budget guard at $5/day)<br>
+          • Tune: adjust query terms based on signal-to-noise ratio
+        </p>
+      </div>
+      <div class="timeline-item">
+        <div class="when">Phase 4 — Day 8</div>
+        <h4>Cutover</h4>
+        <p>
+          • Disable old crons: Reddit GCC Monitor (<code>466d1419</code>) + X GCC Monitor (<code>2497bd06</code>) + Reddit Weekly (<code>f64a7674</code>)<br>
+          • Archive old skill directories (don't delete — keep for reference)<br>
+          • Move new cron to 9:30 AM slot<br>
+          • Update projects.md and MEMORY.md<br>
+          • Cancel TwitterAPI.io subscription ($23/mo saved)
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cost Comparison -->
+  <div class="section">
+    <div class="section-label"><span class="dot" style="background:var(--amber)"></span> Economics</div>
+    <h2>Cost Projection</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th>Current</th>
+            <th>After (Hybrid)</th>
+            <th>Saved</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>TwitterAPI.io</td>
+            <td>$23/mo</td>
+            <td>$0 (X cookies + free search)</td>
+            <td><span class="badge green">$23</span></td>
+          </tr>
+          <tr>
+            <td>Gemini Flash (classification)</td>
+            <td>$5.50/mo (~$4 X + $1.50 Reddit)</td>
+            <td>$0 (no separate classification step)</td>
+            <td><span class="badge green">$5.50</span></td>
+          </tr>
+          <tr>
+            <td>Codex (synthesis)</td>
+            <td>$19/mo (~$4 X + $15 Reddit)</td>
+            <td>~$8/mo (fewer, richer synthesis calls)</td>
+            <td><span class="badge green">$11</span></td>
+          </tr>
+          <tr>
+            <td>Reddit data (JSON endpoint)</td>
+            <td>$0 (free, but rate-limited)</td>
+            <td>$0 (free public JSON + ScrapeCreators for comments)</td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td>ScrapeCreators (Reddit comments + TikTok + IG + YT)</td>
+            <td>$0</td>
+            <td>~$10-15/mo (after free tier)</td>
+            <td><span class="badge amber">+$12</span></td>
+          </tr>
+          <tr>
+            <td><strong>Total</strong></td>
+            <td><strong>~$91/mo</strong></td>
+            <td><strong>~$20-25/mo</strong></td>
+            <td><span class="badge green"><strong>~$66-71 saved</strong></span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Open Questions -->
+  <div class="section">
+    <div class="section-label"><span class="dot" style="background:var(--red)"></span> Open Questions</div>
+    <h2>Decisions Needed From You</h2>
+    <div class="card-grid">
+      <div class="card amber">
+        <h3>1. Which option?</h3>
+        <p>A (full replace), B (hybrid — recommended), or C (parallel first)?</p>
+      </div>
+      <div class="card amber">
+        <h3>2. ScrapeCreators signup</h3>
+        <p>Need you to create account at scrapecreators.com for the API key. Free tier = 100 calls, then paid. Worth it for Reddit comments + TikTok + IG.</p>
+      </div>
+      <div class="card amber">
+        <h3>3. Arabic coverage priority</h3>
+        <p>Our X monitor has 8 Arabic-language queries. last30days is English-first. Do we need a separate Arabic pass, or is English sufficient for GCC business intel?</p>
+      </div>
+      <div class="card amber">
+        <h3>4. Historical data</h3>
+        <p>reddit_gcc.db + x_gcc_monitor.db have months of classified data. Archive and keep for ad-hoc queries, or start completely fresh?</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Verdict -->
+  <div class="verdict">
+    <h2>My Take</h2>
+    <p>Go with <strong>Option B (Hybrid)</strong>. last30days is a genuine upgrade in breadth — 10+ sources vs our 2, YouTube transcripts and HN are real signal additions for GCC business intel, and the cost drops ~70%.</p>
+    <p>But a straight replacement is wrong. Our 29 subreddits, Arabic queries, and 40+ tracked accounts represent months of curation. The thin wrapper preserves that domain knowledge while leveraging last30days as the engine.</p>
+    <p>The watchlist + <code>run-all</code> + budget guard pattern is exactly what we need for cron operation. We just need a ~200-line adapter to map our GCC queries and format output for Discord delivery.</p>
+    <p>Timeline: <strong>One weekend to build and validate</strong>. Run parallel for a week, then cut over. By mid-April, both custom monitors retired, $66/mo saved, and we're getting YouTube + HN + TikTok signals we never had.</p>
+  </div>
+
+  <div class="footer">
+    Generated by Zosia · April 3, 2026 · Based on analysis of github.com/mvanhorn/last30days-skill v2.9.6 + existing GCC monitor skills
+  </div>
+
+</div>
+</body>
+</html>
