@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>OpenClaw v2026.4.5, Major Updates</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f6f3ec;
+    --bg2: #efe7da;
+    --surface: rgba(255,255,255,0.72);
+    --surface-strong: rgba(255,255,255,0.92);
+    --surface-dark: #18314f;
+    --text: #1a2430;
+    --text-dim: #5b6674;
+    --border: rgba(24, 49, 79, 0.10);
+    --border-strong: rgba(24, 49, 79, 0.18);
+    --blue: #1e3a5f;
+    --blue-dim: rgba(30, 58, 95, 0.08);
+    --gold: #c28b2c;
+    --gold-dim: rgba(194, 139, 44, 0.10);
+    --green: #146c43;
+    --green-dim: rgba(20, 108, 67, 0.10);
+    --red: #9f2d2d;
+    --shadow: 0 10px 30px rgba(17, 24, 39, 0.08);
+    --font-body: 'IBM Plex Sans', system-ui, sans-serif;
+    --font-mono: 'IBM Plex Mono', monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f1723;
+      --bg2: #142132;
+      --surface: rgba(20, 33, 50, 0.78);
+      --surface-strong: rgba(25, 39, 58, 0.92);
+      --surface-dark: #0c1420;
+      --text: #e9eef5;
+      --text-dim: #a9b4c3;
+      --border: rgba(255,255,255,0.08);
+      --border-strong: rgba(255,255,255,0.14);
+      --blue: #7db0e8;
+      --blue-dim: rgba(125, 176, 232, 0.12);
+      --gold: #e0b45a;
+      --gold-dim: rgba(224, 180, 90, 0.14);
+      --green: #58c48f;
+      --green-dim: rgba(88, 196, 143, 0.12);
+      --red: #f28b82;
+      --shadow: 0 16px 40px rgba(0, 0, 0, 0.28);
+    }
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    font-family: var(--font-body);
+    color: var(--text);
+    background:
+      radial-gradient(circle at top left, var(--gold-dim), transparent 28%),
+      radial-gradient(circle at bottom right, var(--blue-dim), transparent 34%),
+      linear-gradient(180deg, var(--bg), var(--bg2));
+    line-height: 1.55;
+  }
+  .wrap {
+    max-width: 1380px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 0 40px;
+    padding: 24px 40px 80px;
+  }
+  .main { min-width: 0; }
+  .toc {
+    position: sticky;
+    top: 24px;
+    align-self: start;
+    max-height: calc(100dvh - 48px);
+    overflow-y: auto;
+    padding: 14px 0;
+  }
+  .toc-title {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.8px;
+    color: var(--text-dim);
+    padding-bottom: 10px;
+    margin-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .toc a {
+    display: block;
+    text-decoration: none;
+    color: var(--text-dim);
+    padding: 5px 8px;
+    border-left: 2px solid transparent;
+    border-radius: 6px;
+    font-size: 12px;
+    transition: 0.15s ease;
+  }
+  .toc a:hover, .toc a.active {
+    color: var(--text);
+    background: var(--surface);
+    border-left-color: var(--gold);
+  }
+  .hero {
+    background: linear-gradient(135deg, var(--surface-strong), var(--surface));
+    border: 1px solid var(--border-strong);
+    border-radius: 28px;
+    padding: 34px;
+    box-shadow: var(--shadow);
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::after {
+    content: "";
+    position: absolute;
+    inset: auto -60px -60px auto;
+    width: 220px;
+    height: 220px;
+    background: radial-gradient(circle, var(--gold-dim), transparent 65%);
+    pointer-events: none;
+  }
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 1.7px;
+    text-transform: uppercase;
+    color: var(--blue);
+    margin-bottom: 12px;
+  }
+  h1 {
+    margin: 0;
+    font-size: clamp(34px, 6vw, 62px);
+    line-height: 0.95;
+    letter-spacing: -0.04em;
+  }
+  .subtitle {
+    margin-top: 16px;
+    max-width: 920px;
+    color: var(--text-dim);
+    font-size: 18px;
+  }
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 24px;
+    margin-top: 24px;
+  }
+  .kpis {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+    margin-top: 24px;
+  }
+  .kpi, .mini-card, .section-card, .quote, .table-wrap, .path-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    box-shadow: var(--shadow);
+  }
+  .kpi {
+    padding: 16px;
+  }
+  .kpi .label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 1.3px;
+  }
+  .kpi .value {
+    margin-top: 10px;
+    font-size: 30px;
+    font-weight: 700;
+    letter-spacing: -0.04em;
+  }
+  .kpi .sub {
+    margin-top: 6px;
+    color: var(--text-dim);
+    font-size: 13px;
+  }
+  .hero-take {
+    padding: 20px;
+    border-radius: 20px;
+    background: linear-gradient(180deg, var(--surface-dark), rgba(24,49,79,0.90));
+    color: #eef4fb;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .hero-take h3 {
+    margin: 0 0 10px;
+    font-size: 18px;
+  }
+  .hero-take p { margin: 0; color: rgba(238,244,251,0.86); }
+  .pill-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+  .pill {
+    padding: 8px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+  .sec-head {
+    margin: 42px 0 16px;
+    font-size: 28px;
+    letter-spacing: -0.03em;
+  }
+  .deck {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+  }
+  .section-card {
+    padding: 22px;
+  }
+  .section-card h3 {
+    margin: 0 0 12px;
+    font-size: 22px;
+    letter-spacing: -0.03em;
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-family: var(--font-mono);
+    margin-bottom: 12px;
+    background: var(--gold-dim);
+    color: var(--gold);
+    border: 1px solid var(--border);
+  }
+  .section-card ul { padding-left: 18px; margin: 12px 0 0; }
+  .section-card li { margin: 8px 0; }
+  .evidence {
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+  .quote {
+    padding: 24px;
+    margin-top: 18px;
+    border-left: 4px solid var(--gold);
+  }
+  .quote strong { display: block; margin-bottom: 8px; }
+  .path-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+  }
+  .path-card { padding: 18px; }
+  .path-card h4 { margin: 0 0 8px; font-size: 17px; }
+  .mono { font-family: var(--font-mono); }
+  .table-wrap { overflow: hidden; }
+  .table-scroll { overflow-x: auto; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  thead th {
+    position: sticky;
+    top: 0;
+    background: color-mix(in srgb, var(--surface-strong) 85%, transparent);
+    backdrop-filter: blur(6px);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 1.1px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    text-align: left;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border-strong);
+  }
+  td {
+    padding: 16px;
+    vertical-align: top;
+    border-bottom: 1px solid var(--border);
+  }
+  tbody tr:nth-child(even) { background: color-mix(in srgb, var(--blue-dim) 40%, transparent); }
+  tbody tr:hover { background: color-mix(in srgb, var(--gold-dim) 50%, transparent); }
+  .status {
+    display: inline-block;
+    padding: 5px 8px;
+    border-radius: 999px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    border: 1px solid var(--border);
+  }
+  .s-ship { background: var(--green-dim); color: var(--green); }
+  .s-arch { background: var(--blue-dim); color: var(--blue); }
+  .s-safe { background: var(--gold-dim); color: var(--gold); }
+  .callout {
+    margin-top: 16px;
+    padding: 14px 16px;
+    background: var(--blue-dim);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    color: var(--text);
+  }
+  .small { font-size: 13px; color: var(--text-dim); }
+  .footer {
+    margin-top: 36px;
+    padding: 18px 20px;
+    border-top: 1px solid var(--border);
+    color: var(--text-dim);
+    font-size: 13px;
+  }
+  .animate { opacity: 0; transform: translateY(10px); animation: fadeUp .45s ease-out forwards; animation-delay: calc(var(--i, 0) * 50ms); }
+  @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .animate { opacity: 1; transform: none; animation: none; }
+  }
+  @media (max-width: 1100px) {
+    .wrap { grid-template-columns: 1fr; gap: 0; }
+    .toc {
+      position: sticky; top: 0; z-index: 50; max-height: none; overflow-x: auto; overflow-y: hidden;
+      display: flex; gap: 4px; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border); padding: 10px 0; margin: 0 -40px 18px; padding-left: 40px; padding-right: 40px;
+    }
+    .toc-title { display: none; }
+    .toc a { white-space: nowrap; border-left: none; border-bottom: 2px solid transparent; }
+    .toc a.active { border-bottom-color: var(--gold); }
+    .sec-head { scroll-margin-top: 56px; }
+    .hero-grid, .deck, .path-grid, .kpis { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 760px) {
+    body { font-size: 15px; }
+    .wrap { padding: 18px 18px 60px; }
+    .toc { margin: 0 -18px 18px; padding-left: 18px; padding-right: 18px; }
+    .hero { padding: 22px; border-radius: 22px; }
+    .hero-grid, .deck, .path-grid, .kpis { grid-template-columns: 1fr; }
+    h1 { font-size: 38px; }
+    .subtitle { font-size: 16px; }
+  }
+</style>
+  <!-- Vercel Web Analytics -->
+  <script>
+    window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+  </script>
+  <script defer src="/_vercel/insights/script.js"></script>
+  <!-- Vercel Speed Insights -->
+  <script>
+    window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
+  </script>
+  <script defer src="/_vercel/speed-insights/script.js"></script>
+  <meta property="og:title" content="OpenClaw v2026.4.5, Major Updates">
+  <meta property="og:description" content="v2026.4.5 makes OpenClaw feel less like a chat wrapper around tools and more like an agent operating system. Media generation, approval delivery, plugin-owned reply routing, memory promotion, and cont">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://zosia.cc/pages/openclaw-v2026-4-5-release-review">
+  <meta name="twitter:card" content="summary">
+</head>
+<body>
+<div class="wrap">
+  <nav class="toc" id="toc">
+    <div class="toc-title">Contents</div>
+    <a href="#overview">Overview</a>
+    <a href="#updates">Major updates</a>
+    <a href="#evidence">Code evidence</a>
+    <a href="#architecture">What changed under the hood</a>
+    <a href="#study">Best study path</a>
+    <a href="#take">My take</a>
+  </nav>
+
+  <main class="main">
+    <section class="hero animate" id="overview" style="--i:0">
+      <div class="eyebrow">Release audit • OpenClaw v2026.4.5</div>
+      <h1>Not just a feature drop,<br/>a platform refactor with media muscles.</h1>
+      <p class="subtitle">I reviewed the code delta from <span class="mono">v2026.4.2</span> to <span class="mono">v2026.4.5</span>. The loud story is new media generation and multilingual UI. The real story is deeper: OpenClaw is moving toward a cleaner plugin-owned runtime, tighter prompt-cache discipline, and more structured agent execution.</p>
+
+      <div class="pill-row">
+        <span class="pill">Compared tags: v2026.4.2 → v2026.4.5</span>
+        <span class="pill">Diff scope: 5,746 files changed</span>
+        <span class="pill">331,486 insertions</span>
+        <span class="pill">268,299 deletions</span>
+      </div>
+
+      <div class="hero-grid">
+        <div class="hero-take animate" style="--i:1">
+          <h3>Executive read</h3>
+          <p>v2026.4.5 makes OpenClaw feel less like a chat wrapper around tools and more like an agent operating system. Media generation, approval delivery, plugin-owned reply routing, memory promotion, and control-plane UX all got upgraded in the same sweep.</p>
+        </div>
+        <div class="mini-card animate" style="--i:2; padding:20px;">
+          <div class="badge">Highest leverage change</div>
+          <div style="font-size:24px; font-weight:700; letter-spacing:-0.03em; margin-bottom:8px;">Plugin and runtime ownership got a lot cleaner.</div>
+          <div class="small">That matters more than any single user-facing feature, because it lowers future friction across channels, providers, and ACP integrations.</div>
+        </div>
+      </div>
+
+      <div class="kpis">
+        <div class="kpi animate" style="--i:3"><div class="label">Media stack</div><div class="value">+2</div><div class="sub">new first-class tools: music_generate, video_generate</div></div>
+        <div class="kpi animate" style="--i:4"><div class="label">Memory stack</div><div class="value">3-phase</div><div class="sub">light, deep, REM dreaming made explicit in code</div></div>
+        <div class="kpi animate" style="--i:5"><div class="label">Control UI</div><div class="value">11+</div><div class="sub">new localized control UI language bundles</div></div>
+        <div class="kpi animate" style="--i:6"><div class="label">Release character</div><div class="value">Platform</div><div class="sub">feature shipping plus architecture hardening</div></div>
+      </div>
+    </section>
+
+    <h2 class="sec-head animate" id="updates" style="--i:7">Major updates</h2>
+    <section class="deck">
+      <article class="section-card animate" style="--i:8">
+        <div class="badge">1 • Media generation</div>
+        <h3>Music and video generation became real first-class tools</h3>
+        <p>OpenClaw now has built-in <span class="mono">music_generate</span> and <span class="mono">video_generate</span> tools with proper schemas, provider routing, async task tracking, duplicate guards, and completion wake delivery. This is not a hacky wrapper, it is integrated runtime surface area.</p>
+        <ul>
+          <li>Music tool supports prompt, lyrics, instrumental mode, ref images, duration hints, format selection.</li>
+          <li>Video tool supports images, videos, resolution, aspect ratio, duration, audio, watermark.</li>
+          <li>Comfy is now a bundled workflow plugin spanning image, music, and video generation.</li>
+        </ul>
+        <div class="evidence">Evidence: <span class="mono">src/agents/tools/music-generate-tool.ts</span> · <span class="mono">src/agents/tools/video-generate-tool.ts</span> · <span class="mono">extensions/comfy/openclaw.plugin.json</span></div>
+      </article>
+
+      <article class="section-card animate" style="--i:9">
+        <div class="badge">2 • Agent runtime</div>
+        <h3>Agent execution got more structured and less messy</h3>
+        <p>The runtime now has a formal <span class="mono">update_plan</span> tool, stronger separation between structured tool definitions and prompt prose, and explicit prompt-cache boundary machinery. That means long runs can be shown cleanly and cached more reliably.</p>
+        <ul>
+          <li><span class="mono">update_plan</span> validates ordered steps and one active step.</li>
+          <li>System prompt now treats structured tool definitions as the source of truth.</li>
+          <li>Dynamic prompt sections can be pushed below a cache boundary.</li>
+        </ul>
+        <div class="evidence">Evidence: <span class="mono">src/agents/tools/update-plan-tool.ts</span> · <span class="mono">src/agents/system-prompt.ts</span> · <span class="mono">src/agents/system-prompt-cache-boundary.ts</span></div>
+      </article>
+
+      <article class="section-card animate" style="--i:10">
+        <div class="badge">3 • Plugin architecture</div>
+        <h3>More behavior moved out of core and into plugin-owned runtime seams</h3>
+        <p>This release keeps pushing core logic toward registries, hooks, and plugin-owned surfaces. ACP runtime helpers are exposed through the plugin SDK, and reply interception is formalized through <span class="mono">reply_dispatch</span> hook handling.</p>
+        <ul>
+          <li>Bundled ACP runtime is directly exposed to plugins.</li>
+          <li>Reply dispatch is a first-class hook, not a hardcoded special case.</li>
+          <li>Plugin activation state is now explicit about source: disabled, explicit, auto, default.</li>
+        </ul>
+        <div class="evidence">Evidence: <span class="mono">src/plugin-sdk/acp-runtime.ts</span> · <span class="mono">src/plugins/wired-hooks-reply-dispatch.test.ts</span> · <span class="mono">src/plugins/config-policy.ts</span></div>
+      </article>
+
+      <article class="section-card animate" style="--i:11">
+        <div class="badge">4 • Memory</div>
+        <h3>Dreaming matured from vague idea to configurable subsystem</h3>
+        <p>Memory promotion is now clearly modeled as three phases with defaults for cadence, score thresholds, recovery behavior, aging, and storage mode. Bedrock embeddings support also landed, which broadens memory backend options without bespoke glue.</p>
+        <ul>
+          <li>Light, deep, and REM phases each have separate config.</li>
+          <li>Deep dreaming has recency half-life and max-age controls.</li>
+          <li>Bedrock embedding support includes Titan, Cohere, Nova, and TwelveLabs model families.</li>
+        </ul>
+        <div class="evidence">Evidence: <span class="mono">src/memory-host-sdk/dreaming.ts</span> · <span class="mono">packages/memory-host-sdk/src/host/embeddings-bedrock.ts</span></div>
+      </article>
+
+      <article class="section-card animate" style="--i:12">
+        <div class="badge">5 • Control UI</div>
+        <h3>Control UI got much closer to an actual product</h3>
+        <p>The UI now ships many more locales and adds live ClawHub search, detail, and install flows in the Skills panel. That is a meaningful jump in operator usability, not cosmetic fluff.</p>
+        <ul>
+          <li>Skills view includes registry search and install UX.</li>
+          <li>Gateway handlers back <span class="mono">skills.search</span>, <span class="mono">skills.detail</span>, and ClawHub installs.</li>
+          <li>New localized bundles include Ukrainian and many others.</li>
+        </ul>
+        <div class="evidence">Evidence: <span class="mono">ui/src/ui/views/skills.ts</span> · <span class="mono">ui/src/ui/controllers/skills.ts</span> · <span class="mono">src/gateway/server-methods/skills.ts</span> · <span class="mono">ui/src/i18n/locales/uk.ts</span></div>
+      </article>
+
+      <article class="section-card animate" style="--i:13">
+        <div class="badge">6 • Safety and delivery</div>
+        <h3>Operator safety got better without making the system feel more bureaucratic</h3>
+        <p>Native iOS exec approval push delivery and configurable context visibility are both here. One improves response time for approvals, the other reduces accidental context oversharing across channels.</p>
+        <ul>
+          <li>APNs approval pushes target operator-scoped iOS devices.</li>
+          <li><span class="mono">contextVisibility</span> can now resolve per channel, per account, and default fallback.</li>
+          <li>The release also contains a lot of fail-closed cleanup around auth, hooks, and config migration.</li>
+        </ul>
+        <div class="evidence">Evidence: <span class="mono">src/gateway/exec-approval-ios-push.ts</span> · <span class="mono">src/config/context-visibility.ts</span></div>
+      </article>
+    </section>
+
+    <h2 class="sec-head animate" id="evidence" style="--i:14">Code evidence table</h2>
+    <section class="table-wrap animate" style="--i:15">
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Theme</th>
+              <th>What the code says</th>
+              <th>Key files</th>
+              <th>Why it matters</th>
+              <th>Signal</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Media generation</strong></td>
+              <td>Typed tool schemas, provider listing, async task handles, completion wake delivery, and provider capability checks.</td>
+              <td class="mono">music-generate-tool.ts<br/>video-generate-tool.ts<br/>comfy/openclaw.plugin.json</td>
+              <td>Turns media generation into a native agent primitive instead of an external sidecar trick.</td>
+              <td><span class="status s-ship">Shippable feature</span></td>
+            </tr>
+            <tr>
+              <td><strong>Execution structure</strong></td>
+              <td><span class="mono">update_plan</span> tool with schema validation, plus system prompt cache boundary handling.</td>
+              <td class="mono">update-plan-tool.ts<br/>system-prompt.ts<br/>system-prompt-cache-boundary.ts</td>
+              <td>Cleaner progress UX and better prompt-cache stability on long runs.</td>
+              <td><span class="status s-arch">Architecture</span></td>
+            </tr>
+            <tr>
+              <td><strong>ACP and hooks</strong></td>
+              <td>Plugins can dispatch ACP replies via public runtime helpers, and hook runner stops at the first handler that claims dispatch.</td>
+              <td class="mono">plugin-sdk/acp-runtime.ts<br/>wired-hooks-reply-dispatch.test.ts</td>
+              <td>Core loses special-case knowledge. Plugins gain cleaner control over reply ownership.</td>
+              <td><span class="status s-arch">Architecture</span></td>
+            </tr>
+            <tr>
+              <td><strong>Memory</strong></td>
+              <td>Three-phase dreaming config plus Bedrock embedding family support and dimension handling.</td>
+              <td class="mono">memory-host-sdk/dreaming.ts<br/>embeddings-bedrock.ts</td>
+              <td>More serious long-term memory tuning and broader infra options.</td>
+              <td><span class="status s-arch">Architecture</span></td>
+            </tr>
+            <tr>
+              <td><strong>Control UI</strong></td>
+              <td>ClawHub search/detail/install flows wired from UI to gateway methods, plus locale bundles.</td>
+              <td class="mono">ui/views/skills.ts<br/>ui/controllers/skills.ts<br/>server-methods/skills.ts</td>
+              <td>Makes OpenClaw easier to operate without dropping into CLI all the time.</td>
+              <td><span class="status s-ship">Shippable feature</span></td>
+            </tr>
+            <tr>
+              <td><strong>Safety</strong></td>
+              <td>APNs approval delivery targets operator-scoped iOS devices, and context visibility resolves through account and channel config.</td>
+              <td class="mono">exec-approval-ios-push.ts<br/>context-visibility.ts</td>
+              <td>Faster approval response, lower context leakage risk.</td>
+              <td><span class="status s-safe">Operational safety</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <h2 class="sec-head animate" id="architecture" style="--i:16">What changed under the hood</h2>
+    <section class="quote animate" style="--i:17">
+      <strong>The release is opinionated about ownership.</strong>
+      Core keeps shrinking its direct knowledge of providers, channels, ACP, and dispatch behavior. More of that is moving into registries, plugin SDK seams, activation policy, and typed tool surfaces. That is exactly what you do before a platform starts scaling cleanly.
+    </section>
+
+    <section class="deck" style="margin-top:18px;">
+      <article class="section-card animate" style="--i:18">
+        <h3>Prompt-cache discipline is now intentional</h3>
+        <p>The code is no longer treating prompt reuse as luck. There is explicit cache-boundary splitting, structured prompt normalization, and prompt-cache observability with diffed causes like model changes, system prompt changes, transport changes, and tool-set changes.</p>
+        <div class="evidence">Evidence: <span class="mono">src/agents/prompt-cache-stability.ts</span> · <span class="mono">src/agents/pi-embedded-runner/prompt-cache-observability.ts</span></div>
+      </article>
+      <article class="section-card animate" style="--i:19">
+        <h3>Plugin activation policy got more legible</h3>
+        <p><span class="mono">resolvePluginActivationState</span> now names activation sources directly: <span class="mono">disabled</span>, <span class="mono">explicit</span>, <span class="mono">auto</span>, <span class="mono">default</span>. That sounds minor. It is not. Debugging plugin state gets dramatically easier once enablement is explainable.</p>
+        <div class="evidence">Evidence: <span class="mono">src/plugins/config-policy.ts</span></div>
+      </article>
+    </section>
+
+    <div class="callout animate" style="--i:20">
+      <strong>Net effect:</strong> the user-facing features in v2026.4.5 are nice, but the deeper win is that OpenClaw is becoming easier to extend without dragging more brittle logic into core.
+    </div>
+
+    <h2 class="sec-head animate" id="study" style="--i:21">Best study path if you want the real story fast</h2>
+    <section class="path-grid">
+      <article class="path-card animate" style="--i:22">
+        <h4>1. Start with media</h4>
+        <p>Read the two tool files first, then the Comfy plugin manifest. That gives you the clearest picture of new product surface area.</p>
+        <div class="mono small">music-generate-tool.ts<br/>video-generate-tool.ts<br/>extensions/comfy/openclaw.plugin.json</div>
+      </article>
+      <article class="path-card animate" style="--i:23">
+        <h4>2. Then study runtime ownership</h4>
+        <p>Look at ACP runtime exposure, reply dispatch hooks, and plugin activation policy. That is where the platform direction becomes obvious.</p>
+        <div class="mono small">plugin-sdk/acp-runtime.ts<br/>wired-hooks-reply-dispatch.test.ts<br/>plugins/config-policy.ts</div>
+      </article>
+      <article class="path-card animate" style="--i:24">
+        <h4>3. Finish with memory and UI</h4>
+        <p>Dreaming config and ClawHub UI together show the product ambition: better long-term cognition plus better operator ergonomics.</p>
+        <div class="mono small">memory-host-sdk/dreaming.ts<br/>embeddings-bedrock.ts<br/>ui/views/skills.ts</div>
+      </article>
+    </section>
+
+    <h2 class="sec-head animate" id="take" style="--i:25">My take</h2>
+    <section class="deck">
+      <article class="section-card animate" style="--i:26">
+        <h3>What matters most</h3>
+        <p>The biggest update is not Runway, not Lyria, not more locales. It is the continued move toward plugin-owned runtime behavior and stable structured prompts. That is the boring-looking work that compounds.</p>
+      </article>
+      <article class="section-card animate" style="--i:27">
+        <h3>What I’d watch next</h3>
+        <p>If this direction continues, the next meaningful leap will be tighter convergence between media tasks, session lifecycle, and plugin-owned UI surfaces. The primitives are now there.</p>
+      </article>
+    </section>
+
+    <div class="footer animate" style="--i:28">
+      Based on direct code review of the local clone at <span class="mono">/Users/raymond/.openclaw/workspace/repos/openclaw</span>, comparing <span class="mono">v2026.4.2..v2026.4.5</span>.
+      <br/>Local file: <span class="mono">/Users/raymond/.agent/diagrams/openclaw-v2026-4-5-release-review.html</span>
+    </div>
+  </main>
+</div>
+<script>
+(function() {
+  const toc = document.getElementById('toc');
+  if (!toc) return;
+  const links = toc.querySelectorAll('a');
+  const sections = [];
+  links.forEach(link => {
+    const id = link.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    if (el) sections.push({ id, el, link });
+  });
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      links.forEach(l => l.classList.remove('active'));
+      const match = sections.find(s => s.el === entry.target);
+      if (!match) return;
+      match.link.classList.add('active');
+      if (window.innerWidth <= 1100) {
+        match.link.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+      }
+    });
+  }, { rootMargin: '-12% 0px -78% 0px' });
+  sections.forEach(s => observer.observe(s.el));
+  links.forEach(link => {
+    link.addEventListener('click', e => {
+      e.preventDefault();
+      const id = link.getAttribute('href').slice(1);
+      const el = document.getElementById(id);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        history.replaceState(null, '', '#' + id);
+      }
+    });
+  });
+})();
+</script>
+</body>
+</html>
