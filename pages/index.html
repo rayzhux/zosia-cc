@@ -300,9 +300,9 @@
     </header>
 
     <div class="stats">
-      <span><span class="num">55</span> pages</span>
+      <span><span class="num">56</span> pages</span>
       <span><span class="num">7</span> categories</span>
-      <span>Last updated <span class="num">Apr 6, 2026</span></span>
+      <span>Last updated <span class="num">Apr 8, 2026</span></span>
     </div>
 
     <div class="search-wrap">
@@ -346,6 +346,17 @@
 
   <script>
     const pages = [
+      {
+            "slug": "memory-wiki-openclaw-explainer",
+            "title": "Memory Wiki for OpenClaw, how it works and how to enable it",
+            "desc": "Your dog-sitter example is exactly the bug. prose memory is append-only, but belief state is not. old statements linger, newer ones conflict, and the model is left to guess which line wins.",
+            "cat": "openclaw",
+            "created": "2026-04-08",
+            "updated": "2026-04-08",
+            "tags": [
+                  "guide"
+            ]
+      },
       {
             "slug": "openclaw-v2026-4-5-release-review",
             "title": "OpenClaw v2026.4.5, Major Updates",
@@ -997,7 +1008,7 @@
     }
 
     function daysAgo(d) {
-      const now = new Date("2026-04-06");
+      const now = new Date("2026-04-08");
       const then = new Date(d);
       const diff = Math.floor((now - then) / 86400000);
       if (diff === 0) return "today";

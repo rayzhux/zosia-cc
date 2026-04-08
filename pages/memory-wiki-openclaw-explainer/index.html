@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Memory Wiki for OpenClaw, how it works and how to enable it</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --font-body: 'IBM Plex Sans', system-ui, sans-serif;
+      --font-mono: 'IBM Plex Mono', 'SF Mono', Consolas, monospace;
+      --bg: #f5f8fc;
+      --surface: rgba(255, 255, 255, 0.92);
+      --surface-strong: #ffffff;
+      --surface-soft: #edf3fa;
+      --border: rgba(16, 37, 63, 0.10);
+      --border-strong: rgba(16, 37, 63, 0.18);
+      --text: #122033;
+      --text-dim: #5d6f84;
+      --blue: #1e3a5f;
+      --blue-dim: rgba(30, 58, 95, 0.10);
+      --teal: #0f766e;
+      --teal-dim: rgba(15, 118, 110, 0.10);
+      --gold: #b57f17;
+      --gold-dim: rgba(181, 127, 23, 0.12);
+      --rose: #9f1239;
+      --rose-dim: rgba(159, 18, 57, 0.10);
+      --shadow: 0 14px 40px rgba(13, 33, 57, 0.08);
+      --hero-shadow: 0 22px 60px rgba(13, 33, 57, 0.12);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0f1724;
+        --surface: rgba(18, 29, 44, 0.88);
+        --surface-strong: #162235;
+        --surface-soft: #111c2c;
+        --border: rgba(232, 241, 255, 0.08);
+        --border-strong: rgba(232, 241, 255, 0.14);
+        --text: #ecf3fb;
+        --text-dim: #a3b4c9;
+        --blue: #8eb8f7;
+        --blue-dim: rgba(142, 184, 247, 0.12);
+        --teal: #58d0c5;
+        --teal-dim: rgba(88, 208, 197, 0.12);
+        --gold: #f0c96d;
+        --gold-dim: rgba(240, 201, 109, 0.12);
+        --rose: #f29ab2;
+        --rose-dim: rgba(242, 154, 178, 0.12);
+        --shadow: 0 16px 42px rgba(0, 0, 0, 0.25);
+        --hero-shadow: 0 28px 70px rgba(0, 0, 0, 0.35);
+      }
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: var(--font-body);
+      color: var(--text);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0)),
+        radial-gradient(circle at 16% 0%, var(--blue-dim), transparent 34%),
+        radial-gradient(circle at 86% 18%, var(--gold-dim), transparent 26%),
+        radial-gradient(circle at 82% 100%, var(--teal-dim), transparent 28%),
+        var(--bg);
+      min-height: 100vh;
+      padding: 32px;
+    }
+
+    .wrap {
+      max-width: 1420px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 190px 1fr;
+      gap: 0 40px;
+    }
+
+    .main { min-width: 0; }
+
+    .toc {
+      position: sticky;
+      top: 24px;
+      align-self: start;
+      padding: 14px 0;
+      max-height: calc(100dvh - 48px);
+      overflow-y: auto;
+      grid-row: 1 / -1;
+    }
+    .toc-title {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--text-dim);
+      padding: 0 0 10px;
+      margin-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .toc a {
+      display: block;
+      padding: 6px 10px;
+      margin-bottom: 4px;
+      color: var(--text-dim);
+      text-decoration: none;
+      border-left: 2px solid transparent;
+      border-radius: 6px;
+      font-size: 12px;
+      line-height: 1.4;
+      transition: all 0.15s ease;
+    }
+    .toc a:hover,
+    .toc a.active {
+      background: var(--surface-soft);
+      color: var(--text);
+      border-left-color: var(--gold);
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1.8px;
+      color: var(--blue);
+      margin-bottom: 14px;
+    }
+    .eyebrow::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .hero {
+      background: linear-gradient(140deg, var(--surface-strong), color-mix(in srgb, var(--surface-strong) 88%, var(--gold) 12%));
+      border: 1px solid var(--border-strong);
+      border-radius: 24px;
+      padding: 34px;
+      box-shadow: var(--hero-shadow);
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 22px;
+    }
+    .hero::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(30,58,95,0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(30,58,95,0.06) 1px, transparent 1px);
+      background-size: 24px 24px;
+      opacity: 0.32;
+      pointer-events: none;
+      mask-image: linear-gradient(180deg, rgba(0,0,0,0.55), transparent 90%);
+    }
+    .hero > * { position: relative; z-index: 1; }
+    h1 {
+      margin: 0;
+      font-size: clamp(34px, 5vw, 58px);
+      line-height: 0.98;
+      letter-spacing: -0.04em;
+      max-width: 10ch;
+    }
+    .lead {
+      margin: 16px 0 0;
+      max-width: 66ch;
+      font-size: 17px;
+      line-height: 1.65;
+      color: var(--text-dim);
+    }
+
+    .status-strip {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 26px;
+    }
+    .status-card {
+      background: rgba(255,255,255,0.52);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px 16px;
+      min-width: 0;
+    }
+    .status-card .label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--text-dim);
+      margin-bottom: 8px;
+    }
+    .status-card .value {
+      font-size: 20px;
+      font-weight: 700;
+      line-height: 1.1;
+    }
+    .status-card .meta {
+      margin-top: 6px;
+      font-size: 12px;
+      color: var(--text-dim);
+      line-height: 1.5;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      margin: 34px 0 16px;
+      scroll-margin-top: 72px;
+    }
+    .section-num {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.8px;
+      color: var(--gold);
+      text-transform: uppercase;
+    }
+    h2 {
+      margin: 0;
+      font-size: clamp(22px, 2.7vw, 34px);
+      letter-spacing: -0.03em;
+    }
+
+    .section-note {
+      margin: 0 0 18px;
+      color: var(--text-dim);
+      font-size: 15px;
+      line-height: 1.7;
+      max-width: 72ch;
+    }
+
+    .grid-3, .grid-2, .grid-4 {
+      display: grid;
+      gap: 16px;
+    }
+    .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 20px;
+      box-shadow: var(--shadow);
+      min-width: 0;
+    }
+    .card.hero-card {
+      background: color-mix(in srgb, var(--surface-strong) 88%, var(--blue) 12%);
+      border-color: color-mix(in srgb, var(--border) 56%, var(--blue) 44%);
+    }
+    .card.teal { border-top: 3px solid var(--teal); }
+    .card.gold { border-top: 3px solid var(--gold); }
+    .card.rose { border-top: 3px solid var(--rose); }
+    .card.blue { border-top: 3px solid var(--blue); }
+
+    .card-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.4px;
+      color: var(--text-dim);
+      margin-bottom: 10px;
+    }
+    .card h3 {
+      margin: 0 0 10px;
+      font-size: 19px;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+    }
+    .card p, .card li {
+      color: var(--text-dim);
+      font-size: 14px;
+      line-height: 1.65;
+    }
+    .card ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+    .card li + li { margin-top: 8px; }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      align-items: stretch;
+      margin-top: 10px;
+    }
+    .flow-step {
+      padding: 18px;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+      position: relative;
+      min-width: 0;
+    }
+    .flow-step::after {
+      content: '→';
+      position: absolute;
+      top: 50%;
+      right: -14px;
+      transform: translateY(-50%);
+      font-size: 22px;
+      color: var(--gold);
+      opacity: 0.75;
+    }
+    .flow-step:last-child::after { display: none; }
+    .flow-step strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 16px;
+      line-height: 1.25;
+    }
+    .flow-step span {
+      color: var(--text-dim);
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+    th, td {
+      padding: 14px 16px;
+      text-align: left;
+      vertical-align: top;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    th {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1.3px;
+      color: var(--text-dim);
+      background: var(--surface-soft);
+    }
+    tr:last-child td { border-bottom: none; }
+    td strong { color: var(--text); }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      white-space: nowrap;
+      background: var(--surface-soft);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .badge.teal { background: var(--teal-dim); color: var(--teal); border-color: transparent; }
+    .badge.gold { background: var(--gold-dim); color: var(--gold); border-color: transparent; }
+    .badge.rose { background: var(--rose-dim); color: var(--rose); border-color: transparent; }
+    .badge.blue { background: var(--blue-dim); color: var(--blue); border-color: transparent; }
+
+    .callout {
+      margin-top: 16px;
+      padding: 16px 18px;
+      border-radius: 18px;
+      background: color-mix(in srgb, var(--surface) 90%, var(--gold) 10%);
+      border: 1px solid color-mix(in srgb, var(--border) 65%, var(--gold) 35%);
+      color: var(--text);
+      box-shadow: var(--shadow);
+    }
+    .callout p {
+      margin: 0;
+      line-height: 1.7;
+      font-size: 14px;
+    }
+
+    .code-file {
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      overflow: hidden;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+    .code-file__header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px 16px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--text-dim);
+      border-bottom: 1px solid var(--border);
+      background: var(--surface-soft);
+    }
+    .code-file__body {
+      margin: 0;
+      padding: 18px;
+      overflow: auto;
+      font-family: var(--font-mono);
+      font-size: 12.5px;
+      line-height: 1.68;
+      white-space: pre-wrap;
+      word-break: break-word;
+      color: var(--text);
+    }
+
+    .tree {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      line-height: 1.75;
+      color: var(--text);
+    }
+    .tree li { padding-left: 2px; }
+    .tree .dim { color: var(--text-dim); }
+
+    .steps {
+      counter-reset: step;
+      display: grid;
+      gap: 14px;
+    }
+    .step {
+      display: grid;
+      grid-template-columns: 34px 1fr;
+      gap: 14px;
+      align-items: start;
+      padding: 16px 18px;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+    .step::before {
+      counter-increment: step;
+      content: counter(step);
+      display: grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: var(--blue-dim);
+      color: var(--blue);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .step strong { display: block; margin-bottom: 6px; }
+    .step p { margin: 0; color: var(--text-dim); font-size: 14px; line-height: 1.65; }
+    .step code { font-family: var(--font-mono); font-size: 12px; }
+
+    .footer {
+      margin-top: 26px;
+      padding: 18px 20px;
+      border-radius: 18px;
+      background: var(--surface-soft);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    code.inline {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      background: var(--surface-soft);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1px 6px;
+      color: var(--text);
+    }
+
+    @media (max-width: 1100px) {
+      .wrap { grid-template-columns: 1fr; }
+      .toc {
+        position: sticky;
+        top: 0;
+        z-index: 30;
+        display: flex;
+        gap: 6px;
+        overflow-x: auto;
+        max-height: none;
+        background: var(--bg);
+        border-bottom: 1px solid var(--border);
+        margin: 0 -32px 18px;
+        padding: 12px 32px;
+      }
+      .toc-title { display: none; }
+      .toc a {
+        white-space: nowrap;
+        flex-shrink: 0;
+        border-left: none;
+        border-bottom: 2px solid transparent;
+        border-radius: 8px 8px 0 0;
+      }
+      .toc a:hover,
+      .toc a.active {
+        border-left-color: transparent;
+        border-bottom-color: var(--gold);
+      }
+      .status-strip, .grid-4, .flow { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 760px) {
+      body { padding: 18px; }
+      .toc { margin: 0 -18px 16px; padding: 10px 18px; }
+      .hero { padding: 24px; border-radius: 20px; }
+      .status-strip, .grid-2, .grid-3, .grid-4, .flow { grid-template-columns: 1fr; }
+      .flow-step::after { display: none; }
+      .section-head { margin-top: 28px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      * { transition: none !important; }
+    }
+  </style>
+  <!-- Vercel Web Analytics -->
+  <script>
+    window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+  </script>
+  <script defer src="/_vercel/insights/script.js"></script>
+  <!-- Vercel Speed Insights -->
+  <script>
+    window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
+  </script>
+  <script defer src="/_vercel/speed-insights/script.js"></script>
+  <meta property="og:title" content="Memory Wiki for OpenClaw, how it works and how to enable it">
+  <meta property="og:description" content="Your dog-sitter example is exactly the bug. prose memory is append-only, but belief state is not. old statements linger, newer ones conflict, and the model is left to guess which line wins.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://zosia.cc/pages/memory-wiki-openclaw-explainer">
+  <meta name="twitter:card" content="summary">
+</head>
+<body>
+  <div class="wrap">
+    <nav class="toc" id="toc">
+      <div class="toc-title">Contents</div>
+      <a href="#s1">1. Why this exists</a>
+      <a href="#s2">2. How it fits</a>
+      <a href="#s3">3. What it adds</a>
+      <a href="#s4">4. Modes and tradeoffs</a>
+      <a href="#s5">5. Your current state</a>
+      <a href="#s6">6. Recommended config</a>
+      <a href="#s7">7. Enablement steps</a>
+    </nav>
+
+    <main class="main">
+      <section class="hero">
+        <div class="eyebrow">OpenClaw memory layer</div>
+        <h1>Memory Wiki, the compiled truth layer for your agent</h1>
+        <p class="lead">Short version, it does for memory what a compiler does for messy source notes. Instead of hoping the model reads the newest sentence in <code class="inline">MEMORY.md</code>, it turns durable knowledge into explicit claims, evidence, freshness, contradictions, and dashboards.</p>
+
+        <div class="status-strip">
+          <div class="status-card">
+            <div class="label">Current version</div>
+            <div class="value">2026.4.8</div>
+            <div class="meta">Good. That is the version line I would use for this feature.</div>
+          </div>
+          <div class="status-card">
+            <div class="label">Active memory plugin</div>
+            <div class="value">memory-core</div>
+            <div class="meta">Still owns recall, promotion, indexing, and dreaming.</div>
+          </div>
+          <div class="status-card">
+            <div class="label">Conversation memory</div>
+            <div class="value">LCM on</div>
+            <div class="meta">Handles chat compaction. Separate concern from durable knowledge maintenance.</div>
+          </div>
+          <div class="status-card">
+            <div class="label">Wiki today</div>
+            <div class="value">Disabled</div>
+            <div class="meta">Bundled in the install, but not enabled in config yet.</div>
+          </div>
+        </div>
+      </section>
+
+      <div id="s1" class="section-head">
+        <div class="section-num">01</div>
+        <h2>Why this exists</h2>
+      </div>
+      <p class="section-note">Your dog-sitter example is exactly the bug. prose memory is append-only, but belief state is not. old statements linger, newer ones conflict, and the model is left to guess which line wins.</p>
+      <div class="grid-3">
+        <article class="card blue">
+          <div class="card-label">The problem</div>
+          <h3>Plain notes have no stable overwrite model</h3>
+          <p>Three different feeding instructions can all remain in the file. The newest one should win, but the file itself does not encode that relationship.</p>
+        </article>
+        <article class="card gold">
+          <div class="card-label">What wiki changes</div>
+          <h3>Beliefs become named claims, not loose sentences</h3>
+          <p>A claim can be current, contested, stale, low-confidence, or unresolved. That means the system can reason about the belief layer instead of re-reading prose every turn.</p>
+        </article>
+        <article class="card teal">
+          <div class="card-label">Why it matters</div>
+          <h3>You get truth maintenance, not just more storage</h3>
+          <p>That is the real upgrade. memory-wiki is not about more notes. It is about keeping the knowledge layer internally coherent.</p>
+        </article>
+      </div>
+
+      <div id="s2" class="section-head">
+        <div class="section-num">02</div>
+        <h2>How it fits with your current stack</h2>
+      </div>
+      <p class="section-note">These three systems do different jobs. They complement each other, they do not replace each other.</p>
+      <div class="flow">
+        <div class="flow-step">
+          <strong>LCM</strong>
+          <span>Protects chat history during compaction. Think conversation continuity, not long-term truth maintenance.</span>
+        </div>
+        <div class="flow-step">
+          <strong>memory-core</strong>
+          <span>Handles memory recall, search, promotion, indexing, and dreaming across Markdown memory files.</span>
+        </div>
+        <div class="flow-step">
+          <strong>MEMORY.md + daily notes</strong>
+          <span>Human-readable durable notes. Great for context, weak at conflict resolution.</span>
+        </div>
+        <div class="flow-step">
+          <strong>memory-wiki</strong>
+          <span>Compiles a structured knowledge vault with claims, evidence, reports, and machine-readable digests.</span>
+        </div>
+      </div>
+      <div style="margin-top:18px; overflow-x:auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>Layer</th>
+              <th>Owns</th>
+              <th>Does not own</th>
+              <th>My blunt take</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>LCM</strong><br><span class="badge blue">chat continuity</span></td>
+              <td>Lossless conversation compaction and expansion</td>
+              <td>Durable truth about projects, people, or policies</td>
+              <td>Great memory of what was said, not a belief engine.</td>
+            </tr>
+            <tr>
+              <td><strong>memory-core</strong><br><span class="badge teal">recall runtime</span></td>
+              <td>Search, recall, indexing, promotion, dreaming</td>
+              <td>Compiled claim graphs and contradiction dashboards</td>
+              <td>Necessary base layer, but still mostly note-centric.</td>
+            </tr>
+            <tr>
+              <td><strong>memory-wiki</strong><br><span class="badge gold">knowledge compiler</span></td>
+              <td>Claims, provenance, freshness, contradictions, dashboards, wiki-specific tools</td>
+              <td>Replacing your active memory plugin</td>
+              <td>This is the layer that makes memory less hand-wavy.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div id="s3" class="section-head">
+        <div class="section-num">03</div>
+        <h2>What memory-wiki actually adds</h2>
+      </div>
+      <div class="grid-2">
+        <article class="card hero-card gold">
+          <div class="card-label">Vault structure</div>
+          <h3>Deterministic pages, not random note sprawl</h3>
+          <ul class="tree">
+            <li><strong>WIKI.md</strong> <span class="dim">vault guide</span></li>
+            <li><strong>index.md</strong> <span class="dim">top-level map</span></li>
+            <li><strong>entities/</strong> <span class="dim">people, projects, systems</span></li>
+            <li><strong>concepts/</strong> <span class="dim">ideas, policies, patterns</span></li>
+            <li><strong>syntheses/</strong> <span class="dim">compiled summaries</span></li>
+            <li><strong>sources/</strong> <span class="dim">raw imported material</span></li>
+            <li><strong>reports/</strong> <span class="dim">health dashboards</span></li>
+            <li><strong>.openclaw-wiki/cache/</strong> <span class="dim">agent-digest.json, claims.jsonl</span></li>
+          </ul>
+        </article>
+        <article class="card teal">
+          <div class="card-label">Structured belief model</div>
+          <h3>Claims and evidence become first-class</h3>
+          <ul>
+            <li>Claims can carry <code class="inline">id</code>, <code class="inline">text</code>, <code class="inline">status</code>, <code class="inline">confidence</code>, and <code class="inline">updatedAt</code>.</li>
+            <li>Evidence can point to source ids, file paths, line ranges, notes, and weights.</li>
+            <li>The compiler can then rank, contest, or surface gaps instead of pretending all prose is equally valid.</li>
+          </ul>
+        </article>
+      </div>
+      <div class="grid-4" style="margin-top:16px;">
+        <article class="card blue">
+          <div class="card-label">Tools</div>
+          <h3>wiki_search / wiki_get</h3>
+          <p>Search and read the compiled vault directly when provenance and page identity matter.</p>
+        </article>
+        <article class="card gold">
+          <div class="card-label">Safe mutation</div>
+          <h3>wiki_apply</h3>
+          <p>Update syntheses or metadata without freehand surgery in generated sections.</p>
+        </article>
+        <article class="card rose">
+          <div class="card-label">Health checks</div>
+          <h3>wiki_lint</h3>
+          <p>Find contradictions, stale pages, low-confidence claims, open questions, and provenance gaps.</p>
+        </article>
+        <article class="card teal">
+          <div class="card-label">Dashboards</div>
+          <h3>reports/*.md</h3>
+          <p>Built-in outputs include contradictions, stale pages, claim health, low confidence, and open questions.</p>
+        </article>
+      </div>
+
+      <div id="s4" class="section-head">
+        <div class="section-num">04</div>
+        <h2>Modes and tradeoffs</h2>
+      </div>
+      <p class="section-note">There are three vault modes. Only two are sane for normal use.</p>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>Mode</th>
+              <th>Best for</th>
+              <th>Pros</th>
+              <th>Cons</th>
+              <th>My recommendation</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>isolated</strong></td>
+              <td>Starting clean, low blast radius</td>
+              <td>Own vault, predictable behavior, no dependency on memory-core internals</td>
+              <td>Does not automatically compile every existing memory artifact</td>
+              <td><span class="badge gold">Start here</span></td>
+            </tr>
+            <tr>
+              <td><strong>bridge</strong></td>
+              <td>Organizing exported artifacts from the active memory plugin</td>
+              <td>Can ingest daily notes, memory root files, dream reports, memory events</td>
+              <td>More coupled, and value depends on what the active memory plugin exports publicly</td>
+              <td><span class="badge teal">Good phase 2</span></td>
+            </tr>
+            <tr>
+              <td><strong>unsafe-local</strong></td>
+              <td>Weird local edge cases</td>
+              <td>Direct same-machine escape hatch</td>
+              <td>Non-portable, easy to get cursed</td>
+              <td><span class="badge rose">Do not start here</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout">
+        <p><strong>My recommendation for your setup:</strong> use <code class="inline">isolated</code> first. You already have LCM for chat continuity and <code class="inline">memory-core</code> for recall. Start with the cleanest wiki layer possible, prove the dashboards are useful, then consider <code class="inline">bridge</code> if you want broader automatic ingestion from existing memory artifacts.</p>
+      </div>
+
+      <div id="s5" class="section-head">
+        <div class="section-num">05</div>
+        <h2>What I checked on your machine</h2>
+      </div>
+      <div class="grid-3">
+        <article class="card blue">
+          <div class="card-label">Confirmed</div>
+          <h3>You are already on the right OpenClaw version</h3>
+          <p><span class="badge blue">2026.4.8</span> is installed and up to date, so there is no upgrade blocker.</p>
+        </article>
+        <article class="card teal">
+          <div class="card-label">Confirmed</div>
+          <h3>memory-core is the active memory layer</h3>
+          <p>That means recall and memory search continue exactly where they are now. memory-wiki would sit beside it.</p>
+        </article>
+        <article class="card rose">
+          <div class="card-label">Current blocker</div>
+          <h3>The wiki surface is not allowlisted</h3>
+          <p>Your current <code class="inline">plugins.allow</code> list excludes both the memory-wiki runtime plugin and the <code class="inline">openclaw wiki</code> CLI surface, so just adding config under <code class="inline">plugins.entries</code> is not enough.</p>
+        </article>
+      </div>
+      <div class="callout">
+        <p><strong>Important detail:</strong> because you use an explicit plugin allowlist, enablement has two parts, not one: add the plugin config, and allow the IDs through the allowlist. Otherwise the feature stays effectively off and the CLI keeps saying no.</p>
+      </div>
+
+      <div id="s6" class="section-head">
+        <div class="section-num">06</div>
+        <h2>The config I would actually use</h2>
+      </div>
+      <p class="section-note">This keeps the rollout conservative: isolated vault, dashboards on, shared search backend, no compiled digest injected into prompts yet.</p>
+      <div class="code-file">
+        <div class="code-file__header">
+          <span>~/.openclaw/openclaw.json</span>
+          <span>recommended patch</span>
+        </div>
+        <pre class="code-file__body"><code>{
+  "plugins": {
+    "allow": [
+      "device-pair",
+      "discord",
+      "memory-core",
+      "phone-control",
+      "talk-voice",
+      "telegram",
+      "voice-call",
+      "slack",
+      "lossless-claw",
+      "google",
+      "acpx",
+      "whatsapp",
+      "browser",
+      "openclaw-weixin",
+      "openai",
+      "kimi",
+      "openrouter",
+      "memory-wiki",
+      "wiki"
+    ],
+    "entries": {
+      "memory-wiki": {
+        "enabled": true,
+        "config": {
+          "vaultMode": "isolated",
+          "vault": {
+            "path": "~/.openclaw/wiki/main",
+            "renderMode": "native"
+          },
+          "ingest": {
+            "autoCompile": true,
+            "maxConcurrentJobs": 1,
+            "allowUrlIngest": true
+          },
+          "search": {
+            "backend": "shared",
+            "corpus": "wiki"
+          },
+          "context": {
+            "includeCompiledDigestPrompt": false
+          },
+          "render": {
+            "preserveHumanBlocks": true,
+            "createBacklinks": true,
+            "createDashboards": true
+          }
+        }
+      }
+    }
+  }
+}</code></pre>
+      </div>
+      <div class="grid-2" style="margin-top:16px;">
+        <article class="card gold">
+          <div class="card-label">Why this config</div>
+          <h3>Low-risk first pass</h3>
+          <ul>
+            <li><code class="inline">vaultMode: isolated</code> keeps the trust boundary clean.</li>
+            <li><code class="inline">render.createDashboards: true</code> gives you the real payoff, contradiction and staleness reports.</li>
+            <li><code class="inline">includeCompiledDigestPrompt: false</code> avoids changing prompt shape until we see the vault is useful.</li>
+          </ul>
+        </article>
+        <article class="card teal">
+          <div class="card-label">What I would delay</div>
+          <h3>Bridge mode and prompt injection</h3>
+          <ul>
+            <li>Bridge mode is worth testing later, not on minute one.</li>
+            <li>Compiled digest prompt injection is useful, but I would only turn it on after the wiki pages are healthy.</li>
+            <li>Obsidian mode is optional. Native mode is simpler unless you specifically want Obsidian workflows.</li>
+          </ul>
+        </article>
+      </div>
+
+      <div id="s7" class="section-head">
+        <div class="section-num">07</div>
+        <h2>How we enable it, step by step</h2>
+      </div>
+      <div class="steps">
+        <div class="step">
+          <div>
+            <strong>Edit <code class="inline">~/.openclaw/openclaw.json</code></strong>
+            <p>Add the <code class="inline">memory-wiki</code> entry under <code class="inline">plugins.entries</code>, then add <code class="inline">memory-wiki</code> and <code class="inline">wiki</code> to <code class="inline">plugins.allow</code>.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div>
+            <strong>Restart the gateway cleanly</strong>
+            <p>Use <code class="inline">openclaw gateway restart</code>. Do not stop the gateway. Restart is the safe path here.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div>
+            <strong>Initialize the vault</strong>
+            <p>Run <code class="inline">openclaw wiki init</code>. This creates the vault layout and starter pages under <code class="inline">~/.openclaw/wiki/main</code>.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div>
+            <strong>Compile it immediately</strong>
+            <p>Run <code class="inline">openclaw wiki compile</code> to generate the machine-readable digest files and any dashboard pages.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div>
+            <strong>Lint before trusting it</strong>
+            <p>Run <code class="inline">openclaw wiki lint</code>. That is the moment where contradictions, stale pages, low-confidence claims, and open questions become visible instead of silently rotting.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div>
+            <strong>Use the right retrieval path</strong>
+            <p>For broad recall, keep using memory search. For provenance-heavy belief checks, use <code class="inline">wiki_search</code> and <code class="inline">wiki_get</code>.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer">
+        My strong opinion: this is worth enabling. LCM solved “don’t lose the conversation.” memory-wiki solves “don’t let durable memory quietly contradict itself.” Those are different problems, and this one is finally aimed at the second.
+      </div>
+    </main>
+  </div>
+
+  <script>
+    (function () {
+      const toc = document.getElementById('toc');
+      const links = toc.querySelectorAll('a');
+      const sections = [];
+      links.forEach((link) => {
+        const id = link.getAttribute('href').slice(1);
+        const el = document.getElementById(id);
+        if (el) sections.push({ el, link });
+      });
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          links.forEach((l) => l.classList.remove('active'));
+          const match = sections.find((s) => s.el === entry.target);
+          if (match) {
+            match.link.classList.add('active');
+            if (window.innerWidth <= 1100) {
+              match.link.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+            }
+          }
+        });
+      }, { rootMargin: '-10% 0px -80% 0px' });
+      sections.forEach((section) => observer.observe(section.el));
+      links.forEach((link) => {
+        link.addEventListener('click', (event) => {
+          event.preventDefault();
+          const id = link.getAttribute('href').slice(1);
+          const el = document.getElementById(id);
+          if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            history.replaceState(null, '', '#' + id);
+          }
+        });
+      });
+    })();
+  </script>
+</body>
+</html>
