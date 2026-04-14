@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Superset.sh vs Conductor.build — AI Agent Orchestrator Comparison</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --font-body: 'IBM Plex Sans', 'Segoe UI', sans-serif;
+      --font-mono: 'IBM Plex Mono', 'SF Mono', Menlo, Consolas, monospace;
+
+      --bg: #0d1624;
+      --bg-soft: #112034;
+      --surface: #15263c;
+      --surface-2: #1a2f49;
+      --surface-hero: #0f2035;
+      --border: rgba(147, 181, 222, 0.22);
+      --border-strong: rgba(167, 199, 235, 0.42);
+      --text: #e5efff;
+      --text-dim: #9db3ce;
+
+      --superset: #7ec2ff;
+      --superset-dim: rgba(126, 194, 255, 0.14);
+      --conductor: #d4a73a;
+      --conductor-dim: rgba(212, 167, 58, 0.14);
+      --shared: #89c48a;
+      --shared-dim: rgba(137, 196, 138, 0.14);
+    }
+
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg: #eef4fb;
+        --bg-soft: #e3ecf8;
+        --surface: #ffffff;
+        --surface-2: #f4f8fd;
+        --surface-hero: #e9f1fb;
+        --border: rgba(28, 59, 94, 0.18);
+        --border-strong: rgba(28, 59, 94, 0.34);
+        --text: #10233a;
+        --text-dim: #4f6b88;
+
+        --superset: #0a4d8c;
+        --superset-dim: rgba(10, 77, 140, 0.12);
+        --conductor: #8d6210;
+        --conductor-dim: rgba(141, 98, 16, 0.12);
+        --shared: #21692f;
+        --shared-dim: rgba(33, 105, 47, 0.12);
+      }
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      color: var(--text);
+      font-family: var(--font-body);
+      line-height: 1.55;
+      background-color: var(--bg);
+      background-image:
+        linear-gradient(rgba(157, 179, 206, 0.07) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(157, 179, 206, 0.07) 1px, transparent 1px),
+        radial-gradient(ellipse at 18% 0%, rgba(126, 194, 255, 0.18) 0%, transparent 42%),
+        radial-gradient(ellipse at 82% 100%, rgba(212, 167, 58, 0.14) 0%, transparent 45%);
+      background-size: 26px 26px, 26px 26px, auto, auto;
+      min-height: 100vh;
+      padding: 28px;
+    }
+
+    .page {
+      max-width: 1120px;
+      margin: 0 auto;
+      display: grid;
+      gap: 20px;
+    }
+
+    .hero {
+      border: 1px solid var(--border-strong);
+      background: linear-gradient(160deg, var(--surface-hero), var(--surface));
+      border-radius: 16px;
+      padding: 28px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: auto -70px -70px auto;
+      width: 240px;
+      height: 240px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      opacity: 0.5;
+    }
+
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1.4px;
+      color: var(--text-dim);
+      margin: 0 0 10px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.9rem, 3vw, 2.8rem);
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      max-width: 22ch;
+    }
+
+    .hero-sub {
+      margin: 14px 0 0;
+      color: var(--text-dim);
+      max-width: 72ch;
+      font-size: 1.02rem;
+    }
+
+    .hero-split {
+      margin-top: 22px;
+      display: grid;
+      gap: 12px;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .split-pill {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: 0.95rem;
+      background: var(--surface-2);
+    }
+
+    .split-pill strong {
+      display: block;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      margin-bottom: 5px;
+      text-transform: uppercase;
+      letter-spacing: 0.9px;
+    }
+
+    .split-pill--superset strong { color: var(--superset); }
+    .split-pill--conductor strong { color: var(--conductor); }
+
+    .duel {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .panel {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+      background: var(--surface);
+      position: relative;
+    }
+
+    .panel h2 {
+      margin: 0;
+      font-size: 1.25rem;
+      letter-spacing: -0.01em;
+    }
+
+    .tagline {
+      margin: 7px 0 10px;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      letter-spacing: 0.4px;
+    }
+
+    .panel p {
+      margin: 0 0 14px;
+      color: var(--text-dim);
+    }
+
+    .panel ul {
+      margin: 0;
+      padding-left: 18px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .panel a {
+      color: inherit;
+      text-decoration-color: var(--border-strong);
+      text-underline-offset: 2px;
+    }
+
+    .panel--superset { border-top: 3px solid var(--superset); }
+    .panel--conductor { border-top: 3px solid var(--conductor); }
+
+    .matrix {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      background: var(--surface);
+    }
+
+    .matrix-head {
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: baseline;
+      flex-wrap: wrap;
+      background: var(--surface-2);
+    }
+
+    .matrix-head h3 {
+      margin: 0;
+      font-size: 1rem;
+      font-family: var(--font-mono);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .matrix-head p {
+      margin: 0;
+      font-size: 0.86rem;
+      color: var(--text-dim);
+      font-family: var(--font-mono);
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      min-width: 760px;
+      border-collapse: collapse;
+      font-size: 0.95rem;
+    }
+
+    thead th {
+      text-align: left;
+      padding: 12px 14px;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-dim);
+      border-bottom: 1px solid var(--border);
+      background: var(--surface-2);
+    }
+
+    tbody td {
+      padding: 13px 14px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:nth-child(odd) { background: color-mix(in srgb, var(--surface) 88%, var(--bg-soft) 12%); }
+
+    .cell-label {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--text-dim);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      white-space: nowrap;
+    }
+
+    .badge::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .badge--shared {
+      background: var(--shared-dim);
+      color: var(--shared);
+      border-color: color-mix(in srgb, var(--shared) 30%, transparent 70%);
+    }
+
+    .badge--superset {
+      background: var(--superset-dim);
+      color: var(--superset);
+      border-color: color-mix(in srgb, var(--superset) 30%, transparent 70%);
+    }
+
+    .badge--conductor {
+      background: var(--conductor-dim);
+      color: var(--conductor);
+      border-color: color-mix(in srgb, var(--conductor) 30%, transparent 70%);
+    }
+
+    .sources {
+      border: 1px dashed var(--border-strong);
+      border-radius: 12px;
+      padding: 14px 16px;
+      font-size: 0.9rem;
+      background: color-mix(in srgb, var(--surface) 86%, var(--bg-soft) 14%);
+    }
+
+    .sources p {
+      margin: 0 0 8px;
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+
+    .sources a {
+      color: var(--text);
+      text-decoration-color: var(--border-strong);
+      text-underline-offset: 2px;
+    }
+
+    @media (max-width: 860px) {
+      body { padding: 16px; }
+      .hero { padding: 20px; }
+      .hero-split,
+      .duel {
+        grid-template-columns: 1fr;
+      }
+      .panel { padding: 16px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
+  <!-- Vercel Web Analytics -->
+  <script>
+    window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+  </script>
+  <script defer src="/_vercel/insights/script.js"></script>
+  <!-- Vercel Speed Insights -->
+  <script>
+    window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
+  </script>
+  <script defer src="/_vercel/speed-insights/script.js"></script>
+  <meta property="og:title" content="Superset.sh vs Conductor.build — AI Agent Orchestrator Comparison">
+  <meta property="og:description" content="“Run 10+ parallel coding agents on your machine”">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://zosia.cc/pages/superset-vs-conductor-v2">
+  <meta name="twitter:card" content="summary">
+</head>
+<body>
+  <main class="page">
+    <section class="hero" aria-labelledby="title">
+      <p class="eyebrow">AI Coding Agent Orchestrators</p>
+      <h1 id="title">Superset.sh vs Conductor.build</h1>
+      <p class="hero-sub">
+        Both platforms orchestrate parallel coding agents with Git worktree isolation. The strategic split is clear: <strong>Superset</strong> optimizes for universal agent + IDE flexibility, while <strong>Conductor</strong> optimizes for a polished macOS-native supervision workflow around Claude Code + Codex.
+      </p>
+      <div class="hero-split">
+        <div class="split-pill split-pill--superset">
+          <strong>Universal Flexibility</strong>
+          Agent-agnostic orchestration across CLI coding tools and IDEs.
+        </div>
+        <div class="split-pill split-pill--conductor">
+          <strong>Mac-Native Polish</strong>
+          Tight Codex + Claude Code supervision with rich desktop controls.
+        </div>
+      </div>
+    </section>
+
+    <section class="duel" aria-label="Platform personality split">
+      <article class="panel panel--superset">
+        <h2>Superset.sh</h2>
+        <p class="tagline">“Run 10+ parallel coding agents on your machine”</p>
+        <p>Core value: code 10x faster with no switching cost.</p>
+        <ul>
+          <li>Launch dozens of agents across features, bugs, and refactors in parallel.</li>
+          <li>Agent-agnostic: works with Claude Code, OpenCode, Cursor, Codex, or any CLI-based coding tool.</li>
+          <li>Each agent runs in an isolated Git worktree to avoid merge conflicts.</li>
+          <li>Open work anywhere: VS Code, Cursor, Xcode, JetBrains, or terminal in one click.</li>
+        </ul>
+      </article>
+
+      <article class="panel panel--conductor">
+        <h2>Conductor.build</h2>
+        <p class="tagline">“Run a team of coding agents on your Mac”</p>
+        <p>Core value: create parallel Codex + Claude Code agents in isolated workspaces, then review and merge with visibility.</p>
+        <ul>
+          <li>Workflow: add repo on your Mac, deploy isolated agents, then conduct via unified supervision view.</li>
+          <li>Uses Git worktrees for isolation and supports Claude Code + Codex specifically.</li>
+          <li>Uses your existing Claude Code login (API key or Pro/Max plan).</li>
+          <li>macOS-native UI includes diff review, @terminal mentions, and chat navigation.</li>
+        </ul>
+      </article>
+    </section>
+
+    <section class="matrix" aria-labelledby="matrix-title">
+      <div class="matrix-head">
+        <h3 id="matrix-title">Feature Matrix</h3>
+        <p>Head-to-head comparison for orchestrating parallel coding agents</p>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Comparison Axis</th>
+              <th>Superset.sh</th>
+              <th>Conductor.build</th>
+              <th>Signal</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="cell-label">Isolation model</span></td>
+              <td>Each agent in isolated Git worktree.</td>
+              <td>Each agent in isolated Git worktree.</td>
+              <td><span class="badge badge--shared">Both strong</span></td>
+            </tr>
+            <tr>
+              <td><span class="cell-label">Agent compatibility</span></td>
+              <td>Agent-agnostic across CLI tools (Claude Code, OpenCode, Cursor, Codex, more).</td>
+              <td>Focused support for Claude Code + Codex.</td>
+              <td><span class="badge badge--superset">Superset edge</span></td>
+            </tr>
+            <tr>
+              <td><span class="cell-label">Environment orientation</span></td>
+              <td>Cross-tool, open-anywhere workflow (IDE or terminal).</td>
+              <td>Designed around local Mac workflow with native app experience.</td>
+              <td><span class="badge badge--conductor">Conductor edge</span></td>
+            </tr>
+            <tr>
+              <td><span class="cell-label">Supervision UX</span></td>
+              <td>Emphasis on flexible execution and jumping into preferred tools.</td>
+              <td>Rich oversight UI for activity tracking, diff review, @terminal mentions, chat navigation.</td>
+              <td><span class="badge badge--conductor">Conductor edge</span></td>
+            </tr>
+            <tr>
+              <td><span class="cell-label">Speed narrative</span></td>
+              <td>“Code 10x faster with no switching cost.”</td>
+              <td>“See what each agent is doing, review, merge.”</td>
+              <td><span class="badge badge--shared">Different emphasis</span></td>
+            </tr>
+            <tr>
+              <td><span class="cell-label">Best fit</span></td>
+              <td>Teams wanting maximum flexibility across evolving agent stack.</td>
+              <td>Teams wanting opinionated Mac-native control plane for Claude/Codex.</td>
+              <td><span class="badge badge--shared">Choose by operating style</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="sources" aria-label="Primary product links">
+      <p>Primary links</p>
+      <a href="https://superset.sh/" target="_blank" rel="noopener noreferrer">superset.sh</a>
+      &nbsp;•&nbsp;
+      <a href="https://www.conductor.build/" target="_blank" rel="noopener noreferrer">conductor.build</a>
+    </section>
+  </main>
+</body>
+</html>
