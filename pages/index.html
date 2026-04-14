@@ -300,9 +300,9 @@
     </header>
 
     <div class="stats">
-      <span><span class="num">57</span> pages</span>
+      <span><span class="num">58</span> pages</span>
       <span><span class="num">7</span> categories</span>
-      <span>Last updated <span class="num">Apr 12, 2026</span></span>
+      <span>Last updated <span class="num">Apr 14, 2026</span></span>
     </div>
 
     <div class="search-wrap">
@@ -346,6 +346,17 @@
 
   <script>
     const pages = [
+      {
+            "slug": "superset-vs-conductor",
+            "title": "Superset vs Conductor — Head to Head",
+            "desc": "Head-to-head comparison of parallel coding-agent orchestrators",
+            "cat": "openclaw",
+            "created": "2026-04-14",
+            "updated": "2026-04-14",
+            "tags": [
+                  "comparison"
+            ]
+      },
       {
             "slug": "openclaw-full-checkup-2026-04-12",
             "title": "OpenClaw Full Checkup · 2026-04-12",
@@ -1019,7 +1030,7 @@
     }
 
     function daysAgo(d) {
-      const now = new Date("2026-04-12");
+      const now = new Date("2026-04-14");
       const then = new Date(d);
       const diff = Math.floor((now - then) / 86400000);
       if (diff === 0) return "today";
