@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Superset vs Conductor — Head-to-Head Explainer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #f7f5f0;
+      --surface: #fffdf8;
+      --surface-2: #f2eee2;
+      --ink: #1e1f1b;
+      --muted: #64685d;
+      --line: #d8d2c3;
+      --superset: #1a6a63;
+      --superset-soft: #d9f0ed;
+      --conductor: #915b00;
+      --conductor-soft: #f9e8c8;
+      --tie: #5f5a8a;
+      --mono: 'IBM Plex Mono', Menlo, monospace;
+      --sans: 'Space Grotesk', system-ui, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: var(--sans);
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 8% 0%, #efe8d5 0%, transparent 35%),
+        radial-gradient(circle at 100% 100%, #eadfca 0%, transparent 38%),
+        var(--bg);
+      padding: 28px 16px 56px;
+    }
+
+    .wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      gap: 16px;
+    }
+
+    .hero, .card, .table, .sources {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      box-shadow: 0 1px 0 rgba(0,0,0,0.03);
+    }
+
+    .hero {
+      padding: 22px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stamp {
+      font: 500 11px var(--mono);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.7rem, 3.8vw, 2.8rem);
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+    }
+
+    .sub {
+      margin: 12px 0 0;
+      max-width: 72ch;
+      color: var(--muted);
+    }
+
+    .lanes {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .card {
+      padding: 16px;
+    }
+
+    .card h2 {
+      margin: 0 0 6px;
+      font-size: 1.2rem;
+    }
+
+    .tag {
+      display: inline-block;
+      border-radius: 999px;
+      padding: 4px 9px;
+      font: 500 11px var(--mono);
+      margin: 0 6px 8px 0;
+      border: 1px solid transparent;
+    }
+
+    .tag.s { background: var(--superset-soft); color: var(--superset); border-color: #b1ddd7; }
+    .tag.c { background: var(--conductor-soft); color: var(--conductor); border-color: #ebcd95; }
+    .tag.t { background: #ece9ff; color: var(--tie); border-color: #d6d0f7; }
+
+    .blurb {
+      margin: 2px 0 12px;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .fit {
+      display: grid;
+      gap: 9px;
+      margin-top: 4px;
+    }
+
+    .fit-row {
+      display: grid;
+      grid-template-columns: 170px 1fr 28px;
+      gap: 8px;
+      align-items: center;
+      font-size: 0.9rem;
+    }
+
+    .fit-row span:first-child { color: var(--muted); }
+
+    .bar {
+      height: 8px;
+      border-radius: 999px;
+      background: #e8e3d6;
+      overflow: hidden;
+    }
+
+    .fill {
+      height: 100%;
+      border-radius: 999px;
+    }
+
+    .fill.s { background: var(--superset); }
+    .fill.c { background: var(--conductor); }
+
+    .table {
+      overflow: hidden;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.94rem;
+    }
+
+    th, td {
+      text-align: left;
+      vertical-align: top;
+      padding: 11px 12px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    th {
+      background: var(--surface-2);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-family: var(--mono);
+      color: var(--muted);
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    .winner {
+      font: 500 11px var(--mono);
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+
+    .winner.s { background: var(--superset-soft); color: var(--superset); }
+    .winner.c { background: var(--conductor-soft); color: var(--conductor); }
+    .winner.t { background: #ece9ff; color: var(--tie); }
+
+    .sources {
+      padding: 14px 16px;
+      font-size: 0.9rem;
+    }
+
+    .sources h3 {
+      margin: 0 0 8px;
+      font-size: 0.95rem;
+    }
+
+    .sources ul {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+      display: grid;
+      gap: 6px;
+    }
+
+    a { color: inherit; text-decoration-color: #9f967f; text-underline-offset: 2px; }
+
+    @media (max-width: 860px) {
+      .lanes { grid-template-columns: 1fr; }
+      .fit-row { grid-template-columns: 130px 1fr 28px; }
+      table { font-size: 0.9rem; }
+    }
+
+    @media (max-width: 640px) {
+      .fit-row { grid-template-columns: 115px 1fr 28px; }
+      th:nth-child(3), td:nth-child(3) { display: none; }
+      .hide-mobile { display: none; }
+    }
+  </style>
+  <!-- Vercel Web Analytics -->
+  <script>
+    window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+  </script>
+  <script defer src="/_vercel/insights/script.js"></script>
+  <!-- Vercel Speed Insights -->
+  <script>
+    window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
+  </script>
+  <script defer src="/_vercel/speed-insights/script.js"></script>
+  <meta property="og:title" content="Superset vs Conductor — Head-to-Head Explainer">
+  <meta property="og:description" content="Positioning: run 10+ coding agents, use any CLI agent, and open worktrees in any IDE.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://zosia.cc/pages/superset-vs-conductor-head-to-head">
+  <meta name="twitter:card" content="summary">
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <div class="stamp">Visual Explainer • Updated April 14, 2026</div>
+      <h1>Superset.sh vs Conductor.build<br />Head-to-Head</h1>
+      <p class="sub">
+        Both tools orchestrate parallel coding agents with isolated workspaces. The big split: <strong>Superset</strong> optimizes for
+        agent/IDE flexibility, while <strong>Conductor</strong> optimizes for a polished macOS control center around Claude Code + Codex.
+      </p>
+    </section>
+
+    <section class="lanes">
+      <article class="card">
+        <h2>Superset.sh</h2>
+        <span class="tag s">Best for: agent flexibility</span>
+        <span class="tag t">Worktrees</span>
+        <p class="blurb">Positioning: run 10+ coding agents, use any CLI agent, and open worktrees in any IDE.</p>
+        <div class="fit">
+          <div class="fit-row"><span>Agent breadth</span><div class="bar"><div class="fill s" style="width:95%"></div></div><strong>95</strong></div>
+          <div class="fit-row"><span>IDE flexibility</span><div class="bar"><div class="fill s" style="width:94%"></div></div><strong>94</strong></div>
+          <div class="fit-row"><span>Mac-native UX</span><div class="bar"><div class="fill s" style="width:68%"></div></div><strong>68</strong></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <h2>Conductor.build</h2>
+        <span class="tag c">Best for: Mac orchestration</span>
+        <span class="tag t">Worktrees</span>
+        <p class="blurb">Positioning: run a team of coding agents on your Mac with centralized supervision and review flow.</p>
+        <div class="fit">
+          <div class="fit-row"><span>Agent breadth</span><div class="bar"><div class="fill c" style="width:72%"></div></div><strong>72</strong></div>
+          <div class="fit-row"><span>IDE flexibility</span><div class="bar"><div class="fill c" style="width:74%"></div></div><strong>74</strong></div>
+          <div class="fit-row"><span>Mac-native UX</span><div class="bar"><div class="fill c" style="width:96%"></div></div><strong>96</strong></div>
+        </div>
+      </article>
+    </section>
+
+    <section class="table">
+      <table>
+        <thead>
+          <tr>
+            <th>Decision Axis</th>
+            <th>Superset</th>
+            <th>Conductor</th>
+            <th>Edge</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Core promise</strong></td>
+            <td>"Run 10+ parallel coding agents on your machine."</td>
+            <td>"Run a team of coding agents on your Mac."</td>
+            <td><span class="winner t">Tie (different framing)</span></td>
+          </tr>
+          <tr>
+            <td><strong>Agent compatibility</strong></td>
+            <td>Explicitly agent-agnostic: Claude, OpenCode, Codex, Gemini, Cursor Agent, any CLI.</td>
+            <td>Explicitly supports Claude Code + Codex.</td>
+            <td><span class="winner s">Superset</span></td>
+          </tr>
+          <tr>
+            <td><strong>Isolation model</strong></td>
+            <td>Each agent in isolated Git worktree.</td>
+            <td>Each workspace is a new git worktree.</td>
+            <td><span class="winner t">Tie</span></td>
+          </tr>
+          <tr>
+            <td><strong>Environment stance</strong></td>
+            <td>Runs on your machine, opens in your preferred IDE.</td>
+            <td>Runs entirely on your Mac; desktop-first orchestration flow.</td>
+            <td><span class="winner c">Conductor</span></td>
+          </tr>
+          <tr>
+            <td><strong>Auth / model usage</strong></td>
+            <td class="hide-mobile">Not highlighted on homepage in similar operational detail.</td>
+            <td>Uses local saved Claude/Codex tokens by default; API key override available.</td>
+            <td><span class="winner c">Conductor</span></td>
+          </tr>
+          <tr>
+            <td><strong>Safety posture</strong></td>
+            <td class="hide-mobile">No equivalent statement captured in this pass.</td>
+            <td>Agents run with your user permissions; docs note no sandboxing by default.</td>
+            <td><span class="winner c">Conductor clarity</span></td>
+          </tr>
+          <tr>
+            <td><strong>Best fit</strong></td>
+            <td>You want to swap agent backends/tools often and stay IDE-agnostic.</td>
+            <td>You want a strong macOS command center for Claude/Codex workflows.</td>
+            <td><span class="winner t">Use-case dependent</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="sources">
+      <h3>Sources (official)</h3>
+      <ul>
+        <li><a href="https://superset.sh/" target="_blank" rel="noopener noreferrer">https://superset.sh/</a></li>
+        <li><a href="https://www.conductor.build/" target="_blank" rel="noopener noreferrer">https://www.conductor.build/</a></li>
+        <li><a href="https://docs.conductor.build/faq" target="_blank" rel="noopener noreferrer">https://docs.conductor.build/faq</a></li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>
