@@ -8,7 +8,7 @@
  * - Git-based created/updated dates (with x-created/x-updated meta overrides)
  * - OG/social meta tag injection
  * - Sitemap.xml generation
- * - Vercel analytics injection
+ * - PostHog analytics injection (idempotent strip-and-inject)
  */
 
 const fs = require('fs');
@@ -18,8 +18,11 @@ const { execSync } = require('child_process');
 const ROOT = __dirname;
 const REPO_ROOT = path.resolve(ROOT, '..');
 const INDEX_PATH = path.join(ROOT, 'index.html');
+const HOME_PATH = path.join(REPO_ROOT, 'index.html');
 const SITEMAP_PATH = path.join(REPO_ROOT, 'sitemap.xml');
 const SITE_URL = 'https://zosia.cc';
+const POSTHOG_KEY = 'phc_ycrCCCJfK75nMSBgNcqWr4ftXaNT33SPtxb2kcXJy4oo';
+const POSTHOG_HOST = 'https://us.i.posthog.com';
 
 // Skip these directories
 const SKIP = new Set(['.vercel', 'node_modules', '.git']);
@@ -253,18 +256,36 @@ function injectIntoIndex(pages, categories) {
   return pages.length;
 }
 
-// Analytics snippet for plain HTML sites
-const ANALYTICS_SNIPPET = `  <!-- Vercel Web Analytics -->
+// Sentinel-wrapped analytics block — strip-and-inject keeps it idempotent.
+const ANALYTICS_BLOCK = `  <!-- analytics:start -->
   <script>
-    window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+    !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host+"/static/array.full.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="capture identify alias people.set people.set_once set_config register register_once unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled onFeatureFlags getSurveys getActiveMatchingSurveys captureException".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
+    posthog.init('${POSTHOG_KEY}', { api_host: '${POSTHOG_HOST}', person_profiles: 'identified_only' });
   </script>
-  <script defer src="/_vercel/insights/script.js"></script>
-  <!-- Vercel Speed Insights -->
-  <script>
-    window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
-  </script>
-  <script defer src="/_vercel/speed-insights/script.js"></script>
+  <!-- analytics:end -->
 `;
+
+// Strip any existing analytics block (legacy Vercel snippet or old PostHog).
+function stripAnalytics(html) {
+  return html
+    .replace(/[ \t]*<!-- analytics:start -->[\s\S]*?<!-- analytics:end -->\n?/g, '')
+    .replace(/[ \t]*<!-- Vercel Web Analytics -->[\s\S]*?<script defer src="\/_vercel\/speed-insights\/script\.js"><\/script>\n?/g, '')
+    .replace(/[ \t]*<!-- Vercel Speed Insights -->[\s\S]*?<script defer src="\/_vercel\/speed-insights\/script\.js"><\/script>\n?/g, '')
+    .replace(/[ \t]*<script>\s*window\.va = window\.va[\s\S]*?<\/script>\n?/g, '')
+    .replace(/[ \t]*<script defer src="\/_vercel\/insights\/script\.js"><\/script>\n?/g, '')
+    .replace(/[ \t]*<script>\s*window\.si = window\.si[\s\S]*?<\/script>\n?/g, '')
+    .replace(/[ \t]*<script defer src="\/_vercel\/speed-insights\/script\.js"><\/script>\n?/g, '');
+}
+
+function injectAnalyticsInto(filePath) {
+  let html = fs.readFileSync(filePath, 'utf-8');
+  if (!html.includes('</head>')) return false;
+  const stripped = stripAnalytics(html);
+  const updated = stripped.replace('</head>', ANALYTICS_BLOCK + '</head>');
+  if (updated === html) return false;
+  fs.writeFileSync(filePath, updated, 'utf-8');
+  return true;
+}
 
 function injectAnalytics() {
   let injected = 0;
@@ -272,20 +293,10 @@ function injectAnalytics() {
     if (!entry.isDirectory() || SKIP.has(entry.name)) continue;
     const pageIndex = path.join(ROOT, entry.name, 'index.html');
     if (!fs.existsSync(pageIndex)) continue;
-    let html = fs.readFileSync(pageIndex, 'utf-8');
-    if (html.includes('vercel/insights')) continue;
-    if (html.includes('</head>')) {
-      html = html.replace('</head>', ANALYTICS_SNIPPET + '</head>');
-      fs.writeFileSync(pageIndex, html, 'utf-8');
-      injected++;
-    }
+    if (injectAnalyticsInto(pageIndex)) injected++;
   }
-  let indexHtml = fs.readFileSync(INDEX_PATH, 'utf-8');
-  if (!indexHtml.includes('vercel/insights') && indexHtml.includes('</head>')) {
-    indexHtml = indexHtml.replace('</head>', ANALYTICS_SNIPPET + '</head>');
-    fs.writeFileSync(INDEX_PATH, indexHtml, 'utf-8');
-    injected++;
-  }
+  if (injectAnalyticsInto(INDEX_PATH)) injected++;
+  if (fs.existsSync(HOME_PATH) && injectAnalyticsInto(HOME_PATH)) injected++;
   return injected;
 }
 

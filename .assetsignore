@@ -1,0 +1,9 @@
+src
+api
+node_modules
+wrangler.jsonc
+.assetsignore
+.wrangler
+package.json
+package-lock.json
+tsconfig.json

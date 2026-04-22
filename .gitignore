@@ -1,2 +1,6 @@
 .vercel
 .env*.local
+.wrangler/
+node_modules/
+*.log
+.DS_Store
