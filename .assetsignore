@@ -1,9 +1,16 @@
+.git
+.github
+.DS_Store
+.claude
+.gstack
+.vercel
+.wrangler
 src
 api
 node_modules
 wrangler.jsonc
 .assetsignore
-.wrangler
 package.json
 package-lock.json
 tsconfig.json
+README.md
