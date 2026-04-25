@@ -1,0 +1,1314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>China↔Gulf Deal Flow · v0.2 — Hybrid Exa + Kimi Plan</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --font-display: 'Instrument Serif', 'Times New Roman', serif;
+  --font-body: 'DM Sans', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+  --font-cn: 'Noto Sans SC', 'PingFang SC', 'Hiragino Sans GB', sans-serif;
+
+  --bg: #faf6ee;
+  --surface: #ffffff;
+  --surface-elevated: #ffffff;
+  --border: rgba(28, 35, 60, 0.08);
+  --border-bright: rgba(28, 35, 60, 0.18);
+  --text: #1c233c;
+  --text-bright: #0d1228;
+  --text-dim: #6a6f86;
+
+  --accent: #1e3a5f;
+  --accent-dim: rgba(30, 58, 95, 0.10);
+  --gold: #b08a2e;
+  --gold-dim: rgba(176, 138, 46, 0.14);
+  --terracotta: #b04e2e;
+  --terracotta-dim: rgba(176, 78, 46, 0.10);
+  --sage: #5a7148;
+  --sage-dim: rgba(90, 113, 72, 0.12);
+  --crimson: #8b1c2b;
+  --crimson-dim: rgba(139, 28, 43, 0.10);
+
+  --green: var(--sage); --green-dim: var(--sage-dim);
+  --red: var(--crimson); --red-dim: var(--crimson-dim);
+  --orange: var(--terracotta); --orange-dim: var(--terracotta-dim);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0e1422;
+    --surface: #161e30;
+    --surface-elevated: #1c2540;
+    --border: rgba(232, 220, 195, 0.08);
+    --border-bright: rgba(232, 220, 195, 0.18);
+    --text: #e8dcc3;
+    --text-bright: #f5edd9;
+    --text-dim: #8c8a82;
+
+    --accent: #6a9bd1; --accent-dim: rgba(106, 155, 209, 0.12);
+    --gold: #d4a73a; --gold-dim: rgba(212, 167, 58, 0.16);
+    --terracotta: #cc7754; --terracotta-dim: rgba(204, 119, 84, 0.14);
+    --sage: #9eb27e; --sage-dim: rgba(158, 178, 126, 0.14);
+    --crimson: #c75c6e; --crimson-dim: rgba(199, 92, 110, 0.14);
+  }
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  background: var(--bg);
+  background-image:
+    radial-gradient(at 18% 12%, var(--gold-dim) 0%, transparent 45%),
+    radial-gradient(at 88% 80%, var(--accent-dim) 0%, transparent 50%);
+  color: var(--text);
+  font-size: 16px; line-height: 1.6;
+  overflow-wrap: break-word;
+}
+
+.cn { font-family: var(--font-cn); font-weight: 500; }
+.wrap { max-width: 1200px; margin: 0 auto; padding: 64px 32px 96px; }
+.grid > *, .flex > * { min-width: 0; }
+
+/* ---------- Hero ---------- */
+.hero { padding: 24px 0 56px; border-bottom: 1px solid var(--border); margin-bottom: 56px; position: relative; }
+.hero__version-pill {
+  position: absolute; top: 24px; right: 0;
+  font-family: var(--font-mono); font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 2px;
+  background: var(--gold); color: var(--bg);
+  padding: 6px 12px; border-radius: 4px;
+}
+.hero__kicker {
+  font-family: var(--font-mono);
+  font-size: 11px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 2.5px;
+  color: var(--gold);
+  margin-bottom: 18px;
+  display: flex; align-items: center; gap: 10px;
+}
+.hero__kicker::before { content: ''; width: 28px; height: 1px; background: var(--gold); }
+.hero__title {
+  font-family: var(--font-display);
+  font-size: clamp(44px, 6vw, 76px);
+  font-weight: 400; line-height: 1.02; letter-spacing: -1px;
+  margin: 0 0 14px; color: var(--text-bright);
+}
+.hero__title em { font-style: italic; color: var(--gold); }
+.hero__sub {
+  font-size: 19px; line-height: 1.55; max-width: 760px;
+  color: var(--text); margin: 0 0 28px;
+}
+.hero__sub strong { color: var(--text-bright); font-weight: 600; }
+.hero__meta {
+  display: flex; flex-wrap: wrap; gap: 20px;
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--text-dim); text-transform: uppercase; letter-spacing: 1.5px;
+}
+.hero__meta span { display: inline-flex; align-items: center; gap: 6px; }
+.hero__meta span::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--gold); }
+
+/* ---------- Section primitives ---------- */
+section { margin-bottom: 80px; }
+h2.section-title {
+  font-family: var(--font-display);
+  font-size: clamp(30px, 3.5vw, 42px);
+  font-weight: 400; font-style: italic;
+  line-height: 1.1; margin: 0 0 6px;
+  color: var(--text-bright);
+}
+.section-num {
+  font-family: var(--font-mono);
+  font-size: 11px; font-weight: 600;
+  color: var(--gold); letter-spacing: 2px; margin-bottom: 8px;
+}
+.section-lede {
+  font-size: 17px; max-width: 800px; color: var(--text);
+  margin: 12px 0 32px;
+}
+
+/* ---------- v0.1 vs v0.2 diff ---------- */
+.diff-callout {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--crimson);
+  border-radius: 10px;
+  padding: 24px 28px;
+  margin-bottom: 56px;
+}
+.diff-callout h3 {
+  font-family: var(--font-display);
+  font-size: 26px; font-weight: 400; font-style: italic;
+  margin: 0 0 16px; color: var(--text-bright);
+}
+.diff-callout ol { margin: 0; padding-left: 24px; line-height: 1.7; }
+.diff-callout ol li { margin-bottom: 10px; }
+.diff-callout code { font-family: var(--font-mono); font-size: 12px; background: var(--crimson-dim); color: var(--crimson); padding: 1px 5px; border-radius: 3px; }
+
+/* ---------- KPI row ---------- */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 14px;
+  margin-bottom: 56px;
+}
+.kpi {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--gold);
+  border-radius: 8px;
+  padding: 18px 20px;
+}
+.kpi__value {
+  font-family: var(--font-display);
+  font-size: 38px; font-weight: 400;
+  line-height: 1; letter-spacing: -0.5px;
+  color: var(--text-bright);
+  font-variant-numeric: tabular-nums;
+}
+.kpi__label {
+  font-family: var(--font-mono); font-size: 10px;
+  font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px;
+  color: var(--text-dim); margin-top: 8px;
+}
+.kpi__delta {
+  font-size: 11px; color: var(--sage); margin-top: 4px;
+  font-family: var(--font-mono); font-weight: 600;
+}
+
+/* ---------- Cards ---------- */
+.ve-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 22px 24px;
+}
+.ve-card--accent { border-left: 3px solid var(--accent); }
+.ve-card--gold { border-left: 3px solid var(--gold); }
+.ve-card--sage { border-left: 3px solid var(--sage); }
+.ve-card--terracotta { border-left: 3px solid var(--terracotta); }
+.ve-card--crimson { border-left: 3px solid var(--crimson); }
+.ve-card__label {
+  font-family: var(--font-mono); font-size: 10px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 2px;
+  margin-bottom: 12px;
+  display: flex; align-items: center; gap: 8px;
+}
+.ve-card__label::before {
+  content: ''; width: 8px; height: 8px; border-radius: 50%; background: currentColor;
+}
+.ve-card__title {
+  font-family: var(--font-display); font-size: 22px; font-weight: 400;
+  line-height: 1.2; margin: 0 0 8px; color: var(--text-bright);
+}
+.ve-card p { margin: 0 0 8px; }
+.ve-card p:last-child { margin-bottom: 0; }
+.ve-card__lede {
+  font-size: 15px; line-height: 1.55; color: var(--text-dim);
+}
+
+.col-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+.col-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+@media (max-width: 900px) { .col-3, .col-2 { grid-template-columns: 1fr; } }
+
+/* ---------- Mermaid containers ---------- */
+.diagram-shell { position: relative; margin-bottom: 24px; }
+.diagram-shell__hint {
+  font-family: var(--font-mono); font-size: 10px;
+  color: var(--text-dim); margin-bottom: 8px; opacity: 0.7;
+  text-transform: uppercase; letter-spacing: 1.5px;
+}
+.mermaid-wrap {
+  position: relative; background: var(--surface);
+  border: 1px solid var(--border); border-radius: 12px;
+  padding: 32px 24px;
+  display: flex; justify-content: center; align-items: center;
+  min-height: 540px; cursor: grab;
+}
+.mermaid-wrap.is-panning { cursor: grabbing; user-select: none; }
+.mermaid-viewport {
+  position: relative; overflow: hidden;
+  width: 100%; height: 100%; min-height: 480px;
+}
+.mermaid-canvas { position: absolute; top: 0; left: 0; }
+.zoom-controls {
+  position: absolute; top: 10px; right: 10px;
+  display: flex; gap: 2px; z-index: 10;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px; padding: 2px;
+}
+.zoom-controls button {
+  width: 28px; height: 28px; border: none; background: transparent;
+  color: var(--text-dim); font-family: var(--font-mono); font-size: 14px;
+  cursor: pointer; border-radius: 4px;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.zoom-controls button:hover { background: var(--border); color: var(--text); }
+.zoom-label {
+  font-family: var(--font-mono); font-size: 10px;
+  color: var(--text-dim); padding: 0 6px; white-space: nowrap;
+  display: flex; align-items: center;
+}
+
+/* ---------- Tables ---------- */
+.table-wrap {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px; line-height: 1.5;
+}
+.data-table thead { position: sticky; top: 0; z-index: 2; }
+.data-table th {
+  background: color-mix(in srgb, var(--surface) 92%, var(--accent) 8%);
+  font-family: var(--font-mono);
+  font-size: 10px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 1.5px;
+  color: var(--text-dim);
+  text-align: left; padding: 11px 14px;
+  border-bottom: 2px solid var(--border-bright);
+  white-space: nowrap;
+}
+.data-table td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top; color: var(--text);
+}
+.data-table tbody tr:nth-child(even) {
+  background: color-mix(in srgb, var(--surface) 96%, var(--gold) 4%);
+}
+.data-table tbody tr:last-child td { border-bottom: none; }
+.data-table .src-name { font-weight: 600; color: var(--text-bright); }
+.data-table small { display: block; color: var(--text-dim); font-size: 11px; margin-top: 2px; }
+
+/* ---------- Tier divider rows ---------- */
+.tier-divider td {
+  background: color-mix(in srgb, var(--surface) 80%, var(--accent) 20%) !important;
+  font-family: var(--font-mono);
+  font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 2px;
+  color: var(--accent) !important;
+  padding: 8px 14px !important;
+}
+.tier-divider--cn td { color: var(--crimson) !important; background: color-mix(in srgb, var(--surface) 88%, var(--crimson) 12%) !important; }
+.tier-divider--gold td { color: var(--gold) !important; background: color-mix(in srgb, var(--surface) 88%, var(--gold) 12%) !important; }
+.tier-divider--sage td { color: var(--sage) !important; background: color-mix(in srgb, var(--surface) 88%, var(--sage) 12%) !important; }
+
+/* ---------- Tags / status ---------- */
+.tag {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 10px; font-weight: 500;
+  padding: 2px 7px; border-radius: 4px;
+  background: var(--accent-dim); color: var(--accent);
+  margin-right: 4px; margin-bottom: 2px; white-space: nowrap;
+}
+.tag--gold { background: var(--gold-dim); color: var(--gold); }
+.tag--sage { background: var(--sage-dim); color: var(--sage); }
+.tag--terracotta { background: var(--terracotta-dim); color: var(--terracotta); }
+.tag--crimson { background: var(--crimson-dim); color: var(--crimson); }
+.tag--cn { background: var(--crimson-dim); color: var(--crimson); font-family: var(--font-mono); }
+.tag--exa { background: var(--accent-dim); color: var(--accent); }
+.tag--kimi { background: var(--terracotta-dim); color: var(--terracotta); }
+.tag--rss { background: var(--sage-dim); color: var(--sage); }
+
+.status {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--font-mono); font-size: 10px; font-weight: 500;
+  padding: 3px 9px; border-radius: 5px; white-space: nowrap;
+}
+.status--match { background: var(--green-dim); color: var(--green); }
+.status--gap { background: var(--red-dim); color: var(--red); }
+.status--warn { background: var(--orange-dim); color: var(--orange); }
+
+/* ---------- CN query taxonomy ---------- */
+.taxonomy-grid {
+  display: grid; grid-template-columns: 1fr; gap: 16px;
+}
+@media (min-width: 900px) {
+  .taxonomy-grid { grid-template-columns: 1fr 1fr; }
+}
+.tax-bucket {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 18px 20px;
+}
+.tax-bucket--entry { border-left: 3px solid var(--terracotta); }
+.tax-bucket--capital { border-left: 3px solid var(--gold); }
+.tax-bucket--local { border-left: 3px solid var(--sage); }
+.tax-bucket--gov { border-left: 3px solid var(--accent); }
+.tax-bucket--co { border-left: 3px solid var(--crimson); }
+.tax-bucket--sector { border-left: 3px solid var(--gold); }
+
+.tax-bucket__title {
+  display: flex; align-items: baseline; justify-content: space-between;
+  margin-bottom: 12px; gap: 8px; flex-wrap: wrap;
+}
+.tax-bucket__title h4 {
+  font-family: var(--font-display);
+  font-size: 21px; font-weight: 400; font-style: italic;
+  margin: 0; color: var(--text-bright);
+}
+.tax-bucket__count {
+  font-family: var(--font-mono); font-size: 10px; font-weight: 700;
+  color: var(--gold); letter-spacing: 1.5px;
+}
+.tax-list {
+  list-style: none; padding: 0; margin: 0;
+  display: grid; gap: 6px;
+}
+.tax-list li {
+  font-family: var(--font-mono); font-size: 12px;
+  background: color-mix(in srgb, var(--surface) 90%, var(--accent) 10%);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 7px 10px;
+  display: flex; align-items: baseline; gap: 8px;
+  word-break: break-word;
+}
+.tax-list li .qnum {
+  color: var(--gold); font-weight: 700; font-size: 10px;
+  flex-shrink: 0; min-width: 22px;
+}
+.tax-list li .qcn {
+  font-family: var(--font-cn); font-weight: 500;
+  color: var(--text-bright); font-size: 13px;
+  flex: 1;
+}
+.tax-list li .qen {
+  color: var(--text-dim); font-size: 10px;
+  font-style: italic; flex-shrink: 0;
+  display: block; margin-top: 3px;
+}
+.tax-list li .qrow { display: flex; flex-direction: column; flex: 1; }
+
+/* ---------- PR cheat sheet ---------- */
+.pr-flow {
+  display: grid; gap: 14px;
+}
+.pr-step {
+  display: grid;
+  grid-template-columns: 64px 1fr;
+  gap: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 20px;
+  align-items: start;
+}
+.pr-step--cn { border-left: 3px solid var(--crimson); }
+.pr-step--gulf { border-left: 3px solid var(--sage); }
+.pr-step__num {
+  font-family: var(--font-display);
+  font-size: 38px; font-style: italic; font-weight: 400;
+  color: var(--gold); line-height: 1;
+}
+.pr-step__h {
+  margin: 0 0 6px;
+  font-family: var(--font-body); font-weight: 600;
+  font-size: 16px; color: var(--text-bright);
+}
+.pr-step__b {
+  margin: 0; font-size: 14px; line-height: 1.55;
+  color: var(--text-dim);
+}
+.pr-step__b strong { color: var(--text); }
+.pr-example {
+  margin-top: 8px; padding: 8px 12px;
+  background: color-mix(in srgb, var(--surface) 88%, var(--gold) 12%);
+  border-left: 2px solid var(--gold);
+  font-size: 13px; line-height: 1.5; color: var(--text);
+  border-radius: 0 4px 4px 0;
+}
+.pr-example strong { color: var(--gold); font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; }
+
+/* ---------- Hybrid stack ---------- */
+.stack-list { counter-reset: stack; padding: 0; list-style: none; }
+.stack-list li {
+  counter-increment: stack;
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 20px 14px 92px;
+  margin-bottom: 8px;
+}
+.stack-list li::before {
+  content: counter(stack, decimal-leading-zero);
+  position: absolute;
+  left: 18px; top: 14px;
+  font-family: var(--font-mono); font-weight: 700; font-size: 11px;
+  letter-spacing: 1px;
+  color: var(--gold);
+  background: var(--gold-dim);
+  padding: 4px 8px; border-radius: 4px;
+}
+.stack-list li .step-time {
+  position: absolute;
+  left: 56px; top: 14px;
+  font-family: var(--font-mono); font-size: 10px;
+  color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px;
+}
+.stack-list li h4 {
+  margin: 0 0 4px; font-size: 15px; font-weight: 600;
+  color: var(--text-bright);
+}
+.stack-list li p { margin: 0; font-size: 13px; line-height: 1.5; color: var(--text-dim); }
+.stack-list li code { font-family: var(--font-mono); font-size: 11px; background: var(--accent-dim); color: var(--accent); padding: 1px 4px; border-radius: 3px; }
+
+/* ---------- Filter list (numbered editorial) ---------- */
+.editorial-list { counter-reset: ed; padding: 0; list-style: none; }
+.editorial-list li {
+  counter-increment: ed; position: relative;
+  padding: 16px 22px 16px 76px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--gold);
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+.editorial-list li::before {
+  content: counter(ed, decimal-leading-zero);
+  position: absolute; left: 22px; top: 16px;
+  font-family: var(--font-display);
+  font-size: 32px; font-style: italic;
+  font-weight: 400; line-height: 1;
+  color: var(--gold);
+}
+.editorial-list h4 { margin: 0 0 6px; font-size: 15px; font-weight: 600; color: var(--text-bright); }
+.editorial-list p { margin: 0; font-size: 14px; line-height: 1.55; color: var(--text-dim); }
+
+/* ---------- Confidence labels ---------- */
+.conf-row {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px; margin: 18px 0 0;
+}
+.conf-card {
+  padding: 14px 18px;
+  border-radius: 8px; border: 1px solid var(--border);
+}
+.conf-card--confirmed { background: var(--sage-dim); border-color: var(--sage); }
+.conf-card--reported  { background: var(--gold-dim); border-color: var(--gold); }
+.conf-card--watch     { background: var(--terracotta-dim); border-color: var(--terracotta); }
+.conf-card__label {
+  font-family: var(--font-mono); font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 2px;
+  margin-bottom: 6px;
+}
+.conf-card--confirmed .conf-card__label { color: var(--sage); }
+.conf-card--reported  .conf-card__label { color: var(--gold); }
+.conf-card--watch     .conf-card__label { color: var(--terracotta); }
+.conf-card p { margin: 0; font-size: 13px; line-height: 1.5; }
+
+/* ---------- Implementation deltas ---------- */
+.delta-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 14px;
+}
+.delta {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 8px;
+  padding: 14px 18px;
+}
+.delta__h {
+  font-family: var(--font-mono); font-size: 10px;
+  font-weight: 700; letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 6px;
+}
+.delta__b { font-size: 14px; line-height: 1.5; color: var(--text); margin: 0; }
+.delta__b code { font-family: var(--font-mono); font-size: 11px; background: var(--accent-dim); color: var(--accent); padding: 1px 4px; border-radius: 3px; }
+
+/* ---------- Footer ---------- */
+.footer {
+  margin-top: 80px; padding-top: 28px;
+  border-top: 1px solid var(--border);
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--text-dim);
+  display: flex; flex-wrap: wrap; gap: 16px; justify-content: space-between;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+</style>
+  <meta property="og:title" content="China↔Gulf Deal Flow · v0.2 — Hybrid Exa + Kimi Plan">
+  <meta property="og:description" content="Ctrl/Cmd + scroll to zoom · drag to pan · double-click to fit">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://zosia.cc/pages/china-gulf-deal-flow-v2">
+  <meta name="twitter:card" content="summary">
+</head>
+<body>
+<main class="wrap">
+
+<!-- =============== HERO =============== -->
+<header class="hero">
+  <div class="hero__version-pill">v0.2 · Hybrid</div>
+  <div class="hero__kicker">Cron Job Plan · revised</div>
+  <h1 class="hero__title">China<em>↔</em>Gulf<br>Deal Flow</h1>
+  <p class="hero__sub">
+    Daily Discord drop tuned to <strong>Raymond's two-ecosystem thesis</strong>. v0.2 swaps the Exa-only stack for a <strong>hybrid Exa + Kimi-cn pipeline</strong> with native Chinese web search — built around the actual PR pipes where Chinese OEMs and Gulf SWFs break their news first.
+  </p>
+  <div class="hero__meta">
+    <span>Daily 09:20 GST</span>
+    <span>~70 sources</span>
+    <span>55 CN queries</span>
+    <span>Exa + Kimi-cn</span>
+    <span>≤5 stories</span>
+    <span>#🧠-intel · Discord</span>
+  </div>
+</header>
+
+<!-- =============== v0.1 → v0.2 DIFF =============== -->
+<div class="diff-callout">
+  <h3>What v0.1 got wrong</h3>
+  <ol>
+    <li><strong>Treated English aggregators as "Chinese-side coverage."</strong> CnEVPost, Pandaily, Yicai Global are useful — but Chinese companies announce first via <span class="cn">公司新闻稿</span>, <span class="cn">微信公众号</span>, exchange filings, <span class="cn">36氪出海</span>, <span class="cn">财联社</span>. We were reading the echo, not the source.</li>
+    <li><strong>Ignored the Chinese PR plumbing entirely.</strong> No MOFCOM <span class="cn">走出去</span>, no <span class="cn">中国一带一路网</span>, no CCPIT, no CAAM/CABIA/CSIA, no SSE/SZSE/HKEX filings, no <span class="cn">出海</span> verticals.</li>
+    <li><strong>Three Chinese queries was a joke.</strong> Couldn't cover <span class="cn">出海/首店/建厂/本地化</span>, country variants, sector terms, or named-company patterns. v0.2 has <code>55</code>.</li>
+    <li><strong>Gulf-side missed the wires.</strong> WAM/SPA/QNA/KUNA/BNA, AETOSWire, Zawya PR, free-zone newsrooms — these are where deals actually break in the region.</li>
+    <li><strong>Exa-only was structurally wrong.</strong> Exa is strong on the English/global web; Kimi K2.5 with <code>$web_search</code> against Chinese servers is what you need for native recall — WeChat repost ecology, exchange-filing summaries, <span class="cn">出海</span> framing.</li>
+  </ol>
+</div>
+
+<!-- =============== KPIs =============== -->
+<div class="kpi-row">
+  <div class="kpi"><div class="kpi__value">~70</div><div class="kpi__label">Curated sources</div><div class="kpi__delta">+45 vs v0.1</div></div>
+  <div class="kpi"><div class="kpi__value">55</div><div class="kpi__label">CN queries</div><div class="kpi__delta">+52 vs v0.1</div></div>
+  <div class="kpi"><div class="kpi__value">2</div><div class="kpi__label">Search engines</div><div class="kpi__delta">Exa + Kimi-cn</div></div>
+  <div class="kpi"><div class="kpi__value">¥14</div><div class="kpi__label">Kimi cost / month</div><div class="kpi__delta">~$2 USD</div></div>
+  <div class="kpi"><div class="kpi__value">3</div><div class="kpi__label">Confidence tiers</div><div class="kpi__delta">confirmed / reported / watch</div></div>
+</div>
+
+<!-- =============== PIPELINE =============== -->
+<section id="pipeline">
+  <div class="section-num">§ 01 · Hybrid pipeline</div>
+  <h2 class="section-title">Two engines, one drop.</h2>
+  <p class="section-lede">
+    Exa handles the English/global web (Gulf-side wires, English business press, filings). Kimi-cn handles native Chinese recall (corporate PR, <span class="cn">出海</span> verticals, financial flashes, gov portals). Items dedup across both into bilingual candidates with confidence labels before scoring.
+  </p>
+
+  <section class="diagram-shell">
+    <p class="diagram-shell__hint">Ctrl/Cmd + scroll to zoom · drag to pan · double-click to fit</p>
+    <div class="mermaid-wrap">
+      <div class="zoom-controls">
+        <button type="button" data-action="zoom-in" title="Zoom in">+</button>
+        <button type="button" data-action="zoom-out" title="Zoom out">&minus;</button>
+        <button type="button" data-action="zoom-fit" title="Smart fit">&#8634;</button>
+        <button type="button" data-action="zoom-one" title="1:1 zoom">1:1</button>
+        <span class="zoom-label">Loading…</span>
+      </div>
+      <div class="mermaid-viewport">
+        <div class="mermaid mermaid-canvas"></div>
+      </div>
+    </div>
+    <script type="text/plain" class="diagram-source">
+flowchart TD
+  classDef rss fill:#eef0d6,stroke:#5a7148,stroke-width:1.5px,color:#1c233c
+  classDef exa fill:#dde6f0,stroke:#1e3a5f,stroke-width:1.5px,color:#1c233c
+  classDef kimi fill:#f6e3e0,stroke:#8b1c2b,stroke-width:1.5px,color:#1c233c
+  classDef gov fill:#f8eccd,stroke:#b08a2e,stroke-width:1.5px,color:#1c233c
+  classDef proc fill:#ffffff,stroke:#1e3a5f,stroke-width:1.5px,color:#1c233c
+  classDef gate fill:#f8eccd,stroke:#b08a2e,stroke-width:2.5px,color:#1c233c
+  classDef out fill:#1e3a5f,stroke:#b08a2e,stroke-width:2px,color:#faf6ee
+  classDef kill fill:#f6e3e0,stroke:#8b1c2b,stroke-width:1.5px,color:#1c233c,stroke-dasharray: 4 3
+
+  R1["06:25 · RSS sweep<br/>blogwatcher<br/>The National · Arabian Biz<br/>CnEVPost · Pandaily"]:::rss
+
+  E1["06:35 · Exa English sweep<br/>6-8 queries · prior 36h<br/>Gulf wires · business press<br/>SWF newsrooms"]:::exa
+
+  K1["06:45 · Kimi-cn sweep<br/>10-14 native CN queries<br/>出海 · 建厂 · 主权基金<br/>exchange filings · 财联社"]:::kimi
+
+  F1["06:58 · Filing check<br/>SSE · SZSE · HKEXnews<br/>company IR newsrooms"]:::gov
+
+  N1["07:05 · Normalize<br/>bilingual entity names<br/>BYD/比亚迪 · PIF/沙特公共投资基金"]:::proc
+
+  D1["07:08 · Cluster + dedup<br/>by company × counterparty × country<br/>14-day window"]:::proc
+
+  G1{{"Editorial filter<br/>thesis · actor · lane · pipeline · delta<br/>≥ 3 of 5 to ship"}}:::gate
+  KX["KILL<br/>generic geopolitics · no actor<br/>showroom-only auto · PR exhaust"]:::kill
+
+  C1["Confidence labels<br/>confirmed · reported · watch"]:::proc
+
+  S1["Score & rank<br/>by category × proof level"]:::proc
+
+  O1["09:20 · Components v2 post<br/>≤5 stories · 4 sections<br/>#🧠-intel"]:::out
+  O2["Quiet day<br/>< 2 qualified items<br/>→ no post"]:::kill
+
+  R1 --> N1
+  E1 --> N1
+  K1 --> N1
+  N1 --> F1
+  F1 --> D1
+  D1 --> G1
+  G1 -->|fail| KX
+  G1 -->|pass| C1
+  C1 --> S1
+  S1 -->|≥ 2 items| O1
+  S1 -->|< 2 items| O2
+    </script>
+  </section>
+</section>
+
+<!-- =============== SOURCES =============== -->
+<section id="sources">
+  <div class="section-num">§ 02 · Source tier list</div>
+  <h2 class="section-title">~70 sources, three buckets, four tiers each.</h2>
+  <p class="section-lede">
+    Source tiers are about <strong>where signal originates</strong>, not where it gets summarized. Tier A is wire/official; Tier D is filings or PR distribution. Discovery channel notes which tool reads which source — Kimi-cn carries the Chinese load, Exa the English/Gulf web, RSS for the few feeds that exist.
+  </p>
+
+  <!-- CN-side -->
+  <div class="ve-card ve-card--crimson" style="margin-bottom:18px;">
+    <div class="ve-card__label" style="color:var(--crimson);">Chinese-side · 33 sources</div>
+    <p class="ve-card__lede">Native Chinese sources where Chinese companies break overseas-expansion news first. Most have no English RSS — Kimi-cn is the canonical reader.</p>
+    <div class="table-wrap" style="margin-top:14px;">
+      <div class="table-scroll">
+        <table class="data-table">
+          <thead><tr><th>Source</th><th>Signal</th><th>Lang</th><th>Channel</th></tr></thead>
+          <tbody>
+            <tr class="tier-divider tier-divider--cn"><td colspan="4">Tier A · Wire services</td></tr>
+            <tr><td><span class="cn src-name">新华社 / 新华网</span><small>news.cn · english.news.cn</small></td><td>State framing · MOUs</td><td>中/EN</td><td><span class="tag tag--kimi">Kimi</span><span class="tag tag--exa">Exa</span></td></tr>
+            <tr><td><span class="cn src-name">中新社 / 中国新闻网</span><small>chinanews.com.cn</small></td><td>Business / diplomatic deals</td><td>中</td><td><span class="tag tag--kimi">Kimi</span></td></tr>
+            <tr><td><span class="cn src-name">中国经济网 / 经济日报</span><small>ce.cn</small></td><td>SOE · industrial policy · ODI</td><td>中</td><td><span class="tag tag--kimi">Kimi</span></td></tr>
+            <tr><td><span class="cn src-name">央视财经</span><small>finance.cctv.com</small></td><td>Major commercial proof</td><td>中</td><td><span class="tag tag--kimi">Kimi</span></td></tr>
+            <tr class="tier-divider tier-divider--cn"><td colspan="4">Tier B · Industry &amp; financial press</td></tr>
+            <tr><td><span class="cn src-name">36氪 / 36氪出海</span><small>36kr.com</small></td><td>Startups · 中东出海</td><td>中</td><td><span class="tag tag--kimi">Kimi</span></td></tr>
+            <tr><td><span class="cn src-name">EqualOcean / 亿欧出海</span><small>equalocean.com · iyiou.com</small></td><td>Globalization · China abroad</td><td>中/EN</td><td><span class="tag tag--exa">Exa</span><span class="tag tag--kimi">Kimi</span></td></tr>
+            <tr><td><span class="cn src-name">盖世汽车</span><small>auto.gasgoo.com</small></td><td>Auto OEM / supplier overseas</td><td>中</td><td><span class="tag tag--kimi">Kimi</span></td></tr>
+            <tr><td><span class="cn src-name">汽车之家新闻</span><small>autohome.com.cn/news</small></td><td>Launches · distributor signals</td><td>中</td><td><span class="tag tag--kimi">Kimi</span></td></tr>
+            <tr><td><span class="cn src-name">第一电动网</span><small>d1ev.com</small></td><td>EV export · battery · NEV</td><td>中</td><td><span class="tag tag--kimi">Kimi</span></td></tr>
+            <tr><td><span class="cn src-name">智东西</span><small>zhidx.com</small></td><td>AI · robotics · auto chips</td><td>中</td><td><span class="tag tag--kimi">Kimi</span></td></tr>
+            <tr><td><span class="cn src-name">量子位</span><small>qbitai.com</small></td><td>AI · AV · robotaxi (Gulf examples)</td><td>中</td><td><span class="tag tag--kimi">Kimi</span></td></tr>
+            <tr><td><span class="cn src-name">雷峰网</span><small>leiphone.com</small></td><td>AI · cloud · autonomy analysis</td><td>中</td><td><span class="tag tag--kimi">Kimi</span></td></tr>
+            <tr><td><span class="cn src-name">机器之心</span><small>jiqizhixin.com</small></td><td>AI labs · model co's abroad</td><td>中</td><td><span class="tag tag--kimi">Kimi</span></td></tr>
+            <tr><td><span class="cn src-name">财联社</span><small>cls.cn</small></td><td>Listed-co + capital flashes</td><td>中</td><td><span class="tag tag--kimi">Kimi</span></td></tr>
+            <tr><td><span class="cn src-name">第一财经</span><small>yicai.com</small></td><td>Outbound investment · policy</td><td>中</td><td><span class="tag tag--kimi">Kimi</span></td></tr>
+            <tr><td><span class="cn src-name">21世纪经济报道</span><small>21jingji.com</small></td><td>Capital · PE/SWF · industrial</td><td>中</td><td><span class="tag tag--kimi">Kimi</span></td></tr>
+            <tr><td><span class="cn src-name">证券时报</span><small>stcn.com</small></td><td>A-share filings summarized</td><td>中</td><td><span class="tag tag--kimi">Kimi</span></td></tr>
+            <tr><td><span class="cn src-name">上海证券报</span><small>cnstock.com</small></td><td>Listed announcements · policy</td><td>中</td><td><span class="tag tag--kimi">Kimi</span></td></tr>
+            <tr><td><span class="cn src-name">财新</span><small>caixin.com</small></td><td>Higher-confidence reporting</td><td>中</td><td><span class="tag tag--kimi">Kimi</span> · paywall</td></tr>
+            <tr class="tier-divider tier-divider--cn"><td colspan="4">Tier C · Government &amp; trade associations</td></tr>
+            <tr><td><span class="cn src-name">商务部走出去</span><small>fec.mofcom.gov.cn</small></td><td>ODI policy · country risk · projects</td><td>中</td><td><span class="tag tag--kimi">Kimi</span></td></tr>
+            <tr><td><span class="cn src-name">商务部 (MOFCOM)</span><small>mofcom.gov.cn</small></td><td>FTA · BIT · ministerial events</td><td>中</td><td><span class="tag tag--kimi">Kimi</span></td></tr>
+            <tr><td><span class="cn src-name">国家发改委 (NDRC)</span><small>ndrc.gov.cn</small></td><td>China-Gulf frameworks · cooperation</td><td>中</td><td><span class="tag tag--kimi">Kimi</span></td></tr>
+            <tr><td><span class="cn src-name">中国一带一路网</span><small>yidaiyilu.gov.cn</small></td><td>BRI projects · forum outputs</td><td>中</td><td><span class="tag tag--kimi">Kimi</span></td></tr>
+            <tr><td><span class="cn src-name">中国贸促会 (CCPIT)</span><small>ccpit.org</small></td><td>Forums · delegations · chambers</td><td>中</td><td><span class="tag tag--kimi">Kimi</span></td></tr>
+            <tr><td><span class="cn src-name">中国汽车工业协会 (CAAM)</span><small>caam.org.cn</small></td><td>Auto export stats · members</td><td>中</td><td><span class="tag tag--kimi">Kimi</span></td></tr>
+            <tr><td><span class="cn src-name">中国汽车动力电池产业创新联盟 (CABIA)</span><small>cabia.org.cn</small></td><td>Battery supply chain · CATL/BYD</td><td>中</td><td><span class="tag tag--kimi">Kimi</span></td></tr>
+            <tr><td><span class="cn src-name">中国半导体行业协会 (CSIA)</span><small>csia.net.cn</small></td><td>Semis · chips · cooperation</td><td>中</td><td><span class="tag tag--kimi">Kimi</span></td></tr>
+            <tr class="tier-divider tier-divider--cn"><td colspan="4">Tier D · Filings &amp; corporate / social</td></tr>
+            <tr><td><span class="cn src-name">上交所 (SSE)</span><small>sse.com.cn</small></td><td>A-share filings · plant/JV/capex</td><td>中</td><td>browser · <span class="tag tag--kimi">Kimi</span></td></tr>
+            <tr><td><span class="cn src-name">深交所 (SZSE)</span><small>szse.cn</small></td><td>A-share filings</td><td>中</td><td>browser · <span class="tag tag--kimi">Kimi</span></td></tr>
+            <tr><td><span class="src-name">HKEXnews</span><small>hkexnews.hk</small></td><td>HK-listed CN firms · Gulf capital</td><td>中/EN</td><td><span class="tag tag--exa">Exa</span> · browser</td></tr>
+            <tr><td><span class="cn src-name">企业微博 / 微信公众号</span><small>weibo.com</small></td><td>Corporate PR · launches · licenses</td><td>中</td><td><span class="tag tag--kimi">Kimi</span></td></tr>
+            <tr><td><span class="cn src-name">雪球</span><small>xueqiu.com</small></td><td>Investor chatter on filings</td><td>中</td><td><span class="tag tag--kimi">Kimi</span></td></tr>
+            <tr><td><span class="cn src-name">知乎专栏</span><small>zhihu.com</small></td><td>Analyst interpretation · weak signal</td><td>中</td><td><span class="tag tag--kimi">Kimi</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Gulf-side -->
+  <div class="ve-card ve-card--sage" style="margin-bottom:18px;">
+    <div class="ve-card__label" style="color:var(--sage);">Gulf-side · 30 sources</div>
+    <p class="ve-card__lede">From the GCC official wires (where MOUs are first published) down through SWF newsrooms, free zones, business press, and PR distribution. Where Gulf entities <em>actually</em> break news.</p>
+    <div class="table-wrap" style="margin-top:14px;">
+      <div class="table-scroll">
+        <table class="data-table">
+          <thead><tr><th>Source</th><th>Signal</th><th>Lang</th><th>Channel</th></tr></thead>
+          <tbody>
+            <tr class="tier-divider tier-divider--sage"><td colspan="4">Tier A · Official wires</td></tr>
+            <tr><td><span class="src-name">WAM</span><small>wam.ae</small></td><td>UAE official MOUs · ministry deals</td><td>EN/AR/中</td><td><span class="tag tag--exa">Exa</span></td></tr>
+            <tr><td><span class="src-name">SPA</span><small>spa.gov.sa</small></td><td>Saudi ministries · PIF policy</td><td>EN/AR</td><td><span class="tag tag--exa">Exa</span></td></tr>
+            <tr><td><span class="src-name">QNA</span><small>qna.org.qa</small></td><td>Qatar gov / SWF / FZ</td><td>EN/AR</td><td><span class="tag tag--exa">Exa</span></td></tr>
+            <tr><td><span class="src-name">KUNA</span><small>kuna.net.kw</small></td><td>Kuwait official investment</td><td>EN/AR</td><td><span class="tag tag--exa">Exa</span></td></tr>
+            <tr><td><span class="src-name">BNA</span><small>bna.bh</small></td><td>Bahrain EDB · gov deals</td><td>EN/AR</td><td><span class="tag tag--exa">Exa</span></td></tr>
+            <tr class="tier-divider tier-divider--sage"><td colspan="4">Tier B · Free zones &amp; SWF newsrooms</td></tr>
+            <tr><td><span class="src-name">DMCC</span><small>dmcc.ae/news</small></td><td>CN co. registrations · trade hubs</td><td>EN</td><td><span class="tag tag--rss">RSS</span><span class="tag tag--exa">Exa</span></td></tr>
+            <tr><td><span class="src-name">JAFZA</span><small>jafza.ae/news</small></td><td>Logistics · manufacturing setup</td><td>EN</td><td><span class="tag tag--exa">Exa</span></td></tr>
+            <tr><td><span class="src-name">KEZAD / KIZAD</span><small>kezadgroup.com</small></td><td>Industrial localization (Abu Dhabi)</td><td>EN</td><td><span class="tag tag--exa">Exa</span></td></tr>
+            <tr><td><span class="src-name">DIFC</span><small>difc.ae/newsroom</small></td><td>Fintech · funds</td><td>EN</td><td><span class="tag tag--exa">Exa</span></td></tr>
+            <tr><td><span class="src-name">ADGM</span><small>adgm.com</small></td><td>Finance · Shenzhen / HK links</td><td>EN</td><td><span class="tag tag--exa">Exa</span></td></tr>
+            <tr><td><span class="src-name">RAKEZ</span><small>rakez.com</small></td><td>CN SME / manufacturing entry</td><td>EN</td><td><span class="tag tag--exa">Exa</span></td></tr>
+            <tr><td><span class="src-name">MODON</span><small>modon.gov.sa</small></td><td>Saudi industrial-city localization</td><td>AR/EN</td><td><span class="tag tag--exa">Exa</span></td></tr>
+            <tr><td><span class="src-name">NEOM newsroom</span><small>neom.com/newsroom</small></td><td>Mobility · energy · infra pilots</td><td>EN</td><td><span class="tag tag--exa">Exa</span></td></tr>
+            <tr><td><span class="src-name">KAEC</span><small>kaec.net</small></td><td>Saudi industrial / logistics</td><td>EN</td><td><span class="tag tag--exa">Exa</span></td></tr>
+            <tr><td><span class="src-name">Qatar Free Zones (QFZ)</span><small>qfz.gov.qa</small></td><td>CN setup in Qatar</td><td>EN/AR</td><td><span class="tag tag--exa">Exa</span></td></tr>
+            <tr><td><span class="src-name">Mubadala</span><small>mubadala.com/news</small></td><td>China industrial / tech platforms</td><td>EN</td><td><span class="tag tag--exa">Exa</span></td></tr>
+            <tr><td><span class="src-name">ADQ</span><small>adq.ae/newsroom</small></td><td>UAE industrial / food / health</td><td>EN</td><td><span class="tag tag--exa">Exa</span></td></tr>
+            <tr><td><span class="src-name">CYVN</span><small>cyvn.com</small></td><td>Smart mobility · NIO-style deals</td><td>EN</td><td><span class="tag tag--exa">Exa</span></td></tr>
+            <tr><td><span class="src-name">MGX</span><small>mgx.ae</small></td><td>AI infrastructure capital</td><td>EN</td><td><span class="tag tag--exa">Exa</span></td></tr>
+            <tr><td><span class="src-name">PIF</span><small>pif.gov.sa</small></td><td>Saudi strategic capital</td><td>EN/AR</td><td><span class="tag tag--exa">Exa</span></td></tr>
+            <tr><td><span class="src-name">QIA</span><small>qia.qa/newsroom</small></td><td>Qatar China investments</td><td>EN/AR</td><td><span class="tag tag--exa">Exa</span></td></tr>
+            <tr><td><span class="src-name">Aramco Ventures / Prosperity7</span><small>prosperity7vc.com</small></td><td>Energy-tech · AI · CN startups</td><td>EN</td><td><span class="tag tag--exa">Exa</span></td></tr>
+            <tr class="tier-divider tier-divider--sage"><td colspan="4">Tier C · Business press</td></tr>
+            <tr><td><span class="src-name">The National Business</span><small>thenationalnews.com/business</small></td><td>UAE deal confirmation</td><td>EN</td><td><span class="tag tag--rss">RSS</span><span class="tag tag--exa">Exa</span></td></tr>
+            <tr><td><span class="src-name">Arab News</span><small>arabnews.com/business-economy</small></td><td>Saudi business · PIF</td><td>EN</td><td><span class="tag tag--rss">RSS</span></td></tr>
+            <tr><td><span class="src-name">Khaleej Times</span><small>khaleejtimes.com/business</small></td><td>UAE company entries</td><td>EN</td><td><span class="tag tag--rss">RSS</span></td></tr>
+            <tr><td><span class="src-name">Arabian Business · Gulf News</span><small>arabianbusiness.com · gulfnews.com</small></td><td>Regional PR amplification</td><td>EN</td><td><span class="tag tag--rss">RSS</span></td></tr>
+            <tr><td><span class="src-name">AGBI</span><small>agbi.com</small></td><td>SWFs · capital · China-ME analysis</td><td>EN</td><td><span class="tag tag--exa">Exa</span> · paywall</td></tr>
+            <tr><td><span class="src-name">Reuters / Bloomberg Mideast</span><small>reuters.com · bloomberg.com</small></td><td>High-confidence confirmations</td><td>EN</td><td><span class="tag tag--exa">Exa</span></td></tr>
+            <tr class="tier-divider tier-divider--sage"><td colspan="4">Tier D · PR distribution &amp; vertical</td></tr>
+            <tr><td><span class="src-name">AETOSWire</span><small>aetoswire.com</small></td><td>Dominant MENA PR wire</td><td>EN/AR</td><td><span class="tag tag--exa">Exa</span></td></tr>
+            <tr><td><span class="src-name">Zawya PR</span><small>zawya.com/en/press-release</small></td><td>Ministry / company press releases</td><td>EN</td><td><span class="tag tag--exa">Exa</span></td></tr>
+            <tr><td><span class="src-name">MEED / MEED Projects</span><small>meed.com</small></td><td>Tenders · projects · capex</td><td>EN</td><td><span class="tag tag--exa">Exa</span> · paywall</td></tr>
+            <tr><td><span class="src-name">Argaam · Mubasher</span><small>argaam.com · english.mubasher.info</small></td><td>GCC listed-co disclosures</td><td>EN/AR</td><td><span class="tag tag--exa">Exa</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bilateral -->
+  <div class="ve-card ve-card--gold">
+    <div class="ve-card__label" style="color:var(--gold);">Bilateral bodies &amp; conferences · 8 sources</div>
+    <p class="ve-card__lede">Frameworks and conference moments where pipeline is created. The slow signal that sets up everything else 6-18 months out.</p>
+    <div class="table-wrap" style="margin-top:14px;">
+      <div class="table-scroll">
+        <table class="data-table">
+          <thead><tr><th>Body / event</th><th>Signal</th><th>Lang</th><th>Channel</th></tr></thead>
+          <tbody>
+            <tr><td><span class="cn src-name">中阿合作论坛</span><small>chinaarabcf.org</small></td><td>Policy frameworks · ministerial</td><td>中/EN/AR</td><td><span class="tag tag--kimi">Kimi</span></td></tr>
+            <tr><td><span class="src-name">China-GCC FTA · MOFCOM</span><small>mofcom.gov.cn</small></td><td>FTA negotiation progress</td><td>中</td><td><span class="tag tag--kimi">Kimi</span></td></tr>
+            <tr><td><span class="cn src-name">中国—阿拉伯国家博览会</span><small>cas-expo.org.cn</small></td><td>Project signings · provincial delegations</td><td>中</td><td><span class="tag tag--kimi">Kimi</span></td></tr>
+            <tr><td><span class="src-name">FII (Future Investment Initiative)</span><small>fii-institute.org</small></td><td>Saudi capital / tech announcements</td><td>EN</td><td><span class="tag tag--exa">Exa</span></td></tr>
+            <tr><td><span class="src-name">World Government Summit</span><small>worldgovernmentsummit.org</small></td><td>UAE AI / AV / govtech pilots</td><td>EN</td><td><span class="tag tag--exa">Exa</span></td></tr>
+            <tr><td><span class="src-name">GITEX Global</span><small>gitex.com</small></td><td>AI / cloud / cyber partnerships</td><td>EN</td><td><span class="tag tag--exa">Exa</span></td></tr>
+            <tr><td><span class="src-name">ADIPEC</span><small>adipec.com</small></td><td>Energy tech · industrial localization</td><td>EN</td><td><span class="tag tag--exa">Exa</span></td></tr>
+            <tr><td><span class="src-name">China-UAE / China-Saudi business forums</span><small>via CCPIT · WAM · SPA · MOFCOM</small></td><td>Delegation deals · MOUs</td><td>中/EN</td><td><span class="tag tag--exa">Exa</span><span class="tag tag--kimi">Kimi</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =============== CN QUERY TAXONOMY =============== -->
+<section id="taxonomy">
+  <div class="section-num">§ 03 · Chinese query taxonomy</div>
+  <h2 class="section-title">55 queries, six signal types.</h2>
+  <p class="section-lede">
+    Rotating taxonomy fed to Kimi-cn daily. ~10-14 queries per run, weighted by signal type. The point isn't to run all 55 every day — it's to have the right vocabulary on hand when a story shape demands it.
+  </p>
+
+  <div class="taxonomy-grid">
+
+    <div class="tax-bucket tax-bucket--entry">
+      <div class="tax-bucket__title">
+        <h4>Market entry · 出海落地</h4>
+        <span class="tax-bucket__count">10 queries</span>
+      </div>
+      <ol class="tax-list">
+        <li><span class="qnum">01</span><div class="qrow"><span class="qcn">中国企业 出海 中东</span><span class="qen">CN co. going global, Middle East</span></div></li>
+        <li><span class="qnum">02</span><div class="qrow"><span class="qcn">中企 进军 沙特 市场</span><span class="qen">entering Saudi market</span></div></li>
+        <li><span class="qnum">03</span><div class="qrow"><span class="qcn">中企 进军 阿联酋 市场</span><span class="qen">entering UAE market</span></div></li>
+        <li><span class="qnum">04</span><div class="qrow"><span class="qcn">中东首店 中国品牌</span><span class="qen">first ME store, CN brand</span></div></li>
+        <li><span class="qnum">05</span><div class="qrow"><span class="qcn">中东 首个 门店 中国汽车</span><span class="qen">first showroom, CN auto</span></div></li>
+        <li><span class="qnum">06</span><div class="qrow"><span class="qcn">落地 沙特 办事处 中国企业</span><span class="qen">CN co. opens Saudi office</span></div></li>
+        <li><span class="qnum">07</span><div class="qrow"><span class="qcn">在迪拜 设立 区域总部 中国企业</span><span class="qen">Dubai regional HQ</span></div></li>
+        <li><span class="qnum">08</span><div class="qrow"><span class="qcn">利雅得 地区总部 中国 科技公司</span><span class="qen">Riyadh regional HQ, CN tech</span></div></li>
+        <li><span class="qnum">09</span><div class="qrow"><span class="qcn">阿联酋 经销商 合作 中国汽车</span><span class="qen">UAE distributor partnership</span></div></li>
+        <li><span class="qnum">10</span><div class="qrow"><span class="qcn">卡塔尔 华为 阿里云 腾讯云 合作</span><span class="qen">Qatar cloud partnerships</span></div></li>
+      </ol>
+    </div>
+
+    <div class="tax-bucket tax-bucket--capital">
+      <div class="tax-bucket__title">
+        <h4>Capital · Gulf money → CN</h4>
+        <span class="tax-bucket__count">10 queries</span>
+      </div>
+      <ol class="tax-list">
+        <li><span class="qnum">11</span><div class="qrow"><span class="qcn">沙特投资 中国 科技公司</span><span class="qen">Saudi invests in CN tech</span></div></li>
+        <li><span class="qnum">12</span><div class="qrow"><span class="qcn">中东主权基金 投资 中国</span><span class="qen">ME SWF investing in China</span></div></li>
+        <li><span class="qnum">13</span><div class="qrow"><span class="qcn">沙特公共投资基金 PIF 中国 公司</span><span class="qen">PIF invests CN co.</span></div></li>
+        <li><span class="qnum">14</span><div class="qrow"><span class="qcn">穆巴达拉 投资 中国 新能源</span><span class="qen">Mubadala CN new energy</span></div></li>
+        <li><span class="qnum">15</span><div class="qrow"><span class="qcn">阿布扎比投资局 ADIA 中国 科技</span><span class="qen">ADIA CN tech</span></div></li>
+        <li><span class="qnum">16</span><div class="qrow"><span class="qcn">卡塔尔投资局 QIA 中国 基金</span><span class="qen">QIA CN funds</span></div></li>
+        <li><span class="qnum">17</span><div class="qrow"><span class="qcn">CYVN 蔚来 投资 中东</span><span class="qen">CYVN/NIO ME investment</span></div></li>
+        <li><span class="qnum">18</span><div class="qrow"><span class="qcn">MGX 中国 人工智能 投资</span><span class="qen">MGX CN AI investment</span></div></li>
+        <li><span class="qnum">19</span><div class="qrow"><span class="qcn">Prosperity7 中国 初创公司</span><span class="qen">Prosperity7 CN startups</span></div></li>
+        <li><span class="qnum">20</span><div class="qrow"><span class="qcn">中东资本 投资 中国 新能源汽车</span><span class="qen">ME capital → CN NEV</span></div></li>
+      </ol>
+    </div>
+
+    <div class="tax-bucket tax-bucket--local">
+      <div class="tax-bucket__title">
+        <h4>Localization · Manufacturing</h4>
+        <span class="tax-bucket__count">9 queries</span>
+      </div>
+      <ol class="tax-list">
+        <li><span class="qnum">21</span><div class="qrow"><span class="qcn">中国企业 沙特 建厂</span><span class="qen">CN co. builds Saudi plant</span></div></li>
+        <li><span class="qnum">22</span><div class="qrow"><span class="qcn">中国企业 阿联酋 建厂</span><span class="qen">CN co. builds UAE plant</span></div></li>
+        <li><span class="qnum">23</span><div class="qrow"><span class="qcn">中东 本地化生产 中国汽车</span><span class="qen">ME local production, CN auto</span></div></li>
+        <li><span class="qnum">24</span><div class="qrow"><span class="qcn">海外工厂 沙特 中国 光伏</span><span class="qen">Overseas plant, Saudi solar</span></div></li>
+        <li><span class="qnum">25</span><div class="qrow"><span class="qcn">海外组装 CKD 沙特 中国汽车</span><span class="qen">CKD assembly, Saudi</span></div></li>
+        <li><span class="qnum">26</span><div class="qrow"><span class="qcn">产能 中东 中国 电池</span><span class="qen">ME capacity, CN battery</span></div></li>
+        <li><span class="qnum">27</span><div class="qrow"><span class="qcn">沙特 制造基地 联想 比亚迪 晶科</span><span class="qen">Saudi manufacturing base</span></div></li>
+        <li><span class="qnum">28</span><div class="qrow"><span class="qcn">阿联酋 电池回收 中国企业</span><span class="qen">UAE battery recycling, CN</span></div></li>
+        <li><span class="qnum">29</span><div class="qrow"><span class="qcn">中东 供应链 本地化 中国企业</span><span class="qen">ME supply chain localization</span></div></li>
+      </ol>
+    </div>
+
+    <div class="tax-bucket tax-bucket--gov">
+      <div class="tax-bucket__title">
+        <h4>Government framework</h4>
+        <span class="tax-bucket__count">7 queries</span>
+      </div>
+      <ol class="tax-list">
+        <li><span class="qnum">30</span><div class="qrow"><span class="qcn">中海自贸协定 最新进展</span><span class="qen">China-GCC FTA progress</span></div></li>
+        <li><span class="qnum">31</span><div class="qrow"><span class="qcn">中国 海合会 自贸协定 投资</span><span class="qen">CN-GCC FTA · investment</span></div></li>
+        <li><span class="qnum">32</span><div class="qrow"><span class="qcn">中阿合作 一带一路 海湾</span><span class="qen">CN-Arab BRI Gulf</span></div></li>
+        <li><span class="qnum">33</span><div class="qrow"><span class="qcn">中国 阿联酋 投资合作 备忘录</span><span class="qen">CN-UAE investment MOU</span></div></li>
+        <li><span class="qnum">34</span><div class="qrow"><span class="qcn">国家发改委 阿联酋 投资 合作</span><span class="qen">NDRC × UAE cooperation</span></div></li>
+        <li><span class="qnum">35</span><div class="qrow"><span class="qcn">商务部 投资中国 中东 专场</span><span class="qen">MOFCOM "invest in China" ME</span></div></li>
+        <li><span class="qnum">36</span><div class="qrow"><span class="qcn">贸促会 沙特 中国 企业 对接会</span><span class="qen">CCPIT Saudi business matching</span></div></li>
+      </ol>
+    </div>
+
+    <div class="tax-bucket tax-bucket--co">
+      <div class="tax-bucket__title">
+        <h4>Specific companies</h4>
+        <span class="tax-bucket__count">11 queries</span>
+      </div>
+      <ol class="tax-list">
+        <li><span class="qnum">37</span><div class="qrow"><span class="qcn">比亚迪 沙特 阿联酋 经销商 建厂</span><span class="qen">BYD Saudi/UAE distributor/plant</span></div></li>
+        <li><span class="qnum">38</span><div class="qrow"><span class="qcn">小鹏汽车 阿联酋 Ali &amp; Sons</span><span class="qen">XPeng UAE distributor</span></div></li>
+        <li><span class="qnum">39</span><div class="qrow"><span class="qcn">蔚来 CYVN 中东 阿布扎比</span><span class="qen">NIO × CYVN AD</span></div></li>
+        <li><span class="qnum">40</span><div class="qrow"><span class="qcn">宁德时代 中东 沙特 阿联酋 电池</span><span class="qen">CATL ME battery</span></div></li>
+        <li><span class="qnum">41</span><div class="qrow"><span class="qcn">华为 云 沙特 阿联酋 数据中心</span><span class="qen">Huawei Cloud ME DC</span></div></li>
+        <li><span class="qnum">42</span><div class="qrow"><span class="qcn">阿里云 沙特 中东 数据中心</span><span class="qen">Alibaba Cloud ME DC</span></div></li>
+        <li><span class="qnum">43</span><div class="qrow"><span class="qcn">腾讯云 沙特 数据中心</span><span class="qen">Tencent Cloud Saudi DC</span></div></li>
+        <li><span class="qnum">44</span><div class="qrow"><span class="qcn">字节跳动 中东 区域总部</span><span class="qen">ByteDance ME regional HQ</span></div></li>
+        <li><span class="qnum">45</span><div class="qrow"><span class="qcn">文远知行 Uber 阿布扎比 迪拜 利雅得</span><span class="qen">WeRide × Uber GCC robotaxi</span></div></li>
+        <li><span class="qnum">46</span><div class="qrow"><span class="qcn">小马智行 沙特 阿联酋 Robotaxi</span><span class="qen">Pony.ai GCC robotaxi</span></div></li>
+        <li><span class="qnum">47</span><div class="qrow"><span class="qcn">萝卜快跑 迪拜 阿布扎比 自动驾驶</span><span class="qen">Apollo Go AD/Dubai AV</span></div></li>
+      </ol>
+    </div>
+
+    <div class="tax-bucket tax-bucket--sector">
+      <div class="tax-bucket__title">
+        <h4>Sector-flavored</h4>
+        <span class="tax-bucket__count">8 queries</span>
+      </div>
+      <ol class="tax-list">
+        <li><span class="qnum">48</span><div class="qrow"><span class="qcn">新能源汽车 出海 中东</span><span class="qen">NEV going global, ME</span></div></li>
+        <li><span class="qnum">49</span><div class="qrow"><span class="qcn">自动驾驶 中东 阿联酋 沙特</span><span class="qen">AV ME UAE Saudi</span></div></li>
+        <li><span class="qnum">50</span><div class="qrow"><span class="qcn">机器人 海湾 出海 中国</span><span class="qen">Robotics Gulf going global</span></div></li>
+        <li><span class="qnum">51</span><div class="qrow"><span class="qcn">人工智能 中东 中国企业 合作</span><span class="qen">AI ME CN partnerships</span></div></li>
+        <li><span class="qnum">52</span><div class="qrow"><span class="qcn">光伏 企业 沙特 建厂 中国</span><span class="qen">Solar Saudi plant CN</span></div></li>
+        <li><span class="qnum">53</span><div class="qrow"><span class="qcn">储能 中东 中国企业 项目</span><span class="qen">Energy storage ME CN</span></div></li>
+        <li><span class="qnum">54</span><div class="qrow"><span class="qcn">低空经济 迪拜 中国 无人机</span><span class="qen">Low-altitude econ Dubai drones</span></div></li>
+        <li><span class="qnum">55</span><div class="qrow"><span class="qcn">智能制造 沙特 中国 合资</span><span class="qen">Smart mfg Saudi CN JV</span></div></li>
+      </ol>
+    </div>
+
+  </div>
+</section>
+
+<!-- =============== HYBRID STACK =============== -->
+<section id="stack">
+  <div class="section-num">§ 04 · Hybrid search stack</div>
+  <h2 class="section-title">The 9:20 GST run, end-to-end.</h2>
+  <p class="section-lede">
+    Daily flow with explicit tool-per-step and ~30 min total wall time. Kimi-cn cost is trivial — <strong>~¥14/month, ≈ $2 USD</strong> at 12 daily searches + 20 on Sunday's deep sweep.
+  </p>
+
+  <ol class="stack-list">
+    <li>
+      <span class="step-time">06:25 GST</span>
+      <h4>RSS sweep · blogwatcher</h4>
+      <p>Pull the few sources that publish RSS: The National Business, Arabian Business, CnEVPost, Pandaily, Khaleej Times, Gulf News. Store raw <code>title / url / source / time</code>.</p>
+    </li>
+    <li>
+      <span class="step-time">06:35 GST</span>
+      <h4>Exa English / Gulf sweep</h4>
+      <p>6-8 Exa queries over prior 36h, focused on Gulf-side wires + business press: <code>China UAE investment agreement</code>, <code>Chinese company Saudi manufacturing</code>, <code>PIF China technology</code>, <code>WAM China investment</code>, <code>Zawya Chinese company UAE</code>, <code>AETOSWire China Saudi</code>.</p>
+    </li>
+    <li>
+      <span class="step-time">06:45 GST</span>
+      <h4>Kimi-cn native CN sweep</h4>
+      <p>10-14 Kimi searches via the <code>kimi-cn</code> skill (<code>scripts/kimi "..."</code>). Rotate from the 55-query taxonomy, prioritizing: <span class="cn">出海中东</span>, <span class="cn">沙特/阿联酋建厂</span>, <span class="cn">中东主权基金投资中国</span>, plus daily company watchlist + sector watchlist.</p>
+    </li>
+    <li>
+      <span class="step-time">06:58 GST</span>
+      <h4>Filing check</h4>
+      <p>For any named listed-company capex / JV / convertible / plant signal: check SSE / SZSE / HKEXnews / company IR. Filings outrank media every time. Material announcements get bumped to <code>confirmed</code> immediately.</p>
+    </li>
+    <li>
+      <span class="step-time">07:05 GST</span>
+      <h4>Bilingual normalization</h4>
+      <p>Normalize every entity to its bilingual form: <code>BYD/比亚迪</code>, <code>NIO/蔚来</code>, <code>WeRide/文远知行</code>, <code>Lenovo/联想</code>, <code>PIF/沙特公共投资基金</code>, <code>Mubadala/穆巴达拉</code>, <code>ADQ</code>. Prevents same-deal duplication across source legs.</p>
+    </li>
+    <li>
+      <span class="step-time">07:08 GST</span>
+      <h4>Cluster + dedup</h4>
+      <p>Cluster candidates by <code>{CN company × Gulf counterparty × country × signal_type}</code> with a 14-day window. Merge Chinese-source + Gulf-source items into one bilingual story. Keep the earliest source AND the strongest source separately (the metadata matters for confidence labeling).</p>
+    </li>
+    <li>
+      <span class="step-time">07:12 GST</span>
+      <h4>Editorial filter (5Q gate)</h4>
+      <p>Apply the five filter questions. Must hit ≥3. Kill anything that's PR exhaust, generic geopolitics, or showroom-only auto news without a fleet/distributor/assembly hook.</p>
+    </li>
+    <li>
+      <span class="step-time">07:15 GST</span>
+      <h4>Confidence label + score</h4>
+      <p>Tag each survivor: <code>confirmed</code> (filing or Gulf-official + CN-source) · <code>reported</code> (single credible source) · <code>watch</code> (social/analyst-only). Score by category × proof level. Take the top ≤5.</p>
+    </li>
+    <li>
+      <span class="step-time">09:20 GST</span>
+      <h4>Discord post (or skip)</h4>
+      <p>If ≥2 qualified items: Components v2 post to <code>#🧠-intel</code>. If <2: log silently, no post — quiet days stay quiet. Update dedup ledger.</p>
+    </li>
+  </ol>
+
+  <div class="conf-row">
+    <div class="conf-card conf-card--confirmed">
+      <div class="conf-card__label">● Confirmed</div>
+      <p>Official filing or Gulf wire + CN company / filing. Two-sided cross-confirmation.</p>
+    </div>
+    <div class="conf-card conf-card--reported">
+      <div class="conf-card__label">● Reported</div>
+      <p>One credible source (CN or Gulf) without counterparty confirmation. Ships, but tagged.</p>
+    </div>
+    <div class="conf-card conf-card--watch">
+      <div class="conf-card__label">● Watch</div>
+      <p>Social / analyst chatter only. Doesn't ship unless strategically important enough to flag.</p>
+    </div>
+  </div>
+</section>
+
+<!-- =============== PR CHEAT SHEET =============== -->
+<section id="pr-cheatsheet">
+  <div class="section-num">§ 05 · PR-channel cheat sheet</div>
+  <h2 class="section-title">Where deals actually break.</h2>
+  <p class="section-lede">
+    The most useful section in this dossier. If a Chinese company is announcing GCC entry — or a Gulf entity is announcing China-linked capital — here's the order in which it surfaces. Real recent examples included so the cron knows what to weight.
+  </p>
+
+  <div class="ve-card ve-card--crimson" style="margin-bottom:24px;">
+    <div class="ve-card__label" style="color:var(--crimson);">CN company → GCC entry · what hits first</div>
+    <div class="pr-flow" style="margin-top:14px;">
+      <div class="pr-step pr-step--cn">
+        <div class="pr-step__num">1</div>
+        <div>
+          <h5 class="pr-step__h">Corporate PR / IR / exchange filing</h5>
+          <p class="pr-step__b">If listed or material: <strong>company newsroom + SSE/SZSE/HKEX filing</strong>. This is the source. Media is downstream.</p>
+          <div class="pr-example"><strong>Example</strong> — Lenovo–Alat (PIF) was announced via Lenovo's newsroom 2024-05-29; Xinhua / Arab News / Reuters amplified afterward. The $2B convertible + Riyadh manufacturing hub originated in HKEX disclosure.</div>
+        </div>
+      </div>
+      <div class="pr-step pr-step--cn">
+        <div class="pr-step__num">2</div>
+        <div>
+          <h5 class="pr-step__h">CN financial flash + 出海 verticals</h5>
+          <p class="pr-step__b"><span class="cn">财联社</span>, <span class="cn">证券时报</span>, <span class="cn">第一财经</span> catch filings within minutes. <span class="cn">36氪出海</span> / EqualOcean / 亿欧出海 package as globalization narrative within hours.</p>
+          <div class="pr-example"><strong>Example</strong> — 36氪 highlighted Lenovo's PIF/Alat investment + Riyadh HQ angle; Yicai covered the GCL/TCL/Jinko Saudi/UAE solar push.</div>
+        </div>
+      </div>
+      <div class="pr-step pr-step--cn">
+        <div class="pr-step__num">3</div>
+        <div>
+          <h5 class="pr-step__h">Sector verticals when it's technical</h5>
+          <p class="pr-step__b">For AI / AV / EV / battery: <span class="cn">量子位</span>, <span class="cn">智东西</span>, <span class="cn">机器之心</span>, <span class="cn">盖世汽车</span>, <span class="cn">第一电动</span>, <span class="cn">汽车之家</span> often have wedge-specific detail before generalist press notices.</p>
+          <div class="pr-example"><strong>Example</strong> — <span class="cn">量子位</span> packaged WeRide × Uber Abu Dhabi/Dubai/Riyadh robotaxi expansion in native Chinese before English coverage caught the GCC angle.</div>
+        </div>
+      </div>
+      <div class="pr-step pr-step--cn">
+        <div class="pr-step__num">4</div>
+        <div>
+          <h5 class="pr-step__h">Chinese gov portals when policy-led</h5>
+          <p class="pr-step__b">MOFCOM <span class="cn">走出去</span> + <span class="cn">中国一带一路网</span> repost investment-promotion events such as "<span class="cn">投资中国</span>" Middle East sessions with named Chinese companies and Gulf counterparts. CCPIT does the same for delegations.</p>
+        </div>
+      </div>
+      <div class="pr-step pr-step--cn">
+        <div class="pr-step__num">5</div>
+        <div>
+          <h5 class="pr-step__h">Social / corporate accounts (soft launch)</h5>
+          <p class="pr-step__b">Weibo + WeChat <span class="cn">公众号</span> often precede formal English coverage for store openings, pilot licenses, local hiring, conference demos. Treat as <code>reported</code>, not <code>confirmed</code>.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ve-card ve-card--sage">
+    <div class="ve-card__label" style="color:var(--sage);">Gulf entity → China-linked capital/demand · what hits first</div>
+    <div class="pr-flow" style="margin-top:14px;">
+      <div class="pr-step pr-step--gulf">
+        <div class="pr-step__num">1</div>
+        <div>
+          <h5 class="pr-step__h">Official wire or ministry PR</h5>
+          <p class="pr-step__b">WAM (UAE), SPA (Saudi), QNA (Qatar), KUNA (Kuwait), BNA (Bahrain) carry the official MOU / agreement first. The National + Zawya follow.</p>
+          <div class="pr-example"><strong>Example</strong> — WAM carried the UAE Ministry of Investment × Jereh Group <span class="cn">杰瑞股份</span> clean-energy / industrial platform deal; Zawya and The National picked it up after.</div>
+        </div>
+      </div>
+      <div class="pr-step pr-step--gulf">
+        <div class="pr-step__num">2</div>
+        <div>
+          <h5 class="pr-step__h">SWF / strategic-platform newsroom</h5>
+          <p class="pr-step__b">PIF / Alat, Mubadala, ADQ, CYVN, MGX, QIA, Aramco Ventures / Prosperity7 publish capital announcements before media gets briefed. These newsrooms are the source-of-truth for sovereign-led deals.</p>
+          <div class="pr-example"><strong>Example</strong> — Lenovo–Alat $2B convertible + Riyadh hub was a textbook PIF-platform signal; Alat newsroom + PIF announcement preceded amplification.</div>
+        </div>
+      </div>
+      <div class="pr-step pr-step--gulf">
+        <div class="pr-step__num">3</div>
+        <div>
+          <h5 class="pr-step__h">Free-zone newsroom</h5>
+          <p class="pr-step__b">DMCC / JAFZA / KEZAD / ADGM / RAKEZ / QFZ announce delegations, setup incentives, and Chinese registrations before dailies notice. RAKEZ's China city delegation tour and ADGM × Shenzhen Futian MoU are pipeline signals worth catching.</p>
+        </div>
+      </div>
+      <div class="pr-step pr-step--gulf">
+        <div class="pr-step__num">4</div>
+        <div>
+          <h5 class="pr-step__h">AETOSWire / Zawya PR</h5>
+          <p class="pr-step__b">Many MENA corporate announcements are paid-distribution first — especially market entry, partnerships, fund launches, and conference-timed MOUs. AETOSWire is the dominant regional wire; Zawya PR aggregates.</p>
+        </div>
+      </div>
+      <div class="pr-step pr-step--gulf">
+        <div class="pr-step__num">5</div>
+        <div>
+          <h5 class="pr-step__h">Regional dailies validate importance</h5>
+          <p class="pr-step__b">The National, Arab News, Khaleej Times, Arabian Business, Argaam, AGBI help judge whether an item matters locally or is just PR exhaust. If they don't pick it up within 48h, it usually isn't the signal.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ve-card" style="margin-top:18px; border-left: 3px solid var(--gold);">
+    <div class="ve-card__label" style="color:var(--gold);">Rule of thumb</div>
+    <p style="margin:0;font-size:15px;line-height:1.6;">Chinese-source-only = <code style="font-family:var(--font-mono);font-size:13px;background:var(--gold-dim);color:var(--gold);padding:1px 5px;border-radius:3px;">reported</code>, early signal. <strong>Gulf official + Chinese company / filing = <code style="font-family:var(--font-mono);font-size:13px;background:var(--sage-dim);color:var(--sage);padding:1px 5px;border-radius:3px;">confirmed</code>.</strong> Cross-confirmation is the strongest filter we have.</p>
+  </div>
+</section>
+
+<!-- =============== EDITORIAL FILTER =============== -->
+<section id="filter">
+  <div class="section-num">§ 06 · Editorial filter</div>
+  <h2 class="section-title">Five questions, plus one v0.2 modifier.</h2>
+  <p class="section-lede">
+    Same five questions from v0.1 — they were sound. v0.2 adds one rule on source confidence so MOU theater doesn't clog the channel.
+  </p>
+
+  <ol class="editorial-list">
+    <li><h4>Does it map to the two-ecosystem thesis?</h4><p>China supply / tech / manufacturing meeting Gulf capital / demand / regulatory sandbox. If you can't draw the corridor in one sentence, kill it.</p></li>
+    <li><h4>Is there a named, actionable actor?</h4><p>Company, fund, ministry, executive, chamber, free zone, distributor — someone Raymond could know, partner with, sell to, or track.</p></li>
+    <li><h4>Is it in or near a Dhow / WAG lane?</h4><p>Auto, EV, AV, fleet/logistics, AI infra, robotics, industrial localization, venture-studio wedge ideas. Adjacent gets a flag, not a kill.</p></li>
+    <li><h4>Is this pipeline or proof?</h4><p>Signed agreement, license, money committed, plant location, first orders — beats vague intent or "studying cooperation."</p></li>
+    <li><h4>What changed since yesterday?</h4><p>New capital number, license, commercial launch, facility location, procurement volume, named counterpart.</p></li>
+  </ol>
+
+  <div class="ve-card ve-card--terracotta" style="margin-top:18px;">
+    <div class="ve-card__label" style="color:var(--terracotta);">v0.2 modifier · Source confidence matters</div>
+    <p style="margin:0;font-size:14px;line-height:1.6;">A low-detail MOU from a ministry can ship <strong>only if it creates a named pipeline</strong>. A social-only rumor cannot ship unless flagged as <code style="font-family:var(--font-mono);font-size:12px;background:var(--terracotta-dim);color:var(--terracotta);padding:1px 5px;border-radius:3px;">watch</code>, not news. Cross-confirmation between Chinese source + Gulf source bumps confidence, not just count.</p>
+  </div>
+</section>
+
+<!-- =============== IMPLEMENTATION DELTAS =============== -->
+<section id="deltas">
+  <div class="section-num">§ 07 · Implementation deltas vs v0.1</div>
+  <h2 class="section-title">What actually changes in the skill.</h2>
+  <p class="section-lede">
+    The skill at <code>~/.hermes/skills/research/china-gulf-deal-flow/SKILL.md</code> needs these specific updates before shipping.
+  </p>
+
+  <div class="delta-grid">
+    <div class="delta">
+      <div class="delta__h">+ Native CN stack</div>
+      <p class="delta__b">Replace 9 thin Chinese-side English aggregators with the full 33-source native stack: <span class="cn">新华社、中新社、经济日报、36氪出海、财联社、第一财经、证券时报、上海证券报、盖世汽车、第一电动、量子位、智东西、MOFCOM 走出去、中国一带一路网、CCPIT、CAAM/CABIA/CSIA</span>.</p>
+    </div>
+    <div class="delta">
+      <div class="delta__h">+ Filing-first path</div>
+      <p class="delta__b">SSE / SZSE / HKEXnews / company IR get checked whenever a listed Chinese company name appears with capex / convertible / JV / factory / Saudi or UAE keywords. Filings &gt; media.</p>
+    </div>
+    <div class="delta">
+      <div class="delta__h">+ Gulf PR pipes</div>
+      <p class="delta__b">Add <code>WAM</code>, <code>SPA</code>, <code>QNA</code>, <code>KUNA</code>, <code>BNA</code>, <code>AETOSWire</code>, <code>Zawya PR</code>, <code>MEED Projects</code>, free-zone newsrooms (DMCC/JAFZA/KEZAD/ADGM/RAKEZ/QFZ), SWF newsrooms (PIF/Mubadala/ADQ/CYVN/MGX/QIA).</p>
+    </div>
+    <div class="delta">
+      <div class="delta__h">+ Kimi-cn daily leg</div>
+      <p class="delta__b">10-14 native CN searches/day via the <code>kimi-cn</code> skill (<code>scripts/kimi</code>). Rotate from the 55-query taxonomy. Preserve Chinese source/title; translate only the shortlist for the user-facing summary.</p>
+    </div>
+    <div class="delta">
+      <div class="delta__h">+ Bilingual entity normalization</div>
+      <p class="delta__b">All companies and counterparts kept bilingual: <code>BYD/比亚迪</code>, <code>WeRide/文远知行</code>, <code>PIF/沙特公共投资基金</code>. Prevents the same deal showing up as two stories.</p>
+    </div>
+    <div class="delta">
+      <div class="delta__h">+ Confidence labels</div>
+      <p class="delta__b">Mandatory <code>confirmed</code> / <code>reported</code> / <code>watch</code> tag on every shipped item. Label appears in the Discord post next to each headline.</p>
+    </div>
+    <div class="delta">
+      <div class="delta__h">≈ Cadence</div>
+      <p class="delta__b">06:25 RSS → 06:35 Exa → 06:45 Kimi-cn → 06:58 filings → 07:05 normalize/dedup → 07:12 filter → 09:20 Discord. Sunday adds 20-query Kimi sweep over frameworks/conferences/free-zones.</p>
+    </div>
+    <div class="delta">
+      <div class="delta__h">= Cron / channel / model</div>
+      <p class="delta__b">Same as v0.1: <code>20 9 * * *</code>, model <code>openai-codex/gpt-5.5</code>, channel <code>#🧠-intel</code>, delivery <code>local</code>, posts via <code>discord-embed-posting</code> Components v2.</p>
+    </div>
+  </div>
+</section>
+
+<!-- =============== OPEN QUESTIONS (carry-over) =============== -->
+<section id="questions">
+  <div class="section-num">§ 08 · Still open from v0.1</div>
+  <h2 class="section-title">Five decisions before this ships.</h2>
+  <p class="section-lede">My defaults — pick or override.</p>
+
+  <ol class="editorial-list">
+    <li><h4>Geographic scope</h4><p>GCC + Egypt (real CN manufacturing beachhead). Iran/Turkey only when directly tied to a GCC angle. <strong>Default: yes.</strong></p></li>
+    <li><h4>Auto retail granularity</h4><p>Fleet + assembly only. Showrooms are too noisy and rarely actionable for WAG. <strong>Default: yes.</strong></p></li>
+    <li><h4>Paywalled sources (MEED, AGBI, Caixin Pro)</h4><p>Summarize from snippets with a <code>paywalled</code> tag. Better than missing the signal. <strong>Default: yes.</strong></p></li>
+    <li><h4>Empty-day behavior</h4><p>Only post if ≥2 qualified items or 1 hero item. Quiet days stay quiet — protects channel signal density. <strong>Default: silent.</strong></p></li>
+    <li><h4>CRM pipeline</h4><p>Phase 2. Ship daily drop first, layer auto-write to Notion / brain page after we see what kind of leads it actually surfaces. <strong>Default: defer.</strong></p></li>
+  </ol>
+</section>
+
+<!-- =============== FOOTER =============== -->
+<div class="footer">
+  <div>China↔Gulf Deal Flow · v0.2 · 2026-04-25</div>
+  <div>Research: gpt-5.5 (deep) · Synthesis: opus-4.7 · For Raymond Zhu</div>
+</div>
+
+</main>
+
+<script type="module">
+import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+
+const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+mermaid.initialize({
+  startOnLoad: false,
+  theme: 'base',
+  fontFamily: 'DM Sans, system-ui, sans-serif',
+  flowchart: { curve: 'basis', padding: 22, useMaxWidth: false },
+  themeVariables: {
+    fontSize: '15px',
+    primaryColor: isDark ? '#1c2540' : '#ffffff',
+    primaryTextColor: isDark ? '#e8dcc3' : '#1c233c',
+    primaryBorderColor: isDark ? '#6a9bd1' : '#1e3a5f',
+    lineColor: isDark ? '#8c8a82' : '#6a6f86',
+    secondaryColor: isDark ? '#2a3550' : '#faf6ee',
+    tertiaryColor: isDark ? '#1c2540' : '#fdf6e3',
+    background: 'transparent',
+  }
+});
+
+const config = { fitPadding: 32, zoomMin: 0.4, zoomMax: 3.0, zoomStep: 0.15, readabilityFloor: 0.85 };
+const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
+let activeDrag = null;
+
+addEventListener('mousemove', (e) => activeDrag?.onMove(e));
+addEventListener('mouseup',   ()  => { activeDrag?.onEnd(); activeDrag = null; });
+
+function initDiagram(shell) {
+  const wrap     = shell.querySelector('.mermaid-wrap');
+  const viewport = shell.querySelector('.mermaid-viewport');
+  const canvas   = shell.querySelector('.mermaid-canvas');
+  const source   = shell.querySelector('.diagram-source');
+  const label    = shell.querySelector('.zoom-label');
+  if (!wrap || !viewport || !canvas || !source) return;
+
+  let zoom = 1, panX = 0, panY = 0, svgW = 0, svgH = 0;
+
+  const apply = () => {
+    const svg = canvas.querySelector('svg');
+    if (!svg) return;
+    svg.style.width  = (svgW * zoom) + 'px';
+    svg.style.height = (svgH * zoom) + 'px';
+    canvas.style.transform = `translate(${panX}px, ${panY}px)`;
+    if (label) label.textContent = Math.round(zoom * 100) + '%';
+  };
+
+  const fit = () => {
+    if (!svgW || !svgH) return;
+    const r = viewport.getBoundingClientRect();
+    const z = Math.min((r.width - config.fitPadding) / svgW, (r.height - config.fitPadding) / svgH);
+    zoom = clamp(Math.max(z, config.readabilityFloor), config.zoomMin, config.zoomMax);
+    panX = (r.width  - svgW * zoom) / 2;
+    panY = (r.height - svgH * zoom) / 2;
+    apply();
+  };
+
+  async function render() {
+    try {
+      const code = source.textContent.trim();
+      const id = 'd-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7);
+      const { svg } = await mermaid.render(id, code);
+      canvas.innerHTML = svg;
+      const svgEl = canvas.querySelector('svg');
+      if (svgEl) {
+        const vb = svgEl.viewBox?.baseVal;
+        svgW = vb && vb.width  ? vb.width  : svgEl.getBBox().width;
+        svgH = vb && vb.height ? vb.height : svgEl.getBBox().height;
+        svgEl.removeAttribute('width');
+        svgEl.removeAttribute('height');
+        svgEl.style.maxWidth = 'none';
+      }
+      const minH = Math.min(640, Math.max(480, svgH + 60));
+      viewport.style.height = minH + 'px';
+      wrap.style.minHeight  = (minH + 32) + 'px';
+      requestAnimationFrame(fit);
+    } catch (err) {
+      console.error('Mermaid render failed:', err);
+      if (label) label.textContent = 'Error';
+    }
+  }
+
+  shell.querySelector('[data-action="zoom-in"]') ?.addEventListener('click', () => { zoom = clamp(zoom + config.zoomStep, config.zoomMin, config.zoomMax); apply(); });
+  shell.querySelector('[data-action="zoom-out"]')?.addEventListener('click', () => { zoom = clamp(zoom - config.zoomStep, config.zoomMin, config.zoomMax); apply(); });
+  shell.querySelector('[data-action="zoom-fit"]')?.addEventListener('click', fit);
+  shell.querySelector('[data-action="zoom-one"]')?.addEventListener('click', () => {
+    zoom = 1;
+    const r = viewport.getBoundingClientRect();
+    panX = (r.width - svgW) / 2; panY = (r.height - svgH) / 2; apply();
+  });
+
+  viewport.addEventListener('wheel', (e) => {
+    if (!e.ctrlKey && !e.metaKey) return;
+    e.preventDefault();
+    const r = viewport.getBoundingClientRect();
+    const cx = e.clientX - r.left, cy = e.clientY - r.top;
+    const oldZ = zoom;
+    zoom = clamp(zoom * (e.deltaY < 0 ? 1.12 : 1/1.12), config.zoomMin, config.zoomMax);
+    panX = cx - (cx - panX) * (zoom / oldZ);
+    panY = cy - (cy - panY) * (zoom / oldZ);
+    apply();
+  }, { passive: false });
+
+  viewport.addEventListener('mousedown', (e) => {
+    if (e.button !== 0) return;
+    e.preventDefault();
+    wrap.classList.add('is-panning');
+    const startX = e.clientX, startY = e.clientY;
+    const startPanX = panX, startPanY = panY;
+    activeDrag = {
+      onMove: (ev) => { panX = startPanX + (ev.clientX - startX); panY = startPanY + (ev.clientY - startY); apply(); },
+      onEnd:  () => { wrap.classList.remove('is-panning'); }
+    };
+  });
+
+  viewport.addEventListener('dblclick', fit);
+  addEventListener('resize', () => requestAnimationFrame(fit));
+  render();
+}
+
+document.querySelectorAll('.diagram-shell').forEach(initDiagram);
+</script>
+</body>
+</html>
