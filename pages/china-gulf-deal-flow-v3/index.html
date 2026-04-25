@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>China↔Gulf Deal Flow · v0.3 — Watchlist-First, Single-Session Runbook</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --font-display: 'Instrument Serif', 'Times New Roman', serif;
+  --font-body: 'DM Sans', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+  --font-cn: 'Noto Sans SC', 'PingFang SC', sans-serif;
+
+  --bg: #faf6ee;
+  --surface: #ffffff;
+  --surface-elevated: #ffffff;
+  --border: rgba(28, 35, 60, 0.08);
+  --border-bright: rgba(28, 35, 60, 0.18);
+  --text: #1c233c;
+  --text-bright: #0d1228;
+  --text-dim: #6a6f86;
+
+  --accent: #1e3a5f; --accent-dim: rgba(30, 58, 95, 0.10);
+  --gold: #b08a2e; --gold-dim: rgba(176, 138, 46, 0.14);
+  --terracotta: #b04e2e; --terracotta-dim: rgba(176, 78, 46, 0.10);
+  --sage: #5a7148; --sage-dim: rgba(90, 113, 72, 0.12);
+  --crimson: #8b1c2b; --crimson-dim: rgba(139, 28, 43, 0.10);
+
+  --green: var(--sage); --green-dim: var(--sage-dim);
+  --red: var(--crimson); --red-dim: var(--crimson-dim);
+  --orange: var(--terracotta); --orange-dim: var(--terracotta-dim);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0e1422;
+    --surface: #161e30;
+    --surface-elevated: #1c2540;
+    --border: rgba(232, 220, 195, 0.08);
+    --border-bright: rgba(232, 220, 195, 0.18);
+    --text: #e8dcc3;
+    --text-bright: #f5edd9;
+    --text-dim: #8c8a82;
+    --accent: #6a9bd1; --accent-dim: rgba(106, 155, 209, 0.12);
+    --gold: #d4a73a; --gold-dim: rgba(212, 167, 58, 0.16);
+    --terracotta: #cc7754; --terracotta-dim: rgba(204, 119, 84, 0.14);
+    --sage: #9eb27e; --sage-dim: rgba(158, 178, 126, 0.14);
+    --crimson: #c75c6e; --crimson-dim: rgba(199, 92, 110, 0.14);
+  }
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  background: var(--bg);
+  background-image:
+    radial-gradient(at 18% 12%, var(--gold-dim) 0%, transparent 45%),
+    radial-gradient(at 88% 80%, var(--accent-dim) 0%, transparent 50%);
+  color: var(--text);
+  font-size: 16px; line-height: 1.6;
+  overflow-wrap: break-word;
+}
+
+.cn { font-family: var(--font-cn); font-weight: 500; }
+.wrap { max-width: 1200px; margin: 0 auto; padding: 64px 32px 96px; }
+.grid > *, .flex > * { min-width: 0; }
+
+/* ---------- Hero ---------- */
+.hero { padding: 24px 0 56px; border-bottom: 1px solid var(--border); margin-bottom: 56px; position: relative; }
+.hero__version-pill {
+  position: absolute; top: 24px; right: 0;
+  font-family: var(--font-mono); font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 2px;
+  background: var(--sage); color: var(--bg);
+  padding: 6px 12px; border-radius: 4px;
+}
+.hero__kicker {
+  font-family: var(--font-mono);
+  font-size: 11px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 2.5px;
+  color: var(--gold);
+  margin-bottom: 18px;
+  display: flex; align-items: center; gap: 10px;
+}
+.hero__kicker::before { content: ''; width: 28px; height: 1px; background: var(--gold); }
+.hero__title {
+  font-family: var(--font-display);
+  font-size: clamp(44px, 6vw, 76px);
+  font-weight: 400; line-height: 1.02; letter-spacing: -1px;
+  margin: 0 0 14px; color: var(--text-bright);
+}
+.hero__title em { font-style: italic; color: var(--gold); }
+.hero__sub {
+  font-size: 19px; line-height: 1.55; max-width: 760px;
+  color: var(--text); margin: 0 0 28px;
+}
+.hero__sub strong { color: var(--text-bright); font-weight: 600; }
+.hero__meta {
+  display: flex; flex-wrap: wrap; gap: 20px;
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--text-dim); text-transform: uppercase; letter-spacing: 1.5px;
+}
+.hero__meta span { display: inline-flex; align-items: center; gap: 6px; }
+.hero__meta span::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--sage); }
+
+/* ---------- Section primitives ---------- */
+section { margin-bottom: 80px; }
+h2.section-title {
+  font-family: var(--font-display);
+  font-size: clamp(30px, 3.5vw, 42px);
+  font-weight: 400; font-style: italic;
+  line-height: 1.1; margin: 0 0 6px;
+  color: var(--text-bright);
+}
+.section-num {
+  font-family: var(--font-mono);
+  font-size: 11px; font-weight: 600;
+  color: var(--gold); letter-spacing: 2px; margin-bottom: 8px;
+}
+.section-lede {
+  font-size: 17px; max-width: 800px; color: var(--text);
+  margin: 12px 0 32px;
+}
+
+/* ---------- Diff callout ---------- */
+.diff-callout {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--crimson);
+  border-radius: 10px;
+  padding: 24px 28px;
+  margin-bottom: 56px;
+}
+.diff-callout h3 {
+  font-family: var(--font-display);
+  font-size: 26px; font-weight: 400; font-style: italic;
+  margin: 0 0 16px; color: var(--text-bright);
+}
+.diff-callout ol { margin: 0; padding-left: 24px; line-height: 1.7; }
+.diff-callout ol li { margin-bottom: 10px; }
+.diff-callout code { font-family: var(--font-mono); font-size: 12px; background: var(--crimson-dim); color: var(--crimson); padding: 1px 5px; border-radius: 3px; }
+
+/* ---------- KPI row ---------- */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 14px;
+  margin-bottom: 56px;
+}
+.kpi {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--sage);
+  border-radius: 8px;
+  padding: 18px 20px;
+}
+.kpi__value {
+  font-family: var(--font-display);
+  font-size: 38px; font-weight: 400;
+  line-height: 1; letter-spacing: -0.5px;
+  color: var(--text-bright);
+  font-variant-numeric: tabular-nums;
+}
+.kpi__label {
+  font-family: var(--font-mono); font-size: 10px;
+  font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px;
+  color: var(--text-dim); margin-top: 8px;
+}
+.kpi__delta {
+  font-size: 11px; color: var(--terracotta); margin-top: 4px;
+  font-family: var(--font-mono); font-weight: 600;
+}
+.kpi__delta--pos { color: var(--sage); }
+
+/* ---------- Cards ---------- */
+.ve-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 22px 24px;
+}
+.ve-card--accent { border-left: 3px solid var(--accent); }
+.ve-card--gold { border-left: 3px solid var(--gold); }
+.ve-card--sage { border-left: 3px solid var(--sage); }
+.ve-card--terracotta { border-left: 3px solid var(--terracotta); }
+.ve-card--crimson { border-left: 3px solid var(--crimson); }
+.ve-card__label {
+  font-family: var(--font-mono); font-size: 10px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 2px;
+  margin-bottom: 12px;
+  display: flex; align-items: center; gap: 8px;
+}
+.ve-card__label::before {
+  content: ''; width: 8px; height: 8px; border-radius: 50%; background: currentColor;
+}
+.ve-card__title {
+  font-family: var(--font-display); font-size: 22px; font-weight: 400;
+  line-height: 1.2; margin: 0 0 8px; color: var(--text-bright);
+}
+.ve-card p { margin: 0 0 8px; }
+.ve-card p:last-child { margin-bottom: 0; }
+.ve-card__lede {
+  font-size: 15px; line-height: 1.55; color: var(--text-dim);
+}
+
+.col-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+.col-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+@media (max-width: 900px) { .col-3, .col-2 { grid-template-columns: 1fr; } }
+
+/* ---------- Mermaid ---------- */
+.diagram-shell { position: relative; margin-bottom: 24px; }
+.diagram-shell__hint {
+  font-family: var(--font-mono); font-size: 10px;
+  color: var(--text-dim); margin-bottom: 8px; opacity: 0.7;
+  text-transform: uppercase; letter-spacing: 1.5px;
+}
+.mermaid-wrap {
+  position: relative; background: var(--surface);
+  border: 1px solid var(--border); border-radius: 12px;
+  padding: 32px 24px;
+  display: flex; justify-content: center; align-items: center;
+  min-height: 540px; cursor: grab;
+}
+.mermaid-wrap.is-panning { cursor: grabbing; user-select: none; }
+.mermaid-viewport { position: relative; overflow: hidden; width: 100%; height: 100%; min-height: 480px; }
+.mermaid-canvas { position: absolute; top: 0; left: 0; }
+.zoom-controls {
+  position: absolute; top: 10px; right: 10px;
+  display: flex; gap: 2px; z-index: 10;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 6px; padding: 2px;
+}
+.zoom-controls button {
+  width: 28px; height: 28px; border: none; background: transparent;
+  color: var(--text-dim); font-family: var(--font-mono); font-size: 14px;
+  cursor: pointer; border-radius: 4px;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.zoom-controls button:hover { background: var(--border); color: var(--text); }
+.zoom-label {
+  font-family: var(--font-mono); font-size: 10px;
+  color: var(--text-dim); padding: 0 6px; white-space: nowrap;
+  display: flex; align-items: center;
+}
+
+/* ---------- Tables ---------- */
+.table-wrap {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+.table-scroll { overflow-x: auto; }
+.data-table { width: 100%; border-collapse: collapse; font-size: 13px; line-height: 1.5; }
+.data-table thead { position: sticky; top: 0; z-index: 2; }
+.data-table th {
+  background: color-mix(in srgb, var(--surface) 92%, var(--accent) 8%);
+  font-family: var(--font-mono); font-size: 10px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 1.5px;
+  color: var(--text-dim);
+  text-align: left; padding: 11px 14px;
+  border-bottom: 2px solid var(--border-bright); white-space: nowrap;
+}
+.data-table td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top; color: var(--text);
+}
+.data-table tbody tr:nth-child(even) { background: color-mix(in srgb, var(--surface) 96%, var(--gold) 4%); }
+.data-table tbody tr:last-child td { border-bottom: none; }
+.data-table .src-name { font-weight: 600; color: var(--text-bright); }
+.data-table small { display: block; color: var(--text-dim); font-size: 11px; margin-top: 2px; }
+
+/* ---------- Tier dividers ---------- */
+.tier-divider td {
+  background: color-mix(in srgb, var(--surface) 80%, var(--accent) 20%) !important;
+  font-family: var(--font-mono); font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 2px;
+  color: var(--accent) !important;
+  padding: 8px 14px !important;
+}
+.tier-divider--A td { color: var(--sage) !important; background: color-mix(in srgb, var(--surface) 88%, var(--sage) 12%) !important; }
+.tier-divider--B td { color: var(--gold) !important; background: color-mix(in srgb, var(--surface) 88%, var(--gold) 12%) !important; }
+.tier-divider--C td { color: var(--accent) !important; background: color-mix(in srgb, var(--surface) 88%, var(--accent) 12%) !important; }
+.tier-divider--D td { color: var(--crimson) !important; background: color-mix(in srgb, var(--surface) 88%, var(--crimson) 12%) !important; }
+
+/* ---------- Tags ---------- */
+.tag {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 10px; font-weight: 500;
+  padding: 2px 7px; border-radius: 4px;
+  background: var(--accent-dim); color: var(--accent);
+  margin-right: 4px; margin-bottom: 2px; white-space: nowrap;
+}
+.tag--gold { background: var(--gold-dim); color: var(--gold); }
+.tag--sage { background: var(--sage-dim); color: var(--sage); }
+.tag--terracotta { background: var(--terracotta-dim); color: var(--terracotta); }
+.tag--crimson { background: var(--crimson-dim); color: var(--crimson); }
+.tag--cn { background: var(--crimson-dim); color: var(--crimson); }
+
+.status {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--font-mono); font-size: 10px; font-weight: 500;
+  padding: 3px 9px; border-radius: 5px; white-space: nowrap;
+}
+.status--match { background: var(--green-dim); color: var(--green); }
+.status--gap { background: var(--red-dim); color: var(--red); }
+.status--warn { background: var(--orange-dim); color: var(--orange); }
+
+/* ---------- Watchlist grid ---------- */
+.watchlist-grid {
+  display: grid; gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+.wl-bucket {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--crimson);
+  border-radius: 10px;
+  padding: 16px 18px;
+}
+.wl-bucket--gulf { border-left-color: var(--sage); }
+.wl-bucket--bridge { border-left-color: var(--gold); }
+.wl-bucket__h {
+  font-family: var(--font-mono); font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 2px;
+  color: var(--crimson);
+  margin-bottom: 10px;
+  display: flex; justify-content: space-between; align-items: baseline;
+}
+.wl-bucket--gulf .wl-bucket__h { color: var(--sage); }
+.wl-bucket--bridge .wl-bucket__h { color: var(--gold); }
+.wl-bucket__count { font-family: var(--font-mono); font-size: 9px; color: var(--text-dim); }
+.wl-list {
+  display: flex; flex-wrap: wrap; gap: 5px;
+  margin: 0; padding: 0; list-style: none;
+}
+.wl-list li {
+  font-family: var(--font-mono); font-size: 11px;
+  background: color-mix(in srgb, var(--surface) 90%, var(--accent) 10%);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 3px 8px;
+}
+.wl-list li .cnname { font-family: var(--font-cn); color: var(--text-dim); margin-left: 4px; }
+
+/* ---------- Runbook ---------- */
+.runbook {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 28px 32px;
+}
+.runbook__h {
+  font-family: var(--font-display); font-size: 26px;
+  font-weight: 400; font-style: italic;
+  margin: 0 0 8px; color: var(--text-bright);
+}
+.runbook__sub {
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--text-dim); text-transform: uppercase; letter-spacing: 1.5px;
+  margin-bottom: 22px;
+}
+.runbook__step {
+  display: grid;
+  grid-template-columns: 90px 1fr 100px;
+  gap: 16px;
+  padding: 14px 0;
+  border-top: 1px solid var(--border);
+  align-items: start;
+}
+.runbook__step:first-of-type { border-top: 0; padding-top: 0; }
+.runbook__num {
+  font-family: var(--font-display); font-size: 32px;
+  font-style: italic; font-weight: 400;
+  color: var(--gold); line-height: 1;
+}
+.runbook__body h4 {
+  margin: 0 0 4px; font-size: 15px; font-weight: 600;
+  color: var(--text-bright);
+}
+.runbook__body p { margin: 0; font-size: 13px; line-height: 1.55; color: var(--text-dim); }
+.runbook__body code { font-family: var(--font-mono); font-size: 11px; background: var(--accent-dim); color: var(--accent); padding: 1px 4px; border-radius: 3px; }
+.runbook__budget {
+  font-family: var(--font-mono); font-size: 10px;
+  color: var(--gold); text-align: right;
+  text-transform: uppercase; letter-spacing: 1px;
+  font-weight: 600;
+  padding-top: 4px;
+}
+.runbook__total {
+  margin-top: 18px; padding-top: 14px;
+  border-top: 2px solid var(--border-bright);
+  display: flex; justify-content: space-between; align-items: center;
+  font-family: var(--font-mono); font-size: 12px;
+  color: var(--text); font-weight: 600;
+}
+.runbook__total span { color: var(--gold); }
+
+/* ---------- Confidence ---------- */
+.conf-row {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px; margin: 18px 0 0;
+}
+.conf-card {
+  padding: 14px 18px;
+  border-radius: 8px; border: 1px solid var(--border);
+}
+.conf-card--confirmed { background: var(--sage-dim); border-color: var(--sage); }
+.conf-card--reported  { background: var(--gold-dim); border-color: var(--gold); }
+.conf-card--watch     { background: var(--terracotta-dim); border-color: var(--terracotta); }
+.conf-card__label {
+  font-family: var(--font-mono); font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 2px;
+  margin-bottom: 6px;
+}
+.conf-card--confirmed .conf-card__label { color: var(--sage); }
+.conf-card--reported  .conf-card__label { color: var(--gold); }
+.conf-card--watch     .conf-card__label { color: var(--terracotta); }
+.conf-card p { margin: 0; font-size: 13px; line-height: 1.5; }
+.conf-card strong { color: var(--text-bright); }
+
+/* ---------- Editorial gate ---------- */
+.gate-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px; margin-top: 16px;
+}
+.gate {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--crimson);
+  border-radius: 8px;
+  padding: 14px 18px;
+}
+.gate--soft { border-left-color: var(--gold); }
+.gate__type {
+  font-family: var(--font-mono); font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 2px;
+  color: var(--crimson); margin-bottom: 6px;
+}
+.gate--soft .gate__type { color: var(--gold); }
+.gate__h { margin: 0 0 6px; font-size: 15px; font-weight: 600; color: var(--text-bright); }
+.gate__b { margin: 0; font-size: 13px; line-height: 1.5; color: var(--text-dim); }
+.gate__b code { font-family: var(--font-mono); font-size: 11px; background: var(--accent-dim); color: var(--accent); padding: 1px 4px; border-radius: 3px; }
+
+/* ---------- JSON spec ---------- */
+.spec-block {
+  font-family: var(--font-mono); font-size: 12px;
+  background: color-mix(in srgb, var(--surface) 88%, var(--accent) 12%);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px 18px;
+  white-space: pre-wrap;
+  line-height: 1.55;
+  overflow-x: auto;
+}
+.spec-block .k { color: var(--terracotta); }
+.spec-block .s { color: var(--sage); }
+.spec-block .c { color: var(--text-dim); font-style: italic; }
+
+/* ---------- Failure-mode footer ---------- */
+.fail-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+.fail-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--terracotta);
+  border-radius: 8px;
+  padding: 14px 18px;
+}
+.fail-card__h {
+  font-family: var(--font-mono); font-size: 10px;
+  font-weight: 700; letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--terracotta); margin-bottom: 6px;
+}
+.fail-card p { margin: 0; font-size: 13px; line-height: 1.5; color: var(--text); }
+
+/* ---------- v0.2 → v0.3 diff ---------- */
+.delta-table th { white-space: normal !important; }
+.delta-table .col-key { font-weight: 600; color: var(--text-bright); white-space: nowrap; }
+.delta-table .col-old { color: var(--terracotta); }
+.delta-table .col-new { color: var(--sage); font-weight: 500; }
+
+/* ---------- Footer ---------- */
+.footer {
+  margin-top: 80px; padding-top: 28px;
+  border-top: 1px solid var(--border);
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--text-dim);
+  display: flex; flex-wrap: wrap; gap: 16px; justify-content: space-between;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+</style>
+  <meta property="og:title" content="China↔Gulf Deal Flow · v0.3 — Watchlist-First, Single-Session Runbook">
+  <meta property="og:description" content="Ctrl/Cmd + scroll to zoom · drag to pan · double-click to fit">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://zosia.cc/pages/china-gulf-deal-flow-v3">
+  <meta name="twitter:card" content="summary">
+</head>
+<body>
+<main class="wrap">
+
+<!-- =============== HERO =============== -->
+<header class="hero">
+  <div class="hero__version-pill">v0.3 · Final</div>
+  <div class="hero__kicker">Cron Job Plan · post-review</div>
+  <h1 class="hero__title">China<em>↔</em>Gulf<br>Deal Flow</h1>
+  <p class="hero__sub">
+    v0.3 inverts the architecture: <strong>watchlist-first, discovery second.</strong> 60-actor watchlist drives 70% of the run; broad discovery is the accent. Single-session runbook with hard caps. Source-of-origin confidence rules. Persisted ledger. <strong>3 stories normal, 5 ceiling.</strong> What v0.2 was wrong about — fixed.
+  </p>
+  <div class="hero__meta">
+    <span>12:30 GST daily</span>
+    <span>10 searches max</span>
+    <span>≤3 stories normal</span>
+    <span>Persisted ledger</span>
+    <span>15-25 min budget</span>
+    <span>#🧠-intel</span>
+  </div>
+</header>
+
+<!-- =============== v0.2 → v0.3 DIFF =============== -->
+<div class="diff-callout">
+  <h3>What v0.2 got wrong</h3>
+  <ol>
+    <li><strong>The "06:25 → 09:20" pseudo-cadence was cosplay.</strong> A cron runs <em>once</em>. Those internal stages don't exist as scheduled events. v0.3 has one runbook with wall-clock budgets, fail-fast exits, and a 25-minute ceiling.</li>
+    <li><strong>10–14 Kimi calls + 6–8 Exa calls in one session was fantasy-sized.</strong> Token budget, parsing overhead, citation validation, and dedup blow up before cost does. v0.3 caps total searches at <code>10</code>.</li>
+    <li><strong>"Gulf official + CN source = confirmed" was naive.</strong> WAM repost of a MOFCOM press release is not independent confirmation — it's the same ink twice. v0.3 uses <em>source-of-origin</em> rules: filing/IR &gt; counterparty newsroom &gt; ministry primary &gt; PR distributor never alone.</li>
+    <li><strong>The 5-question filter let MOU theater through.</strong> "Named actor + corridor thesis + Dhow lane" already scores 3 with no money, license, or asset. v0.3 has hard kill gates: new fact, named actor, <em>material action</em>.</li>
+    <li><strong>The 70-source list was operationally undifferentiated.</strong> Some are daily deal-flow, some are quarterly background, some (Xueqiu, Zhihu, Autohome retail) are noise. v0.3 splits them into Daily / Verification / Weekly / Do-not-ship.</li>
+    <li><strong>09:20 GST is before the deals land.</strong> A-shares close 11:00 GST, HKEX 12:00 GST, Gulf PR midday-pre-lunch. v0.3 runs at <code>12:30 GST</code>.</li>
+    <li><strong>One-session cron has zero memory.</strong> v0.2 said "14-day dedup" but had no ledger. v0.3 specifies a persisted JSON ledger at <code>~/.hermes/data/china-gulf-ledger.json</code>.</li>
+    <li><strong>No failure-mode handling.</strong> Silent degradation makes the post look complete when Kimi or Exa actually died. v0.3 logs degradation and tags Discord posts when applicable.</li>
+  </ol>
+</div>
+
+<!-- =============== KPIs =============== -->
+<div class="kpi-row">
+  <div class="kpi"><div class="kpi__value">10</div><div class="kpi__label">Searches max / day</div><div class="kpi__delta">−14 vs v0.2</div></div>
+  <div class="kpi"><div class="kpi__value">≤3</div><div class="kpi__label">Stories · normal day</div><div class="kpi__delta">−2 vs v0.2 (5 ceiling)</div></div>
+  <div class="kpi"><div class="kpi__value">60</div><div class="kpi__label">Watchlist actors</div><div class="kpi__delta kpi__delta--pos">new spine</div></div>
+  <div class="kpi"><div class="kpi__value">12:30</div><div class="kpi__label">GST run time</div><div class="kpi__delta">+3h vs v0.2</div></div>
+  <div class="kpi"><div class="kpi__value">90 / 14d</div><div class="kpi__label">Soft / hard dedup</div><div class="kpi__delta kpi__delta--pos">two-tier</div></div>
+  <div class="kpi"><div class="kpi__value">25min</div><div class="kpi__label">Wall-clock ceiling</div><div class="kpi__delta kpi__delta--pos">abort + summarize</div></div>
+</div>
+
+<!-- =============== ARCHITECTURE SHIFT =============== -->
+<section id="arch">
+  <div class="section-num">§ 01 · Architecture shift</div>
+  <h2 class="section-title">Watchlist-first. Discovery is the accent.</h2>
+  <p class="section-lede">
+    v0.2 was a <em>discovery engine</em> that ran broad queries and hoped to find named actors in the noise. v0.3 inverts: a <strong>watchlist of 60 priority actors</strong> drives 70% of daily searches with deterministic, cheap, high-signal queries. Free-form discovery only fires for the remaining slots — and only after the watchlist pass produces nothing.
+  </p>
+
+  <section class="diagram-shell">
+    <p class="diagram-shell__hint">Ctrl/Cmd + scroll to zoom · drag to pan · double-click to fit</p>
+    <div class="mermaid-wrap">
+      <div class="zoom-controls">
+        <button type="button" data-action="zoom-in" title="Zoom in">+</button>
+        <button type="button" data-action="zoom-out" title="Zoom out">&minus;</button>
+        <button type="button" data-action="zoom-fit" title="Smart fit">&#8634;</button>
+        <button type="button" data-action="zoom-one" title="1:1 zoom">1:1</button>
+        <span class="zoom-label">Loading…</span>
+      </div>
+      <div class="mermaid-viewport">
+        <div class="mermaid mermaid-canvas"></div>
+      </div>
+    </div>
+    <script type="text/plain" class="diagram-source">
+flowchart TD
+  classDef watch fill:#f6e3e0,stroke:#8b1c2b,stroke-width:2px,color:#1c233c
+  classDef gulf fill:#eef0d6,stroke:#5a7148,stroke-width:2px,color:#1c233c
+  classDef scan fill:#dde6f0,stroke:#1e3a5f,stroke-width:1.5px,color:#1c233c
+  classDef verify fill:#f8eccd,stroke:#b08a2e,stroke-width:1.5px,color:#1c233c
+  classDef gate fill:#f8eccd,stroke:#b08a2e,stroke-width:2.5px,color:#1c233c
+  classDef proc fill:#ffffff,stroke:#1e3a5f,stroke-width:1.5px,color:#1c233c
+  classDef out fill:#1e3a5f,stroke:#b08a2e,stroke-width:2px,color:#faf6ee
+  classDef kill fill:#f6e3e0,stroke:#8b1c2b,stroke-width:1.5px,color:#1c233c,stroke-dasharray: 4 3
+  classDef ledger fill:#f8eccd,stroke:#b08a2e,stroke-width:2px,color:#1c233c
+
+  L["Persisted Ledger<br/>~/.hermes/data/china-gulf-ledger.json<br/>event_id · actors · sources · status"]:::ledger
+
+  W1["WATCH lane · Kimi-cn<br/>4 searches<br/>3 CN cohorts × top names<br/>→ 中东/沙特/阿联酋"]:::watch
+  W2["WATCH lane · Exa<br/>3 searches<br/>3 Gulf cohorts × top names<br/>SWFs · ministries · free zones"]:::gulf
+
+  S1["SCAN lane · 2 broad<br/>1 Exa: Zawya/AETOSWire/WAM<br/>1 Kimi: 出海中东 sweep"]:::scan
+  S2["RSS sweep · blogwatcher<br/>The National · Arabian Biz<br/>CnEVPost · Pandaily"]:::scan
+
+  V1{{"Candidate cap = 25<br/>dedup against 90d ledger"}}:::gate
+
+  V2["VERIFY lane · 1 Exa<br/>Filing check<br/>HKEXnews · IR newsrooms<br/>only on shortlisted items"]:::verify
+
+  G1{{"Editorial gate<br/>HARD KILLS (3): new fact ·<br/>named actor · material action"}}:::gate
+  KX["KILL<br/>MOU theater · roadshow · PR exhaust"]:::kill
+
+  C1["Confidence labeling<br/>by SOURCE-OF-ORIGIN<br/>filing/IR · counterparty · ministry · PR"]:::proc
+
+  S3["Score · take top ≤3<br/>(5 ceiling on heavy days)"]:::proc
+
+  O1["12:30 · Components v2 post<br/>≤3 stories · degraded-mode tag<br/>#🧠-intel"]:::out
+  O2["Quiet day<br/>< 2 confirmed/reported<br/>→ no post · ledger update only"]:::kill
+
+  L --> W1
+  L --> W2
+  W1 --> V1
+  W2 --> V1
+  S1 --> V1
+  S2 --> V1
+  V1 --> V2
+  V2 --> G1
+  G1 -->|fail| KX
+  G1 -->|pass| C1
+  C1 --> S3
+  S3 -->|≥ 2| O1
+  S3 -->|< 2| O2
+  S3 -.update.-> L
+  KX -.log.-> L
+    </script>
+  </section>
+
+  <div class="col-3" style="margin-top:24px;">
+    <div class="ve-card ve-card--crimson">
+      <div class="ve-card__label" style="color:var(--crimson);">WATCH lane · 70%</div>
+      <h3 class="ve-card__title">7 deterministic queries</h3>
+      <p>Daily searches against the 60-actor watchlist, 3 CN cohorts × top names + 3 Gulf cohorts × top names + 1 lane-rotating cohort. Cheap. Reliable. Misses unknown unknowns.</p>
+    </div>
+    <div class="ve-card ve-card--accent">
+      <div class="ve-card__label" style="color:var(--accent);">SCAN lane · 20%</div>
+      <h3 class="ve-card__title">2 broad queries + RSS</h3>
+      <p>One Exa query over Gulf wires; one Kimi over <span class="cn">出海中东</span>; blogwatcher RSS sweep. Catches what the watchlist misses. Hard-capped at 2 searches.</p>
+    </div>
+    <div class="ve-card ve-card--gold">
+      <div class="ve-card__label" style="color:var(--gold);">VERIFY lane · 10%</div>
+      <h3 class="ve-card__title">1 filing check</h3>
+      <p>Only after candidates name a listed company. HKEXnews + corporate IR newsroom. Aspirational SSE/SZSE crawls deferred — they're too brittle for one session.</p>
+    </div>
+  </div>
+</section>
+
+<!-- =============== WATCHLIST =============== -->
+<section id="watchlist">
+  <div class="section-num">§ 02 · The 60-actor watchlist</div>
+  <h2 class="section-title">Where Raymond would actually act.</h2>
+  <p class="section-lede">
+    Three buckets: Chinese capability that's actively going global, Gulf capital/regulatory actors that write the checks and grant the licenses, and bridge entities (CN-Gulf JVs, distributors, accelerators). This list <strong>updates monthly</strong> as deals graduate from "watch" to "owned" and new actors emerge.
+  </p>
+
+  <div class="watchlist-grid">
+
+    <div class="wl-bucket">
+      <div class="wl-bucket__h"><span>● Chinese capability · 24</span><span class="wl-bucket__count">EV · AV · AI · cloud · battery · solar</span></div>
+      <ul class="wl-list">
+        <li>BYD<span class="cnname">比亚迪</span></li>
+        <li>Geely / Zeekr<span class="cnname">吉利 / 极氪</span></li>
+        <li>NIO<span class="cnname">蔚来</span></li>
+        <li>XPeng<span class="cnname">小鹏</span></li>
+        <li>Li Auto<span class="cnname">理想</span></li>
+        <li>Chery<span class="cnname">奇瑞</span></li>
+        <li>Great Wall<span class="cnname">长城</span></li>
+        <li>SAIC<span class="cnname">上汽</span></li>
+        <li>WeRide<span class="cnname">文远知行</span></li>
+        <li>Pony.ai<span class="cnname">小马智行</span></li>
+        <li>Apollo Go<span class="cnname">萝卜快跑</span></li>
+        <li>CATL<span class="cnname">宁德时代</span></li>
+        <li>BYD Battery</li>
+        <li>EVE Energy<span class="cnname">亿纬锂能</span></li>
+        <li>Jinko Solar<span class="cnname">晶科</span></li>
+        <li>Trina<span class="cnname">天合光能</span></li>
+        <li>GCL<span class="cnname">协鑫</span></li>
+        <li>Huawei Cloud</li>
+        <li>Alibaba Cloud</li>
+        <li>Tencent Cloud</li>
+        <li>SenseTime<span class="cnname">商汤</span></li>
+        <li>Lenovo<span class="cnname">联想</span></li>
+        <li>UBTech<span class="cnname">优必选</span></li>
+        <li>Unitree<span class="cnname">宇树</span></li>
+      </ul>
+    </div>
+
+    <div class="wl-bucket wl-bucket--gulf">
+      <div class="wl-bucket__h"><span>● Gulf capital &amp; regulatory · 28</span><span class="wl-bucket__count">SWFs · ministries · free zones</span></div>
+      <ul class="wl-list">
+        <li>PIF</li>
+        <li>Alat</li>
+        <li>Sanabil</li>
+        <li>Mubadala</li>
+        <li>ADQ</li>
+        <li>ADIA</li>
+        <li>CYVN</li>
+        <li>MGX</li>
+        <li>QIA</li>
+        <li>KIA (Kuwait)</li>
+        <li>Aramco Ventures</li>
+        <li>Prosperity7</li>
+        <li>Investcorp</li>
+        <li>UAE MoIAT</li>
+        <li>UAE Min. of Investment</li>
+        <li>Invest Saudi</li>
+        <li>NIDC (Saudi)</li>
+        <li>NEOM</li>
+        <li>KAEC</li>
+        <li>MODON</li>
+        <li>DMCC</li>
+        <li>JAFZA</li>
+        <li>KEZAD</li>
+        <li>DIFC</li>
+        <li>ADGM</li>
+        <li>RAKEZ</li>
+        <li>Qatar Free Zones</li>
+        <li>Bahrain EDB</li>
+      </ul>
+    </div>
+
+    <div class="wl-bucket wl-bucket--bridge">
+      <div class="wl-bucket__h"><span>● Bridge entities · 8</span><span class="wl-bucket__count">JVs · distributors · forums</span></div>
+      <ul class="wl-list">
+        <li>Ali &amp; Sons (XPeng UAE)</li>
+        <li>Al Habtoor Motors</li>
+        <li>AGMC / AW Rostamani</li>
+        <li>Jereh Group<span class="cnname">杰瑞</span></li>
+        <li>China-Arab Forum</li>
+        <li>FII Institute</li>
+        <li>CCPIT delegations</li>
+        <li>China-UAE Business Council</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <p style="font-family:var(--font-mono);font-size:11px;color:var(--text-dim);margin-top:18px;">
+    Stored at <code style="font-family:var(--font-mono);background:var(--accent-dim);color:var(--accent);padding:1px 5px;border-radius:3px;">~/.hermes/skills/research/china-gulf-deal-flow/watchlist.json</code> · monthly review · canonical bilingual names.
+  </p>
+</section>
+
+<!-- =============== RUNBOOK =============== -->
+<section id="runbook">
+  <div class="section-num">§ 03 · The 12:30 GST runbook</div>
+  <h2 class="section-title">One session, hard caps, fail fast.</h2>
+  <p class="section-lede">
+    Cron fires once at 12:30 GST. Everything below happens in <strong>one LLM session</strong> with explicit budgets and abort exits. No pseudo-cadence, no inter-stage scheduling.
+  </p>
+
+  <div class="runbook">
+    <h3 class="runbook__h">12:30 GST · single-session runbook</h3>
+    <p class="runbook__sub">model: openai-codex/gpt-5.5 · target wall-clock 15min · ceiling 25min · abort &amp; summarize on tool failure</p>
+
+    <div class="runbook__step">
+      <div class="runbook__num">01</div>
+      <div class="runbook__body">
+        <h4>Load watchlist + ledger</h4>
+        <p>Read <code>watchlist.json</code> + <code>china-gulf-ledger.json</code>. Build today's actor cohorts (3 CN × 8 names; 3 Gulf × 9-10 names; 1 rotating sector). Compute 90d soft / 14d hard suppression set.</p>
+      </div>
+      <div class="runbook__budget">~30s · 0 calls</div>
+    </div>
+
+    <div class="runbook__step">
+      <div class="runbook__num">02</div>
+      <div class="runbook__body">
+        <h4>WATCH lane · Kimi-cn (3 calls)</h4>
+        <p>3 native CN searches via <code>scripts/kimi --json</code>: cohort A1 (EV/auto OEMs × 中东), cohort A2 (AI/cloud × 沙特/阿联酋), cohort A3 (battery/solar × 海湾建厂). Strict JSON output: <code>{title_cn, url, source, published_at, claim, actors, is_original_source}</code>.</p>
+      </div>
+      <div class="runbook__budget">~3min · 3 calls</div>
+    </div>
+
+    <div class="runbook__step">
+      <div class="runbook__num">03</div>
+      <div class="runbook__body">
+        <h4>WATCH lane · Exa (3 calls)</h4>
+        <p>3 advanced Exa queries with <code>startPublishedDate=today-2d</code>: cohort B1 (PIF/Mubadala/ADQ/CYVN × China), cohort B2 (Saudi/UAE/Qatar ministries × Chinese company), cohort B3 (DMCC/KEZAD/ADGM/QFZ × China registration).</p>
+      </div>
+      <div class="runbook__budget">~2min · 3 calls</div>
+    </div>
+
+    <div class="runbook__step">
+      <div class="runbook__num">04</div>
+      <div class="runbook__body">
+        <h4>SCAN lane · 2 broad + RSS</h4>
+        <p>1 Exa over <code>Zawya OR AETOSWire OR WAM Chinese</code>. 1 Kimi over today's rotating sector wedge (<span class="cn">出海中东</span> + sector). RSS via blogwatcher in parallel-thread (no LLM call).</p>
+      </div>
+      <div class="runbook__budget">~2min · 2 calls</div>
+    </div>
+
+    <div class="runbook__step">
+      <div class="runbook__num">05</div>
+      <div class="runbook__body">
+        <h4>Normalize + dedup → candidate cap 25</h4>
+        <p>Bilingual entity normalization. Cluster by <code>event_id = {actors_canonical, asset_or_project, country, action_type}</code>. Drop anything in 14d hard set; flag anything in 90d soft set as <code>follow-up</code>.</p>
+      </div>
+      <div class="runbook__budget">~1min · 0 calls</div>
+    </div>
+
+    <div class="runbook__step">
+      <div class="runbook__num">06</div>
+      <div class="runbook__body">
+        <h4>Editorial gate (3 hard kills)</h4>
+        <p>Apply mandatory gates. Anything that fails <em>any</em> hard kill goes to ledger as <code>killed</code>, doesn't progress. Soft scoring (5 questions) only on survivors.</p>
+      </div>
+      <div class="runbook__budget">~1min · 0 calls</div>
+    </div>
+
+    <div class="runbook__step">
+      <div class="runbook__num">07</div>
+      <div class="runbook__body">
+        <h4>VERIFY lane · 1 filing check</h4>
+        <p>Only on shortlisted items naming a listed company. 1 Exa query against HKEXnews + IR newsrooms. SSE/SZSE skipped — too unreliable from one session. Filing match → bumps to <code>confirmed</code>.</p>
+      </div>
+      <div class="runbook__budget">~2min · 1 call</div>
+    </div>
+
+    <div class="runbook__step">
+      <div class="runbook__num">08</div>
+      <div class="runbook__body">
+        <h4>Confidence label by source-of-origin</h4>
+        <p>Apply confidence rules (§05). Each story gets <code>confirmed</code> / <code>reported</code> / <code>watch</code> with the explicit independent-confirming-artifact named in the ledger.</p>
+      </div>
+      <div class="runbook__budget">~30s · 0 calls</div>
+    </div>
+
+    <div class="runbook__step">
+      <div class="runbook__num">09</div>
+      <div class="runbook__body">
+        <h4>Score · take top ≤3</h4>
+        <p>Rank survivors by category × proof level × Dhow/WAG lane fit. Take top 3 normal; up to 5 if multiple <code>confirmed</code> hero items. Watch tier doesn't ship by default.</p>
+      </div>
+      <div class="runbook__budget">~30s · 0 calls</div>
+    </div>
+
+    <div class="runbook__step">
+      <div class="runbook__num">10</div>
+      <div class="runbook__body">
+        <h4>Post · ledger update · degraded-mode tag</h4>
+        <p>If ≥2 confirmed/reported items: Components v2 post to <code>#🧠-intel</code>. Append degradation footer if Kimi/Exa/RSS failed. Update ledger with shipped + killed events. If &lt;2: silent log-only.</p>
+      </div>
+      <div class="runbook__budget">~3min · 1 call</div>
+    </div>
+
+    <div class="runbook__total">
+      <span>Total budget</span>
+      <span>10 search calls · 1 post call · 15min target / 25min ceiling</span>
+    </div>
+  </div>
+</section>
+
+<!-- =============== CONFIDENCE =============== -->
+<section id="confidence">
+  <div class="section-num">§ 04 · Confidence by source-of-origin</div>
+  <h2 class="section-title">Two appearances ≠ two confirmations.</h2>
+  <p class="section-lede">
+    The biggest v0.2 bug: counting outlets instead of <em>independent originating artifacts</em>. WAM republishing a MOFCOM press release is the same ink twice. v0.3 ranks artifacts by their distance from the actual source-of-truth — and only a genuinely independent second artifact can lift confidence to <code>confirmed</code>.
+  </p>
+
+  <div class="table-wrap">
+    <div class="table-scroll">
+      <table class="data-table">
+        <thead><tr><th>Artifact type</th><th>Source-of-origin status</th><th>Confidence weight</th></tr></thead>
+        <tbody>
+          <tr><td><span class="src-name">Exchange filing</span><small>HKEXnews · SSE · SZSE · CNINFO</small></td><td>Origin · regulatory</td><td><span class="status status--match">Strongest</span> · alone enough for <code>confirmed</code></td></tr>
+          <tr><td><span class="src-name">Company IR / corporate newsroom</span><small>Lenovo PR · BYD news · CATL IR</small></td><td>Origin · disclosing party</td><td><span class="status status--match">Very strong</span> · with one corroborator → <code>confirmed</code></td></tr>
+          <tr><td><span class="src-name">Counterparty newsroom</span><small>PIF · Alat · Mubadala · ADQ</small></td><td>Origin · receiving party</td><td><span class="status status--match">Strong</span> · with company-side → <code>confirmed</code></td></tr>
+          <tr><td><span class="src-name">Ministry / official-wire primary</span><small>WAM · SPA · QNA · MOFCOM original</small></td><td>Origin · government · only if specific actors named</td><td><span class="status status--warn">Medium</span> · alone = <code>reported</code></td></tr>
+          <tr><td><span class="src-name">Major business press original</span><small>Reuters · Bloomberg · The National</small></td><td>Independent reporting if it adds facts</td><td><span class="status status--warn">Medium</span> · standalone reporting = <code>reported</code></td></tr>
+          <tr><td><span class="src-name">PR distributor</span><small>AETOSWire · Zawya PR · Cision</small></td><td>Echo of company release · never original</td><td><span class="status status--warn">Weak</span> · doesn't lift confidence by itself</td></tr>
+          <tr><td><span class="src-name">CN financial flash / 出海 vertical</span><small>财联社 · 36氪出海 · 第一电动</small></td><td>Echo of corporate or filing source</td><td><span class="status status--warn">Weak alone</span> · with origin source → <code>reported</code> or better</td></tr>
+          <tr><td><span class="src-name">Social / forum chatter</span><small>微博 · 雪球 · 知乎</small></td><td>Not origin · investor/analyst speculation</td><td><span class="status status--gap">Watchlist only</span> · never ships standalone</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="conf-row">
+    <div class="conf-card conf-card--confirmed">
+      <div class="conf-card__label">● Confirmed</div>
+      <p><strong>Two independent originating artifacts</strong> from different sides of the deal. E.g. HKEX filing + counterparty newsroom; or company IR + Gulf SWF press release.</p>
+    </div>
+    <div class="conf-card conf-card--reported">
+      <div class="conf-card__label">● Reported</div>
+      <p><strong>One credible originating artifact</strong> without counterparty confirmation. E.g. ministry primary alone, or major business press standalone reporting.</p>
+    </div>
+    <div class="conf-card conf-card--watch">
+      <div class="conf-card__label">● Watch</div>
+      <p><strong>Echo / chatter / weak signal only.</strong> Goes to ledger but doesn't ship to Discord unless explicitly marked "strategic exception" with a one-line reason.</p>
+    </div>
+  </div>
+</section>
+
+<!-- =============== EDITORIAL GATE =============== -->
+<section id="gate">
+  <div class="section-num">§ 05 · Editorial gate</div>
+  <h2 class="section-title">Three hard kills before scoring.</h2>
+  <p class="section-lede">
+    v0.2's "≥3 of 5 questions" was a soft filter that let MOU theater through. v0.3 puts three <strong>mandatory</strong> gates first. If any fails, the candidate is killed. Only survivors get scored on the soft questions.
+  </p>
+
+  <div class="gate-grid">
+    <div class="gate">
+      <div class="gate__type">Hard kill 1</div>
+      <h4 class="gate__h">New fact</h4>
+      <p class="gate__b">Something material changed since the ledger's last entry on this <code>event_id</code>: new amount, new license, new plant location, new counterparty, new asset, new commercial milestone, new regulatory approval.</p>
+    </div>
+    <div class="gate">
+      <div class="gate__type">Hard kill 2</div>
+      <h4 class="gate__h">Named actor</h4>
+      <p class="gate__b">Specific named Chinese company <strong>and</strong> specific named Gulf counterparty (entity, ministry, fund, free zone, distributor). "A Chinese delegation" is not an actor. "Several Saudi investors" is not an actor.</p>
+    </div>
+    <div class="gate">
+      <div class="gate__type">Hard kill 3</div>
+      <h4 class="gate__h">Material action</h4>
+      <p class="gate__b">Money committed, order volume, license issued, plant or site, JV entity, deployment, tender award, or signed commercial contract. <code>"Exploring cooperation"</code>, <code>"delegation visited"</code>, <code>"roadshow held"</code>, <code>"framework MOU"</code> default to weekly background unless tied to named pipeline.</p>
+    </div>
+    <div class="gate gate--soft">
+      <div class="gate__type">Soft scoring</div>
+      <h4 class="gate__h">5Q on survivors only</h4>
+      <p class="gate__b">Thesis fit · Dhow/WAG lane · proof vs. pipeline · delta vs. yesterday · actionability for Raymond. Used for ranking, not gating. Top 3-5 ship.</p>
+    </div>
+  </div>
+</section>
+
+<!-- =============== SOURCE TIERING =============== -->
+<section id="sources">
+  <div class="section-num">§ 06 · Sources, retiered for actual use</div>
+  <h2 class="section-title">Daily / Verification / Weekly / Do-not-ship.</h2>
+  <p class="section-lede">
+    v0.2 listed 70 sources as if they were all daily-actionable. v0.3 splits them by <em>operational role</em>. Daily sources drive the watchlist + scan. Verification sources only fire on shortlisted candidates. Weekly sources are background context. Do-not-ship sources can <em>inform</em> queries but never anchor a shipped story.
+  </p>
+
+  <div class="table-wrap">
+    <div class="table-scroll">
+      <table class="data-table">
+        <thead><tr><th>Source</th><th>Origin signal</th><th>Lane</th></tr></thead>
+        <tbody>
+          <tr class="tier-divider tier-divider--A"><td colspan="3">Tier A · Daily — drive watchlist + scan (15)</td></tr>
+          <tr><td><span class="src-name">WAM</span><small>wam.ae</small></td><td>UAE official MOUs</td><td>Watch · Gulf</td></tr>
+          <tr><td><span class="src-name">SPA</span><small>spa.gov.sa</small></td><td>Saudi ministries · PIF</td><td>Watch · Gulf</td></tr>
+          <tr><td><span class="src-name">PIF / Alat / Mubadala / ADQ / CYVN / MGX / QIA newsrooms</span></td><td>SWF capital announcements</td><td>Watch · Gulf</td></tr>
+          <tr><td><span class="src-name">The National Business</span><small>thenationalnews.com/business</small></td><td>UAE deal confirmation</td><td>Scan · RSS</td></tr>
+          <tr><td><span class="src-name">Reuters Middle East · Bloomberg Mideast</span></td><td>High-confidence confirmations</td><td>Scan</td></tr>
+          <tr><td><span class="cn src-name">财联社</span><small>cls.cn</small></td><td>Listed-co + capital flashes</td><td>Watch · CN · Kimi</td></tr>
+          <tr><td><span class="cn src-name">36氪出海</span><small>36kr.com</small></td><td><span class="cn">出海</span> framing of CN deals</td><td>Watch · CN · Kimi</td></tr>
+          <tr><td><span class="cn src-name">第一财经</span><small>yicai.com</small></td><td>Outbound investment · policy</td><td>Watch · CN · Kimi</td></tr>
+          <tr><td><span class="cn src-name">第一电动 · 量子位 · 智东西</span></td><td>Sector verticals (EV · AV · AI)</td><td>Watch · CN · Kimi</td></tr>
+          <tr><td><span class="src-name">CnEVPost · Pandaily</span></td><td>EN bridge to CN tech</td><td>Scan · RSS</td></tr>
+          <tr><td><span class="src-name">Zawya PR · AETOSWire</span></td><td>Gulf company / ministry releases</td><td>Scan · Exa</td></tr>
+          <tr class="tier-divider tier-divider--B"><td colspan="3">Tier B · Verification — only fire on shortlisted candidates (5)</td></tr>
+          <tr><td><span class="src-name">HKEXnews</span><small>hkexnews.hk</small></td><td>HK-listed CN firms</td><td>Verify · 1 Exa call</td></tr>
+          <tr><td><span class="src-name">Lenovo / BYD / CATL / Geely IR newsrooms</span></td><td>Origin disclosure</td><td>Verify · direct fetch</td></tr>
+          <tr><td><span class="cn src-name">证券时报 / 上海证券报</span></td><td>A-share filings summarized</td><td>Verify · Kimi follow-up</td></tr>
+          <tr><td><span class="src-name">Argaam · Mubasher</span></td><td>GCC listed-co disclosures</td><td>Verify · Exa</td></tr>
+          <tr><td><span class="src-name">Caixin (paywall)</span></td><td>Higher-confidence reporting</td><td>Verify · snippet only</td></tr>
+          <tr class="tier-divider tier-divider--C"><td colspan="3">Tier C · Weekly — Sunday deep sweep, not daily (12)</td></tr>
+          <tr><td><span class="src-name">Free zones</span><small>DMCC · JAFZA · KEZAD · ADGM · RAKEZ · QFZ · MODON</small></td><td>Quarterly cadence · roadshows</td><td>Sunday sweep</td></tr>
+          <tr><td><span class="cn src-name">中国一带一路网 · MOFCOM 走出去 · CCPIT · NDRC</span></td><td>Policy frameworks · forums</td><td>Sunday sweep</td></tr>
+          <tr><td><span class="src-name">FII · GITEX · ADIPEC · World Government Summit</span></td><td>Conference moments</td><td>Event-triggered</td></tr>
+          <tr class="tier-divider tier-divider--D"><td colspan="3">Tier D · Do-not-ship — query expansion / hint only (8)</td></tr>
+          <tr><td><span class="cn src-name">雪球 · 知乎</span></td><td>Investor/analyst chatter</td><td>Hint only</td></tr>
+          <tr><td><span class="cn src-name">汽车之家 · 企业微博 / 公众号</span></td><td>Showroom noise · soft launch</td><td>Hint only</td></tr>
+          <tr><td><span class="cn src-name">CAAM · CABIA · CSIA</span></td><td>Background · stats only</td><td>Hint only</td></tr>
+          <tr><td><span class="src-name">Generic Khaleej / Gulf News retail</span></td><td>Auto retail noise</td><td>Hint only</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- =============== LEDGER + KIMI SPEC =============== -->
+<section id="ledger">
+  <div class="section-num">§ 07 · Persisted ledger &amp; Kimi output spec</div>
+  <h2 class="section-title">The thing v0.2 forgot to specify.</h2>
+  <p class="section-lede">
+    A one-session cron has zero memory. The ledger is the only way 90-day soft / 14-day hard dedup can actually work. Every shipped, killed, and follow-up event gets written.
+  </p>
+
+  <div class="col-2">
+    <div class="ve-card ve-card--gold">
+      <div class="ve-card__label" style="color:var(--gold);">Ledger · ~/.hermes/data/china-gulf-ledger.json</div>
+      <div class="spec-block"><span class="c">// one entry per event_id</span>
+{
+  <span class="k">"event_id"</span>: <span class="s">"lenovo-alat-riyadh-hub-2024-05"</span>,
+  <span class="k">"actors_cn"</span>: [<span class="s">"Lenovo / 联想"</span>],
+  <span class="k">"actors_gulf"</span>: [<span class="s">"Alat"</span>, <span class="s">"PIF"</span>],
+  <span class="k">"country"</span>: <span class="s">"SA"</span>,
+  <span class="k">"asset"</span>: <span class="s">"Riyadh manufacturing hub"</span>,
+  <span class="k">"action_type"</span>: <span class="s">"investment"</span>,
+  <span class="k">"amount_usd"</span>: <span class="s">"2B convertible"</span>,
+  <span class="k">"first_seen"</span>: <span class="s">"2024-05-29"</span>,
+  <span class="k">"last_seen"</span>: <span class="s">"2026-04-25"</span>,
+  <span class="k">"sources"</span>: [
+    {<span class="k">"url"</span>: <span class="s">"..."</span>, <span class="k">"type"</span>: <span class="s">"hkex_filing"</span>},
+    {<span class="k">"url"</span>: <span class="s">"..."</span>, <span class="k">"type"</span>: <span class="s">"company_ir"</span>}
+  ],
+  <span class="k">"confidence"</span>: <span class="s">"confirmed"</span>,
+  <span class="k">"status"</span>: <span class="s">"shipped"</span>,
+  <span class="k">"shipped_dates"</span>: [<span class="s">"2024-05-30"</span>],
+  <span class="k">"next_watch"</span>: <span class="s">"2026-08-01"</span>
+}</div>
+    </div>
+    <div class="ve-card ve-card--terracotta">
+      <div class="ve-card__label" style="color:var(--terracotta);">Kimi-cn JSON contract · per result</div>
+      <div class="spec-block"><span class="c">// scripts/kimi --json must produce this</span>
+{
+  <span class="k">"title_cn"</span>: <span class="s">"..."</span>,
+  <span class="k">"url"</span>: <span class="s">"..."</span>,             <span class="c">// required, non-empty</span>
+  <span class="k">"source"</span>: <span class="s">"36氪出海"</span>,    <span class="c">// required</span>
+  <span class="k">"published_at"</span>: <span class="s">"2026-04-24"</span>,
+  <span class="k">"claim"</span>: <span class="s">"one-line factual"</span>,
+  <span class="k">"actors"</span>: [<span class="s">"BYD"</span>, <span class="s">"PIF"</span>],
+  <span class="k">"is_original_source"</span>: <span class="s">true</span>,
+  <span class="k">"why_relevant"</span>: <span class="s">"WAG lane · proof"</span>
+}
+<span class="c">// missing url or source → discard</span></div>
+    </div>
+  </div>
+
+  <div class="ve-card" style="margin-top:18px; border-left: 3px solid var(--accent);">
+    <div class="ve-card__label" style="color:var(--accent);">Dedup behavior</div>
+    <p style="margin:0;font-size:14px;line-height:1.6;">
+      <strong>14-day hard:</strong> exact same article URL or near-duplicate headline → silently dropped. <strong>90-day soft:</strong> same <code>event_id</code> with no new fact → flagged as <code>follow-up</code>, ledger updated, doesn't ship. <strong>90-day soft + new fact:</strong> ships as "Update" with explicit delta vs. last entry.
+    </p>
+  </div>
+</section>
+
+<!-- =============== FAILURE MODES =============== -->
+<section id="failures">
+  <div class="section-num">§ 08 · Failure modes</div>
+  <h2 class="section-title">Silent degradation kills trust.</h2>
+  <p class="section-lede">
+    If Kimi or Exa fails mid-session, the post must <em>say so</em> — not look complete. Three explicit degradation states.
+  </p>
+
+  <div class="fail-grid">
+    <div class="fail-card">
+      <div class="fail-card__h">⚠ Kimi unavailable</div>
+      <p>Run Exa-only. Discord post footer: <code style="font-family:var(--font-mono);font-size:11px;background:var(--terracotta-dim);color:var(--terracotta);padding:1px 5px;border-radius:3px;">CN-native leg unavailable</code>. Confidence ceiling drops to <code>reported</code> for this run.</p>
+    </div>
+    <div class="fail-card">
+      <div class="fail-card__h">⚠ Exa partial / failed</div>
+      <p>Run Kimi + RSS only. Don't post unless ≥2 items have non-Kimi citations (RSS or direct extract). Footer: <code>Gulf web leg degraded</code>.</p>
+    </div>
+    <div class="fail-card">
+      <div class="fail-card__h">⚠ Both failed</div>
+      <p>RSS only. If RSS produces ≥2 candidates passing the editorial gate: ship with <code>RSS-only run</code> footer. Otherwise log silently.</p>
+    </div>
+    <div class="fail-card">
+      <div class="fail-card__h">⚠ Wall-clock &gt; 25min</div>
+      <p>Abort to summary mode: ship whatever passed the gate up to that point, footer notes <code>aborted at &lt;step&gt;</code>. Update ledger with partial state.</p>
+    </div>
+  </div>
+</section>
+
+<!-- =============== v0.2 vs v0.3 DELTA =============== -->
+<section id="delta">
+  <div class="section-num">§ 09 · v0.2 vs v0.3 · the diff</div>
+  <h2 class="section-title">What actually changes.</h2>
+
+  <div class="table-wrap">
+    <div class="table-scroll">
+      <table class="data-table delta-table">
+        <thead><tr><th>Dimension</th><th>v0.2</th><th>v0.3</th><th>Why</th></tr></thead>
+        <tbody>
+          <tr><td class="col-key">Architecture</td><td class="col-old">Discovery-first scan</td><td class="col-new">Watchlist-first (60 actors), discovery as accent</td><td>Deterministic queries beat free-form recall</td></tr>
+          <tr><td class="col-key">Total searches</td><td class="col-old">≥18 (8 Exa + 14 Kimi)</td><td class="col-new">10 (4 Exa + 5 Kimi + 1 verify)</td><td>Single-session can't sustain 18+</td></tr>
+          <tr><td class="col-key">Cadence</td><td class="col-old">06:25 → 09:20 pseudo-stages</td><td class="col-new">12:30 GST · single runbook · 25min ceiling</td><td>Cron fires once, not five times</td></tr>
+          <tr><td class="col-key">Run time</td><td class="col-old">09:20 GST</td><td class="col-new">12:30 GST</td><td>Catches A-share close (11:00 GST) + HKEX close + Gulf midday PR</td></tr>
+          <tr><td class="col-key">Output cap</td><td class="col-old">≤5 stories</td><td class="col-new">≤3 normal · 5 ceiling</td><td>Daily density isn't enough for 5 strong items</td></tr>
+          <tr><td class="col-key">Confidence rule</td><td class="col-old">Source count</td><td class="col-new">Source-of-origin · independent artifacts</td><td>Outlets repost the same release</td></tr>
+          <tr><td class="col-key">Editorial filter</td><td class="col-old">Soft 5Q · ≥3 to ship</td><td class="col-new">3 hard kills + soft 5Q for ranking</td><td>Soft filter let MOU theater through</td></tr>
+          <tr><td class="col-key">Source list</td><td class="col-old">~70 undifferentiated</td><td class="col-new">Daily 15 · Verify 5 · Weekly 12 · Hint-only 8</td><td>Operational role &gt; flat enumeration</td></tr>
+          <tr><td class="col-key">Filing checks</td><td class="col-old">SSE+SZSE+HKEX discovery</td><td class="col-new">HKEX + IR newsrooms · verification only · 1 call</td><td>SSE/SZSE crawls too brittle</td></tr>
+          <tr><td class="col-key">Dedup window</td><td class="col-old">14 days flat</td><td class="col-new">14d hard + 90d soft (follow-up)</td><td>Deals recur as MOU → license → JV over months</td></tr>
+          <tr><td class="col-key">Memory</td><td class="col-old">Implicit ("dedup window")</td><td class="col-new">Explicit JSON ledger w/ event_id</td><td>One-session cron has zero memory</td></tr>
+          <tr><td class="col-key">Watch tier</td><td class="col-old">Could ship</td><td class="col-new">Never ships unless "strategic exception"</td><td>Watch is rumor — dilutes channel signal</td></tr>
+          <tr><td class="col-key">Failure handling</td><td class="col-old">Silent</td><td class="col-new">3 named degradation modes + Discord footer</td><td>Trust erodes when posts look complete after partial failure</td></tr>
+          <tr><td class="col-key">Egypt</td><td class="col-old">Mixed into Gulf flow</td><td class="col-new">Tagged separately as "manufacturing beachhead"</td><td>Egypt is a stepping stone, not a Gulf market</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- =============== STILL OPEN =============== -->
+<section id="open">
+  <div class="section-num">§ 10 · Still open</div>
+  <h2 class="section-title">Three decisions before I ship.</h2>
+
+  <div class="col-3">
+    <div class="ve-card ve-card--terracotta">
+      <div class="ve-card__label" style="color:var(--terracotta);">Q1 · Run time</div>
+      <p style="font-size:15px;"><strong>12:30 GST</strong> is my recommendation (catches A-share close + HKEX close + Gulf midday PR). v0.2 was 09:20. Confirm 12:30 or pick another.</p>
+    </div>
+    <div class="ve-card ve-card--terracotta">
+      <div class="ve-card__label" style="color:var(--terracotta);">Q2 · Two-week trial</div>
+      <p style="font-size:15px;">After 14 days, retro: how many shipped items? Confidence distribution? Watch-list churn? <strong>Default: yes, 14d trial then review.</strong></p>
+    </div>
+    <div class="ve-card ve-card--terracotta">
+      <div class="ve-card__label" style="color:var(--terracotta);">Q3 · Watchlist v1 sign-off</div>
+      <p style="font-size:15px;">60 actors listed in §02. Want to add / remove anyone before I lock it in? <strong>Default: ship as-is, you correct after the first week.</strong></p>
+    </div>
+  </div>
+</section>
+
+<!-- =============== FOOTER =============== -->
+<div class="footer">
+  <div>China↔Gulf Deal Flow · v0.3 · 2026-04-25 · final pre-implementation</div>
+  <div>Synthesis: opus-4.7 · Critical review: gpt-5.5 · For Raymond Zhu</div>
+</div>
+
+</main>
+
+<script type="module">
+import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+
+const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+mermaid.initialize({
+  startOnLoad: false,
+  theme: 'base',
+  fontFamily: 'DM Sans, system-ui, sans-serif',
+  flowchart: { curve: 'basis', padding: 22, useMaxWidth: false },
+  themeVariables: {
+    fontSize: '15px',
+    primaryColor: isDark ? '#1c2540' : '#ffffff',
+    primaryTextColor: isDark ? '#e8dcc3' : '#1c233c',
+    primaryBorderColor: isDark ? '#6a9bd1' : '#1e3a5f',
+    lineColor: isDark ? '#8c8a82' : '#6a6f86',
+    secondaryColor: isDark ? '#2a3550' : '#faf6ee',
+    tertiaryColor: isDark ? '#1c2540' : '#fdf6e3',
+    background: 'transparent',
+  }
+});
+
+const config = { fitPadding: 32, zoomMin: 0.4, zoomMax: 3.0, zoomStep: 0.15, readabilityFloor: 0.85 };
+const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
+let activeDrag = null;
+
+addEventListener('mousemove', (e) => activeDrag?.onMove(e));
+addEventListener('mouseup',   ()  => { activeDrag?.onEnd(); activeDrag = null; });
+
+function initDiagram(shell) {
+  const wrap     = shell.querySelector('.mermaid-wrap');
+  const viewport = shell.querySelector('.mermaid-viewport');
+  const canvas   = shell.querySelector('.mermaid-canvas');
+  const source   = shell.querySelector('.diagram-source');
+  const label    = shell.querySelector('.zoom-label');
+  if (!wrap || !viewport || !canvas || !source) return;
+
+  let zoom = 1, panX = 0, panY = 0, svgW = 0, svgH = 0;
+
+  const apply = () => {
+    const svg = canvas.querySelector('svg');
+    if (!svg) return;
+    svg.style.width  = (svgW * zoom) + 'px';
+    svg.style.height = (svgH * zoom) + 'px';
+    canvas.style.transform = `translate(${panX}px, ${panY}px)`;
+    if (label) label.textContent = Math.round(zoom * 100) + '%';
+  };
+  const fit = () => {
+    if (!svgW || !svgH) return;
+    const r = viewport.getBoundingClientRect();
+    const z = Math.min((r.width - config.fitPadding) / svgW, (r.height - config.fitPadding) / svgH);
+    zoom = clamp(Math.max(z, config.readabilityFloor), config.zoomMin, config.zoomMax);
+    panX = (r.width  - svgW * zoom) / 2;
+    panY = (r.height - svgH * zoom) / 2;
+    apply();
+  };
+
+  async function render() {
+    try {
+      const code = source.textContent.trim();
+      const id = 'd-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7);
+      const { svg } = await mermaid.render(id, code);
+      canvas.innerHTML = svg;
+      const svgEl = canvas.querySelector('svg');
+      if (svgEl) {
+        const vb = svgEl.viewBox?.baseVal;
+        svgW = vb && vb.width  ? vb.width  : svgEl.getBBox().width;
+        svgH = vb && vb.height ? vb.height : svgEl.getBBox().height;
+        svgEl.removeAttribute('width'); svgEl.removeAttribute('height');
+        svgEl.style.maxWidth = 'none';
+      }
+      const minH = Math.min(640, Math.max(480, svgH + 60));
+      viewport.style.height = minH + 'px';
+      wrap.style.minHeight  = (minH + 32) + 'px';
+      requestAnimationFrame(fit);
+    } catch (err) {
+      console.error('Mermaid render failed:', err);
+      if (label) label.textContent = 'Error';
+    }
+  }
+
+  shell.querySelector('[data-action="zoom-in"]') ?.addEventListener('click', () => { zoom = clamp(zoom + config.zoomStep, config.zoomMin, config.zoomMax); apply(); });
+  shell.querySelector('[data-action="zoom-out"]')?.addEventListener('click', () => { zoom = clamp(zoom - config.zoomStep, config.zoomMin, config.zoomMax); apply(); });
+  shell.querySelector('[data-action="zoom-fit"]')?.addEventListener('click', fit);
+  shell.querySelector('[data-action="zoom-one"]')?.addEventListener('click', () => {
+    zoom = 1;
+    const r = viewport.getBoundingClientRect();
+    panX = (r.width - svgW) / 2; panY = (r.height - svgH) / 2; apply();
+  });
+
+  viewport.addEventListener('wheel', (e) => {
+    if (!e.ctrlKey && !e.metaKey) return;
+    e.preventDefault();
+    const r = viewport.getBoundingClientRect();
+    const cx = e.clientX - r.left, cy = e.clientY - r.top;
+    const oldZ = zoom;
+    zoom = clamp(zoom * (e.deltaY < 0 ? 1.12 : 1/1.12), config.zoomMin, config.zoomMax);
+    panX = cx - (cx - panX) * (zoom / oldZ);
+    panY = cy - (cy - panY) * (zoom / oldZ);
+    apply();
+  }, { passive: false });
+
+  viewport.addEventListener('mousedown', (e) => {
+    if (e.button !== 0) return;
+    e.preventDefault();
+    wrap.classList.add('is-panning');
+    const startX = e.clientX, startY = e.clientY;
+    const startPanX = panX, startPanY = panY;
+    activeDrag = {
+      onMove: (ev) => { panX = startPanX + (ev.clientX - startX); panY = startPanY + (ev.clientY - startY); apply(); },
+      onEnd:  () => { wrap.classList.remove('is-panning'); }
+    };
+  });
+
+  viewport.addEventListener('dblclick', fit);
+  addEventListener('resize', () => requestAnimationFrame(fit));
+  render();
+}
+
+document.querySelectorAll('.diagram-shell').forEach(initDiagram);
+</script>
+</body>
+</html>
