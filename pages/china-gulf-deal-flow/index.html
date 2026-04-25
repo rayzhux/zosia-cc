@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>China↔Gulf Deal Flow — Cron Job Plan</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --font-display: 'Instrument Serif', 'Times New Roman', serif;
+  --font-body: 'DM Sans', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+
+  --bg: #faf6ee;
+  --surface: #ffffff;
+  --surface-elevated: #ffffff;
+  --border: rgba(28, 35, 60, 0.08);
+  --border-bright: rgba(28, 35, 60, 0.18);
+  --text: #1c233c;
+  --text-bright: #0d1228;
+  --text-dim: #6a6f86;
+
+  --accent: #1e3a5f;
+  --accent-dim: rgba(30, 58, 95, 0.10);
+  --gold: #b08a2e;
+  --gold-dim: rgba(176, 138, 46, 0.14);
+  --terracotta: #b04e2e;
+  --terracotta-dim: rgba(176, 78, 46, 0.10);
+  --sage: #5a7148;
+  --sage-dim: rgba(90, 113, 72, 0.12);
+  --crimson: #8b1c2b;
+  --crimson-dim: rgba(139, 28, 43, 0.10);
+
+  --node-a: var(--accent);
+  --node-a-dim: var(--accent-dim);
+  --node-b: var(--sage);
+  --node-b-dim: var(--sage-dim);
+  --node-c: var(--gold);
+  --node-c-dim: var(--gold-dim);
+
+  --green: var(--sage);
+  --green-dim: var(--sage-dim);
+  --red: var(--crimson);
+  --red-dim: var(--crimson-dim);
+  --orange: var(--terracotta);
+  --orange-dim: var(--terracotta-dim);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0e1422;
+    --surface: #161e30;
+    --surface-elevated: #1c2540;
+    --border: rgba(232, 220, 195, 0.08);
+    --border-bright: rgba(232, 220, 195, 0.18);
+    --text: #e8dcc3;
+    --text-bright: #f5edd9;
+    --text-dim: #8c8a82;
+
+    --accent: #6a9bd1;
+    --accent-dim: rgba(106, 155, 209, 0.12);
+    --gold: #d4a73a;
+    --gold-dim: rgba(212, 167, 58, 0.16);
+    --terracotta: #cc7754;
+    --terracotta-dim: rgba(204, 119, 84, 0.14);
+    --sage: #9eb27e;
+    --sage-dim: rgba(158, 178, 126, 0.14);
+    --crimson: #c75c6e;
+    --crimson-dim: rgba(199, 92, 110, 0.14);
+  }
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  background: var(--bg);
+  background-image:
+    radial-gradient(at 18% 12%, var(--gold-dim) 0%, transparent 45%),
+    radial-gradient(at 88% 80%, var(--accent-dim) 0%, transparent 50%);
+  color: var(--text);
+  font-size: 16px;
+  line-height: 1.6;
+  overflow-wrap: break-word;
+}
+
+.wrap { max-width: 1180px; margin: 0 auto; padding: 64px 32px 96px; }
+.grid > *, .flex > * { min-width: 0; }
+
+/* ---------- Hero ---------- */
+.hero { padding: 24px 0 56px; border-bottom: 1px solid var(--border); margin-bottom: 56px; }
+.hero__kicker {
+  font-family: var(--font-mono);
+  font-size: 11px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 2.5px;
+  color: var(--gold);
+  margin-bottom: 18px;
+  display: flex; align-items: center; gap: 10px;
+}
+.hero__kicker::before {
+  content: ''; width: 28px; height: 1px; background: var(--gold);
+}
+.hero__title {
+  font-family: var(--font-display);
+  font-size: clamp(44px, 6vw, 76px);
+  font-weight: 400;
+  line-height: 1.02;
+  letter-spacing: -1px;
+  margin: 0 0 14px;
+  color: var(--text-bright);
+}
+.hero__title em { font-style: italic; color: var(--gold); }
+.hero__sub {
+  font-size: 19px; line-height: 1.55; max-width: 720px;
+  color: var(--text); margin: 0 0 28px;
+}
+.hero__sub strong { color: var(--text-bright); font-weight: 600; }
+.hero__meta {
+  display: flex; flex-wrap: wrap; gap: 20px;
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--text-dim); text-transform: uppercase; letter-spacing: 1.5px;
+}
+.hero__meta span { display: inline-flex; align-items: center; gap: 6px; }
+.hero__meta span::before {
+  content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--gold);
+}
+
+/* ---------- Section primitives ---------- */
+section { margin-bottom: 80px; }
+h2.section-title {
+  font-family: var(--font-display);
+  font-size: clamp(30px, 3.5vw, 42px);
+  font-weight: 400; font-style: italic;
+  line-height: 1.1; margin: 0 0 6px;
+  color: var(--text-bright);
+}
+.section-num {
+  font-family: var(--font-mono);
+  font-size: 11px; font-weight: 600;
+  color: var(--gold);
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+}
+.section-lede {
+  font-size: 17px; max-width: 780px; color: var(--text);
+  margin: 12px 0 32px;
+}
+
+/* ---------- KPI row ---------- */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+  margin-bottom: 56px;
+}
+.kpi {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--gold);
+  border-radius: 8px;
+  padding: 18px 20px;
+}
+.kpi__value {
+  font-family: var(--font-display);
+  font-size: 38px; font-weight: 400;
+  line-height: 1; letter-spacing: -0.5px;
+  color: var(--text-bright);
+  font-variant-numeric: tabular-nums;
+}
+.kpi__label {
+  font-family: var(--font-mono); font-size: 10px;
+  font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px;
+  color: var(--text-dim); margin-top: 8px;
+}
+
+/* ---------- Cards ---------- */
+.ve-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 22px 24px;
+}
+.ve-card--accent { border-left: 3px solid var(--accent); }
+.ve-card--gold { border-left: 3px solid var(--gold); }
+.ve-card--sage { border-left: 3px solid var(--sage); }
+.ve-card--terracotta { border-left: 3px solid var(--terracotta); }
+.ve-card--crimson { border-left: 3px solid var(--crimson); }
+.ve-card__label {
+  font-family: var(--font-mono); font-size: 10px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 2px;
+  margin-bottom: 12px;
+  display: flex; align-items: center; gap: 8px;
+}
+.ve-card__label::before {
+  content: ''; width: 8px; height: 8px; border-radius: 50%;
+  background: currentColor;
+}
+.ve-card__title {
+  font-family: var(--font-display); font-size: 24px; font-weight: 400;
+  line-height: 1.2; margin: 0 0 8px; color: var(--text-bright);
+}
+.ve-card p { margin: 0 0 8px; }
+.ve-card p:last-child { margin-bottom: 0; }
+.ve-card__lede {
+  font-size: 15px; line-height: 1.55; color: var(--text-dim);
+}
+
+/* ---------- Two/Three column grids ---------- */
+.col-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+.col-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+@media (max-width: 900px) {
+  .col-3, .col-2 { grid-template-columns: 1fr; }
+}
+
+/* ---------- Mermaid containers ---------- */
+.diagram-shell { position: relative; margin-bottom: 24px; }
+.diagram-shell__hint {
+  font-family: var(--font-mono); font-size: 10px;
+  color: var(--text-dim); margin-bottom: 8px; opacity: 0.7;
+  text-transform: uppercase; letter-spacing: 1.5px;
+}
+.mermaid-wrap {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 32px 24px;
+  display: flex; justify-content: center; align-items: center;
+  min-height: 480px;
+  cursor: grab;
+}
+.mermaid-wrap.is-panning { cursor: grabbing; user-select: none; }
+.mermaid-viewport {
+  position: relative; overflow: hidden;
+  width: 100%; height: 100%; min-height: 420px;
+}
+.mermaid-canvas { position: absolute; top: 0; left: 0; }
+.zoom-controls {
+  position: absolute; top: 10px; right: 10px;
+  display: flex; gap: 2px; z-index: 10;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px; padding: 2px;
+}
+.zoom-controls button {
+  width: 28px; height: 28px; border: none; background: transparent;
+  color: var(--text-dim); font-family: var(--font-mono); font-size: 14px;
+  cursor: pointer; border-radius: 4px;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.zoom-controls button:hover { background: var(--border); color: var(--text); }
+.zoom-label {
+  font-family: var(--font-mono); font-size: 10px;
+  color: var(--text-dim); padding: 0 6px; white-space: nowrap;
+  display: flex; align-items: center;
+}
+
+/* ---------- Tables ---------- */
+.table-wrap {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.data-table thead { position: sticky; top: 0; z-index: 2; }
+.data-table th {
+  background: color-mix(in srgb, var(--surface) 92%, var(--accent) 8%);
+  font-family: var(--font-mono);
+  font-size: 10px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 1.5px;
+  color: var(--text-dim);
+  text-align: left; padding: 12px 16px;
+  border-bottom: 2px solid var(--border-bright);
+  white-space: nowrap;
+}
+.data-table td {
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+  color: var(--text);
+}
+.data-table tbody tr:nth-child(even) {
+  background: color-mix(in srgb, var(--surface) 96%, var(--gold) 4%);
+}
+.data-table tbody tr:last-child td { border-bottom: none; }
+.data-table .src-name { font-weight: 600; color: var(--text-bright); }
+.data-table small { display: block; color: var(--text-dim); font-size: 11px; margin-top: 2px; }
+
+/* ---------- Tags / status ---------- */
+.tag {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 10px; font-weight: 500;
+  padding: 2px 7px; border-radius: 4px;
+  background: var(--accent-dim); color: var(--accent);
+  margin-right: 4px; white-space: nowrap;
+}
+.tag--gold { background: var(--gold-dim); color: var(--gold); }
+.tag--sage { background: var(--sage-dim); color: var(--sage); }
+.tag--terracotta { background: var(--terracotta-dim); color: var(--terracotta); }
+.tag--crimson { background: var(--crimson-dim); color: var(--crimson); }
+
+.status {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--font-mono); font-size: 10px; font-weight: 500;
+  padding: 3px 9px; border-radius: 5px; white-space: nowrap;
+}
+.status--match { background: var(--green-dim); color: var(--green); }
+.status--gap { background: var(--red-dim); color: var(--red); }
+.status--warn { background: var(--orange-dim); color: var(--orange); }
+
+/* ---------- Numbered list ---------- */
+.editorial-list { counter-reset: ed; padding: 0; list-style: none; }
+.editorial-list li {
+  counter-increment: ed;
+  position: relative;
+  padding: 18px 22px 18px 76px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--gold);
+  border-radius: 10px;
+  margin-bottom: 12px;
+}
+.editorial-list li::before {
+  content: counter(ed, decimal-leading-zero);
+  position: absolute;
+  left: 22px; top: 18px;
+  font-family: var(--font-display);
+  font-size: 32px; font-style: italic;
+  font-weight: 400; line-height: 1;
+  color: var(--gold);
+}
+.editorial-list h4 {
+  margin: 0 0 6px;
+  font-family: var(--font-body);
+  font-size: 16px; font-weight: 600;
+  color: var(--text-bright);
+}
+.editorial-list p {
+  margin: 0; font-size: 14px; line-height: 1.55;
+  color: var(--text-dim);
+}
+
+/* ---------- Discord mockup ---------- */
+.discord-mock {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  font-size: 14px;
+}
+.dm-header {
+  background: color-mix(in srgb, var(--surface) 90%, var(--accent) 10%);
+  padding: 10px 18px;
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--text-dim);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 8px;
+}
+.dm-header::before {
+  content: '#'; color: var(--gold); font-weight: 700;
+}
+.dm-body { padding: 16px 18px 20px; }
+.dm-container {
+  border-left: 4px solid var(--accent);
+  background: color-mix(in srgb, var(--surface) 96%, var(--accent) 4%);
+  padding: 12px 16px;
+  margin-bottom: 8px;
+  border-radius: 0 6px 6px 0;
+}
+.dm-container--gold { border-left-color: var(--gold); background: color-mix(in srgb, var(--surface) 96%, var(--gold) 4%); }
+.dm-container--sage { border-left-color: var(--sage); background: color-mix(in srgb, var(--surface) 96%, var(--sage) 4%); }
+.dm-container--terracotta { border-left-color: var(--terracotta); background: color-mix(in srgb, var(--surface) 96%, var(--terracotta) 4%); }
+.dm-container--crimson { border-left-color: var(--crimson); background: color-mix(in srgb, var(--surface) 96%, var(--crimson) 4%); }
+.dm-title {
+  font-weight: 700; color: var(--text-bright);
+  margin-bottom: 4px;
+}
+.dm-sub { font-size: 12px; color: var(--text-dim); margin-bottom: 6px; }
+.dm-section-h {
+  font-family: var(--font-display);
+  font-size: 18px; font-style: italic;
+  color: var(--text-bright);
+  margin: 4px 0 8px;
+}
+.dm-item { margin-bottom: 10px; line-height: 1.5; }
+.dm-item:last-child { margin-bottom: 0; }
+.dm-item a { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
+.dm-arrow { color: var(--text-dim); margin-right: 4px; }
+.dm-divider { height: 1px; background: var(--border); margin: 8px 0; }
+
+/* ---------- Query examples / code ---------- */
+.query-list { display: grid; gap: 8px; margin-top: 12px; }
+.query {
+  font-family: var(--font-mono); font-size: 12px;
+  background: color-mix(in srgb, var(--surface) 90%, var(--accent) 10%);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 9px 12px;
+  word-break: break-word;
+}
+.query__lang {
+  display: inline-block;
+  font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px;
+  font-weight: 700;
+  padding: 1px 5px; border-radius: 3px; margin-right: 8px;
+  vertical-align: middle;
+}
+.query__lang--en { background: var(--accent-dim); color: var(--accent); }
+.query__lang--cn { background: var(--crimson-dim); color: var(--crimson); }
+.query__lang--site { background: var(--gold-dim); color: var(--gold); }
+
+/* ---------- Open questions ---------- */
+.q-list { padding: 0; list-style: none; counter-reset: q; }
+.q-list li {
+  counter-increment: q;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px 20px 16px 60px;
+  margin-bottom: 10px;
+  position: relative;
+  font-size: 15px; line-height: 1.55;
+}
+.q-list li::before {
+  content: 'Q' counter(q);
+  position: absolute; left: 18px; top: 16px;
+  font-family: var(--font-mono);
+  font-size: 11px; font-weight: 700;
+  color: var(--terracotta);
+  letter-spacing: 1px;
+  background: var(--terracotta-dim);
+  padding: 4px 7px; border-radius: 4px;
+}
+
+/* ---------- Footer ---------- */
+.footer {
+  margin-top: 80px; padding-top: 28px;
+  border-top: 1px solid var(--border);
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--text-dim);
+  display: flex; flex-wrap: wrap; gap: 16px; justify-content: space-between;
+}
+
+/* Anchor offset for sticky-style nav */
+.anchor { position: relative; top: -20px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.fade-up { animation: fadeUp 0.5s ease-out both; animation-delay: calc(var(--i, 0) * 0.05s); }
+</style>
+  <meta property="og:title" content="China↔Gulf Deal Flow — Cron Job Plan">
+  <meta property="og:description" content="Three discovery legs (curated RSS, Exa freshness, Chinese-language native search) converge into a scoring funnel. Anything that fails the editorial filter is killed before it costs a slot. Output is a">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://zosia.cc/pages/china-gulf-deal-flow">
+  <meta name="twitter:card" content="summary">
+</head>
+<body>
+<main class="wrap">
+
+<!-- =============== HERO =============== -->
+<header class="hero">
+  <div class="hero__kicker">Cron Job Plan · v0.1</div>
+  <h1 class="hero__title">China<em>↔</em>Gulf<br>Deal Flow</h1>
+  <p class="hero__sub">
+    A daily Discord drop tuned to <strong>Raymond's two-ecosystem thesis</strong> — Chinese manufacturing &amp; tech meeting Gulf capital &amp; demand. Replaces generic news with corridor-specific signal: Chinese OEMs entering MENA, Gulf SWFs writing China checks, government MOUs that unlock pipeline. Designed to be the most "only-Raymond-benefits-from-this" job in the cron rig.
+  </p>
+  <div class="hero__meta">
+    <span>Daily 09:20 GST</span>
+    <span>~25 sources</span>
+    <span>Max 5 stories</span>
+    <span>#🧠-intel · Discord</span>
+    <span>Components v2</span>
+  </div>
+</header>
+
+<!-- =============== KPIs =============== -->
+<div class="kpi-row">
+  <div class="kpi"><div class="kpi__value">5</div><div class="kpi__label">Stories / day · max</div></div>
+  <div class="kpi"><div class="kpi__value">25</div><div class="kpi__label">Curated sources</div></div>
+  <div class="kpi"><div class="kpi__value">8</div><div class="kpi__label">Search budget · max</div></div>
+  <div class="kpi"><div class="kpi__value">14d</div><div class="kpi__label">Topic dedup window</div></div>
+  <div class="kpi"><div class="kpi__value">EN+中文</div><div class="kpi__label">Bilingual scan</div></div>
+</div>
+
+<!-- =============== PIPELINE =============== -->
+<section id="pipeline">
+  <div class="section-num">§ 01 · Pipeline</div>
+  <h2 class="section-title">How a story becomes a drop.</h2>
+  <p class="section-lede">
+    Three discovery legs (curated RSS, Exa freshness, Chinese-language native search) converge into a scoring funnel. Anything that fails the editorial filter is killed before it costs a slot. Output is a Components v2 message; an empty day stays empty.
+  </p>
+
+  <section class="diagram-shell">
+    <p class="diagram-shell__hint">Ctrl/Cmd + scroll to zoom · drag to pan · double-click to fit</p>
+    <div class="mermaid-wrap">
+      <div class="zoom-controls">
+        <button type="button" data-action="zoom-in" title="Zoom in">+</button>
+        <button type="button" data-action="zoom-out" title="Zoom out">&minus;</button>
+        <button type="button" data-action="zoom-fit" title="Smart fit">&#8634;</button>
+        <button type="button" data-action="zoom-one" title="1:1 zoom">1:1</button>
+        <span class="zoom-label">Loading…</span>
+      </div>
+      <div class="mermaid-viewport">
+        <div class="mermaid mermaid-canvas"></div>
+      </div>
+    </div>
+    <script type="text/plain" class="diagram-source">
+flowchart TD
+  classDef src fill:#fdf6e3,stroke:#1e3a5f,stroke-width:1.5px,color:#1c233c
+  classDef cn fill:#f6e3e0,stroke:#8b1c2b,stroke-width:1.5px,color:#1c233c
+  classDef gov fill:#eef0d6,stroke:#5a7148,stroke-width:1.5px,color:#1c233c
+  classDef proc fill:#ffffff,stroke:#1e3a5f,stroke-width:1.5px,color:#1c233c
+  classDef gate fill:#f8eccd,stroke:#b08a2e,stroke-width:2px,color:#1c233c
+  classDef out fill:#1e3a5f,stroke:#b08a2e,stroke-width:2px,color:#faf6ee
+  classDef kill fill:#f6e3e0,stroke:#8b1c2b,stroke-width:1.5px,color:#1c233c,stroke-dasharray: 4 3
+
+  S1["Gulf-side RSS<br/>Zawya · The National<br/>Arabian Business · AGBI"]:::src
+  S2["Chinese-side<br/>CnEVPost · Gasgoo<br/>EqualOcean · 36Kr"]:::cn
+  S3["Bilateral / Government<br/>WAM · SPA · MOFCOM<br/>Invest Saudi · PIF"]:::gov
+
+  D1["Exa freshness scan<br/>last 36h · 5 queries"]:::proc
+  D2["Native Chinese search<br/>出海 · 中东 · 海湾"]:::proc
+
+  G1{{"Editorial filter<br/>Thesis · Actor · Lane · Pipeline"}}:::gate
+  K1["KILL<br/>generic geopolitics<br/>no named actor<br/>no executable edge"]:::kill
+
+  R1["Score & cluster<br/>by signal type"]:::proc
+  R2["Topic dedup<br/>14d window"]:::proc
+
+  O1["Components v2 post<br/>≤5 stories · 4 sections"]:::out
+  O2["Quiet day → log only<br/>no Discord post"]:::kill
+
+  S1 --> D1
+  S3 --> D1
+  S2 --> D2
+  D1 --> G1
+  D2 --> G1
+  G1 -->|fail| K1
+  G1 -->|pass| R1
+  R1 --> R2
+  R2 -->|2+ items| O1
+  R2 -->|< 2 items| O2
+    </script>
+  </section>
+</section>
+
+<!-- =============== SOURCES =============== -->
+<section id="sources">
+  <div class="section-num">§ 02 · Source tier list</div>
+  <h2 class="section-title">~25 sources, three buckets.</h2>
+  <p class="section-lede">
+    Curated to favor named-company / signed-deal signal over hot takes. RSS where available, Exa fallback elsewhere. The bilateral-government tier exists to catch frameworks that create future pipeline — MOUs, FTA progress, sovereign co-investment platforms — before they show up in trade press.
+  </p>
+
+  <div class="ve-card ve-card--crimson" style="margin-bottom:18px;">
+    <div class="ve-card__label" style="color:var(--crimson);">Tier 1 · Chinese-side</div>
+    <p class="ve-card__lede">Where Chinese outbound moves are reported first. Native-language sources go in the Chinese-search leg; English aggregators feed the Exa scan.</p>
+    <div class="table-wrap" style="margin-top:14px;">
+      <div class="table-scroll">
+        <table class="data-table">
+          <thead><tr><th>Source</th><th>Signal</th><th>Lang</th><th>Channel</th></tr></thead>
+          <tbody>
+            <tr><td><span class="src-name">Yicai Global</span><small>yicaiglobal.com</small></td><td><span class="tag tag--terracotta">Outbound</span><span class="tag">Capital</span></td><td>EN</td><td>Exa</td></tr>
+            <tr><td><span class="src-name">Caixin Global · World</span><small>caixinglobal.com/world</small></td><td><span class="tag tag--terracotta">Deal-flow</span><span class="tag">Policy</span></td><td>EN</td><td>Exa · paywall</td></tr>
+            <tr><td><span class="src-name">36Kr Going Global</span><small>eu.36kr.com/en</small></td><td><span class="tag tag--terracotta">Startups</span></td><td>EN/中</td><td>Exa</td></tr>
+            <tr><td><span class="src-name">EqualOcean</span><small>equalocean.com</small></td><td><span class="tag tag--terracotta">Industrial</span><span class="tag">出海</span></td><td>EN/中</td><td>Exa</td></tr>
+            <tr><td><span class="src-name">CnEVPost</span><small>cnevpost.com</small></td><td><span class="tag tag--crimson">EV / AV</span></td><td>EN</td><td><span class="status status--match">RSS</span></td></tr>
+            <tr><td><span class="src-name">Gasgoo Auto News</span><small>autonews.gasgoo.com</small></td><td><span class="tag tag--crimson">Auto OEM</span></td><td>EN</td><td>Exa</td></tr>
+            <tr><td><span class="src-name">Pandaily</span><small>pandaily.com</small></td><td><span class="tag tag--terracotta">Tech / AI</span></td><td>EN</td><td><span class="status status--match">RSS</span></td></tr>
+            <tr><td><span class="src-name">KrASIA</span><small>kr-asia.com</small></td><td><span class="tag tag--terracotta">Spillover SEA→GCC</span></td><td>EN</td><td>Exa</td></tr>
+            <tr><td><span class="src-name">Xinhua Silk Road</span><small>en.imsilkroad.com</small></td><td><span class="tag tag--gold">BRI · Contracts</span></td><td>EN</td><td>Exa</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="ve-card ve-card--sage" style="margin-bottom:18px;">
+    <div class="ve-card__label" style="color:var(--sage);">Tier 2 · Gulf-side</div>
+    <p class="ve-card__lede">Where Gulf capital moves and Chinese-counterparty entries are confirmed locally. Mix of dailies, deal-trackers, and projects-press.</p>
+    <div class="table-wrap" style="margin-top:14px;">
+      <div class="table-scroll">
+        <table class="data-table">
+          <thead><tr><th>Source</th><th>Signal</th><th>Lang</th><th>Channel</th></tr></thead>
+          <tbody>
+            <tr><td><span class="src-name">Zawya</span><small>zawya.com/en</small></td><td><span class="tag tag--sage">Capital · Projects</span></td><td>EN/AR</td><td>Exa</td></tr>
+            <tr><td><span class="src-name">The National Business</span><small>thenationalnews.com/business</small></td><td><span class="tag tag--sage">UAE · China</span></td><td>EN</td><td><span class="status status--match">RSS</span></td></tr>
+            <tr><td><span class="src-name">Gulf News Business</span><small>gulfnews.com/business</small></td><td><span class="tag tag--sage">Trade · Auto · Aviation</span></td><td>EN</td><td><span class="status status--warn">RSS partial</span></td></tr>
+            <tr><td><span class="src-name">Arabian Business</span><small>arabianbusiness.com</small></td><td><span class="tag tag--sage">Capital · Execs</span></td><td>EN</td><td><span class="status status--match">RSS</span></td></tr>
+            <tr><td><span class="src-name">AGBI</span><small>agbi.com</small></td><td><span class="tag tag--sage">SWFs · AI</span></td><td>EN</td><td>Exa · partial paywall</td></tr>
+            <tr><td><span class="src-name">MEED</span><small>meed.com</small></td><td><span class="tag tag--gold">Projects · Tenders</span></td><td>EN</td><td>Exa · paywall</td></tr>
+            <tr><td><span class="src-name">Argaam</span><small>argaam.com/en</small></td><td><span class="tag tag--sage">PIF · Tadawul</span></td><td>EN/AR</td><td>Exa</td></tr>
+            <tr><td><span class="src-name">Enterprise UAE</span><small>enterprise.news/uae</small></td><td><span class="tag tag--sage">UAE digest</span></td><td>EN</td><td>Exa</td></tr>
+            <tr><td><span class="src-name">TradeArabia</span><small>tradearabia.com</small></td><td><span class="tag tag--sage">Project announcements</span></td><td>EN</td><td>Exa</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="ve-card ve-card--gold">
+    <div class="ve-card__label" style="color:var(--gold);">Tier 3 · Bilateral / Government</div>
+    <p class="ve-card__lede">Frameworks, MOUs, and sovereign platforms — the slow signal that creates bankable pipeline 6-18 months out. Most of these have no RSS; weekly Exa sweep.</p>
+    <div class="table-wrap" style="margin-top:14px;">
+      <div class="table-scroll">
+        <table class="data-table">
+          <thead><tr><th>Source</th><th>Signal</th><th>Lang</th><th>Channel</th></tr></thead>
+          <tbody>
+            <tr><td><span class="src-name">WAM</span><small>wam.ae</small></td><td><span class="tag tag--gold">UAE official MOUs</span></td><td>EN/AR/中</td><td>Exa</td></tr>
+            <tr><td><span class="src-name">UAE Ministry of Investment</span><small>investuae.gov.ae</small></td><td><span class="tag tag--gold">Bilateral frameworks</span></td><td>EN/AR</td><td>Exa</td></tr>
+            <tr><td><span class="src-name">UAE Ministry of Economy</span><small>moec.gov.ae</small></td><td><span class="tag tag--gold">CEPA · Trade stats</span></td><td>EN/AR</td><td>Exa</td></tr>
+            <tr><td><span class="src-name">Saudi Press Agency</span><small>spa.gov.sa</small></td><td><span class="tag tag--gold">Saudi-China MOUs</span></td><td>EN/AR</td><td>Exa</td></tr>
+            <tr><td><span class="src-name">Invest Saudi</span><small>investsaudi.sa</small></td><td><span class="tag tag--gold">Licenses · Missions</span></td><td>EN/AR</td><td>Exa</td></tr>
+            <tr><td><span class="src-name">PIF</span><small>pif.gov.sa</small></td><td><span class="tag tag--gold">Capital platforms</span></td><td>EN/AR</td><td>Exa</td></tr>
+            <tr><td><span class="src-name">Saudi NIDC</span><small>nidc.gov.sa</small></td><td><span class="tag tag--gold">Industrial localization</span></td><td>EN/AR</td><td>Exa</td></tr>
+            <tr><td><span class="src-name">Qatar Free Zones</span><small>qfz.gov.qa</small></td><td><span class="tag tag--gold">Setup signals</span></td><td>EN/AR</td><td>Exa</td></tr>
+            <tr><td><span class="src-name">QIA</span><small>qia.qa</small></td><td><span class="tag tag--gold">Outbound capital</span></td><td>EN/AR</td><td>Exa</td></tr>
+            <tr><td><span class="src-name">China MOFCOM</span><small>english.mofcom.gov.cn</small></td><td><span class="tag tag--gold">Outbound · GCC FTA</span></td><td>EN/中</td><td>Exa</td></tr>
+            <tr><td><span class="src-name">China NDRC</span><small>en.ndrc.gov.cn</small></td><td><span class="tag tag--gold">Strategic cooperation</span></td><td>EN/中</td><td>Exa</td></tr>
+            <tr><td><span class="src-name">Belt &amp; Road Portal</span><small>eng.yidaiyilu.gov.cn</small></td><td><span class="tag tag--gold">BRI framing</span></td><td>EN/中</td><td>Exa</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =============== SIGNAL TAXONOMY =============== -->
+<section id="signals">
+  <div class="section-num">§ 03 · Signal taxonomy</div>
+  <h2 class="section-title">Six categories. Everything else is noise.</h2>
+  <p class="section-lede">
+    Each candidate item maps to one of these. If it doesn't fit, it doesn't ship. The kill list at the bottom is where most generic "China-MENA relations" items get buried.
+  </p>
+
+  <div class="col-3">
+    <div class="ve-card ve-card--crimson">
+      <div class="ve-card__label" style="color:var(--crimson);">A · Market entry</div>
+      <h3 class="ve-card__title">Chinese co. enters Gulf</h3>
+      <p>Distributor deal, local office, R&amp;D center, showroom network, pilot license, JV, free-zone setup. Priority sectors: <strong>EV, AV, robotics, AI/cloud, battery, logistics, advanced manufacturing.</strong></p>
+    </div>
+    <div class="ve-card ve-card--gold">
+      <div class="ve-card__label" style="color:var(--gold);">B · Capital flow</div>
+      <h3 class="ve-card__title">Gulf capital → China</h3>
+      <p>PIF, Mubadala, ADQ, ADIA, QIA, Aramco Ventures / Prosperity7, CYVN, MGX, eWTP investing in Chinese startups, funds, ETFs, manufacturing platforms.</p>
+    </div>
+    <div class="ve-card ve-card--sage">
+      <div class="ve-card__label" style="color:var(--sage);">C · Localization</div>
+      <h3 class="ve-card__title">Supply-chain transfer</h3>
+      <p>Chinese OEM/supplier building Gulf assembly, parts, battery recycling, materials, industrial parks, data centers, logistics nodes.</p>
+    </div>
+    <div class="ve-card ve-card--accent">
+      <div class="ve-card__label" style="color:var(--accent);">D · Gov-to-gov</div>
+      <h3 class="ve-card__title">Framework unlocks</h3>
+      <p>MOUs, joint committees, FTA progress, BIT updates, sovereign co-investment platforms, procurement frameworks that create future pipeline.</p>
+    </div>
+    <div class="ve-card ve-card--terracotta">
+      <div class="ve-card__label" style="color:var(--terracotta);">E · Proof points</div>
+      <h3 class="ve-card__title">Commercial reality</h3>
+      <p>First operations, regulatory approvals, fleet deployments, named orders, procurement volumes, local hiring, paying Gulf customer traction.</p>
+    </div>
+    <div class="ve-card ve-card--gold">
+      <div class="ve-card__label" style="color:var(--gold);">F · People</div>
+      <h3 class="ve-card__title">Executive movement</h3>
+      <p>Regional-head appointments, new China-Gulf-mandate funds, chambers/business forums with named delegations, key hires that signal commitment.</p>
+    </div>
+  </div>
+
+  <div class="ve-card ve-card--crimson" style="margin-top:24px;">
+    <div class="ve-card__label" style="color:var(--crimson);">Kill criteria</div>
+    <p class="ve-card__lede" style="margin-bottom:8px;">An item is killed when ANY of these are true:</p>
+    <ul style="margin:0; padding-left:20px; line-height:1.7;">
+      <li>Generic China-MENA geopolitics with no capital, company, project, or market-access angle.</li>
+      <li>Energy commodity moves unless they change industrial/logistics feasibility.</li>
+      <li>Pure PR with no named counterpart, sector, geography, or next step.</li>
+      <li>Diplomatic "relations are strong" coverage not tied to deal pipeline.</li>
+      <li>Deals outside GCC unless clearly a China-Gulf platform / third-market strategy.</li>
+      <li>Consumer auto launches with no distribution / orders / fleet / localization angle.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- =============== EDITORIAL FILTER =============== -->
+<section id="filter">
+  <div class="section-num">§ 04 · Editorial filter</div>
+  <h2 class="section-title">Five questions before a story ships.</h2>
+  <p class="section-lede">
+    The bar is "does this matter to <em>Raymond specifically</em>" — not "is this interesting." A candidate must score on at least three of the five. Two soft hits aren't enough.
+  </p>
+
+  <ol class="editorial-list">
+    <li>
+      <h4>Does it map to the two-ecosystem thesis?</h4>
+      <p>China supply / tech meeting Gulf market / capital / regulatory sandbox. If you can't draw the corridor in one sentence, kill it.</p>
+    </li>
+    <li>
+      <h4>Is there a named, actionable actor?</h4>
+      <p>Company, fund, ministry, executive, chamber, free zone, distributor — someone Raymond could know, partner with, sell to, or track. "A Chinese company" is not an actor.</p>
+    </li>
+    <li>
+      <h4>Is it in or near a Dhow / WAG lane?</h4>
+      <p>Higher score for automotive, EV, AV, fleet/logistics, AI infra, robotics, industrial localization, venture-studio wedge ideas. Adjacent lanes get a flag, not a kill.</p>
+    </li>
+    <li>
+      <h4>Is this pipeline or proof?</h4>
+      <p>Signed agreement, license issued, money committed, plant location confirmed, first orders booked — beats vague intent or "studying cooperation."</p>
+    </li>
+    <li>
+      <h4>What changed since yesterday?</h4>
+      <p>New capital number, new license, commercial launch, facility location, procurement volume, named counterpart. If the news is "still talking," it's not news.</p>
+    </li>
+  </ol>
+</section>
+
+<!-- =============== DISCOVERY =============== -->
+<section id="discovery">
+  <div class="section-num">§ 05 · Discovery strategy</div>
+  <h2 class="section-title">How we find it.</h2>
+  <p class="section-lede">
+    Cadence is daily 06:30 GST RSS sweep → 06:45 Chinese-language native search → 07:00 dedup, score, summarize → 09:20 post. Weekly Sunday adds a broader frameworks/conferences/tenders pass.
+  </p>
+
+  <div class="col-2">
+    <div class="ve-card ve-card--accent">
+      <div class="ve-card__label" style="color:var(--accent);">Cadence</div>
+      <ul style="margin:0; padding-left:20px; line-height:1.7;">
+        <li><strong>06:30 GST</strong> — blogwatcher RSS sweep (fixed sources)</li>
+        <li><strong>06:45</strong> — Exa freshness, prior 36h</li>
+        <li><strong>07:00</strong> — Chinese-language Exa pass</li>
+        <li><strong>07:15</strong> — score, dedup, summarize</li>
+        <li><strong>09:20</strong> — Components v2 post to <code>#🧠-intel</code></li>
+        <li><strong>Sunday weekly</strong> — frameworks &amp; conference scan</li>
+      </ul>
+    </div>
+    <div class="ve-card ve-card--crimson">
+      <div class="ve-card__label" style="color:var(--crimson);">Chinese-language handling</div>
+      <ul style="margin:0; padding-left:20px; line-height:1.7;">
+        <li>Search natively in Chinese for recall.</li>
+        <li>Translate only the shortlist.</li>
+        <li>Preserve company names in both: <code>Pony.ai · 小马智行</code>.</li>
+        <li>Chinese sources = early signal.</li>
+        <li>Require Gulf-side or company confirmation before calling something "signed" vs "reported."</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="ve-card ve-card--gold" style="margin-top:18px;">
+    <div class="ve-card__label" style="color:var(--gold);">Example Exa queries (10 of ~15)</div>
+    <div class="query-list">
+      <div class="query"><span class="query__lang query__lang--en">EN</span>"Chinese company" UAE signed agreement manufacturing investment</div>
+      <div class="query"><span class="query__lang query__lang--en">EN</span>"BYD" OR "Geely" OR "Chery" OR "XPeng" Saudi UAE Qatar distributor</div>
+      <div class="query"><span class="query__lang query__lang--en">EN</span>"Pony.ai" OR "WeRide" OR "Baidu Apollo" Dubai Abu Dhabi robotaxi</div>
+      <div class="query"><span class="query__lang query__lang--en">EN</span>"Mubadala" OR "ADQ" OR "QIA" OR "PIF" China technology investment</div>
+      <div class="query"><span class="query__lang query__lang--en">EN</span>"China GCC FTA" MOFCOM investment manufacturing supply chain</div>
+      <div class="query"><span class="query__lang query__lang--cn">中</span>"中企" "沙特" 投资 建厂</div>
+      <div class="query"><span class="query__lang query__lang--cn">中</span>"阿联酋" "中国企业" "人工智能" 合作</div>
+      <div class="query"><span class="query__lang query__lang--cn">中</span>"出海中东" 机器人 OR 自动驾驶 OR 新能源汽车</div>
+      <div class="query"><span class="query__lang query__lang--site">site</span>site:zawya.com China UAE Saudi investment Chinese company</div>
+      <div class="query"><span class="query__lang query__lang--site">site</span>site:wam.ae China UAE investment agreement technology</div>
+    </div>
+  </div>
+</section>
+
+<!-- =============== DISCORD MOCKUP =============== -->
+<section id="output">
+  <div class="section-num">§ 06 · Output shape</div>
+  <h2 class="section-title">What lands in <code style="font-family:var(--font-mono);font-size:0.7em;background:var(--gold-dim);color:var(--gold);padding:2px 6px;border-radius:4px;">#🧠-intel</code>.</h2>
+  <p class="section-lede">
+    Discord Components v2. Cover container, then up to four section containers in priority order. Hero item only if a single signal really dominates. Quiet days are silent — no padding to hit a count.
+  </p>
+
+  <div class="discord-mock">
+    <div class="dm-header">🧠-intel · zosia · today at 09:20</div>
+    <div class="dm-body">
+
+      <div class="dm-container dm-container--gold">
+        <div class="dm-title">🐉🌴 China↔Gulf Deal Flow · 2026-04-25</div>
+        <div class="dm-sub">Chinese tech / manufacturing × Gulf capital / demand · 4 stories · 12 sources scanned · 09:20 GST</div>
+      </div>
+
+      <div class="dm-divider"></div>
+
+      <div class="dm-container dm-container--terracotta">
+        <div class="dm-section-h">Market Entries &amp; Commercial Proof</div>
+        <div class="dm-item">
+          <strong><a href="#">Pony.ai signs Saudi Arabia robotaxi pilot with NEOM operator</a></strong> · The National<br>
+          <span class="dm-arrow">→</span>NEOM transit JV; first L4 deployment outside China; 100-vehicle pilot Q3.<br>
+          <span class="tag tag--terracotta">AV</span><span class="tag">Saudi</span><span class="tag">Pilot</span>
+        </div>
+        <div class="dm-item">
+          <strong><a href="#">Chery breaks ground on UAE assembly plant in KIZAD</a></strong> · WAM<br>
+          <span class="dm-arrow">→</span>30k-unit/yr CKD line; 2027 start; first major Chinese OEM with local assembly in UAE.<br>
+          <span class="tag tag--terracotta">Auto</span><span class="tag">UAE</span><span class="tag">Localization</span>
+        </div>
+      </div>
+
+      <div class="dm-divider"></div>
+
+      <div class="dm-container dm-container--gold">
+        <div class="dm-section-h">Capital &amp; Funds</div>
+        <div class="dm-item">
+          <strong><a href="#">PIF leads $400M Series D in Chinese AI infra firm</a></strong> · Caixin<br>
+          <span class="dm-arrow">→</span>Co-leads with Prosperity7; firm to open Riyadh data-center node within 12 months.<br>
+          <span class="tag tag--gold">SWF</span><span class="tag">AI infra</span><span class="tag">Saudi</span>
+        </div>
+      </div>
+
+      <div class="dm-divider"></div>
+
+      <div class="dm-container dm-container--accent">
+        <div class="dm-section-h">Policy Unlocks</div>
+        <div class="dm-item">
+          <strong><a href="#">China-GCC FTA enters Round 12; investment chapter advances</a></strong> · MOFCOM<br>
+          <span class="dm-arrow">→</span>Investment-protection language tightens; signing window slipping to H2 2026.<br>
+          <span class="tag">FTA</span><span class="tag">GCC</span>
+        </div>
+        <div class="dm-item" style="font-size:12px;color:var(--text-dim);margin-top:12px;">Dubai · 12 sources scanned · dedup window 14 days</div>
+      </div>
+
+    </div>
+  </div>
+
+  <div style="margin-top:18px;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;font-family:var(--font-mono);font-size:11px;color:var(--text-dim);">
+    <div><strong style="color:var(--terracotta);">●</strong> Market entry · #b04e2e</div>
+    <div><strong style="color:var(--gold);">●</strong> Capital &amp; funds · #b08a2e</div>
+    <div><strong style="color:var(--sage);">●</strong> Localization · #5a7148</div>
+    <div><strong style="color:var(--accent);">●</strong> Policy unlocks · #1e3a5f</div>
+  </div>
+</section>
+
+<!-- =============== OPEN QUESTIONS =============== -->
+<section id="questions">
+  <div class="section-num">§ 07 · Open questions</div>
+  <h2 class="section-title">What I need from you.</h2>
+  <p class="section-lede">
+    Five decisions before this ships. Pick a default for each — I'll start opinionated and you correct if wrong.
+  </p>
+
+  <ol class="q-list">
+    <li><strong>Geographic scope:</strong> strictly GCC, or include Iran / Egypt / Turkey when Chinese firms use them as stepping stones to GCC?<br><span style="color:var(--text-dim);font-size:13px;">My default: <strong>GCC + Egypt</strong> (Egypt is a real Chinese manufacturing beachhead now). Iran and Turkey only if directly tied to a GCC angle.</span></li>
+    <li><strong>Auto retail granularity:</strong> showroom / distributor launches, or only fleet / procurement / local assembly?<br><span style="color:var(--text-dim);font-size:13px;">My default: <strong>fleet + assembly only</strong>. Showroom news is too noisy and rarely actionable for WAG.</span></li>
+    <li><strong>Paywalled sources</strong> (MEED, AGBI, Caixin Pro): summarize from snippets, or skip until accessible?<br><span style="color:var(--text-dim);font-size:13px;">My default: <strong>summarize from snippets</strong> with a "paywalled" tag — better than missing the signal.</span></li>
+    <li><strong>Empty-day behavior:</strong> post every day, or only on qualified-signal days?<br><span style="color:var(--text-dim);font-size:13px;">My default: <strong>only post if ≥2 qualified items or ≥1 hero item</strong>. Quiet days stay quiet — protects channel signal density.</span></li>
+    <li><strong>CRM pipeline:</strong> auto-write promising leads (named company + Gulf counterparty + suggested intro path) to a Notion / brain page?<br><span style="color:var(--text-dim);font-size:13px;">My default: <strong>Phase 2</strong>. Ship the daily drop first; layer CRM after we see what kind of leads it actually surfaces.</span></li>
+  </ol>
+</section>
+
+<!-- =============== IMPLEMENTATION =============== -->
+<section id="impl">
+  <div class="section-num">§ 08 · Implementation summary</div>
+  <h2 class="section-title">What I'd build, where it lives.</h2>
+
+  <div class="col-2">
+    <div class="ve-card ve-card--accent">
+      <div class="ve-card__label" style="color:var(--accent);">Skill</div>
+      <p style="margin:0 0 6px;"><code>~/.hermes/skills/research/china-gulf-deal-flow/SKILL.md</code></p>
+      <p style="margin:0;color:var(--text-dim);font-size:13px;">Mirrors the daily-brief skill structure: source list, signal taxonomy, editorial filter, Components v2 layout, dedup file at <code>~/.hermes/data/china-gulf-deal-flow.json</code>.</p>
+    </div>
+    <div class="ve-card ve-card--gold">
+      <div class="ve-card__label" style="color:var(--gold);">Cron job</div>
+      <p style="margin:0 0 6px;"><code>20 9 * * *</code> · <strong>09:20 GST daily</strong></p>
+      <p style="margin:0;color:var(--text-dim);font-size:13px;">Model: <code>openai-codex/gpt-5.5</code>. Skills: <code>discord-embed-posting</code>, <code>china-gulf-deal-flow</code>, <code>exa</code>, <code>blogwatcher</code>. Delivery: <code>local</code> (skill posts to Discord directly).</p>
+    </div>
+    <div class="ve-card ve-card--sage">
+      <div class="ve-card__label" style="color:var(--sage);">Channel</div>
+      <p style="margin:0 0 6px;">Discord <code>#🧠-intel</code> · <code>1483769752865214576</code></p>
+      <p style="margin:0;color:var(--text-dim);font-size:13px;">Joins existing intel cadence: Daily Brief 09:05 → Polymarket 09:10 → Blog Scan 09:15 → <strong>China↔Gulf 09:20</strong>.</p>
+    </div>
+    <div class="ve-card ve-card--crimson">
+      <div class="ve-card__label" style="color:var(--crimson);">Kill switch &amp; review</div>
+      <p style="margin:0 0 6px;">Two-week trial. If ≥3 days/week ship "weak" items, retune the editorial filter or kill the job.</p>
+      <p style="margin:0;color:var(--text-dim);font-size:13px;">Weekly retro (Sunday 21:00) flags the job's signal density alongside the rest of the cron rig.</p>
+    </div>
+  </div>
+</section>
+
+<!-- =============== FOOTER =============== -->
+<div class="footer">
+  <div>China↔Gulf Deal Flow · v0.1 · 2026-04-25</div>
+  <div>Research: gpt-5.5 · Synthesis: opus-4.7 · For Raymond Zhu</div>
+</div>
+
+</main>
+
+<!-- =============== Mermaid + zoom engine =============== -->
+<script type="module">
+import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+
+const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+mermaid.initialize({
+  startOnLoad: false,
+  theme: 'base',
+  fontFamily: 'DM Sans, system-ui, sans-serif',
+  flowchart: { curve: 'basis', padding: 20, useMaxWidth: false },
+  themeVariables: {
+    fontSize: '15px',
+    primaryColor: isDark ? '#1c2540' : '#ffffff',
+    primaryTextColor: isDark ? '#e8dcc3' : '#1c233c',
+    primaryBorderColor: isDark ? '#6a9bd1' : '#1e3a5f',
+    lineColor: isDark ? '#8c8a82' : '#6a6f86',
+    secondaryColor: isDark ? '#2a3550' : '#faf6ee',
+    tertiaryColor: isDark ? '#1c2540' : '#fdf6e3',
+    background: 'transparent',
+  }
+});
+
+const config = {
+  fitPadding: 32,
+  zoomMin: 0.4,
+  zoomMax: 3.0,
+  zoomStep: 0.15,
+  readabilityFloor: 0.85,
+};
+const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
+let activeDrag = null;
+
+addEventListener('mousemove', (e) => activeDrag?.onMove(e));
+addEventListener('mouseup',   ()  => { activeDrag?.onEnd(); activeDrag = null; });
+
+function initDiagram(shell) {
+  const wrap     = shell.querySelector('.mermaid-wrap');
+  const viewport = shell.querySelector('.mermaid-viewport');
+  const canvas   = shell.querySelector('.mermaid-canvas');
+  const source   = shell.querySelector('.diagram-source');
+  const label    = shell.querySelector('.zoom-label');
+  if (!wrap || !viewport || !canvas || !source) return;
+
+  let zoom = 1, panX = 0, panY = 0, svgW = 0, svgH = 0;
+
+  const apply = () => {
+    const svg = canvas.querySelector('svg');
+    if (!svg) return;
+    svg.style.width  = (svgW * zoom) + 'px';
+    svg.style.height = (svgH * zoom) + 'px';
+    canvas.style.transform = `translate(${panX}px, ${panY}px)`;
+    if (label) label.textContent = Math.round(zoom * 100) + '%';
+  };
+
+  const fit = () => {
+    if (!svgW || !svgH) return;
+    const r = viewport.getBoundingClientRect();
+    const z = Math.min((r.width - config.fitPadding) / svgW,
+                       (r.height - config.fitPadding) / svgH);
+    zoom = clamp(Math.max(z, config.readabilityFloor), config.zoomMin, config.zoomMax);
+    panX = (r.width  - svgW * zoom) / 2;
+    panY = (r.height - svgH * zoom) / 2;
+    apply();
+  };
+
+  async function render() {
+    try {
+      const code = source.textContent.trim();
+      const id = 'd-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7);
+      const { svg } = await mermaid.render(id, code);
+      canvas.innerHTML = svg;
+      const svgEl = canvas.querySelector('svg');
+      if (svgEl) {
+        const vb = svgEl.viewBox?.baseVal;
+        svgW = vb && vb.width  ? vb.width  : svgEl.getBBox().width;
+        svgH = vb && vb.height ? vb.height : svgEl.getBBox().height;
+        svgEl.removeAttribute('width');
+        svgEl.removeAttribute('height');
+        svgEl.style.maxWidth = 'none';
+      }
+      const minH = Math.min(560, Math.max(420, svgH + 60));
+      viewport.style.height = minH + 'px';
+      wrap.style.minHeight  = (minH + 32) + 'px';
+      requestAnimationFrame(fit);
+    } catch (err) {
+      console.error('Mermaid render failed:', err);
+      if (label) label.textContent = 'Error';
+    }
+  }
+
+  shell.querySelector('[data-action="zoom-in"]') ?.addEventListener('click', () => {
+    zoom = clamp(zoom + config.zoomStep, config.zoomMin, config.zoomMax); apply();
+  });
+  shell.querySelector('[data-action="zoom-out"]')?.addEventListener('click', () => {
+    zoom = clamp(zoom - config.zoomStep, config.zoomMin, config.zoomMax); apply();
+  });
+  shell.querySelector('[data-action="zoom-fit"]')?.addEventListener('click', fit);
+  shell.querySelector('[data-action="zoom-one"]')?.addEventListener('click', () => {
+    zoom = 1;
+    const r = viewport.getBoundingClientRect();
+    panX = (r.width - svgW) / 2; panY = (r.height - svgH) / 2; apply();
+  });
+
+  viewport.addEventListener('wheel', (e) => {
+    if (!e.ctrlKey && !e.metaKey) return;
+    e.preventDefault();
+    const r = viewport.getBoundingClientRect();
+    const cx = e.clientX - r.left, cy = e.clientY - r.top;
+    const oldZ = zoom;
+    zoom = clamp(zoom * (e.deltaY < 0 ? 1.12 : 1/1.12), config.zoomMin, config.zoomMax);
+    panX = cx - (cx - panX) * (zoom / oldZ);
+    panY = cy - (cy - panY) * (zoom / oldZ);
+    apply();
+  }, { passive: false });
+
+  viewport.addEventListener('mousedown', (e) => {
+    if (e.button !== 0) return;
+    e.preventDefault();
+    wrap.classList.add('is-panning');
+    const startX = e.clientX, startY = e.clientY;
+    const startPanX = panX, startPanY = panY;
+    activeDrag = {
+      onMove: (ev) => { panX = startPanX + (ev.clientX - startX); panY = startPanY + (ev.clientY - startY); apply(); },
+      onEnd:  () => { wrap.classList.remove('is-panning'); }
+    };
+  });
+
+  viewport.addEventListener('dblclick', fit);
+  addEventListener('resize', () => requestAnimationFrame(fit));
+
+  render();
+}
+
+document.querySelectorAll('.diagram-shell').forEach(initDiagram);
+</script>
+</body>
+</html>
