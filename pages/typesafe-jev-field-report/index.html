@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Independent field report on TypeSafe AI's Jev decision model: capabilities, public reception, use cases, and Claude Code/Codex integration.">
+  <title>Jev Field Report — TypeSafe AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root,[data-theme="light"]{
+      --bg:#f4f0e8;--paper:#fffdf8;--paper2:#eee8dc;--ink:#17201d;--muted:#65706b;
+      --line:rgba(23,32,29,.13);--line2:rgba(23,32,29,.24);--rust:#a74424;--rust-soft:#f2ded4;
+      --sage:#426a59;--sage-soft:#dce9e1;--gold:#a4721f;--gold-soft:#f2e7c9;--red:#9c3838;--red-soft:#f1dada;
+      --blue:#315a72;--blue-soft:#dce7ec;--shadow:0 18px 48px rgba(42,34,23,.09);
+    }
+    [data-theme="dark"]{
+      --bg:#121612;--paper:#1b211d;--paper2:#232a25;--ink:#edf1eb;--muted:#a5afa8;
+      --line:rgba(255,255,255,.09);--line2:rgba(255,255,255,.18);--rust:#e38b67;--rust-soft:#3d2922;
+      --sage:#8fc3a6;--sage-soft:#21382e;--gold:#dfb65c;--gold-soft:#3a321f;--red:#e79898;--red-soft:#3d2424;
+      --blue:#8cb8ce;--blue-soft:#22343d;--shadow:0 18px 48px rgba(0,0,0,.26);
+    }
+    *{box-sizing:border-box} html{scroll-behavior:smooth} body{margin:0;background:var(--bg);color:var(--ink);font-family:"DM Sans",sans-serif;line-height:1.58;overflow-wrap:anywhere;background-image:radial-gradient(circle at 10% 0,var(--rust-soft) 0,transparent 28rem),radial-gradient(circle at 100% 34%,var(--sage-soft) 0,transparent 30rem)}
+    a{color:var(--rust);text-underline-offset:3px}.wrap{max-width:1420px;margin:0 auto;display:grid;grid-template-columns:190px 1fr;gap:0 48px;padding:28px 42px 90px}.main{min-width:0;max-width:1120px}.toc{position:sticky;top:24px;align-self:start;max-height:calc(100dvh - 48px);overflow-y:auto;padding:14px 0}.toc-title,.eyebrow,.section-kicker,.micro{font:600 10px/1.3 "JetBrains Mono",monospace;text-transform:uppercase;letter-spacing:1.55px}.toc-title{color:var(--muted);padding-bottom:11px;border-bottom:1px solid var(--line);margin-bottom:8px}.toc a{display:block;text-decoration:none;color:var(--muted);font-size:11px;padding:6px 9px;border-left:2px solid transparent;border-radius:0 6px 6px 0;margin:1px 0}.toc a:hover,.toc a.active{color:var(--ink);background:var(--paper);border-left-color:var(--rust)}
+    .theme-toggle{position:fixed;right:18px;top:18px;z-index:300;border:1px solid var(--line2);background:var(--paper);color:var(--ink);font:500 11px "JetBrains Mono",monospace;border-radius:99px;padding:8px 12px;cursor:pointer;box-shadow:var(--shadow)}
+    .hero{padding:72px 0 46px;border-bottom:1px solid var(--line)}.eyebrow{color:var(--rust);margin-bottom:17px}.hero h1{font:400 clamp(58px,9vw,116px)/.86 "Instrument Serif",serif;letter-spacing:-4px;margin:0;max-width:920px}.hero h1 em{font-weight:400;color:var(--rust)}.deck{font-size:clamp(19px,2.1vw,28px);line-height:1.32;max-width:850px;margin:30px 0 24px;color:var(--ink)}.hero-meta{display:flex;flex-wrap:wrap;gap:9px}.pill{font:500 10px "JetBrains Mono",monospace;border:1px solid var(--line2);border-radius:99px;padding:5px 9px;background:var(--paper)}.pill.live{color:var(--sage);border-color:var(--sage)}
+    .verdict{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(260px,.55fr);gap:24px;margin:34px 0}.verdict-main{background:var(--paper);border:1px solid var(--line);box-shadow:var(--shadow);padding:30px;border-radius:2px}.verdict-main .quote{font:400 clamp(28px,4vw,48px)/1.12 "Instrument Serif",serif;margin:0 0 18px}.verdict-main p{margin:0;color:var(--muted);font-size:16px}.verdict-side{display:grid;gap:12px}.metric{border:1px solid var(--line);background:var(--paper);padding:17px}.metric strong{display:block;font:400 29px "Instrument Serif",serif;color:var(--rust)}.metric span{display:block;color:var(--muted);font-size:12px;margin-top:3px}
+    .sec{padding:54px 0 10px;scroll-margin-top:30px}.section-kicker{color:var(--rust);margin-bottom:10px}.sec h2{font:400 clamp(36px,5vw,62px)/1.02 "Instrument Serif",serif;margin:0 0 10px;letter-spacing:-1px}.sec>.lead{max-width:780px;color:var(--muted);font-size:17px;margin:0 0 28px}.grid{display:grid;gap:16px}.g3{grid-template-columns:repeat(3,minmax(0,1fr))}.g2{grid-template-columns:repeat(2,minmax(0,1fr))}.card{min-width:0;background:var(--paper);border:1px solid var(--line);padding:22px;border-radius:2px}.card.hero-card{box-shadow:var(--shadow);border-top:3px solid var(--rust)}.card h3{font:400 27px/1.08 "Instrument Serif",serif;margin:0 0 9px}.card h4{font:600 13px "DM Sans",sans-serif;margin:17px 0 7px}.card p{font-size:13px;color:var(--muted);margin:7px 0}.card ul{list-style:none;padding:0;margin:12px 0 0}.card li{position:relative;padding-left:15px;margin:7px 0;font-size:13px}.card li:before{content:"";position:absolute;left:0;top:.62em;width:6px;height:6px;background:var(--rust)}.tag{display:inline-block;font:500 9px "JetBrains Mono",monospace;text-transform:uppercase;letter-spacing:.8px;background:var(--paper2);padding:4px 7px;margin-bottom:12px}.tag.good{background:var(--sage-soft);color:var(--sage)}.tag.warn{background:var(--gold-soft);color:var(--gold)}.tag.bad{background:var(--red-soft);color:var(--red)}
+    .flow{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));align-items:stretch;margin:26px 0}.flow-step{background:var(--paper);border:1px solid var(--line);padding:18px 16px;position:relative;min-width:0}.flow-step:not(:last-child){border-right:0}.flow-step:not(:last-child):after{content:"→";position:absolute;right:-11px;top:50%;transform:translateY(-50%);z-index:2;background:var(--bg);color:var(--rust);font:20px "JetBrains Mono"}.flow-step b{display:block;font:600 10px "JetBrains Mono";text-transform:uppercase;letter-spacing:1px;color:var(--rust);margin-bottom:8px}.flow-step span{font-size:12px;color:var(--muted)}
+    .primitive{border-top:4px solid}.primitive.choice{border-color:var(--rust)}.primitive.noul{border-color:var(--sage)}.primitive.score{border-color:var(--gold)}.primitive code{font:500 12px "JetBrains Mono";color:var(--ink);background:var(--paper2);padding:2px 5px}.answer{font:600 12px "JetBrains Mono";margin-top:13px;padding:10px;background:var(--paper2);color:var(--ink)}
+    .rank-list{counter-reset:rank;display:grid;gap:13px}.rank{counter-increment:rank;display:grid;grid-template-columns:72px minmax(0,1.2fr) minmax(230px,.8fr);background:var(--paper);border:1px solid var(--line);min-width:0}.rank:before{content:"0" counter(rank);font:400 38px "Instrument Serif";color:var(--rust);padding:22px;border-right:1px solid var(--line)}.rank-body,.rank-fit{padding:19px}.rank-body h3{font:600 16px "DM Sans";margin:0 0 6px}.rank-body p,.rank-fit{font-size:12px;color:var(--muted)}.rank-fit{border-left:1px solid var(--line)}.rank-fit b{display:block;color:var(--ink);font:600 10px "JetBrains Mono";text-transform:uppercase;letter-spacing:1px;margin-bottom:7px}
+    .table-wrap{overflow-x:auto;background:var(--paper);border:1px solid var(--line)}table{width:100%;border-collapse:collapse;font-size:12px;min-width:760px}th{text-align:left;font:600 10px "JetBrains Mono";text-transform:uppercase;letter-spacing:1px;color:var(--muted);padding:13px 15px;background:var(--paper2);border-bottom:2px solid var(--line2)}td{padding:14px 15px;border-bottom:1px solid var(--line);vertical-align:top}tbody tr:nth-child(even){background:color-mix(in srgb,var(--paper) 86%,var(--sage-soft) 14%)}tbody tr:last-child td{border-bottom:0}.status{font:600 9px "JetBrains Mono";text-transform:uppercase;letter-spacing:.5px;padding:4px 7px;white-space:nowrap}.status.yes{background:var(--sage-soft);color:var(--sage)}.status.maybe{background:var(--gold-soft);color:var(--gold)}.status.no{background:var(--red-soft);color:var(--red)}
+    .bars{display:grid;gap:16px}.bar-row{display:grid;grid-template-columns:190px minmax(0,1fr) 90px;gap:14px;align-items:center}.bar-label{font-size:12px}.bar-track{height:10px;background:var(--paper2);position:relative}.bar-fill{height:100%;background:var(--sage)}.bar-fill.warn{background:var(--gold)}.bar-fill.bad{background:var(--red)}.bar-note{font:500 10px "JetBrains Mono";color:var(--muted);text-align:right}
+    .discourse-grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(280px,.8fr);gap:16px}.signal{background:var(--paper);border:1px solid var(--line);padding:20px}.signal .num{font:400 38px "Instrument Serif";color:var(--rust);line-height:1}.signal .label{font:600 10px "JetBrains Mono";text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-top:5px}.signal p{font-size:12px;color:var(--muted)}
+    .quote-card{background:var(--ink);color:var(--bg);padding:28px}.quote-card blockquote{font:400 28px/1.2 "Instrument Serif";margin:0 0 16px}.quote-card p{font-size:12px;opacity:.72;margin:0}.quote-card a{color:var(--gold)}
+    .code-pair{display:grid;grid-template-columns:1fr 1fr;gap:16px}.code-file{min-width:0;border:1px solid var(--line);background:var(--paper)}.code-head{font:500 10px "JetBrains Mono";text-transform:uppercase;letter-spacing:1px;color:var(--muted);padding:10px 14px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:12px}.code-body{font:400 11px/1.65 "JetBrains Mono";white-space:pre-wrap;word-break:break-word;padding:17px;margin:0;overflow:auto;color:var(--ink);background:color-mix(in srgb,var(--paper) 80%,var(--paper2) 20%)}
+    .callout{margin:18px 0;padding:18px 20px;border-left:4px solid var(--gold);background:var(--gold-soft);font-size:13px}.callout strong{display:block;margin-bottom:5px}.callout.danger{border-color:var(--red);background:var(--red-soft)}.callout.good{border-color:var(--sage);background:var(--sage-soft)}
+    .do-dont{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);background:var(--paper)}.do-dont>div{padding:22px;min-width:0}.do-dont>div+div{border-left:1px solid var(--line)}.do-dont h3{font:400 27px "Instrument Serif";margin:0 0 10px}.do-dont ul{padding-left:20px;font-size:13px}.do h3{color:var(--sage)}.dont h3{color:var(--red)}
+    details{border:1px solid var(--line);background:var(--paper);margin:10px 0}summary{cursor:pointer;padding:15px 18px;font:600 12px "JetBrains Mono";list-style:none}summary:before{content:"+";color:var(--rust);margin-right:10px}details[open] summary:before{content:"−"}.details-body{border-top:1px solid var(--line);padding:16px 20px;font-size:12px;color:var(--muted)}
+    .source-list{columns:2;column-gap:30px}.source-list li{break-inside:avoid;margin:0 0 11px;font-size:12px;padding-right:10px}.footer{border-top:1px solid var(--line);margin-top:60px;padding-top:24px;color:var(--muted);font-size:11px;display:flex;justify-content:space-between;gap:20px}.caveat{font-style:italic}
+    @media(max-width:1000px){.wrap{grid-template-columns:1fr;padding:0 28px 70px}.toc{position:sticky;top:0;z-index:200;display:flex;gap:4px;overflow-x:auto;max-height:none;background:var(--bg);border-bottom:1px solid var(--line);margin:0 -28px;padding:9px 28px}.toc-title{display:none}.toc a{white-space:nowrap;flex-shrink:0;border-left:0;border-bottom:2px solid transparent;border-radius:4px}.toc a.active{border-left:0;border-bottom-color:var(--rust)}.sec{scroll-margin-top:54px}.theme-toggle{top:auto;bottom:14px}.verdict{grid-template-columns:1fr}.verdict-side{grid-template-columns:repeat(3,1fr)}.g3{grid-template-columns:1fr}.g2,.code-pair,.discourse-grid{grid-template-columns:1fr}.flow{grid-template-columns:1fr}.flow-step:not(:last-child){border-right:1px solid var(--line);border-bottom:0}.flow-step:not(:last-child):after{content:"↓";right:50%;top:auto;bottom:-14px;transform:translateX(50%)}.rank{grid-template-columns:60px 1fr}.rank-fit{grid-column:2;border-left:0;border-top:1px solid var(--line)}.source-list{columns:1}}
+    @media(max-width:650px){.wrap{padding:0 16px 60px}.toc{margin:0 -16px;padding:9px 16px}.hero{padding-top:48px}.hero h1{letter-spacing:-2px}.verdict-side{grid-template-columns:1fr}.do-dont{grid-template-columns:1fr}.do-dont>div+div{border-left:0;border-top:1px solid var(--line)}.bar-row{grid-template-columns:1fr 62px}.bar-track{grid-row:2;grid-column:1/-1}.footer{display:block}.rank{grid-template-columns:48px 1fr}.rank:before{padding:16px 10px;font-size:28px}.rank-body,.rank-fit{padding:15px}.metric strong{font-size:25px}}
+    @media print{.toc,.theme-toggle{display:none}.wrap{display:block;padding:0}.main{max-width:none}.sec{page-break-inside:auto}.card,.rank,.table-wrap{break-inside:avoid}body{background:#fff}.hero{padding-top:20px}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+  </style>
+  <meta property="og:title" content="Jev Field Report — TypeSafe AI">
+  <meta property="og:description" content="Independent field report on TypeSafe AI's Jev decision model: capabilities, public reception, use cases, and Claude Code/Codex integration.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://zosia.cc/pages/typesafe-jev-field-report">
+  <meta name="twitter:card" content="summary">
+</head>
+<body>
+<button class="theme-toggle" id="themeBtn" aria-label="Toggle color theme">dark / light</button>
+<div class="wrap">
+  <nav class="toc" id="toc">
+    <div class="toc-title">Field notes</div>
+    <a href="#verdict">01 Verdict</a><a href="#model">02 Product</a><a href="#uses">03 Best uses</a><a href="#evidence">04 Evidence</a><a href="#discourse">05 Reception</a><a href="#agents">06 Claude/Codex</a><a href="#risks">07 Risks</a><a href="#plan">08 Recommendation</a><a href="#sources">09 Sources</a>
+  </nav>
+  <main class="main">
+    <header class="hero">
+      <div class="eyebrow">Independent field report · 21 September 2026</div>
+      <h1>Jev is a <em>semantic function,</em> not another chatbot.</h1>
+      <p class="deck">TypeSafe AI’s first “System One” model turns messy text or JSON into bounded, probabilistic decisions. The opportunity is real—but the launch rhetoric is running ahead of production evidence.</p>
+      <div class="hero-meta"><span class="pill live">Early access · Jev 1.13</span><span class="pill">Official docs + SDKs checked</span><span class="pill">Independent benchmarks reviewed</span><span class="pill">Claude Code + Codex install exercised</span></div>
+    </header>
+
+    <section class="sec" id="verdict">
+      <div class="section-kicker">01 / Executive verdict</div><h2>The sharp take</h2>
+      <div class="verdict">
+        <div class="verdict-main"><p class="quote">Jev’s durable value is not “AI without hallucinations.” It is making semantic judgment cheap enough to place inside ordinary control flow.</p><p>Use it where software must repeatedly choose, score, route, rank, or gate. Keep Claude/Codex for generation and reasoning; keep deterministic code for arithmetic, invariants, permissions, and side effects.</p></div>
+        <div class="verdict-side">
+          <div class="metric"><strong>$0.042 / 1M</strong><span>published input-token price; output free</span></div>
+          <div class="metric"><strong>~0.3–0.6 s</strong><span>typical independent benchmark latency, task-dependent</span></div>
+          <div class="metric"><strong>6 days old</strong><span>at review time—mindshare is strong; production proof is not</span></div>
+        </div>
+      </div>
+      <div class="callout danger"><strong>Do not repeat the “zero hallucinations” line.</strong>Typed output prevents malformed answers; it does not prevent confidently wrong valid answers. Independent evaluators observed mistakes at confidence 1.0.</div>
+    </section>
+
+    <section class="sec" id="model">
+      <div class="section-kicker">02 / Product anatomy</div><h2>Unstructured state in. Typed probability out.</h2>
+      <p class="lead">One request carries a shared <code>state</code> and many independent questions. Jev evaluates them in parallel; your code decides what the probabilities mean and what happens next.</p>
+      <div class="flow">
+        <div class="flow-step"><b>01 Exact facts</b><span>Parsers, tests, static analysis, databases</span></div>
+        <div class="flow-step"><b>02 Compact state</b><span>Only the evidence relevant to the judgment</span></div>
+        <div class="flow-step"><b>03 Jev</b><span>Choice, Noul, Score questions in one call</span></div>
+        <div class="flow-step"><b>04 Policy code</b><span>Thresholds, confidence gates, escalation</span></div>
+        <div class="flow-step"><b>05 Action</b><span>Handler, Claude/Codex, or a human</span></div>
+      </div>
+      <div class="grid g3">
+        <article class="card primitive choice"><span class="tag">Choice</span><h3>Pick one defined option</h3><p>Classification and routing when the answer space is known.</p><div class="answer">team → billing · p=.93</div></article>
+        <article class="card primitive noul"><span class="tag">Noul</span><h3>Estimate a proposition</h3><p>A probability from 0–1 for a sharply worded yes/no claim.</p><div class="answer">destructive → .08</div></article>
+        <article class="card primitive score"><span class="tag">Score</span><h3>Rate on an ordered rubric</h3><p>Severity, review depth, priority, quality, or risk levels.</p><div class="answer">review_depth → 1.7 / 3</div></article>
+      </div>
+      <div class="callout"><strong>Key architectural constraint</strong>Questions within one call share the state but cannot see one another’s answers. Batch independent judgments; use a second call for dependent stages.</div>
+    </section>
+
+    <section class="sec" id="uses">
+      <div class="section-kicker">03 / Ranked use cases</div><h2>Where I would actually deploy it</h2>
+      <p class="lead">The best cases are frequent, bounded, locally observable judgments where an uncertain result can be escalated. They are not tasks that require open-ended generation or hidden chains of reasoning.</p>
+      <div class="rank-list">
+        <article class="rank"><div class="rank-body"><h3>High-volume triage and routing</h3><p>Support tickets, inbound leads, documents, email, moderation queues, claims, parts descriptions, or vehicle-service requests.</p></div><div class="rank-fit"><b>Why Jev fits</b>Fixed labels, shared state, huge volume, low value per item, human fallback available.</div></article>
+        <article class="rank"><div class="rank-body"><h3>Retrieval and context firewall</h3><p>Rank passages, detect irrelevant or contradictory context, and flag hidden instructions before content reaches an agent.</p></div><div class="rank-fit"><b>Why Jev fits</b>Cheap parallel judgments reduce context cost; deterministic code can exclude flagged passages.</div></article>
+        <article class="rank"><div class="rank-body"><h3>Agent task and skill routing</h3><p>Choose a specialist, tool family, workflow, or model tier from short candidate descriptions.</p></div><div class="rank-fit"><b>Why Jev fits</b>The decision is bounded and repeatable; a second Noul can ask whether any candidate is suitable.</div></article>
+        <article class="rank"><div class="rank-body"><h3>PR and change triage</h3><p>Classify change type, estimate blast radius, and decide whether to invoke an expensive full review.</p></div><div class="rank-fit"><b>Why Jev fits</b>Jev judges semantics after tests and static analysis establish exact facts.</div></article>
+        <article class="rank"><div class="rank-body"><h3>Continuous evaluation and quality gates</h3><p>Check citations, response relevance, tone, policy fit, or whether an agent’s output meets a bounded rubric.</p></div><div class="rank-fit"><b>Why Jev fits</b>Low cost permits per-run evaluation. Keep it advisory until calibrated on your own labeled examples.</div></article>
+        <article class="rank"><div class="rank-body"><h3>Semantic pre-action warning</h3><p>Flag destructive, credential-touching, externally communicative, or out-of-scope tool calls.</p></div><div class="rank-fit"><b>Why Jev fits</b>Useful as a second opinion—not as the permission system or security boundary.</div></article>
+      </div>
+      <h3 style="font:400 31px 'Instrument Serif';margin:32px 0 14px">Best fits for Raymond’s operating stack</h3>
+      <div class="grid g3">
+        <div class="card"><span class="tag good">Automotive</span><h3>Warranty and service intake</h3><p>Route complaints, score urgency, identify likely safety escalation, and classify evidence completeness before human review.</p></div>
+        <div class="card"><span class="tag good">China–Gulf</span><h3>Bilingual deal-flow triage</h3><p>Classify counterpart, sector, transaction stage, and strategic fit—but benchmark Chinese and Arabic carefully; official docs say English performs best.</p></div>
+        <div class="card"><span class="tag good">Hermes</span><h3>Context and skill routing</h3><p>Rank retrieved memories/skills and decide which specialist gets a task before spending flagship-model tokens.</p></div>
+      </div>
+    </section>
+
+    <section class="sec" id="evidence">
+      <div class="section-kicker">04 / Evidence</div><h2>Promising signal, not settled science</h2>
+      <p class="lead">Independent tests consistently validate the speed-and-cost thesis. Accuracy and calibration vary materially by task; the strongest results are narrow and locally observable.</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Independent test</th><th>What it found</th><th>What it does not prove</th><th>Read</th></tr></thead>
+        <tbody>
+          <tr><td>Near Here · 50 event cases</td><td>96% accuracy; 0.59s average; $0.043 per 1,000</td><td>Too small and narrow for a general accuracy claim</td><td><a href="https://nearhere.events/blog/typesafe-jev-mistral-gemini-event-validation">Source</a></td></tr>
+          <tr><td>WotAI · 16-model comparison</td><td>Fastest model tested; accuracy wins/losses/ties across three tasks</td><td>No universal quality advantage</td><td><a href="https://wotai.co/blog/typesafe-jev-vs-claude-haiku-tested">Source</a></td></tr>
+          <tr><td>TrueStandard · 108 claims</td><td>96.3% accuracy; ECE 0.066</td><td>Calibration was effectively tied with comparison chat models</td><td><a href="https://truestandard.ai/blog/jev-accuracy-tested">Source</a></td></tr>
+          <tr><td>LangChain · agent judge</td><td>500/500 match on five repeated cases; low variance; ~$0.00035/call</td><td>Only five underlying cases; consistency can preserve a systematic error</td><td><a href="https://www.langchain.com/blog/jev-agent-evals-langsmith">Source</a></td></tr>
+          <tr><td>DEV · ~22,500 calls</td><td>Strong intent/tool routing and reranking; $2.19 reported total</td><td>Weak model-failure prediction and cross-step causal attribution</td><td><a href="https://dev.to/aitejiu/benchmarking-jev-what-a-decision-model-can-and-cant-do-in-an-agent-harness-20po">Source</a></td></tr>
+        </tbody>
+      </table></div>
+      <div class="bars" style="margin-top:25px">
+        <div class="bar-row"><span class="bar-label">Local text classification</span><div class="bar-track"><div class="bar-fill" style="width:91%"></div></div><span class="bar-note">strong</span></div>
+        <div class="bar-row"><span class="bar-label">Ranking / retrieval relevance</span><div class="bar-track"><div class="bar-fill" style="width:82%"></div></div><span class="bar-note">strong</span></div>
+        <div class="bar-row"><span class="bar-label">Rubric-based evaluation</span><div class="bar-track"><div class="bar-fill warn" style="width:72%"></div></div><span class="bar-note">promising</span></div>
+        <div class="bar-row"><span class="bar-label">Dependent multi-step reasoning</span><div class="bar-track"><div class="bar-fill bad" style="width:34%"></div></div><span class="bar-note">weak fit</span></div>
+        <div class="bar-row"><span class="bar-label">Predicting another model’s failure</span><div class="bar-track"><div class="bar-fill bad" style="width:24%"></div></div><span class="bar-note">poor signal</span></div>
+      </div>
+      <p class="caveat">The qualitative bars summarize the reviewed evidence; they are not vendor scores or a new benchmark.</p>
+    </section>
+
+    <section class="sec" id="discourse">
+      <div class="section-kicker">05 / Public reception</div><h2>Viral launch. Healthy skepticism. Little production history.</h2>
+      <div class="discourse-grid">
+        <div class="grid g2">
+          <div class="signal"><div class="num">1,936</div><div class="label">HN points</div><p>The launch thread drew 507 recursive comments when checked—serious developer attention, not a quiet release.</p></div>
+          <div class="signal"><div class="num">1,452</div><div class="label">Official skill stars</div><p>Fast uptake for the coding-agent skill; still an attention proxy, not installed or retained usage.</p></div>
+          <div class="signal"><div class="num">440K</div><div class="label">Largest reviewed YouTube demo</div><p>Greg Isenberg’s launch-week walkthrough showed email triage and also reported poor trading results.</p></div>
+          <div class="signal"><div class="num">6 days</div><div class="label">Time since launch</div><p>No meaningful longitudinal production evidence, SLA history, or customer case-study base yet.</p></div>
+        </div>
+        <div class="quote-card"><blockquote>“A generalized zero-shot classifier” is the least confusing description—and even TypeSafe’s founder agreed that framing was “exactly right.”</blockquote><p>Paraphrase of the central Hacker News framing. <a href="https://news.ycombinator.com/item?id=49717558">Read the thread</a>.</p></div>
+      </div>
+      <div class="grid g3" style="margin-top:16px">
+        <div class="card"><span class="tag good">Praise</span><h3>Software-shaped output</h3><p>Developers like typed values, probability distributions, batching, and keeping side effects in code.</p></div>
+        <div class="card"><span class="tag warn">Skepticism</span><h3>Comparator-sensitive hype</h3><p>The headline 193×/444× multipliers use expensive frontier models; cheap-model comparisons are far less dramatic.</p></div>
+        <div class="card"><span class="tag bad">Maturity warning</span><h3>Launch-stage SDK edges</h3><p>Open issues included schema mismatches, status-code differences, and reports that exception text might expose keys.</p></div>
+      </div>
+      <div class="callout"><strong>My read of the discourse</strong>The narrow thesis—“cheap semantic classifier/judge/router as infrastructure”—has earned credibility. The grander claims about a new model class, unique calibration, and no hallucinations remain under-evidenced.</div>
+    </section>
+
+    <section class="sec" id="agents">
+      <div class="section-kicker">06 / Claude Code and Codex</div><h2>Install the official skill first. Do not start with an MCP contraption.</h2>
+      <p class="lead">The official skill teaches the agent the API, primitives, and question-writing patterns. It does not turn Jev into the agent’s brain or automatically insert it into every loop.</p>
+      <div class="code-pair">
+        <div class="code-file"><div class="code-head"><span>Claude Code · official plugin</span><span>global</span></div><pre class="code-body"><code>claude plugin marketplace add typesafe-ai/skills
+claude plugin install typesafe@typesafe-ai
+
+# inside Claude Code
+/typesafe:typesafe-ai</code></pre></div>
+        <div class="code-file"><div class="code-head"><span>Codex + cross-agent installer</span><span>project default</span></div><pre class="code-body"><code>npx skills add typesafe-ai/skills \
+  --skill typesafe-ai
+
+# choose Codex when prompted
+# then say: "use the TypeSafe skill"
+# global install: add -g</code></pre></div>
+      </div>
+      <div class="callout good"><strong>Verified locally in an isolated temporary repo</strong>The project installer created <code>.claude/skills/typesafe-ai/SKILL.md</code>, <code>.agents/skills/typesafe-ai/SKILL.md</code>, and <code>skills-lock.json</code>. Claude Code and Codex both discovered the skill. A local mock verified the Python SDK’s <code>/v1/systemone</code> request and typed response contract. No paid live inference was claimed.</div>
+      <h3 style="font:400 31px 'Instrument Serif';margin:32px 0 14px">A useful first prompt</h3>
+      <div class="code-file"><div class="code-head"><span>Use in Plan mode before changing code</span><span>recommended</span></div><pre class="code-body"><code>Use the TypeSafe skill. Inspect this repository and propose the three
+highest-value places where Jev could replace fragile prompt-and-parse logic
+or expensive repeated LLM judgments.
+
+For each, show:
+1. the exact state sent to Jev;
+2. all Choice / Noul / Score questions in one batched request;
+3. thresholds and the escalation path;
+4. a labeled evaluation set and acceptance metric;
+5. what remains deterministic code.
+
+Do not implement yet. Do not put Jev on arithmetic, date comparison,
+security enforcement, or open-ended generation.</code></pre></div>
+      <h3 style="font:400 31px 'Instrument Serif';margin:32px 0 14px">Then graduate from advisory to enforcement</h3>
+      <div class="flow">
+        <div class="flow-step"><b>Week 1</b><span>Log advisory judgments; no behavior change</span></div>
+        <div class="flow-step"><b>Week 2</b><span>Label errors and tune questions</span></div>
+        <div class="flow-step"><b>Week 3</b><span>Set thresholds by business cost</span></div>
+        <div class="flow-step"><b>Week 4</b><span>Auto-route only high-confidence cases</span></div>
+        <div class="flow-step"><b>Ongoing</b><span>Monitor drift; pin model versions</span></div>
+      </div>
+      <div class="do-dont">
+        <div class="do"><h3>Let Jev decide</h3><ul><li>Which bounded category fits?</li><li>How relevant is this passage?</li><li>Does this claim follow from the evidence?</li><li>How much review does this change need?</li><li>Should this uncertain case escalate?</li></ul></div>
+        <div class="dont"><h3>Keep out of Jev</h3><ul><li>Writing code, prose, plans, or explanations</li><li>Arithmetic, dates, counts, and exact parsing</li><li>Hard permissions and security boundaries</li><li>Executing tool calls or side effects</li><li>Multi-hop causal reasoning and diagnosis</li></ul></div>
+      </div>
+    </section>
+
+    <section class="sec" id="risks">
+      <div class="section-kicker">07 / Constraints</div><h2>The product is useful precisely when its boundaries are respected.</h2>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Constraint</th><th>Operational consequence</th><th>Mitigation</th></tr></thead>
+        <tbody>
+          <tr><td>Literal interpretation</td><td>Answers the written condition, not your unstated intent</td><td>Atomic questions; explicit boundaries; labeled tests</td></tr>
+          <tr><td>Independent questions</td><td>Same-call answers need not be logically coupled</td><td>Use separate calls for dependent stages</td></tr>
+          <tr><td>Context rot</td><td>Irrelevant detail lowers accuracy</td><td>Filter and summarize deterministically first</td></tr>
+          <tr><td>Weak numeric/date behavior</td><td>Silent mistakes on arithmetic, counting, comparison</td><td>Compute exact facts in code; only ask for semantics</td></tr>
+          <tr><td>Adversarial state</td><td>Injected text can steer the judgment</td><td>Never use Jev alone as a security boundary</td></tr>
+          <tr><td>Model alias drift</td><td><code>jev-latest</code> can change under tuned thresholds</td><td>Pin <code>jev-1.13.0</code> after validation</td></tr>
+          <tr><td>English-first quality</td><td>CJK and other languages may underperform</td><td>Evaluate Chinese/Arabic datasets separately</td></tr>
+          <tr><td>Hosted data path</td><td>State leaves your environment for US-hosted processing</td><td>Minimize state; enterprise ZDR; never send unnecessary PII</td></tr>
+        </tbody>
+      </table></div>
+      <div class="grid g3" style="margin-top:16px">
+        <div class="card"><span class="tag warn">Privacy</span><h3>No model training on inputs</h3><p>TypeSafe states it will not train or fine-tune models on customer input. Standard retention is not zero; enterprise customers can request Zero Data Retention.</p></div>
+        <div class="card"><span class="tag warn">Commercial</span><h3>Managed proprietary model</h3><p>The SDKs and skill are MIT; the hosted model/API are governed by a proprietary service agreement. No public weights or self-hosting path were found.</p></div>
+        <div class="card"><span class="tag warn">Technical</span><h3>Early-access service</h3><p>64k total request context, 32k state plus longest question, text input only, and dynamic rate limits. Build retry and fallback behavior.</p></div>
+      </div>
+    </section>
+
+    <section class="sec" id="plan">
+      <div class="section-kicker">08 / Recommendation</div><h2>Run one narrow pilot—not a platform-wide rollout.</h2>
+      <div class="verdict">
+        <div class="verdict-main"><p class="quote">Start with repository task/skill routing or PR triage in advisory mode.</p><p>Both produce measurable labels, avoid irreversible side effects, and can save flagship-model calls. Collect at least 200 representative decisions, compare against human labels, and tune by the cost of false positives versus false negatives.</p></div>
+        <div class="verdict-side">
+          <div class="metric"><strong>200+</strong><span>labeled representative examples before enforcement</span></div>
+          <div class="metric"><strong>1 pinned model</strong><span>avoid threshold drift during evaluation</span></div>
+          <div class="metric"><strong>1 narrow gate</strong><span>only after advisory accuracy is proven</span></div>
+        </div>
+      </div>
+      <div class="grid g2">
+        <div class="card hero-card"><span class="tag good">Build first</span><h3>Hermes skill router</h3><p>State: task + compact skill descriptions. Choice: best skill. Noul: is any skill suitable? Policy: auto-load only above a tuned confidence; otherwise use existing deterministic routing.</p><h4>Success metric</h4><p>Reduction in incorrect/unnecessary skill loads without reducing task completion quality.</p></div>
+        <div class="card"><span class="tag">Second pilot</span><h3>Automotive case triage</h3><p>State: normalized complaint + service history facts. Questions: issue category, urgency, likely safety escalation, evidence completeness. Never let Jev approve claims or payouts.</p><h4>Success metric</h4><p>Routing accuracy, review time saved, and calibrated escalation on hard cases across English, Arabic, and Chinese.</p></div>
+      </div>
+      <div class="callout danger"><strong>What I would not do</strong>I would not put Jev into every Claude/Codex tool call. The synchronous network latency, privacy surface, and false confidence would swamp the benefit. Scope it to decisions that are both semantically fuzzy and economically frequent.</div>
+    </section>
+
+    <section class="sec" id="sources">
+      <div class="section-kicker">09 / Source ledger</div><h2>Primary and independent reading</h2>
+      <p class="lead">Official sources anchor product facts. Independent sources anchor reception and benchmark claims. Launch-week counts are volatile snapshots, not durable adoption metrics.</p>
+      <details open><summary>Official product, API, pricing, and limitations</summary><div class="details-body"><ul class="source-list">
+        <li><a href="https://docs.typesafe.ai/introduction">Introduction</a></li><li><a href="https://typesafe.ai/blog/introducing-system-one-models-and-jev">Launch essay</a></li><li><a href="https://docs.typesafe.ai/api">API reference</a></li><li><a href="https://docs.typesafe.ai/primitives">Choice, Noul, Score</a></li><li><a href="https://docs.typesafe.ai/confidence">Confidence</a></li><li><a href="https://docs.typesafe.ai/models">Models, pricing, limits</a></li><li><a href="https://docs.typesafe.ai/model-jaggedness/jev-1.13">Jev 1.13 jaggedness</a></li><li><a href="https://docs.typesafe.ai/agent-skill">Official agent skill</a></li><li><a href="https://github.com/typesafe-ai/skills">Official skill repository</a></li><li><a href="https://github.com/typesafe-ai/typesafe-sdk-python">Python SDK</a></li><li><a href="https://github.com/typesafe-ai/typesafe-sdk-js">JavaScript SDK</a></li><li><a href="https://typesafe.ai/legal/privacy-policy">Privacy policy</a></li><li><a href="https://typesafe.ai/legal/mca">Master Customer Agreement</a></li><li><a href="https://typesafe.ai/legal/data-processing">Data Processing Addendum</a></li>
+      </ul></div></details>
+      <details open><summary>Independent reception and tests</summary><div class="details-body"><ul class="source-list">
+        <li><a href="https://news.ycombinator.com/item?id=49717558">Hacker News launch discussion</a></li><li><a href="https://nearhere.events/blog/typesafe-jev-mistral-gemini-event-validation">Near Here event validation test</a></li><li><a href="https://wotai.co/blog/typesafe-jev-vs-claude-haiku-tested">WotAI 16-model comparison</a></li><li><a href="https://truestandard.ai/blog/jev-accuracy-tested">TrueStandard claim test</a></li><li><a href="https://www.langchain.com/blog/jev-agent-evals-langsmith">LangChain agent-eval experiment</a></li><li><a href="https://dev.to/aitejiu/benchmarking-jev-what-a-decision-model-can-and-cant-do-in-an-agent-harness-20po">DEV large agent-harness benchmark</a></li><li><a href="https://www.lesswrong.com/posts/d7pQicW8EhpPBDRqz/a-non-generative-model-as-a-trusted-monitor-for-ai-control">LessWrong trusted-monitor test</a></li><li><a href="https://www.reddit.com/r/singularity/comments/1whop6b/typesafe_ai_releases_ai_model_called_jev_rather/">Reddit launch thread</a></li><li><a href="https://www.youtube.com/watch?v=4mTLpuQpB80">Greg Isenberg walkthrough</a></li><li><a href="https://www.youtube.com/watch?v=F3YXg7AaKWE">Theo review</a></li>
+      </ul></div></details>
+      <footer class="footer"><span>Prepared as an independent product field report. No affiliation with TypeSafe AI.</span><span>Research snapshot: 21 September 2026</span></footer>
+    </section>
+  </main>
+</div>
+<script>
+  const root=document.documentElement, btn=document.getElementById('themeBtn');
+  btn.addEventListener('click',()=>root.dataset.theme=root.dataset.theme==='dark'?'light':'dark');
+  const links=[...document.querySelectorAll('#toc a')];
+  const items=links.map(a=>({a,el:document.querySelector(a.getAttribute('href'))})).filter(x=>x.el);
+  const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){links.forEach(a=>a.classList.remove('active'));const x=items.find(x=>x.el===e.target);if(x)x.a.classList.add('active')}}),{rootMargin:'-10% 0px -80% 0px'});
+  items.forEach(x=>io.observe(x.el));
+</script>
+</body>
+</html>
