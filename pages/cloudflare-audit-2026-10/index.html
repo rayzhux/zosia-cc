@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+<title>Cloudflare Audit — Why the WAG bill is climbing · Oct 2026</title>
+<meta name="description" content="Read-only audit of Raymond's two Cloudflare accounts. One D1 database, dealrevs-demo, drives almost all of WAG's estimated usage cost. All dollar figures are estimates.">
+<meta name="x-category" content="cloudflare">
+<meta name="x-tags" content="audit, billing, cloudflare">
+<meta name="x-created" content="2026-10-11">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%230b0d0c'/><path d='M7 22h18M9 22V14M15 22V9M21 22V17' stroke='%23f2a93b' stroke-width='3' stroke-linecap='round'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0b0d0c;--surface:#121614;--border:#1f2522;--border-bright:#5e6662;--text:#e6ebe8;--text-dim:#919d97;
+  --accent:#f2a93b;--ok:#6fcf97;--warn:#e8c547;--risk:#ef6f5c;--info:#6cb6e0;
+  --accent-dim:rgb(242 169 59 / .14);--risk-dim:rgb(239 111 92 / .14);
+  --node-top:color-mix(in srgb,var(--text) 7%,var(--surface));--lift:rgb(0 0 0 / .45);
+  --sans:"Geist",ui-sans-serif,sans-serif;--mono:"Geist Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme:light){:root{
+  --bg:#f4f5f3;--surface:#ffffff;--border:#dfe3e0;--border-bright:#888e8b;--text:#121614;--text-dim:#545e59;
+  --accent:#955700;--ok:#1c7443;--warn:#7a5e00;--risk:#b0341e;--info:#1a6890;
+  --accent-dim:rgb(149 87 0 / .10);--risk-dim:rgb(176 52 30 / .09);
+  --node-top:var(--surface);--lift:rgb(18 22 20 / .12);
+}}
+*{box-sizing:border-box}
+html{font-size:17px;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.55;font-feature-settings:"ss01"}
+a{color:inherit;text-decoration-color:var(--border-bright);text-underline-offset:.2em}
+a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.mono{font-family:var(--mono)}
+.num{font-variant-numeric:tabular-nums}
+.dim{color:var(--text-dim)}
+.wrap{max-width:72rem;margin:0 auto;padding:0 1.5rem}
+/* top rail */
+.rail{border-bottom:1px solid var(--border);font-family:var(--mono);font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--text-dim)}
+.rail .wrap{display:flex;gap:1.5rem;flex-wrap:wrap;justify-content:space-between;padding-block:.85rem}
+.rail b{color:var(--text);font-weight:500}
+/* hero */
+.hero{padding:4rem 0 2.5rem}
+.eyebrow{font-family:var(--mono);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin:0 0 1rem}
+h1{font-size:clamp(2rem,4.6vw,3.4rem);line-height:1.04;letter-spacing:-.035em;font-weight:600;margin:0 0 1.25rem;max-width:22ch;text-wrap:balance}
+h1 em{font-style:normal;color:var(--accent)}
+.lead{font-size:1.12rem;color:var(--text-dim);max-width:48ch;margin:0;text-wrap:pretty}
+.lead strong{color:var(--text);font-weight:500}
+/* estimate banner */
+.est{display:flex;gap:.75rem;align-items:flex-start;margin-top:1.75rem;padding:.85rem 1rem;border:1px dashed var(--border-bright);border-radius:6px;max-width:44rem;font-size:.88rem;color:var(--text-dim)}
+.est svg{flex:none;margin-top:.15rem}
+.est b{color:var(--text);font-weight:500}
+/* hero figure: run-rate bar */
+.runrate{margin:2.5rem 0 0}
+.rr-bar{display:flex;height:3.25rem;border-radius:6px;overflow:hidden;border:1px solid var(--border)}
+.rr-seg{display:flex;align-items:center;padding:0 .9rem;font-family:var(--mono);font-size:.8rem;white-space:nowrap;min-width:0}
+.rr-w{background:var(--risk-dim);color:var(--risk);flex:850;border-right:1px solid var(--border);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--risk) 35%,transparent)}
+.rr-r{background:var(--accent-dim);color:var(--accent);flex:50;justify-content:center;padding:0}
+.rr-b{background:var(--surface);color:var(--text-dim);flex:5;padding:0}
+.rr-legend{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem;margin-top:.9rem;font-size:.85rem}
+.rr-legend div{border-top:2px solid var(--border-bright);padding-top:.5rem;min-width:0}
+.rr-legend .k{font-family:var(--mono);font-size:1.25rem;font-variant-numeric:tabular-nums;display:block;letter-spacing:-.02em}
+.rr-legend .w{border-color:var(--risk)} .rr-legend .w .k{color:var(--risk)}
+.rr-legend .r{border-color:var(--accent)}
+figure{margin:0}
+figcaption{font-size:.85rem;color:var(--text-dim);margin-top:.85rem;max-width:62ch;text-wrap:pretty}
+figcaption b{color:var(--text);font-weight:500;font-family:var(--mono);font-size:.78rem;margin-right:.4rem}
+/* KPI strip */
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-block:1px solid var(--border);margin:3rem 0 0}
+.kpi{padding:1.4rem 1.25rem 1.3rem;border-left:1px solid var(--border);min-width:0}
+.kpi:first-child{border-left:0;padding-left:0}
+.kpi .v{font-size:2.3rem;font-weight:600;letter-spacing:-.04em;line-height:1;font-variant-numeric:tabular-nums}
+.kpi .v small{font-size:.9rem;color:var(--text-dim);font-weight:400;letter-spacing:0;margin-left:.15rem}
+.kpi .l{font-size:.82rem;color:var(--text-dim);margin-top:.6rem;line-height:1.4}
+.kpi .meter{height:4px;background:var(--border);border-radius:2px;margin-top:.8rem;position:relative;overflow:hidden}
+.kpi .meter i{position:absolute;inset:0 auto 0 0;background:var(--risk);border-radius:2px}
+.kpi.hot .v{color:var(--risk)}
+.tag-est{font-family:var(--mono);font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--border-bright);color:var(--text-dim);border-radius:3px;padding:.05rem .3rem;vertical-align:.35em;margin-left:.35rem}
+/* layout */
+.layout{display:grid;grid-template-columns:11rem minmax(0,1fr);gap:3rem;padding:3rem 0 5rem}
+nav.toc{position:sticky;top:1.5rem;align-self:start;font-size:.8rem}
+nav.toc ol{list-style:none;margin:0;padding:0;border-left:1px solid var(--border)}
+nav.toc a{display:block;padding:.3rem 0 .3rem .85rem;color:var(--text-dim);text-decoration:none;margin-left:-1px;border-left:1px solid transparent}
+nav.toc a.on{color:var(--text);border-left-color:var(--accent)}
+nav.toc .pos{font-family:var(--mono);font-size:.7rem;color:var(--text-dim);margin:0 0 .75rem;letter-spacing:.06em}
+section{padding-top:3rem;margin-top:3rem;border-top:1px solid var(--border);min-width:0}
+section:first-child{border-top:0;margin-top:0;padding-top:0}
+.sec-k{font-family:var(--mono);font-size:.72rem;color:var(--text-dim);letter-spacing:.08em;text-transform:uppercase;margin:0 0 .6rem}
+h2{font-size:1.65rem;letter-spacing:-.02em;line-height:1.15;font-weight:600;margin:0 0 .75rem;max-width:30ch;text-wrap:balance}
+h3{font-size:1rem;font-weight:600;margin:0 0 .4rem}
+p{max-width:64ch;text-wrap:pretty;margin:0 0 1rem}
+.stage{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1.25rem 1.25rem .75rem;overflow-x:auto;margin-top:1.25rem}
+.stage svg{display:block;width:100%;min-width:560px;height:auto}
+svg text{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.grid{stroke:var(--border);stroke-width:1}
+.ax{fill:var(--text-dim);font-size:12px}
+.val{fill:var(--text-dim);font-size:12px}
+.val.strong{fill:var(--risk);font-size:15px;font-weight:500}
+.ann{fill:var(--text-dim);font-size:12px}
+.ann.risk{fill:var(--risk)}
+.band{fill:var(--accent-dim)}
+.bar{fill:var(--border-bright)}
+.bar.hot{fill:var(--risk)}
+.bar.info{fill:var(--info)}
+.limit{stroke:var(--accent);stroke-width:1.5;stroke-dasharray:6 5}
+.line{fill:none;stroke:var(--risk);stroke-width:2.25;stroke-linejoin:round}
+.area{fill:var(--risk-dim)}
+.pt{fill:var(--bg);stroke:var(--risk);stroke-width:2.5}
+/* tables */
+.tbl{overflow-x:auto;margin-top:1.25rem;border:1px solid var(--border);border-radius:8px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:.86rem;min-width:640px}
+th{font-family:var(--mono);font-weight:500;font-size:.7rem;letter-spacing:.07em;text-transform:uppercase;color:var(--text-dim);text-align:left;padding:.75rem 1rem;border-bottom:1px solid var(--border-bright)}
+td{padding:.8rem 1rem;border-bottom:1px solid var(--border);vertical-align:top}
+tr:last-child td{border-bottom:0}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+td .sub{display:block;color:var(--text-dim);font-size:.8rem;margin-top:.15rem}
+tr.focus td{background:var(--risk-dim)}
+.chip{display:inline-flex;align-items:center;gap:.4rem;font-family:var(--mono);font-size:.72rem;white-space:nowrap;padding:.15rem .5rem;border-radius:4px;border:1px solid currentColor}
+.chip::before{content:"";width:.5rem;height:.5rem;flex:none}
+.chip.risk{color:var(--risk)} .chip.risk::before{background:currentColor;transform:rotate(45deg)}
+.chip.warn{color:var(--warn)} .chip.warn::before{border:1.5px solid currentColor;border-radius:50%}
+.chip.ok{color:var(--ok)} .chip.ok::before{background:currentColor;border-radius:50%}
+.chip.na{color:var(--text-dim)} .chip.na::before{border-top:1.5px solid currentColor;height:0}
+.chip.fix{color:var(--text-dim)} .chip.fix::before{background:currentColor;border-radius:1px}
+/* inline mini bar in table */
+.mbar{display:flex;align-items:center;gap:.6rem;justify-content:flex-end}
+.mbar span{display:inline-block;height:6px;border-radius:2px;background:var(--border-bright);min-width:2px}
+.mbar span.hot{background:var(--risk)}
+/* hbars */
+.hbars{margin-top:1.25rem;display:grid;gap:.45rem}
+.hb{display:grid;grid-template-columns:12rem minmax(0,1fr) 5.5rem;gap:1rem;align-items:center;font-size:.82rem}
+.hb-l{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text-dim)}
+.hb-t{height:.8rem;background:var(--border);border-radius:2px;position:relative}
+.hb-f{position:absolute;inset:0 auto 0 0;width:max(var(--w),2px);background:var(--border-bright);border-radius:2px}
+.hb-f.hot{background:var(--accent)}
+.hb-v{text-align:right;font-family:var(--mono)}
+/* mechanism */
+.mech text{font-size:12px}
+.node rect,.node path{fill:var(--node-top);stroke:var(--border-bright);stroke-width:1.25;filter:drop-shadow(0 6px 10px var(--lift))}
+.node.hot rect,.node.hot path{stroke:var(--risk);stroke-width:2}
+.node .t{fill:var(--text);font-size:13px;font-weight:500}
+.node .s{fill:var(--text-dim);font-size:12px}
+.edge{fill:none;stroke:var(--border-bright);stroke-width:1.5}
+.edge.hot{stroke:var(--risk);stroke-width:2.5}
+.edge.q{stroke-dasharray:4 4}
+.elab{fill:var(--text-dim);font-size:12px}
+.elab.hot{fill:var(--risk)}
+.flow{fill:var(--risk)}
+.dots{fill:var(--border)}
+/* compare 2700x */
+.ratio{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-top:1.25rem}
+.ratio>div{background:var(--surface);padding:1.1rem 1.25rem;min-width:0}
+.ratio .big{font-size:2rem;font-weight:600;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.ratio .hot .big{color:var(--risk)}
+.ratio .lbl{font-family:var(--mono);font-size:.75rem;color:var(--text-dim)}
+/* inventory */
+.inv{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-top:1.25rem}
+.inv>div{background:var(--surface);padding:1.1rem 1.25rem;min-width:0;font-size:.86rem}
+.inv h3{font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim);font-weight:500;margin-bottom:.6rem}
+.pills{display:flex;flex-wrap:wrap;gap:.35rem}
+.pill{font-family:var(--mono);font-size:.75rem;padding:.15rem .45rem;border:1px solid var(--border);border-radius:4px;overflow-wrap:anywhere}
+.pill.demo{border-style:dashed;color:var(--text-dim)}
+.pill.hot{border-color:var(--risk);color:var(--risk)}
+/* recs */
+ol.recs{list-style:none;padding:0;margin:1.25rem 0 0;counter-reset:r;border-top:1px solid var(--border)}
+ol.recs li{counter-increment:r;display:grid;grid-template-columns:2.5rem minmax(0,1fr) 9rem;gap:1rem;padding:1.15rem 0;border-bottom:1px solid var(--border)}
+ol.recs li::before{content:counter(r);font-family:var(--mono);font-size:.85rem;color:var(--text-dim);padding-top:.1rem}
+ol.recs li.top::before{color:var(--risk)}
+ol.recs p{font-size:.9rem;color:var(--text-dim);margin:0}
+ol.recs code{font-family:var(--mono);font-size:.82em;color:var(--text)}
+.save{text-align:right;font-family:var(--mono);font-size:.82rem;font-variant-numeric:tabular-nums}
+.save b{display:block;font-size:1.05rem;font-weight:500;color:var(--text)}
+li.top .save b{color:var(--risk)}
+/* personal */
+.pk{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-top:1.25rem}
+.pk>div{background:var(--surface);padding:1rem 1.1rem;min-width:0}
+.pk .v{font-size:1.6rem;font-weight:600;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.pk .l{font-size:.8rem;color:var(--text-dim)}
+.r2{height:6px;background:var(--border);border-radius:2px;margin-top:.6rem;position:relative}
+.r2 i{position:absolute;inset:0 auto 0 0;width:57.8%;background:var(--ok);border-radius:2px}
+/* caveats */
+.cav{display:grid;gap:1px;background:var(--border);border:1px dashed var(--border-bright);border-radius:8px;overflow:hidden;margin-top:1.25rem}
+.cav>div{background:var(--bg);padding:1rem 1.25rem;display:grid;grid-template-columns:10rem minmax(0,1fr);gap:1rem;font-size:.88rem}
+.cav b{font-weight:500}
+.cav p{margin:0;color:var(--text-dim)}
+footer{border-top:1px solid var(--border);padding:1.5rem 0 3rem;font-size:.8rem;color:var(--text-dim);font-family:var(--mono)}
+/* motion */
+.js-motion .rise{opacity:0;transform:translateY(8px);transition:opacity .5s ease,transform .5s ease}
+.js-motion .rise.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.js-motion .rise{opacity:1;transform:none;transition:none}}
+@media (max-width:900px){
+  .layout{grid-template-columns:minmax(0,1fr)} nav.toc{display:none}
+  .kpis{grid-template-columns:repeat(2,minmax(0,1fr))} .kpi:nth-child(3){border-left:0;padding-left:0} .kpi{border-top:1px solid var(--border)} .kpi:nth-child(-n+2){border-top:0}
+  .pk{grid-template-columns:repeat(2,minmax(0,1fr))} .inv{grid-template-columns:minmax(0,1fr)}
+}
+@media (max-width:560px){
+  .wrap{padding:0 1rem} .rr-legend{grid-template-columns:minmax(0,1fr)} .hb{grid-template-columns:8rem minmax(0,1fr) 4.5rem}
+  ol.recs li{grid-template-columns:1.75rem minmax(0,1fr)} .save{grid-column:2;text-align:left}
+  .cav>div{grid-template-columns:minmax(0,1fr)} .ratio{grid-template-columns:minmax(0,1fr)}
+  .rr-seg.rr-w span.x{display:none}
+}
+@media print{nav.toc{display:none}.layout{grid-template-columns:minmax(0,1fr)}}
+</style>
+  <meta property="og:title" content="Cloudflare Audit — Why the WAG bill is climbing · Oct 2026">
+  <meta property="og:description" content="Read-only audit of Raymond's two Cloudflare accounts. One D1 database, dealrevs-demo, drives almost all of WAG's estimated usage cost. All dollar figures are estimates.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://zosia.cc/pages/cloudflare-audit-2026-10">
+  <meta name="twitter:card" content="summary">
+</head>
+<body>
+<div class="rail"><div class="wrap"><span><b>Cloudflare audit</b> · 2 accounts · read-only</span><span>Data window <b>11 Sep – 11 Oct 2026</b></span><span>Generated <b>Sun 11 Oct 2026, 09:00 GST</b></span></div></div>
+
+<header class="wrap hero">
+  <p class="eyebrow">World Automotive Group · usage review</p>
+  <h1>One demo database, <em>dealrevs-demo</em>, drives almost all of WAG’s bill.</h1>
+  <p class="lead">Since 7 Oct it writes <strong>about 30M rows a day</strong> into a 62&nbsp;MB database. At this pace the account runs at <strong>roughly $900 a month</strong>. Everything else fits in the included tiers.</p>
+
+  <figure class="runrate rise">
+    <div class="rr-bar" role="img" aria-label="Estimated monthly run-rate of about 900 dollars: about 850 dollars D1 write overage, about 50 dollars read overage, 5 dollars base fee.">
+      <div class="rr-seg rr-w">D1 rows written <span class="x">&nbsp;· dealrevs-demo + dealrevs-reference</span></div>
+      <div class="rr-seg rr-r" title="D1 read overage">R</div>
+      <div class="rr-seg rr-b"></div>
+    </div>
+    <div class="rr-legend">
+      <div class="w"><span class="k">~$850<small class="dim">/mo</small></span>D1 write overage</div>
+      <div class="r"><span class="k">~$50<small class="dim">/mo</small></span>D1 read overage</div>
+      <div><span class="k">$5<small class="dim">/mo</small></span>Workers Paid base (fixed)</div>
+    </div>
+    <figcaption><b>Fig. 1</b>Estimated monthly run-rate if nothing changes: about $900, and D1 writes are nearly all of it. The 7–10 Oct average, extended to 30 days.</figcaption>
+  </figure>
+
+  <div class="est" role="note">
+    <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 4.5v4.5M8 11v.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+    <span><b>Every dollar figure on this page is an estimate.</b> The connected API tokens have no Billing permission, so invoices and subscriptions could not be read. Amounts are usage × Cloudflare’s published Workers Paid list prices. Check them against Dashboard → Billing.</span>
+  </div>
+
+  <div class="kpis">
+    <div class="kpi hot rise"><div class="v">123M</div><div class="l">D1 rows written, 1–11 Oct<br>50M included per month</div><div class="meter" aria-hidden="true"><i style="width:100%"></i></div></div>
+    <div class="kpi rise"><div class="v">9.2B</div><div class="l">D1 rows read, 1–11 Oct<br>25B included per month</div><div class="meter" aria-hidden="true"><i style="width:36.8%;background:var(--info)"></i></div></div>
+    <div class="kpi hot rise"><div class="v">~$73<span class="tag-est">est</span></div><div class="l">D1 write overage already accrued in Oct, if the cycle starts on the 1st</div></div>
+    <div class="kpi hot rise"><div class="v">~$900<small>/mo</small><span class="tag-est">est</span></div><div class="l">Projected run-rate: D1 writes + reads, plus the $5 base</div></div>
+  </div>
+</header>
+
+<div class="wrap layout">
+  <nav class="toc" aria-label="Sections">
+    <p class="pos" id="pos">1 / 9</p>
+    <ol>
+      <li><a href="#spike">The spike</a></li>
+      <li><a href="#mechanism">The mechanism</a></li>
+      <li><a href="#cost">Cost breakdown</a></li>
+      <li><a href="#d1">D1 databases</a></li>
+      <li><a href="#cpu">Workers CPU</a></li>
+      <li><a href="#inventory">Inventory</a></li>
+      <li><a href="#fixes">Fixes</a></li>
+      <li><a href="#personal">Personal account</a></li>
+      <li><a href="#limits">Limits of this audit</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <section id="spike">
+      <p class="sec-k">WAG · D1 activity by day</p>
+      <h2>Writes jumped on 7 Oct, right after the dealrevs stack went live.</h2>
+      <p>The D1 database, R2 buckets, queues and workflow were created on 5–7 Oct. More than 92% of the writes come from <span class="mono">dealrevs-demo</span>.</p>
+      <figure class="stage rise"><svg viewBox="0 0 760 300" role="img" aria-label="Daily D1 rows written, 2 to 11 October. Near zero until 5 October, then about 30 million a day from 7 October."><line x1="56" x2="740" y1="256.0" y2="256.0" class="grid"/><text x="46" y="260.0" class="ax" text-anchor="end">0M</text><line x1="56" x2="740" y1="189.7" y2="189.7" class="grid"/><text x="46" y="193.7" class="ax" text-anchor="end">10M</text><line x1="56" x2="740" y1="123.4" y2="123.4" class="grid"/><text x="46" y="127.4" class="ax" text-anchor="end">20M</text><line x1="56" x2="740" y1="57.1" y2="57.1" class="grid"/><text x="46" y="61.1" class="ax" text-anchor="end">30M</text><rect x="261.2" y="24" width="205.2" height="232" class="band"/><text x="267.2" y="38" class="ann">dealrevs stack created 5–7 Oct</text><rect x="68.3" y="256.0" width="43.8" height="1.0" class="bar" rx="2"/><text x="90.2" y="250.0" class="val" text-anchor="middle">0.0M</text><text x="90.2" y="276" class="ax" text-anchor="middle">2 Oct</text><rect x="136.7" y="256.0" width="43.8" height="1.0" class="bar" rx="2"/><text x="158.6" y="250.0" class="val" text-anchor="middle">0.0M</text><text x="158.6" y="276" class="ax" text-anchor="middle">3 Oct</text><rect x="205.1" y="256.0" width="43.8" height="1.0" class="bar" rx="2"/><text x="227.0" y="250.0" class="val" text-anchor="middle">0.0M</text><text x="227.0" y="276" class="ax" text-anchor="middle">4 Oct</text><rect x="273.5" y="240.1" width="43.8" height="15.9" class="bar" rx="2"/><text x="295.4" y="234.1" class="val" text-anchor="middle">2.4M</text><text x="295.4" y="276" class="ax" text-anchor="middle">5 Oct</text><rect x="341.9" y="211.6" width="43.8" height="44.4" class="bar" rx="2"/><text x="363.8" y="205.6" class="val" text-anchor="middle">6.7M</text><text x="363.8" y="276" class="ax" text-anchor="middle">6 Oct</text><rect x="410.3" y="138.0" width="43.8" height="118.0" class="bar hot" rx="2"/><text x="432.2" y="132.0" class="val" text-anchor="middle">17.8M</text><text x="432.2" y="276" class="ax" text-anchor="middle">7 Oct</text><rect x="478.7" y="48.5" width="43.8" height="207.5" class="bar hot" rx="2"/><text x="500.6" y="42.5" class="val" text-anchor="middle">31.3M</text><text x="500.6" y="276" class="ax" text-anchor="middle">8 Oct</text><rect x="547.1" y="51.8" width="43.8" height="204.2" class="bar hot" rx="2"/><text x="569.0" y="45.8" class="val" text-anchor="middle">30.8M</text><text x="569.0" y="276" class="ax" text-anchor="middle">9 Oct</text><rect x="615.5" y="62.4" width="43.8" height="193.6" class="bar hot" rx="2"/><text x="637.4" y="56.4" class="val" text-anchor="middle">29.2M</text><text x="637.4" y="276" class="ax" text-anchor="middle">10 Oct</text><rect x="683.9" y="225.5" width="43.8" height="30.5" class="bar" rx="2"/><text x="705.8" y="219.5" class="val" text-anchor="middle">4.6M</text><text x="705.8" y="276" class="ax" text-anchor="middle">11 Oct</text></svg>
+        <figcaption><b>Fig. 2</b>Rows written per day, whole account. About 30M a day from 7 Oct (11 Oct is a partial day).</figcaption></figure>
+      <figure class="stage rise"><svg viewBox="0 0 760 240" role="img" aria-label="Cumulative October rows written crosses the 50 million monthly allowance on 8 October and reaches about 123 million by 11 October."><line x1="56" x2="740" y1="200.0" y2="200.0" class="grid"/><text x="46" y="204.0" class="ax" text-anchor="end">0M</text><line x1="56" x2="740" y1="130.8" y2="130.8" class="grid"/><text x="46" y="134.8" class="ax" text-anchor="end">50M</text><line x1="56" x2="740" y1="61.5" y2="61.5" class="grid"/><text x="46" y="65.5" class="ax" text-anchor="end">100M</text><line x1="56" x2="740" y1="130.8" y2="130.8" class="limit"/><text x="62" y="122.8" class="ann">50M rows / month included</text><polygon points="56,200 56.0,200.0 132.0,200.0 208.0,200.0 284.0,196.7 360.0,187.4 436.0,162.8 512.0,119.4 588.0,76.8 664.0,36.3 740.0,30.0 740,200" class="area"/><polyline points="56.0,200.0 132.0,200.0 208.0,200.0 284.0,196.7 360.0,187.4 436.0,162.8 512.0,119.4 588.0,76.8 664.0,36.3 740.0,30.0" class="line"/><text x="56.0" y="220" class="ax" text-anchor="middle">2 Oct</text><text x="132.0" y="220" class="ax" text-anchor="middle">3 Oct</text><text x="208.0" y="220" class="ax" text-anchor="middle">4 Oct</text><text x="284.0" y="220" class="ax" text-anchor="middle">5 Oct</text><text x="360.0" y="220" class="ax" text-anchor="middle">6 Oct</text><text x="436.0" y="220" class="ax" text-anchor="middle">7 Oct</text><text x="512.0" y="220" class="ax" text-anchor="middle">8 Oct</text><text x="588.0" y="220" class="ax" text-anchor="middle">9 Oct</text><text x="664.0" y="220" class="ax" text-anchor="middle">10 Oct</text><text x="740.0" y="220" class="ax" text-anchor="middle">11 Oct</text><circle cx="512.0" cy="119.4" r="5" class="pt"/><text x="502.0" y="107.4" class="ann risk" text-anchor="end">limit passed on day 8</text><text x="736.0" y="20.0" class="val strong" text-anchor="end">123M</text></svg>
+        <figcaption><b>Fig. 3</b>October’s running total passed the 50M monthly allowance on day 8. Every extra million rows costs $1.00.</figcaption></figure>
+      <figure class="stage rise"><svg viewBox="0 0 760 200" role="img" aria-label="Daily D1 rows read peak at 3.17 billion on 8 October."><line x1="56" x2="740" y1="160.0" y2="160.0" class="grid"/><text x="46" y="164.0" class="ax" text-anchor="end">0B</text><line x1="56" x2="740" y1="120.0" y2="120.0" class="grid"/><text x="46" y="124.0" class="ax" text-anchor="end">1B</text><line x1="56" x2="740" y1="80.0" y2="80.0" class="grid"/><text x="46" y="84.0" class="ax" text-anchor="end">2B</text><line x1="56" x2="740" y1="40.0" y2="40.0" class="grid"/><text x="46" y="44.0" class="ax" text-anchor="end">3B</text><rect x="68.3" y="160.0" width="43.8" height="1.0" class="bar" rx="2"/><text x="90.2" y="154.0" class="val" text-anchor="middle">0.00B</text><text x="90.2" y="180" class="ax" text-anchor="middle">2 Oct</text><rect x="136.7" y="160.0" width="43.8" height="1.0" class="bar" rx="2"/><text x="158.6" y="154.0" class="val" text-anchor="middle">0.00B</text><text x="158.6" y="180" class="ax" text-anchor="middle">3 Oct</text><rect x="205.1" y="160.0" width="43.8" height="1.0" class="bar" rx="2"/><text x="227.0" y="154.0" class="val" text-anchor="middle">0.00B</text><text x="227.0" y="180" class="ax" text-anchor="middle">4 Oct</text><rect x="273.5" y="159.6" width="43.8" height="1.0" class="bar" rx="2"/><text x="295.4" y="153.6" class="val" text-anchor="middle">0.01B</text><text x="295.4" y="180" class="ax" text-anchor="middle">5 Oct</text><rect x="341.9" y="159.2" width="43.8" height="1.0" class="bar" rx="2"/><text x="363.8" y="153.2" class="val" text-anchor="middle">0.02B</text><text x="363.8" y="180" class="ax" text-anchor="middle">6 Oct</text><rect x="410.3" y="104.4" width="43.8" height="55.6" class="bar info" rx="2"/><text x="432.2" y="98.4" class="val" text-anchor="middle">1.39B</text><text x="432.2" y="180" class="ax" text-anchor="middle">7 Oct</text><rect x="478.7" y="33.2" width="43.8" height="126.8" class="bar info" rx="2"/><text x="500.6" y="27.2" class="val" text-anchor="middle">3.17B</text><text x="500.6" y="180" class="ax" text-anchor="middle">8 Oct</text><rect x="547.1" y="49.6" width="43.8" height="110.4" class="bar info" rx="2"/><text x="569.0" y="43.6" class="val" text-anchor="middle">2.76B</text><text x="569.0" y="180" class="ax" text-anchor="middle">9 Oct</text><rect x="615.5" y="89.2" width="43.8" height="70.8" class="bar info" rx="2"/><text x="637.4" y="83.2" class="val" text-anchor="middle">1.77B</text><text x="637.4" y="180" class="ax" text-anchor="middle">10 Oct</text><rect x="683.9" y="158.0" width="43.8" height="2.0" class="bar" rx="2"/><text x="705.8" y="152.0" class="val" text-anchor="middle">0.05B</text><text x="705.8" y="180" class="ax" text-anchor="middle">11 Oct</text></svg>
+        <figcaption><b>Fig. 4</b>Rows read per day peaked at 3.17B on 8 Oct. Each read query scans about 113k rows on average (9.0B rows across 79.7k queries), which usually means missing indexes or full-table sync scans.</figcaption></figure>
+    </section>
+
+    <section id="mechanism">
+      <p class="sec-k">WAG · likely cause</p>
+      <h2>A sync or reset loop keeps rewriting a small demo database.</h2>
+      <p>The demo database writes about 2,700× more rows than prod. That points to a seeding, reset, or sync loop. The three suspects below are not yet confirmed.</p>
+      <figure class="stage rise">
+        <svg class="mech" viewBox="0 0 760 330" role="img" aria-label="Three suspected writers (a cron, a queue consumer on dealrevs-demo-jobs, the dealrevs-autodata-sync workflow) write about 30 million rows a day into dealrevs-demo, a 62 megabyte D1 database. The dealrevs-demo Worker reads from it, scanning about 113 thousand rows per query.">
+          <defs><pattern id="dg" width="16" height="16" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="1" class="dots"/></pattern>
+          <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="var(--border-bright)"/></marker>
+          <marker id="ahr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="var(--risk)"/></marker></defs>
+          <rect width="760" height="330" fill="url(#dg)"/>
+          <text x="20" y="26" class="ann">SUSPECTED WRITERS (unconfirmed)</text>
+          <g class="node"><rect x="20" y="40" width="210" height="58" rx="6"/><text x="36" y="64" class="t">cron trigger</text><text x="36" y="84" class="s">on dealrevs-demo Worker?</text></g>
+          <g class="node"><rect x="20" y="130" width="210" height="58" rx="6"/><text x="36" y="154" class="t">queue consumer</text><text x="36" y="174" class="s">dealrevs-demo-jobs (+dlq)</text></g>
+          <g class="node"><rect x="20" y="220" width="210" height="58" rx="6"/><text x="36" y="244" class="t">dealrevs-autodata-sync</text><text x="36" y="264" class="s">Workflow · 8 runs in 30d</text></g>
+          <path d="M230 69 C 300 69, 320 150, 400 160" class="edge q" marker-end="url(#ah)"/>
+          <path d="M230 159 L 400 160" class="edge hot" marker-end="url(#ahr)"/>
+          <path d="M230 249 C 300 249, 320 170, 400 162" class="edge q" marker-end="url(#ah)"/>
+          <text x="262" y="150" class="elab hot">writes ~30M rows/day</text>
+          <!-- cylinder -->
+          <g class="node hot"><path d="M410 120 v84 a60 14 0 0 0 120 0 v-84"/><ellipse cx="470" cy="120" rx="60" ry="14" fill="var(--node-top)" stroke="var(--risk)" stroke-width="2"/><text x="470" y="170" class="t" text-anchor="middle">dealrevs-demo</text><text x="470" y="190" class="s" text-anchor="middle">D1 · 62 MB</text></g>
+          <!-- dimension line for size -->
+          <line x1="410" y1="248" x2="530" y2="248" stroke="var(--border-bright)"/><line x1="410" y1="242" x2="410" y2="254" stroke="var(--border-bright)"/><line x1="530" y1="242" x2="530" y2="254" stroke="var(--border-bright)"/>
+          <text x="470" y="270" class="ann" text-anchor="middle">62 MB stored</text>
+          <text x="470" y="288" class="ann" text-anchor="middle">95.5M rows written (30d)</text>
+          <g class="node"><rect x="590" y="132" width="150" height="58" rx="6"/><text x="606" y="156" class="t">dealrevs-demo</text><text x="606" y="176" class="s">Worker · ~81 ms CPU/req</text></g>
+          <path d="M590 161 L 534 161" class="edge" marker-end="url(#ah)"/>
+          <text x="562" y="118" class="elab" text-anchor="middle">reads ~113k rows</text><text x="562" y="104" class="elab" text-anchor="middle">per query</text>
+          <circle r="4" class="flow js-flow"><animateMotion dur="1.4s" repeatCount="indefinite" path="M230 159 L 400 160"/></circle>
+        </svg>
+        <figcaption><b>Fig. 5</b>Suspected write path. The solid red edge is the hot path; dashed edges are other candidates. Check which one runs every few minutes.</figcaption>
+      </figure>
+    </section>
+
+    <section id="cost">
+      <p class="sec-k">WAG · estimated cost breakdown</p>
+      <h2>Two D1 line items carry the bill; everything else is free or fixed.</h2>
+      <div class="tbl"><table>
+        <thead><tr><th>Line item</th><th>Usage observed</th><th>Included (Workers Paid)</th><th class="n">Est. monthly</th><th>Status</th></tr></thead>
+        <tbody>
+        <tr class="focus"><td>D1 rows written<span class="sub">dealrevs-demo, plus dealrevs-reference at 26.8M</span></td><td>123M in 11 days; ~30M/day since 7 Oct</td><td>50M / mo</td><td class="n">~$850</td><td><span class="chip risk">Top driver</span></td></tr>
+        <tr><td>D1 rows read</td><td>9.2B in 11 days; ~2.5B/day peak</td><td>25B / mo</td><td class="n">~$50</td><td><span class="chip warn">Rising</span></td></tr>
+        <tr><td>Workers Paid base</td><td>12 Workers, all on Standard usage model</td><td>n/a</td><td class="n">$5</td><td><span class="chip fix">Fixed</span></td></tr>
+        <tr><td>Workers requests / CPU</td><td>~200k req and ~7,600 s CPU in 30 days</td><td>10M req, 30M CPU-ms</td><td class="n">$0</td><td><span class="chip ok">Within free</span></td></tr>
+        <tr><td>Durable Objects<span class="sub">6 namespaces, SQLite</span></td><td>~1.1k requests; dealrevs_AdwsGate ~2,360 s active</td><td>1M req, 400k GB-s</td><td class="n">$0</td><td><span class="chip ok">Within free</span></td></tr>
+        <tr><td>Queues<span class="sub">4 queues incl. 2 DLQs</span></td><td>~80k billable ops</td><td>1M ops</td><td class="n">$0</td><td><span class="chip ok">Within free</span></td></tr>
+        <tr><td>R2<span class="sub">4 buckets, ~0.98 GB, mostly dealrevs-evidence</span></td><td>~15.6k Class A, ~21.5k Class B</td><td>10 GB, 1M A, 10M B</td><td class="n">$0</td><td><span class="chip ok">Within free</span></td></tr>
+        <tr><td>KV (dealrevs-cache), Workflows, Workers AI</td><td>3.9k reads / 2.3k writes; 8 workflow runs; 16 neurons</td><td>generous</td><td class="n">$0</td><td><span class="chip ok">Within free</span></td></tr>
+        <tr><td>Zones<span class="sub">3, all Free plan</span></td><td>autodata.dev, axxion.co, worldauto.group</td><td>n/a</td><td class="n">$0</td><td><span class="chip ok">Free</span></td></tr>
+        <tr><td>Subscriptions / add-ons / invoices</td><td colspan="3">Could not read: token lacks the Billing Read permission (API error 10000)</td><td><span class="chip na">Not accessible</span></td></tr>
+        </tbody></table></div>
+      <p class="dim" style="font-size:.82rem;margin-top:.85rem">Prices used: D1 $1.00 per extra million rows written and $0.001 per extra million rows read; Workers $5/mo base. The projection takes the 7–10 Oct average and extends it to 30 days.</p>
+    </section>
+
+    <section id="d1">
+      <p class="sec-k">WAG · D1 databases, last 30 days</p>
+      <h2>The demo writes about 2,700× more rows than prod.</h2>
+      <div class="ratio rise" role="img" aria-label="dealrevs-demo wrote 95.5 million rows; dealrevs-prod wrote 0.035 million rows.">
+        <div class="hot"><div class="lbl">dealrevs-demo · rows written</div><div class="big">95.5M</div></div>
+        <div><div class="lbl">dealrevs-prod · rows written</div><div class="big">0.035M</div></div>
+      </div>
+      <div class="tbl"><table>
+        <thead><tr><th>Database</th><th class="n">Size</th><th class="n">Rows read (30d)</th><th class="n">Rows written (30d)</th><th class="n">Avg rows / read query</th></tr></thead>
+        <tbody>
+        <tr class="focus"><td class="mono">dealrevs-demo</td><td class="n">62 MB</td><td class="n"><div class="mbar">9,012.7M<span class="hot" style="width:80px"></span></div></td><td class="n"><div class="mbar">95.5M<span class="hot" style="width:80px"></span></div></td><td class="n">113,133</td></tr>
+        <tr><td class="mono">dealrevs-reference</td><td class="n">409–676 MB</td><td class="n"><div class="mbar">141.3M<span style="width:2px"></span></div></td><td class="n"><div class="mbar">26.8M<span style="width:22px"></span></div></td><td class="n">12,324</td></tr>
+        <tr><td class="mono">dealrevs-prod</td><td class="n">3.9 MB</td><td class="n"><div class="mbar">0.33M<span style="width:2px"></span></div></td><td class="n"><div class="mbar">0.035M<span style="width:2px"></span></div></td><td class="n">16</td></tr>
+        <tr><td class="mono">demo-hub</td><td class="n">0.4 MB</td><td class="n"><div class="mbar">0.036M<span style="width:2px"></span></div></td><td class="n"><div class="mbar">0.010M<span style="width:2px"></span></div></td><td class="n">19</td></tr>
+        <tr><td>9 deleted test DBs</td><td class="n">tiny</td><td class="n">~4.6M</td><td class="n">~0.45M</td><td class="n">n/a</td></tr>
+        </tbody></table></div>
+      <p class="dim" style="font-size:.86rem;margin-top:.85rem">Likely writer: the dealrevs-autodata-sync workflow, or a demo reset that rewrites every table.</p>
+    </section>
+
+    <section id="cpu">
+      <p class="sec-k">WAG · Workers CPU, 11 Sep – 11 Oct</p>
+      <h2>A marketing site uses the most CPU, but it is still inside the free allowance.</h2>
+      <p>worldauto-group-site uses about 85 ms of CPU per request, which is high for a marketing site. dealrevs-demo uses about 81 ms per request. Both are inside the included 30M CPU-ms, but both are worth caching.</p>
+      <figure class="rise"><div class="hbars" role="img" aria-label="CPU seconds by Worker: worldauto-group-site 5,552; dealrevs-demo 1,544; dealrevs 516; unknown 256; others under 12."><div class="hb"><span class="hb-l mono">worldauto-group-site</span><span class="hb-t"><span class="hb-f hot" style="--w:100.00%"></span></span><span class="hb-v num">5,552 s</span></div><div class="hb"><span class="hb-l mono">dealrevs-demo</span><span class="hb-t"><span class="hb-f" style="--w:27.81%"></span></span><span class="hb-v num">1,544 s</span></div><div class="hb"><span class="hb-l mono">dealrevs</span><span class="hb-t"><span class="hb-f" style="--w:9.29%"></span></span><span class="hb-v num">516 s</span></div><div class="hb"><span class="hb-l mono">__unknown__</span><span class="hb-t"><span class="hb-f" style="--w:4.61%"></span></span><span class="hb-v num">256 s</span></div><div class="hb"><span class="hb-l mono">gmdemo</span><span class="hb-t"><span class="hb-f" style="--w:0.20%"></span></span><span class="hb-v num">11 s</span></div><div class="hb"><span class="hb-l mono">demo-hub</span><span class="hb-t"><span class="hb-f" style="--w:0.14%"></span></span><span class="hb-v num">8 s</span></div><div class="hb"><span class="hb-l mono">bankingdemo</span><span class="hb-t"><span class="hb-f" style="--w:0.07%"></span></span><span class="hb-v num">4 s</span></div><div class="hb"><span class="hb-l mono">financehub-internal</span><span class="hb-t"><span class="hb-f" style="--w:0.07%"></span></span><span class="hb-v num">4 s</span></div></div>
+      <figcaption><b>Fig. 6</b>CPU seconds per Worker over 30 days.</figcaption></figure>
+    </section>
+
+    <section id="inventory">
+      <p class="sec-k">WAG · full inventory</p>
+      <h2>Seven of the 12 Workers are demo or staging copies.</h2>
+      <div class="inv">
+        <div><h3>Workers (12)</h3><div class="pills"><span class="pill">autodata-ops</span><span class="pill">autodata-tech</span><span class="pill demo">bankingdemo</span><span class="pill">dealrevs</span><span class="pill hot">dealrevs-demo</span><span class="pill demo">demo-hub</span><span class="pill demo">emirates-demo</span><span class="pill">financehub</span><span class="pill">financehub-internal</span><span class="pill demo">gmdemo</span><span class="pill demo">racdemo</span><span class="pill">worldauto-group-site</span></div><p class="dim" style="font-size:.78rem;margin:.6rem 0 0">Dashed = demo copy by name.</p></div>
+        <div><h3>Storage</h3><p style="margin:0 0 .4rem"><b>D1:</b> 4 · <b>KV:</b> dealrevs-cache · <b>Workflow:</b> dealrevs-autodata-sync</p><div class="pills"><span class="pill">R2 dealrevs-media</span><span class="pill">R2 dealrevs-demo-media</span><span class="pill">R2 dealrevs-evidence</span><span class="pill">R2 dealrevs-static-media</span><span class="pill">Q dealrevs-jobs (+dlq)</span><span class="pill">Q dealrevs-demo-jobs (+dlq)</span></div></div>
+        <div><h3>Durable Objects (6)</h3><div class="pills"><span class="pill">financehub(+internal)_DemoRoom</span><span class="pill">dealrevs(+demo)_AdwsGate</span><span class="pill">autodata-tech/ops_EmailChallenges</span></div></div>
+        <div><h3>Not in use</h3><p style="margin:0" class="dim">Pages, Vectorize, AI Gateway, Hyperdrive, Load Balancing, Tunnels, Containers: none. Zero Trust/Access: not enabled. Argo, Images, Stream: no permission to check. Members: 3.</p></div>
+      </div>
+    </section>
+
+    <section id="fixes">
+      <p class="sec-k">Recommendations · WAG</p>
+      <h2>Stopping one write loop removes about $850 a month.</h2>
+      <ol class="recs">
+        <li class="top"><div><h3>Stop the dealrevs-demo write loop</h3><p>Find out what writes about 30M rows a day to <code>dealrevs-demo</code>: a cron, a queue consumer on <code>dealrevs-demo-jobs</code>, or the autodata sync. Make the job incremental (upserts that only touch rows that changed), or stop running it against the demo copy. A demo does not need live data refreshed every few minutes.</p></div><div class="save">saves<b>~$850/mo</b></div></li>
+        <li><div><h3>Add indexes and stop full scans</h3><p>About 113k rows are read per query. Run <code>EXPLAIN QUERY PLAN</code> on the hot queries and add indexes on the filter and join columns. This also cuts the CPU time per request.</p></div><div class="save">saves<b>~$50/mo</b></div></li>
+        <li><div><h3>Point the demo at shared reference data</h3><p>dealrevs and dealrevs-demo duplicate the whole stack: D1, queues, DOs and R2. If the demo has to sync, sync a small snapshot once a day.</p></div><div class="save">prevents<b>doubled cost</b></div></li>
+        <li><div><h3>Set usage alerts</h3><p>Add Billing notifications for usage-based charges (for example at $25 and $100) so the next spike shows up within a day.</p></div><div class="save"><b>guardrail</b></div></li>
+        <li><div><h3>Cache worldauto-group-site</h3><p>85 ms of CPU per page view on a static site: serve it through Workers Static Assets or the cache API.</p></div><div class="save"><b>efficiency</b></div></li>
+        <li><div><h3>Grant Billing Read to verify</h3><p>Add Billing:Read to the WAG connector so invoices and subscriptions can be checked line by line against these estimates.</p></div><div class="save"><b>verify</b></div></li>
+      </ol>
+    </section>
+
+    <section id="personal">
+      <p class="sec-k">Personal account · Raymond Zhu</p>
+      <h2>The personal account costs about $0–5 a month.</h2>
+      <div class="pk">
+        <div><div class="v">20</div><div class="l">zones, all on the Free plan</div></div>
+        <div><div class="v">9</div><div class="l">Workers; ~208k requests / 30 days</div></div>
+        <div><div class="v">5.8 GB</div><div class="l">R2 storage (openclaw-backups; 10 GB free)</div><div class="r2" aria-hidden="true"><i></i></div></div>
+        <div><div class="v">≈$0–5<span class="tag-est">est</span></div><div class="l">usage; everything is inside the free or included tiers</div></div>
+      </div>
+      <div class="tbl"><table>
+        <thead><tr><th>Resource</th><th>Details</th><th>Note</th></tr></thead>
+        <tbody>
+        <tr><td>Zones</td><td>cnlookup.com, dhowholding.com, docread.dev, dutyapi.com, enzahealth.com, fxrate.dev, gccvin.com, raymondzhu.com/.org, rayzhu.com, rmbr.one, shiprate.dev, skyroid.com, skystone.co, sofuture.com, thebottlelogic.com, vindata.dev, xiujiezhu.com, zhuxiujie.com, zosia.cc</td><td><span class="chip ok">All Free</span><span class="sub">no plan cost</span></td></tr>
+        <tr><td>Workers</td><td>court-notes (~48k req, 664 s CPU), raymondzhu-com (~94k req), zosia-cc (~35k req), dhowholding-com, skyroid-com, skystone-co, sofuture-com, casta, bankingdemo</td><td><span class="chip na">Idle</span><span class="sub">casta, bankingdemo and sofuture-com show little or no traffic</span></td></tr>
+        <tr><td>D1</td><td>court-notes (0.9 MB; 295k read queries, 3M rows read)</td><td><span class="chip ok">Within free</span></td></tr>
+        <tr><td>R2</td><td>openclaw-backups (55 objects, 5.78 GB), zosia-assets (1 object)</td><td><span class="chip ok">Within free 10 GB</span></td></tr>
+        <tr><td>Queues</td><td>court-notes-debriefs (+ dlq)</td><td><span class="chip ok">Negligible</span></td></tr>
+        <tr><td>AI Gateway</td><td class="mono">aws-bedrock-wag</td><td><span class="chip warn">Misplaced</span><span class="sub">A WAG-named gateway in the personal account. Consider moving it to the WAG account</span></td></tr>
+        <tr><td>Zero Trust</td><td>4 Access apps (Court Notes ×3, Zosia Dashboard); 1 seat</td><td><span class="chip ok">Free tier</span><span class="sub">up to 50 users</span></td></tr>
+        <tr><td>Tunnel</td><td><span class="mono">zosia</span>, status down</td><td><span class="chip risk">Down</span><span class="sub">Fix it or remove it</span></td></tr>
+        </tbody></table></div>
+    </section>
+
+    <section id="limits">
+      <p class="sec-k">Caveats</p>
+      <h2>Three things this audit could not see.</h2>
+      <div class="cav">
+        <div><b>Billing (both accounts)</b><p>Subscriptions, billing profile and invoice history all return “Authentication error” (10000). The connector tokens have no Billing permission, so the amounts above are estimates from usage × list price, not invoice figures.</p></div>
+        <div><b>History older than ~32 days</b><p>GraphQL analytics on these plans only goes back 4w4d, so a 3-month trend is not available.</p></div>
+        <div><b>Argo / Images / Stream</b><p>The token is not authorized (errors 1015 / 5403 / 10002). The zones are Free plan, so Argo is unlikely, but it is unverified.</p></div>
+      </div>
+      <p class="dim" style="font-size:.86rem;margin-top:1rem">Accounts reviewed: World Automotive Group (e288b01a…) and Raymond Zhu (personal) (3cbbbfae…). The audit was read-only. No changes were made to either account.</p>
+    </section>
+  </main>
+</div>
+<footer><div class="wrap">Data pulled from the Cloudflare API and GraphQL Analytics on 11 Oct 2026 · built by Grok Bot with visual-explainer</div></footer>
+<script>
+(function(){
+  var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduce){document.querySelectorAll('.js-flow').forEach(function(e){e.remove()});return}
+  document.documentElement.classList.add('js-motion');
+  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.12});
+  document.querySelectorAll('.rise').forEach(function(e){io.observe(e)});
+})();
+(function(){
+  var links=[].slice.call(document.querySelectorAll('nav.toc a')),pos=document.getElementById('pos');
+  var secs=links.map(function(a){return document.querySelector(a.getAttribute('href'))});
+  function spy(){var i=0;secs.forEach(function(s,k){if(s.getBoundingClientRect().top<160)i=k});
+    links.forEach(function(a,k){a.classList.toggle('on',k===i)});if(pos)pos.textContent=(i+1)+' / '+links.length}
+  addEventListener('scroll',spy,{passive:true});spy();
+})();
+</script>
+</body>
+</html>

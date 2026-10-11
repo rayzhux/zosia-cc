@@ -290,9 +290,9 @@
     </header>
 
     <div class="stats">
-      <span><span class="num">65</span> pages</span>
-      <span><span class="num">7</span> categories</span>
-      <span>Last updated <span class="num">Sep 21, 2026</span></span>
+      <span><span class="num">66</span> pages</span>
+      <span><span class="num">8</span> categories</span>
+      <span>Last updated <span class="num">Oct 11, 2026</span></span>
     </div>
 
     <div class="search-wrap">
@@ -302,7 +302,8 @@
 
     <div class="filters" id="filters">
       <button class="chip active" data-cat="all">All</button>
-      <button class="chip" data-cat="openclaw">OpenClaw</button>
+      <button class="chip" data-cat="cloudflare">Cloudflare</button>
+      <button class="chip" data-cat="openclaw">OpenClaw (archive)</button>
       <button class="chip" data-cat="health">Health</button>
       <button class="chip" data-cat="research">Research</button>
       <button class="chip" data-cat="architecture">Architecture</button>
@@ -336,6 +337,19 @@
 
   <script>
     const pages = [
+      {
+            "slug": "cloudflare-audit-2026-10",
+            "title": "Cloudflare Audit — Why the WAG bill is climbing · Oct 2026",
+            "desc": "Read-only audit of Raymond's two Cloudflare accounts. One D1 database, dealrevs-demo, drives almost all of WAG's estimated usage cost. All dollar figures are estimates.",
+            "cat": "cloudflare",
+            "created": "2026-10-11",
+            "updated": "2026-10-11",
+            "tags": [
+                  "audit",
+                  "billing",
+                  "cloudflare"
+            ]
+      },
       {
             "slug": "typesafe-jev-field-report",
             "title": "Jev Field Report — TypeSafe AI",
@@ -1076,7 +1090,8 @@
       }
 ];
     const catLabels = {
-      "openclaw": "OpenClaw",
+      "cloudflare": "Cloudflare",
+      "openclaw": "OpenClaw (archive)",
       "health": "Health",
       "research": "Research",
       "architecture": "Architecture",
@@ -1097,7 +1112,7 @@
     }
 
     function daysAgo(d) {
-      const now = new Date("2026-09-21");
+      const now = new Date("2026-10-11");
       const then = new Date(d);
       const diff = Math.floor((now - then) / 86400000);
       if (diff === 0) return "today";

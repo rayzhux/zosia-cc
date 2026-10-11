@@ -22,7 +22,7 @@ const SITEMAP_PATH = path.join(REPO_ROOT, 'sitemap.xml');
 const SITE_URL = 'https://zosia.cc';
 
 // Skip these directories
-const SKIP = new Set(['.vercel', 'node_modules', '.git']);
+const SKIP = new Set(['.vercel', '.wrangler', 'node_modules', '.git']);
 
 // Category mapping: slug patterns → category
 const CATEGORY_MAP = {
@@ -54,6 +54,7 @@ const CATEGORY_MAP = {
 
 // Keyword-based fallback for unknown slugs
 const KEYWORD_CATEGORIES = [
+  { keywords: ['cloudflare', 'wrangler', 'workers-'], cat: 'cloudflare' },
   { keywords: ['opik', 'observab', 'trace', 'telemetry'], cat: 'observability' },
   { keywords: ['cicd', 'ci-cd', 'devops', 'deploy', 'github-ci'], cat: 'devops' },
   { keywords: ['health', 'apple-health', 'fitness', 'ring', 'wearable'], cat: 'health' },
@@ -176,7 +177,8 @@ function discoverPages() {
 
 function discoverCategories(pages) {
   const catLabels = {
-    openclaw: 'OpenClaw',
+    openclaw: 'OpenClaw (archive)',
+    cloudflare: 'Cloudflare',
     observability: 'Observability',
     devops: 'CI/CD & DevOps',
     health: 'Health',
