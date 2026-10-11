@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>X workflows for Grok Bot: what Zosia can run on your feed · Oct 2026</title>
+<meta name="description" content="Since 7 Oct 2026 Grok Bot reads public X natively. Raymond's 3× daily X snapshot is live; this page ranks nine X workflows for an AI-news-heavy CTO, recommends four more, and includes a prompt builder to set them up with Zosia.">
+<meta name="x-category" content="grok-bot">
+<meta name="x-tags" content="x, routines, ai-news, workflows">
+<meta name="x-created" content="2026-10-11">
+<meta name="robots" content="noindex">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23111111'/%3E%3Cpath d='M9 9l14 14M23 9L9 23' stroke='%23fbfbf9' stroke-width='2.5' stroke-linecap='round'/%3E%3Ccircle cx='25' cy='7' r='4' fill='%23ff6e50'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  color-scheme:light dark;
+  --bg:#fbfbf9;--surface:#f1f0ec;--border:#e2e0da;--border-bright:#8c8a85;--text:#111111;--text-dim:#5a5853;
+  --accent:#cc3418;--ok:#1d7443;--warn:#836000;--risk:#a01d48;--info:#1b6a94;
+  --accent-dim:rgb(204 52 24 / .12);
+  --node-top:var(--surface);--lift:rgb(18 22 20 / .12);--halo:22%;
+  --serif:"Instrument Serif",Georgia,serif;--sans:"Instrument Sans",ui-sans-serif,sans-serif;--mono:"JetBrains Mono",ui-monospace,monospace;
+  --t-label:.75rem;--t-small:.875rem;--t-body:1rem;--t-lead:1.25rem;--t-h2:1.625rem;--t-h1:clamp(2.25rem,5.5vw,4rem);
+  --s-1:.25rem;--s-2:.5rem;--s-3:.75rem;--s-4:1rem;--s-5:1.5rem;--s-6:2rem;--s-7:3rem;--s-8:4.5rem;
+  --r-1:4px;--r-2:10px;--ease:cubic-bezier(.16,1,.3,1);
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#0f0f0f;--surface:#1a1a19;--border:#2b2a28;--border-bright:#696763;--text:#f2f0eb;--text-dim:#a4a19b;
+  --accent:#ff6e50;--ok:#6cc492;--warn:#e3b94d;--risk:#f57fa2;--info:#7cb8e8;
+  --accent-dim:rgb(255 110 80 / .14);
+  --node-top:color-mix(in srgb,var(--text) 7%,var(--surface));--lift:rgb(0 0 0 / .45);--halo:32%;
+}}
+*{box-sizing:border-box}
+html{font-size:17px;-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);font-size:var(--t-body);line-height:1.55;font-kerning:normal;font-synthesis:none}
+::selection{background:var(--accent-dim)}
+a{color:inherit;text-decoration-color:var(--border-bright);text-underline-offset:.2em}
+a:hover{text-decoration-color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.mono{font-family:var(--mono)}
+.dim{color:var(--text-dim)}
+.wrap{max-width:74rem;margin:0 auto;padding:0 var(--s-5)}
+/* rail */
+.rail{border-bottom:1px solid var(--border);font-family:var(--mono);font-size:var(--t-label);color:var(--text-dim)}
+.rail .wrap{display:flex;gap:var(--s-5);flex-wrap:wrap;justify-content:space-between;padding-block:var(--s-3)}
+.rail b{color:var(--text);font-weight:500}
+/* hero */
+.hero{padding:var(--s-8) 0 var(--s-6)}
+.kicker{font-family:var(--mono);font-size:var(--t-label);letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim);margin:0 0 var(--s-4);display:flex;align-items:center;gap:var(--s-3)}
+.kicker::before{content:"";width:1.5rem;height:2px;background:var(--accent)}
+h1{font-family:var(--serif);font-weight:400;font-size:var(--t-h1);line-height:1.04;letter-spacing:-.02em;margin:0 0 var(--s-5);max-width:18ch;text-wrap:balance}
+h1 em{font-style:italic;color:var(--accent)}
+.lead{font-size:var(--t-lead);color:var(--text-dim);max-width:46ch;margin:0;text-wrap:pretty;line-height:1.45}
+.lead strong{color:var(--text);font-weight:500}
+figure{margin:0}
+figcaption{font-size:var(--t-body);color:var(--text-dim);margin-top:var(--s-3);max-width:65ch;text-wrap:pretty}
+figcaption b{font-family:var(--mono);font-size:var(--t-small);font-weight:500;color:var(--text);margin-right:var(--s-2)}
+.frame{background-color:var(--bg);background-image:radial-gradient(var(--border) 1px,transparent 1.2px);background-size:16px 16px;border:1px solid var(--border);border-radius:var(--r-2);padding:var(--s-5)}
+/* day plan (hero figure) */
+.day{margin-top:var(--s-7)}
+.lane{display:grid;grid-template-columns:13rem minmax(0,1fr);gap:var(--s-4);align-items:center;padding:var(--s-3) 0;border-top:1px solid var(--border)}
+.lane:first-of-type{border-top:0}
+.lane .ln{font-size:var(--t-body);min-width:0}
+.lane .ln small{display:block;font-family:var(--mono);font-size:var(--t-label);color:var(--text-dim)}
+.track{position:relative;height:2.6rem;min-width:0}
+.track::before{content:"";position:absolute;left:0;right:0;top:50%;border-top:1px dashed var(--border-bright)}
+.lane.live .track::before{border-top:1.5px solid var(--text-dim)}
+.mk{position:absolute;top:50%;transform:translate(-50%,-50%);width:12px;height:12px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) var(--halo),transparent)}
+.mk span{position:absolute;top:-1.55rem;left:50%;transform:translateX(-50%);font:500 var(--t-label) var(--mono);color:var(--accent);white-space:nowrap}
+.band{position:absolute;top:50%;height:12px;transform:translateY(-50%);border:1.5px solid var(--border-bright);border-radius:var(--r-1);background:var(--surface)}
+.band span{position:absolute;top:-1.55rem;left:0;font:var(--t-label) var(--mono);color:var(--text-dim);white-space:nowrap}
+.tick{position:absolute;top:50%;width:1.5px;height:14px;transform:translate(-50%,-50%);background:var(--border-bright)}
+.tick.any{height:20px}
+.axis{display:grid;grid-template-columns:13rem minmax(0,1fr);gap:var(--s-4);border-top:1px solid var(--border-bright);padding-top:var(--s-2)}
+.axis .t{position:relative;height:1.2rem;font:var(--t-label) var(--mono);color:var(--text-dim)}
+.axis .t span{position:absolute;transform:translateX(-50%)}
+.axis .t span:first-child{transform:none}.axis .t span:last-child{transform:translateX(-100%)}
+/* facts strip */
+.facts{display:flex;flex-wrap:wrap;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--r-2);overflow:hidden;margin-top:var(--s-6)}
+.fact{flex:1 1 14rem;background:var(--bg);padding:var(--s-4) var(--s-5);min-width:0}
+.fact .l{font-family:var(--mono);font-size:var(--t-label);color:var(--text-dim)}
+.fact .v{font-family:var(--serif);font-size:2.75rem;line-height:1.05;letter-spacing:-.03em;font-variant-numeric:tabular-nums;margin:var(--s-2) 0}
+.fact .v small{font-family:var(--sans);font-size:var(--t-body);color:var(--text-dim);letter-spacing:0;margin-left:.25rem}
+.fact svg{display:block;width:100%;height:28px}
+/* layout */
+.layout{display:grid;grid-template-columns:11rem minmax(0,1fr);gap:var(--s-7);padding:var(--s-6) 0 var(--s-8)}
+nav.toc{position:sticky;top:var(--s-5);align-self:start;font-size:var(--t-small);z-index:5}
+nav.toc ol{list-style:none;margin:0;padding:0;border-left:1px solid var(--border)}
+nav.toc a{display:block;padding:var(--s-1) 0 var(--s-1) var(--s-3);color:var(--text-dim);text-decoration:none;margin-left:-1px;border-left:2px solid transparent}
+nav.toc a.on{color:var(--text);border-left-color:var(--accent)}
+main{min-width:0}
+section{padding-top:var(--s-8);min-width:0;scroll-margin-top:4rem}
+section:first-child{padding-top:0}
+.sk{font-family:var(--mono);font-size:var(--t-label);color:var(--text-dim);letter-spacing:.08em;text-transform:uppercase;margin:0 0 var(--s-3)}
+h2{font-family:var(--serif);font-weight:400;font-size:2.1rem;letter-spacing:-.01em;line-height:1.1;margin:0 0 var(--s-4);max-width:24ch;text-wrap:balance}
+h3{font-size:var(--t-body);font-weight:600;margin:0 0 var(--s-1)}
+p{max-width:65ch;text-wrap:pretty;margin:0 0 var(--s-4)}
+/* access split */
+.split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--r-2);overflow:hidden;margin-top:var(--s-5)}
+.split>div{background:var(--bg);padding:var(--s-5);min-width:0}
+.split h3{display:flex;gap:var(--s-2);align-items:center;flex-wrap:wrap;margin-bottom:var(--s-3)}
+.split ul{margin:0;padding:0;list-style:none}
+.split li{padding:var(--s-2) 0;border-top:1px solid var(--border);display:flex;justify-content:space-between;gap:var(--s-3)}
+.split li:first-child{border-top:0}
+.split li span:last-child{font-family:var(--mono);font-size:var(--t-label);color:var(--text-dim);white-space:nowrap;padding-top:.15rem}
+.does{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:var(--s-5);margin-top:var(--s-5)}
+.does>div{min-width:0}
+.does ul{margin:0;padding-left:1.1rem}
+.does li{margin:var(--s-1) 0}
+/* steps */
+.steps{list-style:none;margin:var(--s-5) 0 0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr)) minmax(0,1.1fr);gap:var(--s-4);counter-reset:s}
+.steps li{counter-increment:s;border-top:2px solid var(--border-bright);padding-top:var(--s-3);min-width:0}
+.steps li::before{content:counter(s);font-family:var(--mono);font-size:var(--t-label);color:var(--text-dim);display:block;margin-bottom:var(--s-1)}
+.steps li.gate{border-top-color:var(--accent)}
+.steps li.gate::before{content:"always";color:var(--accent)}
+/* chips */
+.chip{display:inline-flex;align-items:center;gap:.35rem;font-family:var(--mono);font-size:var(--t-label);font-weight:600;white-space:nowrap;padding:.1rem .45rem;border-radius:var(--r-1);border:1px solid currentColor;line-height:1.4}
+.chip.ok{color:var(--ok)}.chip.info{color:var(--info)}.chip.warn{color:var(--warn)}.chip.na{color:var(--text-dim)}.chip.acc{color:var(--accent)}
+/* unknowns */
+.unk{margin-top:var(--s-5);background:var(--surface);border-radius:var(--r-2);padding:var(--s-4) var(--s-5)}
+.unk ul{margin:var(--s-3) 0 0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s-4)}
+.unk li{min-width:0;border-top:1px dashed var(--border-bright);padding-top:var(--s-2)}
+/* ranked workflows */
+ol.wf{list-style:none;margin:var(--s-5) 0 0;padding:0;border-top:1px solid var(--border-bright)}
+ol.wf>li{display:grid;grid-template-columns:2.25rem minmax(0,1fr) 17rem;gap:var(--s-4);padding:var(--s-4) 0;border-bottom:1px solid var(--border)}
+ol.wf .rk{font-family:var(--serif);font-size:1.75rem;line-height:1;color:var(--text-dim)}
+ol.wf li.live .rk{color:var(--accent)}
+ol.wf h3{display:flex;flex-wrap:wrap;gap:var(--s-2);align-items:center;font-size:1.06rem}
+ol.wf p{margin:var(--s-1) 0 0;color:var(--text-dim)}
+ol.wf p b{color:var(--text);font-weight:500}
+dl.meta{margin:0;display:grid;grid-template-columns:4.6rem minmax(0,1fr);gap:var(--s-1) var(--s-3);font-size:var(--t-small);align-content:start}
+dl.meta dt{font-family:var(--mono);font-size:var(--t-label);color:var(--text-dim);padding-top:.1rem}
+dl.meta dd{margin:0;min-width:0;overflow-wrap:anywhere}
+/* mechanism */
+.mech-frame{overflow-x:auto;padding:var(--s-4)}
+.ve-svg{display:block;width:100%;min-width:760px;height:auto}
+.ve-svg text{font-family:var(--sans)}
+.ve-n .sh{fill:url(#ve-node);stroke:var(--border-bright);stroke-width:1.5;filter:drop-shadow(0 4px 8px var(--lift))}
+.ve-n.is-key .sh{fill:var(--accent-dim);stroke:var(--accent);stroke-width:2;filter:drop-shadow(0 0 10px color-mix(in srgb,var(--accent) var(--halo),transparent))}
+.ve-n.is-opt .sh{stroke-dasharray:6 5;filter:none}
+.ve-n text{fill:var(--text);font-size:15px;font-weight:600}
+.ve-n text.sub{fill:var(--text-dim);font-size:13px;font-weight:400}
+.ve-n text.mono{font-family:var(--mono);font-size:12px}
+.ve-e{fill:none;stroke:var(--text-dim);stroke-width:1.75}
+.ve-e.is-hot{stroke:var(--accent);stroke-width:2.75;filter:drop-shadow(0 0 3px color-mix(in srgb,var(--accent) 45%,transparent))}
+.ve-e.is-async{stroke-dasharray:6 5}
+.ve-el{fill:var(--text-dim);font:500 13px var(--mono)!important;paint-order:stroke;stroke:var(--bg);stroke-width:5px;stroke-linejoin:round}
+.ve-el.hot{fill:var(--accent)}
+.ve-zone{fill:none;stroke:var(--border-bright);stroke-dasharray:4 4;stroke-width:1}
+.ve-zl{fill:var(--text-dim);font:500 12px var(--mono)!important;letter-spacing:.08em}
+.flowdot{fill:var(--accent)}
+[data-ref]{transition:opacity .15s}
+.hl-on [data-ref]:not(.hl){opacity:.25}
+.term{border-bottom:1px dotted var(--border-bright);cursor:help}
+.term.hl{border-bottom-color:var(--accent);color:var(--accent)}
+/* recs */
+ol.recs{list-style:none;margin:var(--s-5) 0 0;padding:0;counter-reset:r}
+ol.recs li{counter-increment:r;display:grid;grid-template-columns:2.25rem minmax(0,1fr) 7.5rem;gap:var(--s-4);padding:var(--s-4) 0;border-top:1px solid var(--border)}
+ol.recs li::before{content:counter(r);font-family:var(--serif);font-size:1.75rem;line-height:1;color:var(--text-dim)}
+ol.recs li:first-child::before{color:var(--accent)}
+ol.recs p{margin:var(--s-1) 0 0;color:var(--text-dim)}
+ol.recs .when{text-align:right}
+/* builder */
+.builder{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:var(--s-6);margin-top:var(--s-5);align-items:start}
+.controls{min-width:0}
+.wfc{border:1px solid var(--border);border-radius:var(--r-2);margin:0 0 var(--s-3);padding:0;background:var(--bg);min-width:0}
+.wfc.on{border-color:var(--border-bright)}
+.wfc>legend{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.wfh{display:flex;align-items:flex-start;gap:var(--s-3);padding:var(--s-3) var(--s-4);cursor:pointer}
+.wfh input{margin:.2rem 0 0;width:1.15rem;height:1.15rem;accent-color:var(--accent);flex:none}
+.wfh .nm{font-weight:600}
+.wfh .ds{display:block;font-size:var(--t-small);color:var(--text-dim);margin-top:.1rem}
+.wfh .chip{margin-left:var(--s-2);vertical-align:.1em}
+.opts{border-top:1px solid var(--border);padding:var(--s-3) var(--s-4) var(--s-4);display:grid;gap:var(--s-3)}
+.opts[hidden]{display:none}
+.row{display:grid;grid-template-columns:5.5rem minmax(0,1fr);gap:var(--s-3);align-items:center}
+.row>.lb{font-family:var(--mono);font-size:var(--t-label);color:var(--text-dim)}
+.seg{display:flex;flex-wrap:wrap;gap:var(--s-1);border:0;margin:0;padding:0;min-width:0}
+.seg legend{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.seg label{position:relative}
+.seg input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
+.seg span{display:inline-block;font-family:var(--mono);font-size:var(--t-small);padding:.3rem .6rem;border:1px solid var(--border-bright);border-radius:var(--r-1);background:var(--bg);color:var(--text-dim);transition:background .15s,color .15s,border-color .15s}
+.seg input:checked+span{background:var(--text);color:var(--bg);border-color:var(--text)}
+.seg input:focus-visible+span{outline:2px solid var(--accent);outline-offset:2px}
+.seg label:hover span{border-color:var(--accent)}
+.chk{display:inline-flex;gap:var(--s-2);align-items:center;font-size:var(--t-small);cursor:pointer}
+.chk input{accent-color:var(--accent);width:1rem;height:1rem;margin:0}
+.fld label{display:block;font-family:var(--mono);font-size:var(--t-label);color:var(--text-dim);margin-bottom:var(--s-1)}
+.fld input,.fld textarea{width:100%;font:var(--t-body)/1.4 var(--sans);color:var(--text);background:var(--bg);border:1px solid var(--border-bright);border-radius:var(--r-1);padding:.45rem .6rem}
+.fld input:focus-visible,.fld textarea:focus-visible{outline:2px solid var(--accent);outline-offset:0;border-color:var(--accent)}
+.fld textarea{min-height:4.5rem;resize:vertical}
+.fld .hint{font-size:var(--t-label);color:var(--text-dim);margin-top:var(--s-1);font-family:var(--mono)}
+.global{background:var(--surface);border-radius:var(--r-2);padding:var(--s-4);display:grid;gap:var(--s-4);margin-top:var(--s-5)}
+.global h3{margin:0}
+.out{position:sticky;top:var(--s-5);min-width:0}
+.outbox{border:1.5px solid var(--text);border-radius:var(--r-2);background:var(--bg);overflow:hidden}
+.outhead{display:flex;justify-content:space-between;align-items:center;gap:var(--s-3);padding:var(--s-3) var(--s-4);border-bottom:1px solid var(--border);flex-wrap:wrap}
+.outhead .cnt{font-family:var(--mono);font-size:var(--t-label);color:var(--text-dim)}
+pre#prompt{margin:0;padding:var(--s-4);font:var(--t-small)/1.6 var(--mono);white-space:pre-wrap;overflow-wrap:anywhere;max-height:34rem;overflow:auto;color:var(--text)}
+.btn{font:600 var(--t-small) var(--mono);cursor:pointer;border-radius:var(--r-1);padding:var(--s-2) var(--s-4);border:1px solid var(--text);background:var(--text);color:var(--bg);display:inline-flex;align-items:center;gap:var(--s-2)}
+.btn:hover{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.ghost{background:var(--bg);color:var(--text);border-color:var(--border-bright)}
+.btn.ghost:hover{border-color:var(--accent);color:var(--accent);background:var(--bg)}
+.btn.done{background:var(--ok);border-color:var(--ok);color:var(--bg)}
+.status{font-family:var(--mono);font-size:var(--t-label);color:var(--ok);min-height:1.1em}
+.outfoot{display:flex;gap:var(--s-3);align-items:center;flex-wrap:wrap;padding:var(--s-3) var(--s-4);border-top:1px solid var(--border)}
+.copybar{display:none}
+.scrollhint{display:none;font:var(--t-label) var(--mono);color:var(--text-dim);margin:var(--s-2) 0 0}
+.nojs{padding:var(--s-4);color:var(--text-dim)}
+/* sources */
+ol.src{margin:var(--s-4) 0 0;padding-left:1.4rem}
+ol.src li{margin:var(--s-2) 0;padding-left:var(--s-2)}
+ol.src li::marker{font-family:var(--mono);font-size:var(--t-small);color:var(--text-dim)}
+ol.src .u{font-family:var(--mono);font-size:var(--t-label);color:var(--text-dim);overflow-wrap:anywhere}
+footer{border-top:1px solid var(--border);padding:var(--s-5) 0 var(--s-7);font-size:var(--t-label);color:var(--text-dim);font-family:var(--mono)}
+/* motion */
+.js-motion .rise{opacity:0;transform:translateY(1rem);transition:opacity .5s var(--ease),transform .5s var(--ease)}
+.js-motion .rise.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.js-motion .rise{opacity:1;transform:none;transition:none}}
+@media (max-width:1000px){
+  .layout{grid-template-columns:minmax(0,1fr);gap:0;padding-top:0}
+  nav.toc{top:0;background:var(--bg);border-bottom:1px solid var(--border);margin:0 calc(-1*var(--s-5));padding:0 var(--s-5)}
+  nav.toc ol{display:flex;overflow-x:auto;border-left:0;scrollbar-width:none;-webkit-mask-image:linear-gradient(90deg,#000 85%,transparent);mask-image:linear-gradient(90deg,#000 85%,transparent)}
+  nav.toc ol::-webkit-scrollbar{display:none}
+  nav.toc a{white-space:nowrap;border-left:0;border-bottom:2px solid transparent;padding:var(--s-3) var(--s-3);margin:0}
+  nav.toc a.on{border-bottom-color:var(--accent)}
+  section:first-child{padding-top:var(--s-6)}
+  .builder{grid-template-columns:minmax(0,1fr)}
+  .out{position:static}
+  .copybar{display:flex;position:sticky;bottom:0;z-index:6;justify-content:space-between;align-items:center;gap:var(--s-3);background:var(--bg);border-top:1.5px solid var(--text);padding:var(--s-3) 0;margin-top:var(--s-4)}
+}
+@media (max-width:760px){
+  .wrap{padding:0 var(--s-4)}
+  nav.toc{margin:0 calc(-1*var(--s-4));padding:0 var(--s-4)}
+  .hero{padding-top:var(--s-7)}
+  .lane,.axis{grid-template-columns:minmax(0,1fr);gap:var(--s-1)}
+  .lane{padding-top:var(--s-3)}
+  .lane .track{margin-top:var(--s-4)}
+  .axis>span:first-child{display:none}
+  .split,.does{grid-template-columns:minmax(0,1fr)}
+  .steps{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+  .unk ul{grid-template-columns:minmax(0,1fr)}
+  ol.wf>li{grid-template-columns:2rem minmax(0,1fr)}
+  dl.meta{grid-column:2}
+  ol.recs li{grid-template-columns:2rem minmax(0,1fr)}
+  ol.recs .when{grid-column:2;text-align:left}
+  .row{grid-template-columns:minmax(0,1fr);gap:var(--s-1)}
+  .scrollhint{display:block}
+  .rail .wrap>span:nth-child(2){display:none}
+  h2{font-size:1.85rem}
+}
+@media print{
+  :root{--bg:#fff;--surface:#f1f0ec;--border:#e2e0da;--border-bright:#8c8a85;--text:#111;--text-dim:#5a5853;--accent:#cc3418}
+  nav.toc,.copybar,.outfoot,.flowdot{display:none}.layout{grid-template-columns:minmax(0,1fr)}
+  .ve-n .sh,.ve-e.is-hot{filter:none}.out{position:static}figure,li{break-inside:avoid}
+}
+</style>
+  <meta property="og:title" content="X workflows for Grok Bot: what Zosia can run on your feed · Oct 2026">
+  <meta property="og:description" content="Since 7 Oct 2026 Grok Bot reads public X natively. Raymond's 3× daily X snapshot is live; this page ranks nine X workflows for an AI-news-heavy CTO, recommends four more, and includes a prompt builder">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://zosia.cc/pages/x-workflows-for-grok-bot-2026-10">
+  <meta name="twitter:card" content="summary">
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <marker id="ve-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="context-stroke"/></marker>
+  <linearGradient id="ve-node" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--node-top)"/><stop offset="1" stop-color="var(--surface)"/></linearGradient>
+</defs></svg>
+
+<div class="rail"><div class="wrap"><span><b>X × Grok Bot</b> · workflows for Raymond Zhu</span><span>Prepared by <b>Zosia</b></span><span><b>Sun 11 Oct 2026</b> · Dubai time</span></div></div>
+
+<header class="wrap hero">
+  <p class="kicker">Research · X routines</p>
+  <h1>Your X feed is already wired in. <em>Four more routines</em> turn Zosia into an AI-news desk.</h1>
+  <p class="lead">Since 7 Oct, Grok Bot reads public X with no setup, and your own timeline and bookmarks come through the X connector. <strong>The 3× daily X snapshot is live.</strong> Pick what to add in the prompt builder and paste the prompt to Zosia.</p>
+
+  <figure class="day rise" aria-labelledby="fig1cap">
+    <div class="frame" role="img" aria-label="A Dubai day from 00:00 to 24:00. Live: X snapshot at 07:46, 13:46 and 19:46. Suggested: AI lab watch with instant alerts at any time plus a morning and an evening digest; a morning bookmark digest; optional morning brand tracking.">
+      <div class="lane live"><div class="ln">X snapshot <span class="chip ok">● live</span><small>home timeline · 3× daily</small></div>
+        <div class="track"><i class="mk" style="left:32.36%"><span>07:46</span></i><i class="mk" style="left:57.36%"><span>13:46</span></i><i class="mk" style="left:82.36%"><span>19:46</span></i></div></div>
+      <div class="lane"><div class="ln">AI lab watch <span class="chip info">◆ add</span><small>alerts any time + AM/PM digest</small></div>
+        <div class="track"><span class="band" style="left:20%;width:20%"><span>AM digest</span></span><span class="band" style="left:70%;width:20%"><span>PM digest</span></span><i class="tick any" style="left:9%"></i><i class="tick any" style="left:46%"></i><i class="tick any" style="left:55%"></i><i class="tick any" style="left:63%"></i><i class="tick any" style="left:95%"></i></div></div>
+      <div class="lane"><div class="ln">Bookmark digest <span class="chip info">◆ add</span><small>~10 newest bookmarks</small></div>
+        <div class="track"><span class="band" style="left:20%;width:20%"><span>morning</span></span></div></div>
+      <div class="lane"><div class="ln">Brand tracking <span class="chip warn">▲ consider</span><small>WAG · Wio Bank · ENBD</small></div>
+        <div class="track"><span class="band" style="left:20%;width:20%"><span>morning</span></span></div></div>
+      <div class="axis" aria-hidden="true"><span></span><div class="t"><span style="left:0">00:00</span><span style="left:25%">06:00</span><span style="left:50%">12:00</span><span style="left:75%">18:00</span><span style="left:100%">24:00</span></div></div>
+    </div>
+    <figcaption id="fig1cap"><b>Fig. 1</b>One routine runs today at three fixed times. The suggested ones show only part of the day; you set exact times when Zosia confirms each schedule. Ticks on the lab-watch lane mark alerts that fire whenever a lab posts (positions illustrative).</figcaption>
+  </figure>
+
+  <div class="facts rise">
+    <div class="fact"><div class="l">Native X access since</div><div class="v">7 Oct</div>
+      <svg viewBox="0 0 100 28" preserveAspectRatio="none" role="img" aria-label="October 1 to 11: native X arrived on the 7th, four days before today."><line x1="0" y1="14" x2="100" y2="14" stroke="var(--border-bright)" stroke-width="1" vector-effect="non-scaling-stroke"/><rect x="60" y="9" width="40" height="10" fill="var(--accent-dim)"/><line x1="60" y1="4" x2="60" y2="24" stroke="var(--accent)" stroke-width="2.5" vector-effect="non-scaling-stroke"/><line x1="99.5" y1="8" x2="99.5" y2="20" stroke="var(--text-dim)" stroke-width="1.5" vector-effect="non-scaling-stroke"/></svg>
+      <div class="l">1 Oct → today (11 Oct)</div></div>
+    <div class="fact"><div class="l">Accounts you follow</div><div class="v">~800</div>
+      <svg viewBox="0 0 100 28" role="img" aria-label="About 800 followed accounts, shown as 80 cells of 10." id="waffle"></svg>
+      <div class="l">1 cell ≈ 10 accounts</div></div>
+    <div class="fact"><div class="l">Timeline read observed</div><div class="v">~9<small>posts / 2 min</small></div>
+      <svg viewBox="0 0 100 28" preserveAspectRatio="none" role="img" aria-label="About 9 posts read in a 2-minute window." id="ticks9"></svg>
+      <div class="l">Sunday morning test · 0 → 2 min</div></div>
+  </div>
+</header>
+
+<div class="wrap layout">
+  <nav class="toc" aria-label="Sections">
+    <ol>
+      <li><a href="#research">Research</a></li>
+      <li><a href="#workflows">Workflows</a></li>
+      <li><a href="#flow">How it flows</a></li>
+      <li><a href="#recs">Recommendations</a></li>
+      <li><a href="#builder">Prompt builder</a></li>
+      <li><a href="#sources">Sources</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <section id="research">
+      <p class="sk">1 · How people use Grok Bot with X</p>
+      <h2>Public X is built in; your own feed needs one connector.</h2>
+      <p>Since 7 Oct 2026 Grok Bot can search, read and monitor public X posts natively, with no setup (<a href="https://teslanorth.com/2026/10/08/grok-bot-search-read-monitor-x/">TeslaNorth</a>, <a href="https://aicoder.com/news/news-20261007-grok-bot-native-x-search-read-monitor">AICoder</a>). Anything tied to your account goes through the <span class="term" tabindex="0" data-ref="conn">X connector</span>.</p>
+      <div class="split rise">
+        <div><h3><span class="chip ok">● built in</span> No setup</h3>
+          <ul><li><span>Search public posts</span><span>native</span></li><li><span>Read public posts and threads</span><span>native</span></li><li><span>Monitor accounts and topics</span><span>native</span></li></ul></div>
+        <div><h3><span class="chip info">◆ connector</span> Linked to your X account</h3>
+          <ul><li><span>Your home timeline</span><span>X connector</span></li><li><span>Your mentions</span><span>X connector</span></li><li><span>Your bookmarks</span><span>X connector</span></li></ul></div>
+      </div>
+      <div class="does">
+        <div><h3>What it does</h3><ul><li>Routines run in the cloud, even with the laptop closed.</li><li>Drafts posts in your voice.</li></ul></div>
+        <div><h3>What it doesn’t do</h3><ul><li>It doesn’t post or DM by itself. You review and post.</li><li>Likes, replies and posts stay behind your approval.</li></ul></div>
+      </div>
+      <h3 style="margin-top:var(--s-6)">The recommended way to build a routine</h3>
+      <ol class="steps">
+        <li>Do the task once by hand.</li>
+        <li>Run it twice to check links and timestamps.</li>
+        <li>Save it as a routine.</li>
+        <li class="gate">Keep likes, replies and posts behind approval.</li>
+      </ol>
+      <p class="dim" style="font-size:var(--t-small);margin-top:var(--s-3)">Method from <a href="https://aicoder.com/news/news-20261007-grok-bot-native-x-search-read-monitor">AICoder</a>.</p>
+      <div class="unk">
+        <span class="chip warn">▲ not yet known</span>
+        <ul><li>How far back search goes.</li><li>Daily read limits.</li><li>Whether monitoring frequency depends on your plan.</li></ul>
+      </div>
+    </section>
+
+    <section id="workflows">
+      <p class="sk">2 · Use cases, ranked for you</p>
+      <h2>Nine X workflows, ranked for a CTO who reads a lot of AI news.</h2>
+      <p>Each row says what the workflow does, how often it runs, what triggers it and what it needs. Number 3 already runs for you.</p>
+      <ol class="wf">
+        <li><span class="rk">1</span><div><h3>Daily AI news radar</h3><p>Covers the last 24 hours. Sorts items into <b>launches, pricing and benchmark claims</b>, and marks each claim as vendor-only or independently checked.</p></div>
+          <dl class="meta"><dt>Cadence</dt><dd>daily</dd><dt>Trigger</dt><dd>schedule</dd><dt>Needs</dt><dd>public X (native)</dd><dt>Source</dt><dd><a href="https://www.grokbottemplates.dev/templates/ai-daily-radar">grokbottemplates.dev</a></dd></dl></li>
+        <li><span class="rk">2</span><div><h3>AI lab watch <span class="chip info">◆ add</span></h3><p>Follows official AI lab and coding-agent accounts. <b>Instant alert</b> for new models, free credits, and pricing or policy changes, plus an AM/PM digest.</p></div>
+          <dl class="meta"><dt>Cadence</dt><dd>instant + AM/PM</dd><dt>Trigger</dt><dd>new post · schedule</dd><dt>Needs</dt><dd>public X (native)</dd><dt>Source</dt><dd><a href="https://grokbotdaily.com/">grokbotdaily.com</a></dd></dl></li>
+        <li class="live"><span class="rk">3</span><div><h3>Following-feed snapshot <span class="chip ok">● live</span></h3><p>Reads the home timeline of the accounts you follow, groups posts by theme and links each one. Your routine <b>‘X snapshot’</b> puts AI news first, then tech/markets, then Middle East/Dubai/China, then the most-discussed post. Chinese posts are summarized in English. Zosia checked that timeline access works.</p></div>
+          <dl class="meta"><dt>Cadence</dt><dd class="mono">07:46 · 13:46 · 19:46</dd><dt>Trigger</dt><dd>schedule (Dubai)</dd><dt>Needs</dt><dd>X connector</dd><dt>Source</dt><dd>your live routine</dd></dl></li>
+        <li><span class="rk">4</span><div><h3>Account watcher</h3><p>Pings you only when the accounts you chose post.</p></div>
+          <dl class="meta"><dt>Cadence</dt><dd>on post</dd><dt>Trigger</dt><dd>new post</dd><dt>Needs</dt><dd>public X (native)</dd><dt>Source</dt><dd><a href="https://grokbotdaily.com/">grokbotdaily.com</a></dd></dl></li>
+        <li><span class="rk">5</span><div><h3>Morning bookmark digest <span class="chip info">◆ add</span></h3><p>Ranks and summarizes your <b>~10 newest bookmarks</b>, with visual explainers for long reads.</p></div>
+          <dl class="meta"><dt>Cadence</dt><dd>every morning</dd><dt>Trigger</dt><dd>schedule</dd><dt>Needs</dt><dd>X connector</dd><dt>Source</dt><dd><a href="https://grokbotdaily.com/">grokbotdaily.com</a></dd></dl></li>
+        <li><span class="rk">6</span><div><h3>Brand and competitor tracking <span class="chip warn">▲ consider</span></h3><p>For example: “every morning at 9, summarize new feedback about X with links.” This could cover <b>WAG, Wio Bank and ENBD</b>.</p></div>
+          <dl class="meta"><dt>Cadence</dt><dd>every morning</dd><dt>Trigger</dt><dd>schedule</dd><dt>Needs</dt><dd>public X (native)</dd><dt>Source</dt><dd><a href="https://aicoder.com/news/news-20261007-grok-bot-native-x-search-read-monitor">AICoder</a></dd></dl></li>
+        <li><span class="rk">7</span><div><h3>Weekly industry roundup / breaking story</h3><p>A weekly roundup of your industry, or a routine that follows one breaking story as it develops.</p></div>
+          <dl class="meta"><dt>Cadence</dt><dd>weekly · per story</dd><dt>Trigger</dt><dd>schedule · story</dd><dt>Needs</dt><dd>public X (native)</dd><dt>Source</dt><dd><a href="https://teslanorth.com/2026/10/08/grok-bot-search-read-monitor-x/">TeslaNorth</a>, <a href="https://aicoder.com/news/news-20261007-grok-bot-native-x-search-read-monitor">AICoder</a></dd></dl></li>
+        <li><span class="rk">8</span><div><h3>Bookmarks → prototypes <span class="chip na">– later</span></h3><p>Each weekday, picks one technology from your bookmarks, drafts a build prompt and <b>waits for your approval</b>, then builds it. Cursor cloud agents aren’t on your plan, so the build would run through Claude Code on your Mac mini.</p></div>
+          <dl class="meta"><dt>Cadence</dt><dd>each weekday</dd><dt>Trigger</dt><dd>schedule + approval</dd><dt>Needs</dt><dd>X connector · Mac mini</dd><dt>Source</dt><dd><a href="https://x.ai/bot/guides/grok-bot-101">Grok Bot 101</a></dd></dl></li>
+        <li><span class="rk">9</span><div><h3>Following list → personal CRM</h3><p>Sorts the <b>~800 accounts</b> you follow by topic, using public profile info. The result could feed gbrain, your personal knowledge base.</p></div>
+          <dl class="meta"><dt>Cadence</dt><dd>one-off</dd><dt>Trigger</dt><dd>on request</dd><dt>Needs</dt><dd>X connector · gbrain</dd><dt>Source</dt><dd><a href="https://x.ai/bot/guides/grok-bot-101">Grok Bot 101</a></dd></dl></li>
+      </ol>
+    </section>
+
+    <section id="flow">
+      <p class="sk">Mechanism</p>
+      <h2>Every routine runs the same loop: read X, rank, deliver.</h2>
+      <p>Public posts need nothing. Your timeline and bookmarks come in through the <span class="term" tabindex="0" data-ref="conn">X connector</span>. A <span class="term" tabindex="0" data-ref="rout">routine</span> fires on a cron schedule or an alert, Zosia summarizes and ranks, and the result goes to <span class="term" tabindex="0" data-ref="out">chat or email</span>.</p>
+      <figure class="rise">
+        <div class="frame mech-frame">
+        <svg class="ve-svg" id="mech" viewBox="0 0 970 380" role="img" aria-label="X public posts are searched and monitored natively; your home timeline and bookmarks are read via the X connector. Both feed Zosia routines, triggered by cron or alerts. Routines run a summarize-and-rank step, which delivers to Grok Bot chat or email from zosia@mail.grokbot.com. Optionally the step cross-checks gbrain.">
+          <rect class="ve-zone" x="14" y="30" width="226" height="262" rx="6"/><text class="ve-zl" x="26" y="50">X</text>
+          <rect class="ve-zone" x="790" y="30" width="168" height="262" rx="6"/><text class="ve-zl" x="802" y="50">DELIVERED TO</text>
+          <!-- edges -->
+          <path class="ve-e" data-ref="pub" d="M220 105H300V148H338" marker-end="url(#ve-ah)"/>
+          <text class="ve-el" data-ref="pub" x="228" y="96">searches</text>
+          <path class="ve-e is-hot" data-ref="conn" d="M220 230H300V176H338" marker-end="url(#ve-ah)"/>
+          <text class="ve-el hot" data-ref="conn" x="228" y="221">reads</text>
+          <path class="ve-e is-hot" data-ref="rout" d="M510 162H568" marker-end="url(#ve-ah)"/>
+          <text class="ve-el hot" data-ref="rout" x="520" y="153">runs</text>
+          <path class="ve-e is-hot" data-ref="out" d="M720 162H786V105H808" marker-end="url(#ve-ah)"/>
+          <text class="ve-el hot" data-ref="out" x="726" y="153">delivers</text>
+          <path class="ve-e" data-ref="out" d="M786 162V230H808" marker-end="url(#ve-ah)"/>
+          <text class="ve-el" data-ref="out" x="778" y="205" text-anchor="end">emails</text>
+          <path class="ve-e is-async" data-ref="gb" d="M645 199V292" marker-end="url(#ve-ah)" marker-start="url(#ve-ah)"/>
+          <text class="ve-el" data-ref="gb" x="655" y="252">cross-checks</text>
+          <g aria-hidden="true"><circle r="4.5" class="flowdot js-flow"><animateMotion dur="3.2s" repeatCount="indefinite" path="M220 230H300V176H338M338 176H340V162H568M568 162H720H786V105H808"/></circle></g>
+          <!-- nodes -->
+          <g class="ve-n" data-ref="pub"><rect class="sh" x="34" y="72" width="186" height="66" rx="6"/><text x="50" y="100">Public posts</text><text class="sub" x="50" y="121">native · no setup</text></g>
+          <g class="ve-n" data-ref="conn"><rect class="sh" x="34" y="196" width="186" height="66" rx="6"/><text x="50" y="224">Timeline · bookmarks</text><text class="sub" x="50" y="245">via X connector</text></g>
+          <g class="ve-n is-key" data-ref="rout"><rect class="sh" x="340" y="118" width="170" height="88" rx="6"/><text x="356" y="148">Zosia routines</text><text class="sub" x="356" y="170">cron · alert</text><text class="sub mono" x="356" y="191">‘X snapshot’ live</text></g>
+          <g class="ve-n" data-ref="rout"><rect class="sh" x="570" y="128" width="150" height="68" rx="6"/><text x="586" y="157">Summarize</text><text class="sub" x="586" y="178">&amp; rank</text></g>
+          <g class="ve-n" data-ref="out"><rect class="sh" x="810" y="72" width="134" height="66" rx="6"/><text x="826" y="100">Grok Bot chat</text><text class="sub" x="826" y="121">default</text></g>
+          <g class="ve-n" data-ref="out"><rect class="sh" x="810" y="196" width="134" height="80" rx="6"/><text x="826" y="222">Email</text><text class="sub mono" x="826" y="243">zosia@</text><text class="sub mono" x="826" y="260">mail.grokbot.com</text></g>
+          <g class="ve-n is-opt" data-ref="gb"><path class="sh" d="M585 304v40a60 12 0 0 0 120 0v-40"/><ellipse class="sh" cx="645" cy="304" rx="60" ry="12"/><text x="645" y="338" text-anchor="middle">gbrain</text><text class="sub" x="720" y="330">optional</text></g>
+        </svg>
+        </div>
+        <p class="scrollhint">Scroll sideways to see the whole diagram →</p><figcaption><b>Fig. 2</b>The accent path is the live X snapshot: timeline in through the connector, ranked, delivered to chat three times a day. Dashed lines are optional. Nothing posts back to X without your approval.</figcaption>
+      </figure>
+    </section>
+
+    <section id="recs">
+      <p class="sk">3 · Zosia’s recommendations</p>
+      <h2>Keep the snapshot, add lab alerts and a bookmark digest, then decide on brand tracking.</h2>
+      <ol class="recs">
+        <li><div><h3>Keep the 3× daily X snapshot</h3><p>It runs at 07:46, 13:46 and 19:46 Dubai time and already covers your following feed, AI news first.</p></div><div class="when"><span class="chip ok">● keep</span></div></li>
+        <li><div><h3>Add AI lab watch</h3><p>Instant alerts for about 10–20 key AI lab and coding-agent accounts: new models, free credits, pricing or policy changes.</p></div><div class="when"><span class="chip info">◆ add now</span></div></li>
+        <li><div><h3>Add a morning bookmark digest</h3><p>Ranks and summarizes your ~10 newest bookmarks, with visual explainers for long reads.</p></div><div class="when"><span class="chip info">◆ add now</span></div></li>
+        <li><div><h3>Consider brand and competitor tracking</h3><p>A morning summary of new posts about WAG, Wio Bank and ENBD, with links.</p></div><div class="when"><span class="chip warn">▲ consider</span></div></li>
+        <li><div><h3>Later: bookmarks → prototypes</h3><p>One technology per weekday, a build prompt you approve, then a build through Claude Code on the Mac mini.</p></div><div class="when"><span class="chip na">– later</span></div></li>
+      </ol>
+    </section>
+
+    <section id="builder">
+      <p class="sk">4 · Prompt builder</p>
+      <h2>Pick your routines, then copy one prompt for Zosia.</h2>
+      <p>Tick the workflows you want and set each one’s cadence and delivery. The prompt updates as you click. Paste it into your Grok Bot chat.</p>
+      <div class="builder">
+        <div class="controls" id="controls"><p class="nojs">The builder needs JavaScript. Without it, tell Zosia which of the nine workflows above you want and when.</p></div>
+        <div class="out">
+          <div class="outbox">
+            <div class="outhead"><span class="cnt" id="cnt">0 routines</span><button class="btn" type="button" id="copy">Copy prompt</button></div>
+            <pre id="prompt" tabindex="0" aria-label="Generated prompt"></pre>
+            <div class="outfoot"><button class="btn ghost" type="button" id="reset">Reset to defaults</button><span class="status" id="status" role="status" aria-live="polite"></span></div>
+          </div>
+        </div>
+      </div>
+      <div class="copybar" aria-hidden="false"><span class="cnt mono dim" id="cnt2" style="font-size:var(--t-label)">0 routines</span><button class="btn" type="button" id="copy2">Copy prompt</button></div>
+    </section>
+
+    <section id="sources">
+      <p class="sk">Sources</p>
+      <h2>Where these facts come from.</h2>
+      <ol class="src">
+        <li>TeslaNorth, 8 Oct 2026: Grok Bot can search, read and monitor X. <div class="u"><a href="https://teslanorth.com/2026/10/08/grok-bot-search-read-monitor-x/">teslanorth.com/2026/10/08/grok-bot-search-read-monitor-x/</a></div></li>
+        <li>AICoder, 7 Oct 2026: native X search, read and monitor; build method; brand-tracking example. <div class="u"><a href="https://aicoder.com/news/news-20261007-grok-bot-native-x-search-read-monitor">aicoder.com/news/news-20261007-grok-bot-native-x-search-read-monitor</a></div></li>
+        <li>Grok Bot Templates: AI daily radar. <div class="u"><a href="https://www.grokbottemplates.dev/templates/ai-daily-radar">grokbottemplates.dev/templates/ai-daily-radar</a></div></li>
+        <li>Grok Bot Daily: AI lab watch, account watcher, morning bookmark digest. <div class="u"><a href="https://grokbotdaily.com/">grokbotdaily.com</a></div></li>
+        <li>xAI, Grok Bot 101: bookmarks → prototypes, following list → CRM. <div class="u"><a href="https://x.ai/bot/guides/grok-bot-101">x.ai/bot/guides/grok-bot-101</a></div></li>
+        <li>Zosia’s own check: the live ‘X snapshot’ routine and a home-timeline read test on Sunday morning, 11 Oct 2026.</li>
+      </ol>
+    </section>
+  </main>
+</div>
+<footer><div class="wrap">Prepared by Zosia (Grok Bot) for Raymond Zhu · 11 Oct 2026 · Dubai time · numbers as sourced, nothing estimated</div></footer>
+
+<script>
+/* small charts */
+(function(){
+  var w=document.getElementById('waffle'),s='';
+  for(var i=0;i<80;i++){var c=i%40,r=Math.floor(i/40);s+='<rect x="'+(c*2.5)+'" y="'+(r*14+2)+'" width="1.8" height="10" rx=".4" fill="var(--text-dim)"/>'}
+  w.setAttribute('preserveAspectRatio','none');w.innerHTML=s;
+  var t=document.getElementById('ticks9'),u='<line x1="0" y1="24" x2="100" y2="24" stroke="var(--border-bright)" stroke-width="1" vector-effect="non-scaling-stroke"/>';
+  for(var j=0;j<9;j++){var x=5+j*11.25;u+='<line x1="'+x+'" y1="4" x2="'+x+'" y2="24" stroke="var(--accent)" stroke-width="2.5" vector-effect="non-scaling-stroke"/>'}
+  t.innerHTML=u;
+})();
+/* motion */
+(function(){
+  var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduce){document.querySelectorAll('.js-flow').forEach(function(e){e.remove()});return}
+  document.documentElement.classList.add('js-motion');
+  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.08});
+  document.querySelectorAll('.rise').forEach(function(e){io.observe(e)});
+})();
+/* scroll spy */
+(function(){
+  var links=[].slice.call(document.querySelectorAll('nav.toc a'));
+  var map={};links.forEach(function(a){map[a.getAttribute('href').slice(1)]=a});
+  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){links.forEach(function(a){a.classList.remove('on')});var a=map[e.target.id];if(a){a.classList.add('on');try{history.replaceState(null,'','#'+e.target.id)}catch(_){}}}})},{rootMargin:'-10% 0px -80% 0px'});
+  Object.keys(map).forEach(function(id){var s=document.getElementById(id);if(s)io.observe(s)});
+})();
+/* linked highlighting */
+(function(){
+  var fig=document.getElementById('mech');
+  function on(ref){fig.classList.add('hl-on');document.querySelectorAll('[data-ref]').forEach(function(el){el.classList.toggle('hl',el.getAttribute('data-ref').split(' ').indexOf(ref)>-1)})}
+  function off(){fig.classList.remove('hl-on');document.querySelectorAll('.hl').forEach(function(el){el.classList.remove('hl')})}
+  document.querySelectorAll('[data-ref]').forEach(function(el){var r=el.getAttribute('data-ref').split(' ')[0];
+    el.addEventListener('mouseenter',function(){on(r)});el.addEventListener('mouseleave',off);
+    if(el.classList.contains('term')){el.addEventListener('focus',function(){on(r)});el.addEventListener('blur',off)}});
+})();
+/* prompt builder */
+(function(){
+  var C3='3× daily (7:46 AM, 1:46 PM, 7:46 PM Dubai)';
+  var WF=[
+    {id:'radar',n:'Daily AI news radar',ds:'Last 24h, sorted into launches / pricing / benchmark claims',cad:['Daily morning','3× daily','Every 6h','Weekly'],
+      body:function(o){return 'Scan the last 24 hours of AI news on X. Sort items into launches, pricing changes and benchmark claims, and mark each claim as vendor-only or independently checked.'}},
+    {id:'labs',n:'AI lab watch',ds:'Instant alerts from AI labs and coding-agent accounts',cad:['Instant alerts + AM/PM digest','Instant alerts only','AM/PM digest only','Daily morning'],
+      field:{k:'labs',l:'Lab / coding-agent accounts (handles)',ph:'@handle, @handle, …',hint:'Leave blank and Zosia proposes 10–20 official accounts.'},
+      body:function(o){var a=o.labs?'these official AI lab and coding-agent accounts: '+o.labs:'about 10–20 official AI lab and coding-agent accounts (propose the list to me first)';return 'Follow '+a+'. Alert me for new models, free credits, and pricing or policy changes.'}},
+    {id:'snap',n:'Following-feed snapshot',ds:'Home timeline grouped by theme, each post linked',live:true,def:true,cad:[C3,'Every 6h','Daily morning'],
+      body:function(o){return 'It reads the home timeline of the accounts I follow and groups posts by theme (AI news first, then tech/markets, then Middle East/Dubai/China, then the most-discussed post), with a link to each post.'}},
+    {id:'watch',n:'Account watcher',ds:'Ping only when chosen accounts post',cad:['Instant, when they post','Daily morning digest'],
+      field:{k:'watch',l:'Accounts to watch (handles)',ph:'@handle, @handle, …',hint:'Leave blank and Zosia asks you for the list.'},
+      body:function(o){return 'Ping me only when '+(o.watch?'these accounts post: '+o.watch:'the accounts I choose post (ask me for the list)')+'.'}},
+    {id:'bm',n:'Morning bookmark digest',ds:'Rank and summarize ~10 newest bookmarks',cad:['Daily morning','Every 6h','Weekly'],
+      body:function(o){return 'Rank and summarize my ~10 newest X bookmarks. Make a visual explainer for long reads.'}},
+    {id:'brand',n:'Brand / competitor tracking',ds:'New posts and feedback about brands you name',cad:['Daily morning','3× daily','Weekly'],
+      field:{k:'brands',l:'Brands / competitors',ph:'WAG, Wio Bank, ENBD',val:'WAG, Wio Bank, ENBD'},
+      body:function(o){return 'Summarize new posts and feedback on X about '+(o.brands||'the brands I name (ask me)')+', with links.'}},
+    {id:'round',n:'Weekly industry roundup / breaking story',ds:'Weekly roundup, or follow one story as it develops',cad:['Weekly','Daily morning','Every 6h'],
+      field:{k:'story',l:'Breaking story to follow (optional)',ph:'e.g. a model launch or a regulation'},
+      body:function(o){return 'Write a roundup of industry news on X'+(o.topics?' on '+o.topics:'')+'.'+(o.story?' Also follow this story as it develops and update me: '+o.story+'.':'')}},
+    {id:'proto',n:'Bookmarks → prototypes',ds:'One technology per weekday; build only after approval',cad:['Each weekday','Weekly'],wd:true,
+      body:function(o){return 'Pick one technology from my bookmarks and draft a build prompt. Wait for my approval. After I approve, build it with Claude Code on my Mac mini (Cursor cloud agents aren\'t on my plan).'}},
+    {id:'crm',n:'Following list → personal CRM',ds:'Sort the ~800 accounts you follow by topic',cad:['One-off','Monthly refresh'],
+      chk:{k:'gbrain',l:'Also add the result to gbrain',def:true},
+      body:function(o){return 'Organize the ~800 accounts I follow by topic, using public profile info.'+(o.gbrain?' Add the result to gbrain.':'')}}
+  ];
+  var root=document.getElementById('controls'),H='';
+  function seg(name,label,opts,def){var h='<fieldset class="seg"><legend>'+label+'</legend>';opts.forEach(function(v,i){h+='<label><input type="radio" name="'+name+'" value="'+v+'"'+(v===def?' checked':'')+'><span>'+v+'</span></label>'});return h+'</fieldset>'}
+  WF.forEach(function(w,i){
+    var chip=w.live?'<span class="chip ok">● live</span>':'';
+    H+='<fieldset class="wfc" id="c-'+w.id+'"><legend>'+w.n+'</legend><label class="wfh"><input type="checkbox" data-wf="'+w.id+'"'+(w.def?' checked':'')+'><span><span class="nm">'+(i+1)+' · '+w.n+'</span>'+chip+'<span class="ds">'+w.ds+'</span></span></label>';
+    H+='<div class="opts" id="o-'+w.id+'"'+(w.def?'':' hidden')+'>';
+    H+='<div class="row"><span class="lb" aria-hidden="true">Cadence</span>'+seg(w.id+'-cad','Cadence for '+w.n,w.cad,w.cad[0])+'</div>';
+    H+='<div class="row"><span class="lb" aria-hidden="true">Deliver to</span>'+seg(w.id+'-del','Delivery for '+w.n,['Grok Bot chat','Email','Both'],'Grok Bot chat')+'</div>';
+    H+='<div class="row"><span class="lb" aria-hidden="true">Days</span>'+seg(w.id+'-days','Days for '+w.n,['Every day','Weekdays only'],w.wd?'Weekdays only':'Every day')+'</div>';
+    if(w.field){var f=w.field;H+='<div class="fld"><label for="f-'+f.k+'">'+f.l+'</label><input id="f-'+f.k+'" data-k="'+f.k+'" type="text" autocomplete="off" spellcheck="false" placeholder="'+f.ph+'" value="'+(f.val||'')+'">'+(f.hint?'<div class="hint">'+f.hint+'</div>':'')+'</div>'}
+    if(w.chk){H+='<label class="chk"><input type="checkbox" data-k="'+w.chk.k+'"'+(w.chk.def?' checked':'')+'> '+w.chk.l+'</label>'}
+    H+='</div></fieldset>';
+  });
+  H+='<div class="global"><h3>All routines</h3>';
+  H+='<div class="fld"><label for="f-topics">Topics / keywords to prioritize</label><input id="f-topics" data-k="topics" type="text" placeholder="e.g. coding agents, automotive AI, UAE fintech"></div>';
+  H+='<div class="row"><span class="lb" aria-hidden="true">Language</span>'+seg('lang','Summary language',['English (translate Chinese)','Bilingual (English + 中文)'],'English (translate Chinese)')+'</div>';
+  H+='<div class="row"><span class="lb" aria-hidden="true">Length</span>'+seg('len','Summary length',['Short','Detailed'],'Short')+'</div>';
+  H+='<div class="fld"><label for="f-notes">Notes for Zosia (optional)</label><textarea id="f-notes" data-k="notes" placeholder="Anything else: quiet hours, accounts to ignore, format…"></textarea></div></div>';
+  root.innerHTML=H;
+
+  var out=document.getElementById('prompt');
+  function val(name){var e=root.querySelector('input[name="'+name+'"]:checked');return e?e.value:''}
+  function txt(k){var e=root.querySelector('[data-k="'+k+'"]');if(!e)return '';return e.type==='checkbox'?e.checked:e.value.trim()}
+  function deliv(d){return d==='Email'?'by email (zosia@mail.grokbot.com)':d==='Both'?'to Grok Bot chat and by email (zosia@mail.grokbot.com)':'to Grok Bot chat'}
+  function render(){
+    var o={labs:txt('labs'),watch:txt('watch'),brands:txt('brands'),story:txt('story'),gbrain:txt('gbrain'),topics:txt('topics'),notes:txt('notes')};
+    var on=WF.filter(function(w){var c=root.querySelector('[data-wf="'+w.id+'"]');document.getElementById('o-'+w.id).hidden=!c.checked;document.getElementById('c-'+w.id).classList.toggle('on',c.checked);return c.checked});
+    var n=on.length,label=n+(n===1?' routine':' routines')+' selected';
+    document.getElementById('cnt').textContent=label;document.getElementById('cnt2').textContent=label;
+    if(!n){out.textContent='Tick at least one workflow on the left to build your prompt.';return}
+    var L=['Zosia, set up these X routines for me:',''];
+    on.forEach(function(w,i){
+      var cad=val(w.id+'-cad'),del=val(w.id+'-del'),days=val(w.id+'-days');
+      var sched=(cad==='Each weekday'||cad==='One-off')?cad:cad+(days==='Weekdays only'?', weekdays only (Mon–Fri)':(/^Daily/.test(cad)?'':', every day'));
+      if(w.live){
+        var same=cad===w.cad[0]&&del==='Grok Bot chat'&&days==='Every day';
+        L.push((i+1)+'. '+w.n+' (already live as \'X snapshot\'): '+(same?'keep it running as is: '+sched+', '+deliv(del)+'.':'update it to '+sched+', delivered '+deliv(del)+'.'));
+      } else {
+        L.push((i+1)+'. '+w.n+': '+sched+', delivered '+deliv(del)+'.');
+      }
+      L.push('   '+w.body(o));
+      L.push('');
+    });
+    L.push('For all routines:');
+    L.push('- '+(val('lang').indexOf('Bilingual')===0?'Write summaries in English and Chinese (中文), side by side.':'Write summaries in English; translate Chinese posts.'));
+    L.push('- '+(val('len')==='Short'?'Keep summaries short: one line per item.':'Make summaries detailed: a short paragraph per item with context.'));
+    if(o.topics)L.push('- Prioritize these topics and keywords: '+o.topics+'.');
+    L.push('- Link every post and include its timestamp in Dubai time.');
+    L.push('- Do each task once by hand and run it twice to check links and timestamps before saving it as a routine.');
+    L.push('- Never like, reply, post or DM on X yourself. Draft for my review and approval.');
+    if(o.notes){L.push('');L.push('Notes: '+o.notes)}
+    L.push('');
+    L.push('Confirm each routine\'s schedule with me before saving.');
+    out.textContent=L.join('\n');
+  }
+  root.addEventListener('input',render);root.addEventListener('change',render);
+  function flash(msg,ok,btn){var s=document.getElementById('status');s.textContent=msg;s.style.color=ok?'var(--ok)':'var(--risk)';
+    ['copy','copy2'].forEach(function(id){var b=document.getElementById(id);if(ok&&btn){b.textContent='Copied ✓';b.classList.add('done')}});
+    clearTimeout(flash.t);flash.t=setTimeout(function(){['copy','copy2'].forEach(function(id){var b=document.getElementById(id);b.textContent='Copy prompt';b.classList.remove('done')});s.textContent=''},2200)}
+  function fallback(t){var ta=document.createElement('textarea');ta.value=t;ta.setAttribute('readonly','');ta.style.position='fixed';ta.style.top='-1000px';document.body.appendChild(ta);ta.select();ta.setSelectionRange(0,t.length);var ok=false;try{ok=document.execCommand('copy')}catch(e){}document.body.removeChild(ta);
+    if(ok)flash('Copied to clipboard. Paste it into your Grok Bot chat.',true,true);else{var r=document.createRange();r.selectNodeContents(out);var sel=getSelection();sel.removeAllRanges();sel.addRange(r);flash('Prompt selected. Press Ctrl/⌘+C to copy.',false)}}
+  function copy(){var t=out.textContent;if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(t).then(function(){flash('Copied to clipboard. Paste it into your Grok Bot chat.',true,true)},function(){fallback(t)})}else fallback(t)}
+  document.getElementById('copy').addEventListener('click',copy);document.getElementById('copy2').addEventListener('click',copy);
+  document.getElementById('reset').addEventListener('click',function(){root.innerHTML=H;render();flash('Reset to defaults.',true)});
+  render();
+})();
+</script>
+</body>
+</html>
