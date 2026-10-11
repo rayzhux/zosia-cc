@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How Grok Bot works: one machine, many bots</title>
+<meta name="description" content="All five of Raymond's Grok Bots share one persistent Linux machine: shared files, tools, credentials and browser logins; separate desktops, chats, personas, memory and routines.">
+<meta name="x-category" content="grok-bot">
+<meta name="x-tags" content="grok-bot, architecture, security, explainer">
+<meta name="x-created" content="2026-10-11">
+<meta name="robots" content="noindex">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='3' y='3' width='26' height='26' rx='3' fill='none' stroke='%23ffb547' stroke-width='3' stroke-dasharray='5 3'/%3E%3Crect x='10' y='10' width='12' height='12' fill='%23ffb547'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0d1520;--surface:#132031;--border:#22324a;--border-bright:#596b87;--text:#e3ecf5;--text-dim:#92a6bb;--accent:#ffb547;--ok:#6fd3a0;--warn:#e8d36a;--risk:#ff7b6b;--info:#7cc0f0;--node-top:color-mix(in srgb,var(--text) 7%,var(--surface));--lift:rgb(0 0 0/.45);--accent-dim:rgb(255 181 71/.14)}
+@media (prefers-color-scheme:light){:root{--bg:#f2f6fa;--surface:#fff;--border:#d6e0ea;--border-bright:#818f9e;--text:#0f1a26;--text-dim:#4d6074;--accent:#a34700;--ok:#1c7443;--warn:#776300;--risk:#b0341e;--info:#145f99;--node-top:var(--surface);--lift:rgb(18 22 20/.12);--accent-dim:rgb(163 71 0/.12)}}
+html{font-size:17px;scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation:none!important;transition:none!important}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:400 1rem/1.6 'IBM Plex Sans',system-ui,sans-serif;font-kerning:normal;font-synthesis:none}
+body::before{content:"";position:fixed;inset:0;z-index:-1;opacity:.5;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:24px 24px}
+.mono{font-family:'IBM Plex Mono',monospace}
+.wrap{max-width:64rem;margin:0 auto;padding:3rem 1.5rem 5rem;display:grid;grid-template-columns:minmax(0,1fr) 12rem;gap:3rem}
+.wrap>*{min-width:0}
+nav.toc{position:sticky;top:2rem;align-self:start;font:400 .75rem/1.5 'IBM Plex Mono',monospace;border-left:1px solid var(--border)}
+nav.toc a{display:block;padding:.3rem .8rem;color:var(--text-dim);text-decoration:none;border-left:2px solid transparent;margin-left:-1px}
+nav.toc a.on{color:var(--text);border-left-color:var(--accent)}
+a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media (max-width:900px){.wrap{grid-template-columns:minmax(0,1fr)}nav.toc{display:none}}
+.kicker{font:600 .75rem 'IBM Plex Mono',monospace;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);display:flex;align-items:center;gap:.6rem}
+.kicker::before{content:"";width:1.5rem;height:2px;background:var(--accent)}
+h1{font-weight:600;font-size:2.6rem;line-height:1.08;letter-spacing:-.035em;margin:1rem 0;text-wrap:balance}
+h1 em{font-style:normal;color:var(--accent)}
+h2{font-weight:600;font-size:1.6rem;line-height:1.15;letter-spacing:-.01em;margin:.4rem 0 1rem;text-wrap:balance}
+.lead{font-size:1.2rem;color:var(--text-dim);max-width:50ch;text-wrap:pretty}.lead b{color:var(--text);font-weight:600}
+.meta{font:400 .75rem 'IBM Plex Mono',monospace;color:var(--text-dim);margin-top:1rem}
+section{margin-top:4.5rem}
+p{max-width:65ch;text-wrap:pretty}
+figure{margin:1.5rem 0 0}
+.frame{background:var(--bg);border:1px solid var(--border-bright);border-radius:2px;padding:1.2rem;overflow-x:auto}
+figcaption{color:var(--text-dim);margin-top:.7rem;text-wrap:pretty}figcaption .mono{color:var(--text);font-size:.8rem;margin-right:.4rem}
+svg text{font-family:'IBM Plex Mono',monospace;fill:var(--text)}
+svg .dim{fill:var(--text-dim)}
+.node{fill:var(--node-top);stroke:var(--border-bright);stroke-width:1.5;filter:drop-shadow(0 4px 8px var(--lift))}
+.boundary{fill:none;stroke:var(--accent);stroke-width:2;stroke-dasharray:8 6}
+.edge{stroke:var(--text-dim);stroke-width:1.75;fill:none}
+.hot{stroke:var(--accent);stroke-width:2.75;fill:none}
+.lbl{font-size:13px;paint-order:stroke;stroke:var(--bg);stroke-width:5px}
+.chip{display:inline-block;font:600 .72rem 'IBM Plex Mono',monospace;border:1px solid currentColor;border-radius:2px;padding:.1rem .45rem;white-space:nowrap}
+.ok{color:var(--ok)}.risk{color:var(--risk)}.warn{color:var(--warn)}.info{color:var(--info)}
+.tbl{overflow-x:auto;border:1px solid var(--border-bright);border-radius:2px}
+table{border-collapse:collapse;width:100%;min-width:40rem}
+th,td{text-align:left;padding:.65rem .9rem;border-bottom:1px solid var(--border);vertical-align:top}
+th{font:600 .72rem 'IBM Plex Mono',monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim);background:var(--surface)}
+tr:last-child td{border-bottom:0}
+td:last-child{color:var(--text-dim)}
+.steps{list-style:none;padding:0;margin:0;border-top:1px solid var(--border)}
+.steps li{display:grid;grid-template-columns:3rem minmax(0,1fr);gap:1rem;padding:1rem 0;border-bottom:1px solid var(--border)}
+.steps .n{font:600 1.4rem 'IBM Plex Mono',monospace;color:var(--accent)}
+.steps b{display:block}
+.callout{border:2px dashed var(--accent);padding:1.2rem 1.4rem;border-radius:2px;background:var(--accent-dim)}
+.callout p{margin:.4rem 0}
+</style>
+  <meta property="og:title" content="How Grok Bot works: one machine, many bots">
+  <meta property="og:description" content="All five of Raymond's Grok Bots share one persistent Linux machine: shared files, tools, credentials and browser logins; separate desktops, chats, personas, memory and routines.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://zosia.cc/pages/grok-bot-how-it-works">
+  <meta name="twitter:card" content="summary">
+</head>
+<body>
+<div class="wrap">
+<main>
+<header>
+<div class="kicker">Grok Bot · architecture for Raymond</div>
+<h1>Your 5 bots live on <em>one</em> computer, not five.</h1>
+<p class="lead">System, Zosia, Tennis Booking, CTO, and Briefings all share <b>one persistent Linux machine</b>. Files, tools, credentials, and browser logins are shared. Only the screen, chat, persona, memory, and routines are per-bot.</p>
+<div class="meta">Scope: your Grok Bot account · 5 bots · 1 machine (“the bot’s computer”)</div>
+</header>
+
+<section id="machine">
+<div class="kicker">01 · The machine</div>
+<h2>One machine holds everything on disk; per-bot state lives outside it</h2>
+<figure>
+<div class="frame">
+<svg viewBox="0 0 900 560" width="100%" style="min-width:720px" role="img" aria-label="Diagram: one machine containing a shared filesystem, a shared browser profile, and five per-bot desktops; memory, chats and routines stores sit outside the machine.">
+<defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" fill="context-stroke"/></marker></defs>
+<!-- machine boundary -->
+<rect class="boundary" x="20" y="30" width="590" height="500" rx="2"/>
+<text x="34" y="22" font-size="13" style="fill:var(--accent)" font-weight="600">BOUNDARY · THE BOT’S COMPUTER (one persistent Linux machine)</text>
+<!-- desktops -->
+<text x="40" y="62" font-size="12" class="dim">PER-BOT DESKTOPS (own screen + browser window)</text>
+<g font-size="13">
+<rect class="node" x="40" y="74" width="104" height="58" rx="2"/><text x="92" y="108" text-anchor="middle">System</text>
+<rect class="node" x="153" y="74" width="104" height="58" rx="2"/><text x="205" y="108" text-anchor="middle">Zosia</text>
+<rect class="node" x="266" y="74" width="104" height="58" rx="2"/><text x="318" y="102" text-anchor="middle">Tennis</text><text x="318" y="118" text-anchor="middle">Booking</text>
+<rect class="node" x="379" y="74" width="104" height="58" rx="2"/><text x="431" y="108" text-anchor="middle">CTO</text>
+<rect class="node" x="492" y="74" width="104" height="58" rx="2"/><text x="544" y="108" text-anchor="middle">Briefings</text>
+</g>
+<!-- edges from desktops down -->
+<g>
+<path class="hot" d="M92 132V250" marker-end="url(#ah)"/><path class="hot" d="M205 132V250" marker-end="url(#ah)"/><path class="hot" d="M318 132V250" marker-end="url(#ah)"/><path class="hot" d="M431 132V250" marker-end="url(#ah)"/><path class="hot" d="M544 132V250" marker-end="url(#ah)"/>
+</g>
+<text x="318" y="196" text-anchor="middle" class="lbl" style="fill:var(--accent)">all read + write the same disk</text>
+<!-- shared filesystem cylinder -->
+<g>
+<path class="node" d="M40 270 a275 18 0 0 1 550 0 v120 a275 18 0 0 1 -550 0z"/>
+<ellipse cx="315" cy="270" rx="275" ry="18" fill="none" stroke="var(--border-bright)" stroke-width="1.5"/>
+<text x="315" y="310" text-anchor="middle" font-size="15" font-weight="600">SHARED FILESYSTEM</text>
+<text x="315" y="334" text-anchor="middle" font-size="13" class="dim">files · installed tools &amp; CLIs · credentials on disk</text>
+<text x="315" y="356" text-anchor="middle" font-size="13" class="dim">e.g. the CTO bot’s `gh auth login`</text>
+</g>
+<!-- shared browser profile -->
+<path class="node" d="M120 450 a195 14 0 0 1 390 0 v46 a195 14 0 0 1 -390 0z"/>
+<ellipse cx="315" cy="450" rx="195" ry="14" fill="none" stroke="var(--border-bright)" stroke-width="1.5"/>
+<text x="315" y="482" text-anchor="middle" font-size="14" font-weight="600">SHARED BROWSER PROFILE</text>
+<text x="315" y="500" text-anchor="middle" font-size="12" class="dim">cookies / logins</text>
+<path class="edge" d="M315 408V432" marker-end="url(#ah)"/>
+<text x="330" y="424" class="lbl" font-size="13">holds</text>
+<!-- outside stores -->
+<text x="650" y="62" font-size="12" class="dim">OUTSIDE THE MACHINE · PER BOT</text>
+<g font-size="14">
+<path class="node" d="M650 84 a105 12 0 0 1 210 0 v52 a105 12 0 0 1 -210 0z"/><ellipse cx="755" cy="84" rx="105" ry="12" fill="none" stroke="var(--border-bright)" stroke-width="1.5"/><text x="755" y="120" text-anchor="middle">Chats</text>
+<path class="node" d="M650 184 a105 12 0 0 1 210 0 v52 a105 12 0 0 1 -210 0z"/><ellipse cx="755" cy="184" rx="105" ry="12" fill="none" stroke="var(--border-bright)" stroke-width="1.5"/><text x="755" y="214" text-anchor="middle">Persona +</text><text x="755" y="232" text-anchor="middle">Memory</text>
+<path class="node" d="M650 284 a105 12 0 0 1 210 0 v52 a105 12 0 0 1 -210 0z"/><ellipse cx="755" cy="284" rx="105" ry="12" fill="none" stroke="var(--border-bright)" stroke-width="1.5"/><text x="755" y="320" text-anchor="middle">Routines</text>
+<path class="node" d="M650 404 a105 12 0 0 1 210 0 v52 a105 12 0 0 1 -210 0z" style="stroke:var(--info)"/><ellipse cx="755" cy="404" rx="105" ry="12" fill="none" stroke="var(--info)" stroke-width="1.5"/><text x="755" y="434" text-anchor="middle">Shared user</text><text x="755" y="452" text-anchor="middle">memory</text>
+</g>
+<text x="755" y="490" text-anchor="middle" font-size="12" class="dim">all 5 bots contribute</text>
+<path class="edge" d="M600 103H642" marker-end="url(#ah)" style="stroke-dasharray:6 5"/>
+<text x="606" y="160" class="lbl" font-size="12" class="dim">kept per bot</text>
+</svg>
+</div>
+<figcaption><span class="mono">Fig. 1</span>The dashed frame is the trust boundary. Everything inside it is shared by all five bots. Only the desktops are split. Chats, persona, memory, and routines are stored off the machine, one set per bot, plus a shared user-memory layer.</figcaption>
+</figure>
+</section>
+
+<section id="access">
+<div class="kicker">02 · Isolation</div>
+<h2>Can bot X access Y? On disk, almost always yes</h2>
+<div class="tbl"><table>
+<thead><tr><th>Question</th><th>Answer</th><th>Why</th></tr></thead>
+<tbody>
+<tr><td>Can Zosia read a file the CTO bot saved?</td><td><span class="chip risk">■ Yes</span></td><td>One shared filesystem.</td></tr>
+<tr><td>Can Briefings use the CTO bot’s <span class="mono">gh auth login</span>?</td><td><span class="chip risk">■ Yes</span></td><td>Credentials on disk are shared.</td></tr>
+<tr><td>Can any bot use a CLI another bot installed?</td><td><span class="chip risk">■ Yes</span></td><td>Installed tools live on the shared disk.</td></tr>
+<tr><td>Can a bot reuse a site login another bot made in the browser?</td><td><span class="chip risk">■ Yes</span></td><td>Browser cookies are shared on the machine.</td></tr>
+<tr><td>Can one bot see or drive another bot’s screen?</td><td><span class="chip ok">● No</span></td><td>Each bot has its own desktop and browser window.</td></tr>
+<tr><td>Can one bot read another bot’s chat, persona, or routines?</td><td><span class="chip ok">● No</span></td><td>Kept separately per bot, off the machine.</td></tr>
+<tr><td>Does each bot have its own memory?</td><td><span class="chip info">◆ Both</span></td><td>Per-bot memory, plus a shared user-memory layer all bots add to.</td></tr>
+<tr><td>Can bots message each other?</td><td><span class="chip warn">▲ Yes</span></td><td>Bots can send each other messages.</td></tr>
+<tr><td>Do bot files land on my Mac mini?</td><td><span class="chip ok">● No</span></td><td>Your registered computers are separate; only approved commands touch them.</td></tr>
+</tbody></table></div>
+</section>
+
+<section id="persist">
+<div class="kicker">03 · Lifetime</div>
+<h2>A new chat doesn’t start a new VM. Everything persists</h2>
+<p>There is no per-chat or per-bot VM. When you talk to any bot, it works on the same machine as last time. Files, installs, and logins stay put across turns, so the machine keeps feeling like yours.</p>
+<p>Your own registered computers, such as the Mac mini, are a different thing. Bots act on them only through commands you approve. Files on the bot’s computer never sync to them automatically.</p>
+</section>
+
+<section id="recovery">
+<div class="kicker">04 · Recovery</div>
+<h2>Fix a broken machine in Settings › Computer, gentlest option first</h2>
+<ol class="steps">
+<li><span class="n">①</span><div><b>Update Bot’s Computer</b>Moves the bot’s computer to a fresh instance. <span class="chip ok">● keeps files</span> <span class="chip ok">● keeps logins</span> <span class="chip warn">▲ reinstall software</span></div></li>
+<li><span class="n">②</span><div><b>Reset (last resort)</b>Restores the last snapshot. <span class="chip risk">■ use only if ① fails</span></div></li>
+</ol>
+</section>
+
+<section id="security">
+<div class="kicker">05 · Security</div>
+<h2>The machine is the trust boundary, not the bot</h2>
+<div class="callout">
+<p><b>There is no isolation between your own bots.</b> Anything one bot can reach on disk or in the browser, every bot can reach.</p>
+<p>Don’t store a secret you’d trust to only one bot. Bots can also message each other, so plan as if all five act as one team with one set of keys.</p>
+</div>
+</section>
+</main>
+<nav class="toc" aria-label="Contents">
+<a href="#machine">01 The machine</a><a href="#access">02 Who can access what</a><a href="#persist">03 Persistence</a><a href="#recovery">04 Recovery</a><a href="#security">05 Security</a>
+</nav>
+</div>
+<script>
+const links=[...document.querySelectorAll('nav.toc a')];const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){links.forEach(l=>l.classList.toggle('on',l.getAttribute('href')==='#'+e.target.id))}})},{rootMargin:'-30% 0px -60% 0px'});document.querySelectorAll('main section').forEach(s=>io.observe(s));
+</script>
+</body>
+</html>

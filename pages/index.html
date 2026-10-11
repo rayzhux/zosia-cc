@@ -290,8 +290,8 @@
     </header>
 
     <div class="stats">
-      <span><span class="num">66</span> pages</span>
-      <span><span class="num">8</span> categories</span>
+      <span><span class="num">67</span> pages</span>
+      <span><span class="num">9</span> categories</span>
       <span>Last updated <span class="num">Oct 11, 2026</span></span>
     </div>
 
@@ -303,6 +303,7 @@
     <div class="filters" id="filters">
       <button class="chip active" data-cat="all">All</button>
       <button class="chip" data-cat="cloudflare">Cloudflare</button>
+      <button class="chip" data-cat="grok-bot">Grok-bot</button>
       <button class="chip" data-cat="openclaw">OpenClaw (archive)</button>
       <button class="chip" data-cat="health">Health</button>
       <button class="chip" data-cat="research">Research</button>
@@ -348,6 +349,20 @@
                   "audit",
                   "billing",
                   "cloudflare"
+            ]
+      },
+      {
+            "slug": "grok-bot-how-it-works",
+            "title": "How Grok Bot works: one machine, many bots",
+            "desc": "All five of Raymond's Grok Bots share one persistent Linux machine: shared files, tools, credentials and browser logins; separate desktops, chats, personas, memory and routines.",
+            "cat": "grok-bot",
+            "created": "2026-10-11",
+            "updated": "2026-10-11",
+            "tags": [
+                  "grok-bot",
+                  "architecture",
+                  "security",
+                  "explainer"
             ]
       },
       {
@@ -1091,6 +1106,7 @@
 ];
     const catLabels = {
       "cloudflare": "Cloudflare",
+      "grok-bot": "Grok-bot",
       "openclaw": "OpenClaw (archive)",
       "health": "Health",
       "research": "Research",
