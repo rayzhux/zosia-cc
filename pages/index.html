@@ -290,9 +290,9 @@
     </header>
 
     <div class="stats">
-      <span><span class="num">76</span> pages</span>
+      <span><span class="num">77</span> pages</span>
       <span><span class="num">10</span> categories</span>
-      <span>Last updated <span class="num">Oct 15, 2026</span></span>
+      <span>Last updated <span class="num">Oct 16, 2026</span></span>
     </div>
 
     <div class="search-wrap">
@@ -302,9 +302,9 @@
 
     <div class="filters" id="filters">
       <button class="chip active" data-cat="all">All</button>
+      <button class="chip" data-cat="grok-bot">Grok-bot</button>
       <button class="chip" data-cat="x-snapshot">X-snapshot</button>
       <button class="chip" data-cat="cloudflare">Cloudflare</button>
-      <button class="chip" data-cat="grok-bot">Grok-bot</button>
       <button class="chip" data-cat="openclaw">OpenClaw (archive)</button>
       <button class="chip" data-cat="health">Health</button>
       <button class="chip" data-cat="research">Research</button>
@@ -339,6 +339,21 @@
 
   <script>
     const pages = [
+      {
+            "slug": "grokbot-chief-of-staff-checkup-2026-10",
+            "title": "Grok Bot Chief of Staff checkup, Oct 2026",
+            "desc": "One router, five specialists: a checkup of Raymond's Grok Bot team, the Mac mini Hermes setup, connectors, and a 30-day rollout plan.",
+            "cat": "grok-bot",
+            "created": "2026-10-16",
+            "updated": "2026-10-16",
+            "tags": [
+                  "chief-of-staff",
+                  "bots",
+                  "hermes",
+                  "connectors",
+                  "operations"
+            ]
+      },
       {
             "slug": "x-snapshot-2026-10-15-am",
             "title": "X snapshot · Thu 15 Oct 2026, morning",
@@ -1242,9 +1257,9 @@
       }
 ];
     const catLabels = {
+      "grok-bot": "Grok-bot",
       "x-snapshot": "X-snapshot",
       "cloudflare": "Cloudflare",
-      "grok-bot": "Grok-bot",
       "openclaw": "OpenClaw (archive)",
       "health": "Health",
       "research": "Research",
@@ -1266,7 +1281,7 @@
     }
 
     function daysAgo(d) {
-      const now = new Date("2026-10-15");
+      const now = new Date("2026-10-16");
       const then = new Date(d);
       const diff = Math.floor((now - then) / 86400000);
       if (diff === 0) return "today";

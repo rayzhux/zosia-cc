@@ -2,13 +2,18 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://zosia.cc/</loc>
-    <lastmod>2026-10-15</lastmod>
+    <lastmod>2026-10-16</lastmod>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://zosia.cc/pages</loc>
-    <lastmod>2026-10-15</lastmod>
+    <lastmod>2026-10-16</lastmod>
     <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://zosia.cc/pages/grokbot-chief-of-staff-checkup-2026-10</loc>
+    <lastmod>2026-10-16</lastmod>
+    <priority>0.6</priority>
   </url>
   <url>
     <loc>https://zosia.cc/pages/x-snapshot-2026-10-15-am</loc>
