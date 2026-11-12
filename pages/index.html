@@ -290,9 +290,9 @@
     </header>
 
     <div class="stats">
-      <span><span class="num">77</span> pages</span>
+      <span><span class="num">78</span> pages</span>
       <span><span class="num">10</span> categories</span>
-      <span>Last updated <span class="num">Oct 16, 2026</span></span>
+      <span>Last updated <span class="num">Nov 12, 2026</span></span>
     </div>
 
     <div class="search-wrap">
@@ -339,6 +339,21 @@
 
   <script>
     const pages = [
+      {
+            "slug": "grok-bot-meeting-flow-2026-11-12",
+            "title": "Grok Bot meetings: a dedicated Notetaker joins, Zosia delivers · Nov 2026",
+            "desc": "Design review: meeting joining is built into Grok Bot 1.0. Pilot with Zosia today, then a dedicated Notetaker bot joins calls and hands every summary to Zosia, who routes action items to the COO ledger.",
+            "cat": "grok-bot",
+            "created": "2026-11-12",
+            "updated": "2026-11-12",
+            "tags": [
+                  "grok-bot",
+                  "meetings",
+                  "architecture",
+                  "bots",
+                  "design"
+            ]
+      },
       {
             "slug": "grokbot-chief-of-staff-checkup-2026-10",
             "title": "Grok Bot Chief of Staff checkup v2, Oct 2026",
@@ -1281,7 +1296,7 @@
     }
 
     function daysAgo(d) {
-      const now = new Date("2026-10-16");
+      const now = new Date("2026-11-12");
       const then = new Date(d);
       const diff = Math.floor((now - then) / 86400000);
       if (diff === 0) return "today";
